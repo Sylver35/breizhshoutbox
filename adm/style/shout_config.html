@@ -1,0 +1,182 @@
+	
+	<audio id="shout_sound" class="no_display"></audio>
+	<p><img src="https://img.shields.io/badge/{{ lang('Version') }}-{{ SHOUT_VERSION }}-green.svg?style=plastic" title="{{ lang('Version') }}-{{ SHOUT_VERSION }}" alt="" /></p>
+	
+	<form id="configs" method="post" action="{{ U_ACTION }}">								
+		<fieldset>
+			<legend><img src="{{ IMAGE_SETTINGS }}" alt="{{ lang('GENERAL_SETTINGS') }}" title="{{ lang('GENERAL_SETTINGS') }}" /> {{ lang('GENERAL_SETTINGS') }}</legend>
+			<strong>{{ lang('SHOUT_TEMP') }}</strong><span class="separation"></span>
+			<dl>
+				<dt>{{ lang('SHOUT_TEMP_TITLE') }}</dt>
+			</dl>
+			<dl>
+				<dt><label for="shout_temp_users">{{ lang('SHOUT_TEMP_USERS') }}:</label><br />{{ lang('SHOUT_TEMP_USERS_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_temp_users" name="shout_temp_users" value="{{ SHOUT_TEMP_USERS }}" maxlength="2" size="3" /> {{ lang('SECONDS') }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_temp_anonymous">{{ lang('SHOUT_TEMP_ANONYMOUS') }}:</label><br />{{ lang('SHOUT_TEMP_ANONYMOUS_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_temp_anonymous" name="shout_temp_anonymous" value="{{ SHOUT_TEMP_ANONYMOUS }}" maxlength="2" size="3" /> {{ lang('SECONDS') }}</dd>
+			</dl>
+			<dl>
+				<dt><label>{{ lang('SHOUT_TEMP_BOT') }}:</label><br />{{ lang('SHOUT_TEMP_BOT_EXPLAIN') }}</dt>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_inactiv_anony">{{ lang('SHOUT_INACTIV_A') }}:</label><br />{{ lang('SHOUT_INACTIV_A_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_inactiv_anony" name="shout_inactiv_anony" value="{{ SHOUT_INACTIV_ANONY }}" maxlength="3" size="3" /> {{ lang('MINUTES') }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_inactiv_member">{{ lang('SHOUT_INACTIV_B') }}:</label><br />{{ lang('SHOUT_INACTIV_B_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_inactiv_member" name="shout_inactiv_member" value="{{ SHOUT_INACTIV_MEMBER }}" maxlength="3" size="3" /> {{ lang('MINUTES') }}</dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_defil">{{ lang('SHOUT_DEFIL') }}:</label><br />{{ lang('SHOUT_DEFIL_EXPLAIN') }}<br />{{ lang('SHOUT_DEFIL_MEMBERS') }}</dt>
+				<dd>{{ SHOUT_DEFIL }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_dateformat">{{ lang('DEFAULT_DATE_FORMAT') }}:</label><br />{{ lang('DEFAULT_DATE_FORMAT_EXPLAIN') }}</dt>
+				<dd>
+					<select name="shout_dateformat" id="shout_dateformat" onchange="shoutbox.changeDateFormat(this.value)">{{ SHOUT_DATEFORMAT }}</select><br />
+					<input type="text" name="shout_dateformat2" id="shout_dateformat2" value="{{ DATEFORMAT_VALUE }}" maxlength="40" onblur="shoutbox.changeDateFormat(this.value)" onkeyup="shoutbox.changeDateFormat(this.value)" /><br />
+					<span id="shout_dateformat3"></span><br /><span id="shout_dateformat4"></span>
+				</dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_bbcode">{{ lang('SHOUT_BBCODE') }}:</label><br />{{ lang('SHOUT_BBCODE_EXPLAIN') }}</dt>
+				<dd><input class="text full" type="text" id="shout_bbcode" name="shout_bbcode" value="{{ SHOUT_BBCODE }}" maxlength="255" size="60" /></dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_bbcode_user">{{ lang('SHOUT_BBCODE') }}:</label><br />{{ lang('SHOUT_BBCODE_USER_EXPLAIN') }}</dt>
+				<dd><input class="text full" type="text" id="shout_bbcode_user" name="shout_bbcode_user" value="{{ SHOUT_BBCODE_USER }}" maxlength="255" size="60" /></dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_bbcode_size">{{ lang('SHOUT_BBCODE_SIZE') }}:</label><br />{{ lang('SHOUT_BBCODE_SIZE_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_bbcode_size" name="shout_bbcode_size" value="{{ SHOUT_BBCODE_SIZE }}" maxlength="3" size="4" /></dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_see_buttons">{{ lang('SHOUT_SEE_BUTTONS') }}:</label><br />{{ lang('SHOUT_SEE_BUTTONS_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_SEE_BUTTONS }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_see_buttons_left">{{ lang('SHOUT_SEE_BUTTONS_LEFT') }}:</label><br />{{ lang('SHOUT_SEE_BUTTONS_LEFT_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_SEE_BUTTONS_LEFT }} <div class="buttons-left"></div></dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_see_button_ip">{{ lang('SHOUT_SEE_BUTTON_IP') }}:</label><br />{{ lang('SHOUT_SEE_BUTTON_IP_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_SEE_BUTTON_IP }} <div class="button-ip"></div></dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_see_cite">{{ lang('SHOUT_SEE_CITE') }}:</label><br />{{ lang('SHOUT_SEE_CITE_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_SEE_CITE }} <div class="cite"></div></dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_avatar">{{ lang('SHOUT_AVATAR') }}:</label><br />{{ lang('SHOUT_AVATAR_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_AVATAR }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_avatar_height">{{ lang('SHOUT_AVATAR_HEIGHT') }}:</label><br />{{ lang('SHOUT_AVATAR_HEIGHT_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_avatar_height" name="shout_avatar_height" value="{SHOUT_AVATAR_HEIGHT}" maxlength="3" size="5" />&nbsp;{{ lang('SHOUT_PIXELS') }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_avatar_robot">{{ lang('SHOUT_AVATAR_ROBOT') }}:</label><br />{{ lang('SHOUT_AVATAR_ROBOT_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_AVATAR_ROBOT }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_avatar_img_robot">{{ lang('SHOUT_AVATAR_IMG_BOT') }}:</label><br />{{ lang('SHOUT_AVATAR_IMG_BOT_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_avatar_img_robot" name="shout_avatar_img_robot" value="{{ SHOUT_AVATAR_IMG_BOT }}" maxlength="35" size="20" />&nbsp;&nbsp;<img src="{{ SHOUT_AVATAR_IMG_BOT_SRC }}" alt="{{ SHOUT_AVATAR_IMG_BOT }}" title="{{ lang('SHOUT_AVATAR_IMG_BOT') }}" width="25" height="25" style="vertical-align:middle;" /></dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_avatar_user">{{ lang('SHOUT_AVATAR_USER') }}:</label><br />{{ lang('SHOUT_AVATAR_USER_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_AVATAR_USER }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_avatar_img">{{ lang('SHOUT_AVATAR_IMG') }}:</label><br />{{ lang('SHOUT_AVATAR_IMG_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_avatar_img" name="shout_avatar_img" value="{SHOUT_AVATAR_IMG}" maxlength="35" size="20" />&nbsp;&nbsp;<img src="{SHOUT_AVATAR_IMG_SRC}" alt="{SHOUT_AVATAR_IMG}" title="{{ lang('SHOUT_AVATAR_IMG') }}" width="25" height="25" style="vertical-align:middle;" /></dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_sound_on">{{ lang('SHOUT_SOUND_ON') }}:</label><br />{{ lang('SHOUT_SOUND_ON_EXPLAIN') }}<br />{{ lang('SHOUT_USERS_CAN_CHANGE') }}</dt>
+				<dd>{{ SHOUT_SOUND_ON }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_sound_new">{{ lang('SHOUT_SOUND_NEW') }}:</label><br />{{ lang('SHOUT_SOUND_NEW_EXPLAIN') }}</dt>
+				<dd><select id="shout_sound_new" name="shout_sound_new" onchange="shoutbox.playSound(this.value);">{{ NEW_SOUND }}</select></dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_sound_error">{{ lang('SHOUT_SOUND_ERROR') }}:</label><br />{{ lang('SHOUT_SOUND_ERROR_EXPLAIN') }}</dt>
+				<dd><select id="shout_sound_error" name="shout_sound_error" onchange="shoutbox.playSound(this.value);">{{ ERROR_SOUND }}</select></dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_sound_del">{{ lang('SHOUT_SOUND_DEL') }}:</label><br />{{ lang('SHOUT_SOUND_DEL_EXPLAIN') }}</dt>
+				<dd><select id="shout_sound_del" name="shout_sound_del" onchange="shoutbox.playSound(this.value);">{{ DEL_SOUND }}</select></dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_sound_add">{{ lang('SHOUT_SOUND_ADD') }}:</label><br />{{ lang('SHOUT_SOUND_ADD_EXPLAIN') }}</dt>
+				<dd><select id="shout_sound_add" name="shout_sound_add" onchange="shoutbox.playSound(this.value);">{{ ADD_SOUND }}</select></dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_sound_edit">{{ lang('SHOUT_SOUND_EDIT') }}:</label><br />{{ lang('SHOUT_SOUND_EDIT_EXPLAIN') }}</dt>
+				<dd><select id="shout_sound_edit" name="shout_sound_edit" onchange="shoutbox.playSound(this.value);">{{ EDIT_SOUND }}</select></dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_nr_acp">{{ lang('SHOUT_NR_ACP') }}:</label><br />{{ lang('SHOUT_NR_ACP_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_nr_acp" name="shout_nr_acp" value="{{ SHOUT_NR_ACP }}" maxlength="3" size="5" />&nbsp;{{ lang('SHOUT_MESSAGES') }}</dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_max_post_chars">{{ lang('SHOUT_MAX_POST_CHARS') }}:</label><br />{{ lang('SHOUT_MAX_POST_CHARS_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_max_post_chars" name="shout_max_post_chars" value="{{ SHOUT_MAX_POST_CHARS }}" maxlength="3" size="5" />&nbsp;{{ lang('SHOUT_MAX_CHARS') }}</dd>
+			</dl>
+			<span class="separation"></span><span class="separation"></span>
+			<dl>
+				<dt><label for="shout_index">{{ lang('SHOUT_INDEX_ON') }}:</label><br />{{ lang('SHOUT_INDEX_ON_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_INDEX_ON }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_position_index">{{ lang('SHOUT_POSITION_INDEX') }}:</label><br />{{ lang('SHOUT_POSITION_INDEX_EXPLAIN') }}</dt>
+				<dd>
+					<select id="shout_position_index" name="shout_position_index">
+						{{ POS_SHOUT_INDEX }}
+					</select>
+				</dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_forum">{{ lang('SHOUT_FORUM_ON') }}:</label><br />{{ lang('SHOUT_FORUM_ON_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_FORUM_ON }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_position_forum">{{ lang('SHOUT_POSITION_FORUM') }}:</label><br />{{ lang('SHOUT_POSITION_FORUM_EXPLAIN') }}</dt>
+				<dd>
+					<select id="shout_position_forum" name="shout_position_forum">
+						{{ POS_SHOUT_FORUM }}
+					</select>
+				</dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_topic">{{ lang('SHOUT_TOPIC_ON') }}:</label><br />{{ lang('SHOUT_TOPIC_ON_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_TOPIC_ON }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_position_topic">{{ lang('SHOUT_POSITION_TOPIC') }}:</label><br />{{ lang('SHOUT_POSITION_TOPIC_EXPLAIN') }}</dt>
+				<dd>
+					<select id="shout_position_topic" name="shout_position_topic">
+						{{ POS_SHOUT_TOPIC }}
+					</select>
+				</dd>
+			</dl>
+		</fieldset>
+
+		<fieldset class="centered">
+			<legend class="left"><img src="{{ IMAGE_SUBMIT }}" alt="{{ lang('SUBMIT') }}" title="{{ lang('SUBMIT') }}" /> {{ lang('SUBMIT') }}</legend>
+			{{ S_FORM_TOKEN }}
+			<input class="button1" type="submit" id="submit" name="update" value="{{ lang('SUBMIT') }}" />&nbsp;
+			<input class="button2" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" />
+		</fieldset>
+	</form>

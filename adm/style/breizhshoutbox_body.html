@@ -1,0 +1,41 @@
+{% INCLUDE 'overall_header.html' %}
+{% INCLUDECSS '@sylver35_breizhshoutbox/shoutbox.css' %}
+{% if S_RULES %}
+<style type="text/css">
+#main #abbc3_buttons{
+	margin-left: 20px;
+}
+</style>
+{% endif %}
+
+<a name="maincontent"></a>
+
+<h1><img src="{{ IMAGE_TITLE }}" alt="{{ TITLE }}" title="{{ TITLE }}" /> {{ TITLE }}</h1>
+
+<p>{{ TITLE_EXPLAIN }}</p>
+
+{% if S_CONFIGS %}
+	{% INCLUDE 'shout_config.html' %}
+{% elseif S_RULES %}
+	{% INCLUDE 'shout_rules.html' %}
+{% elseif S_CONFIG_GEN %}
+	{% INCLUDE 'shout_config_gen.html' %}
+{% elseif S_OVERVIEW %}
+	{% INCLUDE 'shout_overview.html' %}	
+{% elseif S_PRIV_CONFIG %}
+	{% INCLUDE 'shout_config_priv.html' %}
+{% elseif S_PRIVATE %}
+	{% INCLUDE 'shout_private.html' %}	
+{% elseif S_POPUP %}
+	{% INCLUDE 'shout_popup.html' %}
+{% elseif S_PANEL %}
+	{% INCLUDE 'shout_panel.html' %}
+{% elseif S_SMILIES %}
+	{% INCLUDE 'shout_smilies.html' %}
+{% elseif S_ROBOT %}
+	{% INCLUDE 'shout_robot.html' %}
+{% endif %}
+
+<p class="shout-copyright"><em><span class="separation"></span><br />{{ SHOUTBOX_VERSION }}</em></p>
+
+{% INCLUDE 'overall_footer.html' %}

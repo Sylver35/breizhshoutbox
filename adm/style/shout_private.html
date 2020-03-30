@@ -1,0 +1,215 @@
+
+	<div class="pagination top-pagination">
+	{% if pagination|length %}
+		{% INCLUDE 'pagination.html' %}
+	{% else %}
+		&bull; {{ PAGE_NUMBER }}
+	{% endif %}
+	</div>
+	<form id="action_delete_form" method="post" action="{{ U_ACTION }}">
+		<table cellspacing="1">
+			<thead>
+				<tr>
+					<th style="text-align:center;width:3%;">#</th>
+					<th style="text-align:center;width:3%;">ID</th>
+					<th style="text-align:center;width:12%;">{{ lang('SHOUT_DATE') }}</th>
+					<th style="text-align:center;width:11%;">{{ lang('SHOUT_USER') }}</th>
+					<th>{{ lang('MESSAGE') }}</th>
+					<th style="text-align:center;width:5%;">{{ lang('MARK') }}</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% if S_DISPLAY_MESSAGES %}
+				{% for message in messages %}
+				<tr class="row{% if message.ROW_NUMBER is even %}1{% else %}2{% endif %}">
+					<td style="text-align:center">{{ message.ROW_NUMBER }}</td>
+					<td style="text-align:center">{{ message.ID }}</td>
+					<td>{{ message.TIME }}</td>
+					<td>{{ message.POSTER }}</td>
+					<td>{{ message.MESSAGE }}</td>
+					<td style="text-align:center;"><input type="checkbox" class="radio" name="mark[]" value="{{ message.ID }}" /></td>
+				</tr>
+				{% endfor %}
+			{% else %}
+				<tr class="row2">
+					<td style="text-align:center">0</td>
+					<td colspan="4" style="text-align:center;font-size:14px;"><strong><em>{{ lang('NO_MESSAGE') }}</em></strong></td>
+					<td style="text-align:center"></td>
+				</tr>
+			{% endif %}
+			</tbody>
+		</table>
+		
+		<div class="pagination bottom-pagination">
+		{% if pagination|length %}
+			{% INCLUDE 'pagination.html' %}
+		{% else %}
+			&bull; {{ PAGE_NUMBER }}
+		{% endif %}
+		</div>
+		<fieldset class="quick" style="float:{{ S_CONTENT_FLOW_END }};">
+			{{ S_FORM_TOKEN }}
+			<input class="button2" type="submit" name="delmarked" value="{{ lang('DELETE_MARKED') }}" title="{{ lang('DELETE_MARKED') }}" />
+			<p class="small"><a href="#" onclick="marklist('action_delete_form','mark',true);return false;">{{ lang('MARK_ALL') }}</a> &bull; <a href="#" onclick="marklist('action_delete_form','mark',false);return false;">{{ lang('UNMARK_ALL') }}</a></p>
+		</fieldset>
+	</form>
+	<br /><br /><br />
+	
+	<form id="action_purge_form" method="post" action="{{ U_ACTION }}">
+		<fieldset>
+			<legend><img src="{{ IMAGE_PURGE }}" alt="{{ lang('SHOUT_OPTIONS') }}" title="{{ lang('SHOUT_OPTIONS') }}" /> {{ lang('SHOUT_OPTIONS') }}</legend>
+			<dl>
+				<dt><label>{{ lang('PURGE_SHOUT') }}</label></dt>
+				<dd><input type="hidden" name="action" value="purge" /><input class="button2" type="submit" name="action_purge" value="{{ lang('PURGE_SHOUT') }}" title="{{ lang('PURGE_SHOUT') }}" /></dd>
+			</dl>
+			{{ S_FORM_TOKEN }}
+		</fieldset>
+	</form>
+	<fieldset>
+		<form id="action_purge_1" method="post" action="{{ U_ACTION }}">
+		<dl>
+			<dt><label>{{ lang('PURGE_SHOUT_ROBOT') }}</label></dt>
+			<dd><span>{{ lang('PURGE_SHOUT_ROBOT_EXPLAIN') }}</span><br /><br />
+				<input type="hidden" name="action" value="purge_1" />
+				<input class="button2" type="submit" name="action_purge1" value="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_CONNECT') }}" title="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_CONNECT') }}" />
+				{{ S_FORM_TOKEN }}
+			</dd>
+		</dl>
+		</form>
+		<form id="action_purge_2" method="post" action="{{ U_ACTION }}">
+		<dl>
+			<dd>
+				<input type="hidden" name="action" value="purge_2" />
+				<input class="button2" type="submit" name="action_purge2" value="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_SUBJET') }}" title="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_SUBJET') }}" />
+				{{ S_FORM_TOKEN }}
+			</dd>
+		</dl>
+		</form>
+		<form id="action_purge_3" method="post" action="{{ U_ACTION }}">
+		<dl>
+			<dd>
+				<input type="hidden" name="action" value="purge_3" />
+				<input class="button2" type="submit" name="action_purge3" value="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_REPONSE') }}" title="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_REPONSE') }}" />
+				{{ S_FORM_TOKEN }}
+			</dd>
+		</dl>
+		</form>
+		<form id="action_purge_4" method="post" action="{{ U_ACTION }}">
+		<dl>
+			<dd>
+				<input type="hidden" name="action" value="purge_4" />
+				<input class="button2" type="submit" name="action_purge4" value="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_DAY') }}" title="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_DAY') }}" />
+				{{ S_FORM_TOKEN }}
+			</dd>
+		</dl>
+		</form>
+		<form id="action_purge_5" method="post" action="{{ U_ACTION }}">
+		<dl>
+			<dd>
+				<input type="hidden" name="action" value="purge_5" />
+				<input class="button2" type="submit" name="action_purge5" value="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_BIRTHDAY') }}" title="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_BIRTHDAY') }}" />
+				{{ S_FORM_TOKEN }}
+			</dd>
+		</dl>
+		</form>
+		<form id="action_purge_6" method="post" action="{{ U_ACTION }}">
+		<dl>
+			<dd>
+				<input type="hidden" name="action" value="purge_6" />
+				<input class="button2" type="submit" name="action_purge6" value="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_NEWS') }}" title="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_NEWS') }}" />
+				{{ S_FORM_TOKEN }}
+			</dd>
+		</dl>
+		</form>
+		<form id="action_purge_8" method="post" action="{{ U_ACTION }}">
+		<dl>
+			<dd>
+				<input type="hidden" name="action" value="purge_8" />
+				<input class="button2" type="submit" name="action_purge8" value="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_PRIV') }}" title="{{ lang('SHOUT_PURGE_ON') }}{{ lang('SHOUT_ON_PRIV') }}" />
+				{{ S_FORM_TOKEN }}
+			</dd>
+		</dl>
+		</form>
+	</fieldset>
+
+	<fieldset>
+		<legend><img src="{{ IMAGE_STATS }}" alt="{{ lang('SHOUT_STATISTICS') }}" title="{{ lang('SHOUT_STATISTICS') }}" /> {{ lang('SHOUT_STATISTICS') }}</legend>
+		
+		<form id="statistics" method="post" action="{{ U_ACTION }}">
+			<dl>
+				<dt><label>{{ lang('SHOUT_MESSAGES_TOTAL') }}</label><br /><span>{{ lang('SHOUT_MESSAGES_TOTAL_EXPLAIN') }}</span></dt>
+				<dd>{{ MESSAGES_TOTAL_NR }}</dd>
+			</dl>
+			<dl>
+				<dt><label>{{ lang('SHOUT_DEL_MAIN') }}</label></dt>
+				<dd>{{ MESSAGES_DEL_TOTAL }}</dd>
+			</dl>
+			<dl>
+				<dt><span>{{ lang('SHOUT_DEL_ACP') }}</span></dt>
+				<dd>{{ MESSAGES_DEL_ACP }}</dd>
+			</dl>
+			<dl>
+				<dt><span>{{ lang('SHOUT_DEL_AUTO') }}</span></dt>
+				<dd>{{ MESSAGES_DEL_AUTO }}</dd>
+			</dl>
+			<dl>
+				<dt><span>{{ lang('SHOUT_DEL_PURGE') }}</span></dt>
+				<dd>{{ MESSAGES_DEL_PURGE }}</dd>
+			</dl>
+			<dl>
+				<dt><span>{{ lang('SHOUT_DEL_USER') }}</span></dt>
+				<dd>{{ MESSAGES_DEL_USER }}</dd>
+			</dl>
+			<dl>
+				<dt><label>{{ lang('SHOUT_LOGS') }}</label><br /><span>{{ lang('SHOUT_LOGS_EXPLAIN') }}</span></dt>
+				<dd>{{ LOGS_TOTAL_NR }}</dd>
+			</dl>
+			<dl>
+				<dt><label>{{ lang('SHOUT_DATE_LAST_RUN') }}</label></dt>
+				<dd>{{ LAST_SHOUT_RUN }}</dd>
+			</dl>
+		</form>
+	</fieldset>
+
+	<form id="delete_logs" method="post" action="{{ U_ACTION }}">
+		<table cellspacing="1">
+			<caption><img src="{{ IMAGE_ALERT }}" alt="{{ lang('SHOUT_LOGS') }}" title="{{ lang('SHOUT_LOGS') }}" /> {{ lang('SHOUT_LOGS') }}</caption>
+			<thead>
+				<tr>
+					<th style="text-align:center;width:3%;">#</th>
+					<th style="text-align:center;width:12%;">{{ lang('SHOUT_DATE') }}</th>
+					<th style="text-align:center;width:11%;">{{ lang('SHOUT_USER') }}</th>
+					<th style="text-align:center;width:4%;">ID</th>
+					<th>{{ lang('SHOUT_LOG_ENTRIE') }}</th>
+					<th style="text-align:center;width:5%;">{{ lang('MARK') }}</th>
+				</tr>
+			</thead>
+			
+			<tbody>
+			{% if S_DISPLAY_LOGS %}
+				{% for log in logs %}
+				<tr class="row{% if log.ROW_NUMBER is even %}1{% else %}2{% endif %}">
+					<td style="text-align:center">{{ log.ROW_NUMBER }}</td>
+					<td>{{ log.TIME }}</td>
+					<td>{{ log.REPORTEE }}</td>
+					<td style="text-align:center">{{ log.ID }}</td>
+					<td>{{ log.OPERATION }}</td>
+					<td style="text-align:center;"><input type="checkbox" class="radio" name="mark[]" value="{{ log.ID }}" /></td>
+				</tr>
+				{% endfor %}
+			{% else %}
+				<tr class="row2">
+					<td style="text-align:center">0</td>
+					<td colspan="4" style="text-align:center;font-size:14px;"><strong><em>{{ lang('NO_SHOUT_LOG') }}</em></strong></td>
+					<td style="text-align:center"></td>
+				</tr>
+			{% endif %}
+			</tbody>
+		</table>
+		<fieldset class="quick" style="float: {{ S_CONTENT_FLOW_END }};">
+			{{ S_FORM_TOKEN }}
+			<input class="button2" type="submit" name="delmarkedlog" value="{{ lang('DELETE_MARKED') }}" />
+			<p class="small"><a href="#" onclick="marklist('delete_logs','mark',true);return false;">{{ lang('MARK_ALL') }}</a> &bull; <a href="#" onclick="marklist('delete_logs','mark',false);return false;">{{ lang('UNMARK_ALL') }}</a></p>
+		</fieldset>
+	</form>
+	<br />

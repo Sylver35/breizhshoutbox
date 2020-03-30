@@ -1,0 +1,98 @@
+imports:
+    - { resource: tables.yml }
+
+services:
+    sylver35.breizhshoutbox.controller:
+        class: sylver35\breizhshoutbox\controller\main
+        arguments:
+            - '@sylver35.breizhshoutbox.shoutbox'
+            - '@config'
+            - '@controller.helper'
+            - '@dbal.conn'
+            - '@template'
+            - '@auth'
+            - '@user'
+            - '@language'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+
+    sylver35.breizhshoutbox.admin.controller:
+        class: sylver35\breizhshoutbox\controller\admin_controller
+        arguments:
+            - '@cache.driver'
+            - '@config'
+            - '@controller.helper'
+            - '@ext.manager'
+            - '@dbal.conn'
+            - '@pagination'
+            - '@request'
+            - '@template'
+            - '@auth'
+            - '@user'
+            - '@language'
+            - '@log'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+            - '%sylver35.breizhshoutbox.tables.shoutbox%'
+            - '%sylver35.breizhshoutbox.tables.shoutbox_priv%'
+            - '%sylver35.breizhshoutbox.tables.shoutbox_rules%'
+            - '@sylver35.breizhshoutbox.shoutbox'
+
+    sylver35.breizhshoutbox.main_listener:
+        class: sylver35\breizhshoutbox\event\main_listener
+        arguments:
+            - '@sylver35.breizhshoutbox.shoutbox'
+            - '@config'
+            - '@controller.helper'
+            - '@request'
+            - '@template'
+            - '@auth'
+            - '@user'
+            - '@language'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+        tags:
+            - { name: event.listener }
+            
+    sylver35.breizhshoutbox.shoutbox:
+        class: sylver35\breizhshoutbox\core\shoutbox
+        arguments:
+            - '@cache.driver'
+            - '@config'
+            - '@controller.helper'
+            - '@path_helper'
+            - '@dbal.conn'
+            - '@pagination'
+            - '@request'
+            - '@template'
+            - '@auth'
+            - '@user'
+            - '@language'
+            - '@log'
+            - '@service_container'
+            - '@ext.manager'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+            - '%sylver35.breizhshoutbox.tables.shoutbox%'
+            - '%sylver35.breizhshoutbox.tables.shoutbox_priv%'
+            - '%sylver35.breizhshoutbox.tables.shoutbox_rules%'
+            
+    sylver35.breizhshoutbox.controller.ajax:
+        class: sylver35\breizhshoutbox\controller\ajax
+        arguments:
+            - '@sylver35.breizhshoutbox.shoutbox'
+            - '@config'
+            - '@controller.helper'
+            - '@dbal.conn'
+            - '@request'
+            - '@template'
+            - '@auth'
+            - '@user'
+            - '@language'
+            - '@ext.manager'
+            - '@path_helper'
+            - '@dispatcher'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+            - '%sylver35.breizhshoutbox.tables.shoutbox%'
+            - '%sylver35.breizhshoutbox.tables.shoutbox_priv%'

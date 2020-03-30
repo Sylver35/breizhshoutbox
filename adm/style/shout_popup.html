@@ -1,0 +1,62 @@
+
+	<form id="popup" method="post" action="{{ U_ACTION }}">								
+		<fieldset>
+			<legend><img src="{{ IMAGE_SETTINGS }}" alt="{{ lang('GENERAL_SETTINGS') }}" title="{{ lang('GENERAL_SETTINGS') }}" /> {{ lang('GENERAL_SETTINGS') }}</legend>
+			<dl>
+				<dt><label for="shout_width_post_pop">{{ lang('SHOUT_WIDTH_POST') }}:</label><br />{{ lang('SHOUT_WIDTH_POST_PRO_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_width_post_pop" name="shout_width_post_pop" value="{{ SHOUT_WIDTH_POST }}" maxlength="3" size="5" />&nbsp;{{ lang('SHOUT_PIXELS') }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_non_ie_nr_pop">{{ lang('SHOUT_NON_IE_NR') }}:</label></dt>
+				<dd><input class="text small" type="text" id="shout_non_ie_nr_pop" name="shout_non_ie_nr_pop" value="{{ SHOUT_NON_IE_NR_POP }}" maxlength="3" size="5" />&nbsp;{{ lang('SHOUT_MESSAGES') }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_non_ie_height_pop">{{ lang('SHOUT_HEIGHT') }}:</label><br />{{ lang('SHOUT_HEIGHT_POP_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_non_ie_height_pop" name="shout_non_ie_height_pop" value="{{ SHOUT_NON_IE_HEIGHT_POP }}" maxlength="3" size="5" />&nbsp;{{ lang('SHOUT_PIXELS') }}</dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_popup_width">{{ lang('SHOUT_POP_WIDTH') }}:</label><br />{{ lang('SHOUT_POP_WIDTH_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_popup_width" name="shout_popup_width" value="{{ SHOUT_WIDTH_POP }}" maxlength="4" size="5" />&nbsp;{{ lang('SHOUT_PIXELS') }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_popup_height">{{ lang('SHOUT_POP_HEIGHT') }}:</label><br />{{ lang('SHOUT_POP_HEIGHT_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_popup_height" name="shout_popup_height" value="{{ SHOUT_HEIGHT_POP }}" maxlength="4" size="5" />&nbsp;{{ lang('SHOUT_PIXELS') }}</dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_color_background_pop">{{ lang('SHOUT_BACKGROUND_COLOR') }}:</label><br />{{ lang('SHOUT_BACKGROUND_COLOR_EXPLAIN') }}</dt>
+				<dd><select id="shout_color_background_pop" onchange="shoutbox.updateColor(this.options[selectedIndex].value,this.id);" name="shout_color_background_pop" title="{SHOUT_BACKGROUND}">{OPTION}</select> {{ lang('SHOUT_APERCU') }}<img src="{COLOR_IMAGE}" id="color_image" alt="{SHOUT_BACKGROUND}" title="{SHOUT_BACKGROUND}" width="60" height="27" style="vertical-align:middle;" /></dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_button_background_pop">{{ lang('SHOUT_BUTTON_BACKGROUND') }}:</label><br />{{ lang('SHOUT_BUTTON_BACKGROUND_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_BUTTON }}</dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_bar_option_pop">{{ lang('SHOUT_BAR') }}:</label><br />{{ lang('SHOUT_BAR_EXPLAIN') }}</dt>
+				<dd>
+					<select id="shout_bar_option_pop" name="shout_bar_option_pop">
+						<option title="{{ lang('SHOUT_BAR_TOP') }}" value="1"{% if SHOUT_BAR_OPTION %} selected="selected"{% endif %}>{{ lang('SHOUT_BAR_TOP') }}</option>
+						<option title="{{ lang('SHOUT_BAR_BOTTOM') }}" value="0"{% if not SHOUT_BAR_OPTION %} selected="selected"{% endif %}>{{ lang('SHOUT_BAR_BOTTOM') }}</option>
+					</select>
+				</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_pagin_option_pop">{{ lang('SHOUT_PAGIN') }}:</label><br />{{ lang('SHOUT_PAGIN_EXPLAIN') }}</dt>
+				<dd>
+					<select id="shout_pagin_option_pop" name="shout_pagin_option_pop">
+						<option title="{{ lang('SHOUT_PAGIN_IN') }}" value="1"{% if SHOUT_PAGIN_OPTION %} selected="selected"{% endif %}>{{ lang('SHOUT_PAGIN_IN') }}</option>
+						<option title="{{ lang('SHOUT_PAGIN_BOTTOM') }}" value="0"{% if not SHOUT_PAGIN_OPTION %} selected="selected"{% endif %}>{{ lang('SHOUT_PAGIN_BOTTOM') }}</option>
+					</select>
+				</dd>
+			</dl>
+		</fieldset>
+
+		<fieldset class="centered">
+			<legend class="left"><img src="{{ IMAGE_SUBMIT }}" alt="{{ lang('SUBMIT') }}" title="{{ lang('SUBMIT') }}" /> {{ lang('SUBMIT') }}</legend>
+			{{ S_FORM_TOKEN }}
+			<input class="button1" type="submit" id="submit" name="update" value="{{ lang('SUBMIT') }}" />&nbsp;
+			<input class="button2" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" />
+		</fieldset>
+	</form>

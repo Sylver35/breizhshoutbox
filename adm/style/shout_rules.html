@@ -1,0 +1,98 @@
+
+	<form id="shout_rules_form" method="post" action="{{ U_ACTION }}">
+		<fieldset>
+			<dl>
+				<dt class="dt-small"><label for="shout_rules">{{ lang('SHOUT_RULES_ACTIVE') }}:</label><br />{{ lang('SHOUT_RULES_ACTIVE_EXPLAIN') }}</dt>
+				<dd class="dd-big">{{ SHOUT_RULES }}</dd>
+			</dl>
+			<dl>
+				<dt class="dt-small"><label for="shout_rules_open">{{ lang('SHOUT_RULES_OPEN') }}:</label><br />{{ lang('SHOUT_RULES_OPEN_EXPLAIN') }}</dt>
+				<dd class="dd-big">{{ SHOUT_RULES_OPEN }}</dd>
+			</dl>
+			<dl>
+				<dt class="dt-small"><label for="shout_rules_open_priv">{{ lang('SHOUT_RULES_OPEN') }} {{ lang('SHOUT_PRIVATE') }}:</label><br />{{ lang('SHOUT_RULES_OPEN_EXPLAIN') }}</dt>
+				<dd class="dd-big">{{ SHOUT_RULES_OPEN_PRIV }}</dd>
+			</dl>
+			<span id="top_rules"></span>
+			<dl>
+				<dt class="dt-small">
+					<div id="smilies" class="div-smilies">
+						<strong>{{ lang('SMILIES') }}</strong><br />
+						{% for smiley in smilies %}
+							<a href="#" onclick="insert_text('{{ smiley.CODE }}',true);return false;">
+								<img src="{{ smiley.SRC }}" alt="{{ smiley.CODE }}" title="{{ smiley.EMOTION }}" width="{{ smiley.WIDTH }}" height="{{ smiley.HEIGHT }}" />
+							</a><span></span>
+						{% endfor %}
+					</div>
+					<div id="color_palette_placeholder" data-orientation="v" data-height="12" data-width="15" data-bbcode="true" style="display:none;float:right;"></div>
+					
+					<br /><br />
+					<div class="more-smilies">
+						<a href="{{ U_SHOUT_SMILIES }}" title="{{ lang('MORE_SMILIES') }}" onclick="popup(this.href,500,400,'_phpbbsmilies');return false;">{{ lang('MORE_SMILIES') }}</a>
+					</div>
+					
+				</dt>
+				<dd class="dd-big">
+					<div id="rules_preview"></div><br />
+					{% INCLUDE 'acp_posting_buttons.html' %}
+					<div id="rules_target"></div>
+					<textarea name="in_rules" id="in_rules" rows="15" cols="60" style="width:99%;" onfocus="shoutbox.previewRules();" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);"></textarea><br />
+					<div class="centered">
+						<input class="button2" type="button" value="{{ lang('PREVIEW') }}" title="{{ lang('PREVIEW') }}" onclick="shoutbox.previewRulesAjax();" /><br />
+						{% for rule in rules %}
+						<input class="button2" type="button" value="{{ rule.COPY_TO }}" title="{{ rule.COPY_TO }} -> {{ rule.RULES_LANG }}" onclick="shoutbox.MoveRules('rules_text_{{ rule.RULES_ISO }}','ancre_{{ rule.RULES_ISO }}');" />&nbsp;&nbsp;&nbsp;&nbsp;
+						<input class="button2" type="button" value="{{ rule.COPY_TO_PRIV }}" title="{{ rule.COPY_TO_PRIV }} -> {{ rule.RULES_LANG }}" onclick="shoutbox.MoveRules('rules_text_priv_{{ rule.RULES_ISO }}','ancre_priv_{{ rule.RULES_ISO }}');" />
+						<br />
+						{% endfor %}
+					</div>
+				</dd>
+			</dl>
+		</fieldset>
+		<fieldset>
+			<legend>{{ lang('ACP_SHOUT_RULES') }}</legend>
+			
+			{% for rule in rules %}
+			<fieldset>
+			<a id="ancre_{{ rule.RULES_ISO }}"></a>
+			<dl>
+				<dt class="dt-small">
+					<label for="rules_text_{{ rule.RULES_ISO }}"><img src="{{ IMAGE_MESSAGES }}" alt="{{ lang('ACP_SHOUT_RULES') }}" title="{{ lang('ACP_SHOUT_RULES') }}" width="32" height="32" /> {{ rule.RULES_NR }}). {{ rule.RULES_ON }}:</label><br /><br />
+					<span>{{ rule.RULES_ON_EXPLAIN }}</span>
+				</dt>
+				<dd class="dd-big">
+					<textarea id="rules_text_{{ rule.RULES_ISO }}" name="rules_text_{{ rule.RULES_ISO }}" cols="60" rows="9">{{ rule.RULES_TEXT }}</textarea>
+					<br /><input class="button2" type="button" value="{{ lang('SHOUT_EDIT_RULE') }}" title="{{ lang('SHOUT_EDIT_RULE') }}" onclick="shoutbox.EditRules('rules_text_{{ rule.RULES_ISO }}','{{ rule.RULES_ON }} {{ lang('SHOUT_NORMAL') }}');" />
+				</dd>
+				<dt class="dt-small">
+					<label for="rules_text_{{ rule.RULES_ISO }}">{{ lang('SHOUT_RULES_VIEW') }}</label>
+				</dt>
+				<dd class="shout-rules dd-big">{{ rule.RULES_TEXT_DISPLAY }}</dd>
+			</dl>
+			<a id="ancre_priv_{{ rule.RULES_ISO }}"></a>
+			<hr />
+			<dl>
+				<dt class="dt-small">
+					<label for="rules_text_priv_{{ rule.RULES_ISO }}"></label><br /><br /><span>{{ rule.RULES_ON_PRIV_EXPLAIN }}</span>
+				</dt>
+				<dd class="dd-big">
+					<textarea id="rules_text_priv_{{ rule.RULES_ISO }}" name="rules_text_priv_{{ rule.RULES_ISO }}" cols="60" rows="9">{{ rule.RULES_TEXT_PRIV }}</textarea>
+					<br /><input class="button2" type="button" value="{{ lang('SHOUT_EDIT_RULE') }}" title="{{ lang('SHOUT_EDIT_RULE') }}" onclick="shoutbox.EditRules('rules_text_priv_{{ rule.RULES_ISO }}','{{ rule.RULES_ON }} {{ lang('ACP_SHOUT_PRIVATE_CAT') }}');" />
+				</dd>
+				<dt class="dt-small">
+					<label for="rules_text_priv_{{ rule.RULES_ISO }}">{{ lang('SHOUT_RULES_VIEW_PRIV') }}</label>
+				</dt>
+				<dd class="shout-rules dd-big">{{ rule.RULES_TEXT_DISPLAY_PRIV }}</dd>
+			</dl>
+			</fieldset>
+			{% endfor %}
+			
+		</fieldset>
+		
+		<fieldset class="centered">
+			<legend class="left"><img src="{{ IMAGE_SUBMIT }}" alt="{{ lang('SUBMIT') }}" title="{{ lang('SUBMIT') }}" /> {{ lang('SUBMIT') }}</legend>
+			{S_HIDDEN_FIELDS}
+			{{ S_FORM_TOKEN }}
+			<input class="button1" type="submit" id="submit" name="update" value="{{ lang('SUBMIT') }}" />&nbsp;
+			<input class="button2" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" />
+		</fieldset>
+	</form>

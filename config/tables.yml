@@ -1,0 +1,4 @@
+parameters:
+    sylver35.breizhshoutbox.tables.shoutbox: '%core.table_prefix%shoutbox'
+    sylver35.breizhshoutbox.tables.shoutbox_priv: '%core.table_prefix%shoutbox_priv'
+    sylver35.breizhshoutbox.tables.shoutbox_rules: '%core.table_prefix%shoutbox_rules'

@@ -1,0 +1,86 @@
+
+	<form id="priv" method="post" action="{{ U_ACTION }}">								
+		<fieldset>
+			<legend><img src="{{ IMAGE_SETTINGS }}" alt="{{ lang('GENERAL_SETTINGS') }}" title="{{ lang('GENERAL_SETTINGS') }}" /> {{ lang('GENERAL_SETTINGS') }}</legend>
+			<dl>
+				<dt><label for="shout_title_priv">{{ lang('SHOUT_CONFIG_TITLE') }}:</label><br />{{ lang('SHOUT_CONFIG_TITLE_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_title_priv" name="shout_title_priv" value="{{ SHOUT_TITLE_PRIV }}" maxlength="50" size="35" /></dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_width_post_priv">{{ lang('SHOUT_WIDTH_POST') }}:</label><br />{{ lang('SHOUT_WIDTH_POST_PRO_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_width_post_priv" name="shout_width_post_priv" value="{{ SHOUT_WIDTH_POST }}" maxlength="3" size="5" />&nbsp;{{ lang('SHOUT_PIXELS') }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_non_ie_nr_priv">{{ lang('SHOUT_NON_IE_NR') }}:</label></dt>
+				<dd><input class="text small" type="text" id="shout_non_ie_nr_priv" name="shout_non_ie_nr_priv" value="{{ SHOUT_NON_IE_NR_PRIV }}" maxlength="3" size="5" />&nbsp;{{ lang('SHOUT_MESSAGES') }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_non_ie_height_priv">{{ lang('SHOUT_HEIGHT') }}:</label><br />{{ lang('SHOUT_HEIGHT_POP_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_non_ie_height_priv" name="shout_non_ie_height_priv" value="{{ SHOUT_NON_IE_HEIGHT_PRIV }}" maxlength="3" size="5" />&nbsp;{{ lang('SHOUT_PIXELS') }}</dd>
+			</dl>
+			<span class="separation"></span>
+			<audio id="shout_sound" class="no_display" src="{{ SHOUT_SOUNDS_PATH }}discretion.mp3"></audio>
+			<dl>
+				<dt><label for="shout_sound_new_priv">{{ lang('SHOUT_SOUND_NEW') }}:</label><br />{{ lang('SHOUT_SOUND_NEW_EXPLAIN') }}</dt>
+				<dd><select id="shout_sound_new_priv" name="shout_sound_new_priv" onchange="shoutbox.playSound(this.value);">{{ NEW_SOUND_PRIV }}</select></dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_color_background_priv">{{ lang('SHOUT_BACKGROUND_COLOR') }}:</label><br />{{ lang('SHOUT_BACKGROUND_COLOR_EXPLAIN') }}</dt>
+				<dd><select id="shout_color_background_priv" onchange="shoutbox.updateColor(this.options[selectedIndex].value,this.id);" name="shout_color_background_priv" title="{SHOUT_BACKGROUND}">{{ OPTION_IMAGE }}</select> {{ lang('SHOUT_APERCU') }} <img src="{{ COLOR_IMAGE }}" id="color_image" alt="{{ SHOUT_BACKGROUND }}" title="{SHOUT_BACKGROUND}" width="60" height="27" /></dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_button_background_priv">{{ lang('SHOUT_BUTTON_BACKGROUND') }}:</label><br />{{ lang('SHOUT_BUTTON_BACKGROUND_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_BUTTON }}</dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_bar_option_priv">{{ lang('SHOUT_BAR') }}:</label><br />{{ lang('SHOUT_BAR_EXPLAIN') }}</dt>
+				<dd>
+					<select id="shout_bar_option_priv" name="shout_bar_option_priv">
+						<option title="{{ lang('SHOUT_BAR_TOP') }}" value="1"{% if SHOUT_BAR_TOP %} selected="selected"{% endif %}>{{ lang('SHOUT_BAR_TOP') }}</option>
+						<option title="{{ lang('SHOUT_BAR_BOTTOM') }}" value="0"{% if not SHOUT_BAR_TOP %} selected="selected"{% endif %}>{{ lang('SHOUT_BAR_BOTTOM') }}</option>
+					</select>
+				</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_pagin_option_priv">{{ lang('SHOUT_PAGIN') }}:</label><br />{{ lang('SHOUT_PAGIN_EXPLAIN') }}</dt>
+				<dd>
+					<select id="shout_pagin_option_priv" name="shout_pagin_option_priv">
+						<option title="{{ lang('SHOUT_PAGIN_IN') }}" value="1"{% if SHOUT_PAGIN_OPTION %} selected="selected"{% endif %}>{{ lang('SHOUT_PAGIN_IN') }}</option>
+						<option title="{{ lang('SHOUT_PAGIN_BOTTOM') }}" value="0"{% if not SHOUT_PAGIN_OPTION %} selected="selected"{% endif %}>{{ lang('SHOUT_PAGIN_BOTTOM') }}</option>
+					</select>
+				</dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_max_posts_priv">{{ lang('SHOUT_MAX_POSTS') }}:</label><br />{{ lang('SHOUT_MAX_POSTS_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_max_posts_priv" name="shout_max_posts_priv" value="{{ SHOUT_MAX_POSTS }}" maxlength="3" size="5" />&nbsp;{{ lang('SHOUT_MESSAGES') }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_max_posts_on_priv">{{ lang('SHOUT_MAX_POSTS_ON') }}:</label><br />{{ lang('SHOUT_MAX_POSTS_ON_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_max_posts_on_priv" name="shout_max_posts_on_priv" value="{{ SHOUT_MAX_POSTS_ON }}" maxlength="3" size="5" />&nbsp;{{ lang('SHOUT_MESSAGES') }}</dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
+				<dt><label for="shout_prune_priv">{{ lang('SHOUT_PRUNE_TIME') }}:</label><br />{{ lang('SHOUT_PRUNE_TIME_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_prune_priv" name="shout_prune_priv" value="{{ SHOUT_PRUNE_PRIV }}" maxlength="3" size="5" />&nbsp;{{ lang('SHOUT_HOURS') }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_on_cron_priv">{{ lang('SHOUT_ON_CRON') }}:</label><br />{{ lang('SHOUT_ON_CRON_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_ON_CRON_PRIV }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_log_cron_priv">{{ lang('SHOUT_LOG_CRON') }}:</label><br />{{ lang('SHOUT_LOG_CRON_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_LOG_CRON_PRIV }}</dd>
+			</dl>
+		</fieldset>
+
+		<fieldset class="centered">
+			<legend class="left"><img src="{{ IMAGE_SUBMIT }}" alt="{{ lang('SUBMIT') }}" title="{{ lang('SUBMIT') }}" /> {{ lang('SUBMIT') }}</legend>
+			{{ S_FORM_TOKEN }}
+			<input class="button1" type="submit" id="submit" name="update" value="{{ lang('SUBMIT') }}" />&nbsp;
+			<input class="button2" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" />
+		</fieldset>
+	</form>

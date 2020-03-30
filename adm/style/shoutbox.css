@@ -1,0 +1,186 @@
+.shout-rules > div, div.shout-rules{
+	font-size: x-small;
+}
+
+div.shout-title {
+	font-weight: bold;
+	display: inline-block;
+	float: left;
+}
+
+dt.dt-small {
+	width: 35%;
+	margin-top: 15px;
+}
+
+dd.dd-big {
+	margin: 10px 0 0 35%;
+}
+
+div.div-smilies {
+	height: 200px;
+	overflow: hidden auto;
+	width: 70%;
+	float: left;
+	display: inline-block;
+}
+
+th.th-centered, td.th-centered, td.td-centered {
+	text-align: center;
+}
+
+th.th3 {
+	width: 3%;
+}
+th.th4 {
+	width: 4%;
+}
+th.th5 {
+	width: 5%;
+}
+th.th6 {
+	width: 6%;
+}
+th.th11 {
+	width: 11%;
+}
+th.th12 {
+	width: 12%;
+}
+th.th13 {
+	width: 13%;
+}
+
+div.centered {
+	text-align: center;
+	margin-top: 5px;
+}
+
+th.mini {
+	width: 5%;
+}
+
+div.more-smilies {
+	width: 70%;
+	float: left;
+	display: inline-block;
+}
+
+#rules_target {
+	color: red;
+	text-align: center;
+}
+
+#action_purge_form > fieldset {
+	width: 98%;
+}
+
+#rules_previsual {
+	margin-bottom: 8px;
+	font-size: 1.00em;
+}
+
+#rules_previsual > div, #rules_previsual > p {
+	font-size: 1.00em;
+}
+
+a.smilies-none {
+	text-decoration: none;
+	cursor: pointer;
+}
+
+a.smilies-green {
+	color: green;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+a.smilies-red {
+	color: red;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+#table-color1, #table-color2 {
+	display: table;
+	margin: 2px;
+}
+div.row-chars {
+	display: table-row;
+	padding: 0;
+	margin: 0;
+}
+span.cell-chars {
+	display: table-cell;
+	text-align: center;
+	cursor: pointer;
+	width: 22px;
+	height: 22px;
+}
+span.cell-colors {
+	display: table-cell;
+	cursor: pointer;
+	width: 15px;
+	height: 13px;
+	padding: 0;
+	margin: 0;
+}
+div.row-separate {
+	height: 1px;
+	background: white;
+	padding: 0;
+	margin: 0;
+}
+span.cell-separate {
+	display: table-cell;
+	width: 1px;
+	height: 13px;
+	background: white;
+	padding: 0;
+	margin: 0;
+}
+span.pointer {
+	cursor: pointer;
+	padding: 1px 2px;
+}
+span.shout-italic {
+	font-style: italic;
+}
+span.shout-bold {
+	font-weight: bold;
+}
+p.shout-copyright {
+	text-align: center;
+	font-size: 1em;
+}
+fieldset.centered {
+	text-align: center;
+}
+legend.left {
+	text-align: left;
+}
+div.cite {
+	background-image: url("./../images/shout-icon-left.png");
+	background-position: -68px 0;
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+}
+div.button-ip {
+	background-image: url("./../images/shout-icon-left.png");
+	background-position: -43px 0;
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+}
+div.buttons-left {
+	background-image: url("./../images/shout-icon-left.png");
+	background-position: 0 0;
+	width: 62px;
+	height: 20px;
+	display: inline-block;
+}
+span.separation:after {
+	content: "- - - - - - - - - - - -";
+	color: #4daa2c;
+}
