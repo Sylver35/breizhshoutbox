@@ -1,0 +1,140 @@
+{% if ON_SHOUT_DISPLAY %}
+{% INCLUDEJS '@sylver35_breizhshoutbox/javascript/shoutbox.js' %}
+<script>
+(function($){  // Avoid conflicts with other libraries
+	'use strict';	
+	$('#phpbb').css({'padding':'0'});
+	$('#wrap').css({'margin':'0 auto','padding':'0','border':'none','max-width':'100%'});
+	$('#page-body').css({'margin':'0'});
+	$('#all_shout').css({'margin-top':'1px'});
+	shoutbox.writeShoutbox();
+})(jQuery);
+</script>
+{% endif %}
+{% if IN_SHOUT_CONFIG %}
+<script>
+var configs = {
+	extensionUrl: '{{ SHOUT_EXT_PATH }}',
+	dateUrl: '{{ U_DATE_URL }}',
+};
+(function($){  // Avoid conflicts with other libraries
+	'use strict';
+	$('input:radio').each(function(){
+		$(this).attr('onclick', function(){
+			var onValeur = '';
+			if($(this).attr('id') == 'user_sound_no'){
+				onValeur = 'configs.muteInfos(false);';
+			}else if($(this).attr('id') == 'user_sound_yes'){
+				onValeur = 'configs.muteInfos(true);';
+			}
+			return "configs.playSoundUser('1');"+onValeur;
+		});
+	});
+	$('input.button').each(function(){
+		$(this).on('click', function(){configs.playSoundUser('1')});
+	});
+	configs.changeValue = function(value,spanid){
+		configs.playSoundUser(value);
+		var id = spanid.replace('sound_','');
+		var div1 = ((value == 1) ? 'info_no_' : 'info_')+id;
+		var div2 = ((value == 1) ? 'info_' : 'info_no_')+id;
+		configs.displayInfos(div1,div2,value);
+		if(value != 1){
+			$('#'+spanid).html(value);
+			$('#shout_'+spanid).attr('title',value);
+		}else{
+			$('#shout_'+spanid).attr('title',bzhLang['SOUND_EMPTY']);
+		}
+	};
+	configs.displayInfos = function(div1,div2,value){
+		if(value == 1){
+			configs.display(div1,true);
+			configs.display(div2,false);
+		}else{
+			if($('#user_sound_yes').is(':checked')){
+				configs.display(div1,true);
+				configs.display(div2,false);
+			}
+			if($('#user_sound_no').is(':checked')){
+				configs.display(div1,false);
+				configs.display(div2,true);
+			}
+		}
+	};
+	configs.muteInfos = function(sort){
+		$('div[name=info]').each(function(){
+			var id = $(this).attr('id');
+			var div = 'shout_sound_'+id.replace('info_','');
+			if(sort){
+				if($('#user_sound_yes').is(':checked')){
+					configs.display(id,true);
+				}else if($('#user_sound_no').is(':checked')){
+					configs.display(id,false);
+				}
+				if($('#'+div).val() == '1'){
+					configs.display(id,false);
+				}
+			}else{
+				configs.display(id,false);
+			}
+		});
+		$('div[name=info_no]').each(function(){
+			var id = $(this).attr('id');
+			var div = 'shout_sound_'+id.replace('info_no_','');
+			if(sort){
+				if($('#user_sound_yes').is(':checked')){
+					configs.display(id,false);
+				}else if($('#user_sound_no').is(':checked')){
+					configs.display(id,true);
+				}
+				if($('#'+div).val() == '1'){
+					configs.display(id,true);
+				}
+			}else{
+				configs.display(id,true);
+				if($('#'+div).val() == '1'){
+					configs.display(id,true);
+				}
+			}
+		});
+	};
+	configs.display = function(id,sort){
+		if(sort){
+			$('#'+id).removeClass('no_display').addClass('displayblock');
+		}else{
+			$('#'+id).removeClass('displayblock').addClass('no_display');
+		}
+	};
+	configs.playSoundUser = function(file){
+		file = (file == '0' || file == '1') ? 'discretion' : file;
+		$('#shout_sound').attr('src',configs.extensionUrl+'sounds/'+file+'.mp3');
+		if ($('#shout_sound').prop('paused')){
+			$('#shout_sound').trigger('play');
+		}else{
+			$('#shout_sound').trigger('pause'); 
+		}
+	};
+	configs.changeDateFormat = function(value){
+		$('#dateformat').css('background', 'white url("'+configs.extensionUrl+'images/ajax_loader.gif") no-repeat 90% 50%');
+		$('#datexemple').html('');
+		$('#datexemple2').html('<img src="'+configs.extensionUrl+'images/ajax_loader_2.gif" alt="" />');
+		$.ajax({
+			type: 'POST',
+			dataType: 'json',
+			url: configs.dateUrl,
+			data: 'date='+value+'&sort=2',
+			async: true,
+			cache: false,
+			success: function(response){
+				$('#dateformat').css('background','').val(response.format);
+				$('#datexemple').html(response.date);
+				$('#datexemple2').html(response.date2);
+			}
+		});
+	};
+	configs.updatePos = function(id,text,value){
+		$('#'+id).attr('title',text);
+	};
+})(jQuery);
+</script>
+{% endif %}

@@ -1,0 +1,35 @@
+		{% if ACTION_USERS_TOP %}
+		<ul id="user_action" class="topiclist forums ul_rules">
+			<li>
+				<form method="post" id="formuser" action="javascript:shoutbox.sendUserAction(this.form)">
+					<h3 id="h3_action_title"> {{ lang('SHOUT_ACTION_TITLE') }}</h3>
+					<ins><span id="h3user"></span></ins>
+					<div id="onText"></div>
+					<hr class="dotted" />
+					<div class="shout_text_user">
+						<img class="img_shout_close" src="{{ SHOUT_EXT_PATH }}images/shout_no.png" alt="{{ lang('SHOUT_DIV_CLOSE') }}" title="{{ lang('SHOUT_DIV_CLOSE') }}" onclick="shoutbox.closeAction();return false;" onmouseout="shoutbox.iH('onText','',false);" onmouseover="shoutbox.iH('onText',this.title,false);" />
+						<div id="user_shout">
+							<div id="shout_avatar"></div>
+							<div id="shout_url"></div>
+						</div>
+						<div id="msg_user_shout" class="no_display">
+							<div id="shoutMsg">{{ lang('SHOUT_ACTION_MSG') }}:</div>
+							<div class="profile-shout">
+								<input id="shout_user1" type="text" disabled="disabled" class="shout-text-user" value="{{ lang('SHOUT_AUTO') }}" onclick="shoutbox.suppText('shout_user1');" onblur="shoutbox.addText('shout_user1');" onfocus="shoutbox.suppText('shout_user1');" />
+								<input name="shout_msg_user" type="button" class="button1 btnmain" value="{{ lang('SUBMIT') }}" title="{{ lang('SUBMIT') }}" onclick="shoutbox.sendUserAction();return false;" />
+								<input id="user_inp" type="hidden" value="0" />
+								<input id="user_inp_sort" type="hidden" value="" />
+								<input id="user_cite" type="hidden" value="" />
+								{{ S_FORM_TOKEN }}
+							</div>
+						</div>
+					</div>
+				</form>
+			</li>
+		</ul>
+		{% else %}
+		<fieldset id="shout_field1" class="no_display">
+			<input id="shout_user1" type="text" disabled="disabled" />
+			<input id="user_cite" type="hidden" value="" />
+		</fieldset>
+		{% endif %}

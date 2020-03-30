@@ -1,0 +1,75 @@
+{% if S_IN_SHOUT_SMILIES %}
+{% INCLUDE 'simple_header.html' %}
+{% INCLUDECSS '@sylver35_breizhshoutbox/shoutbox.css' %}
+<script>
+function suppText(){
+	if ($(opener.document).find('#chat_message').attr('disabled') == false){
+		var form_name = 'postform',text_name = 'chat_message';
+	}else{
+		var form_name = 'formuser',text_name = 'shout_user1';
+	}
+	if($(opener.document).find('#'+text_name).val() == "{{ lang('SHOUT_AUTO') | escape('js') }}"){
+		$(opener.document).find('#'+text_name).css('color','black').val('');
+	}
+}
+</script>
+
+<h2>{{ lang('SMILIES') }}</h2>
+
+<div class="panel">
+	<div class="inner">
+	{% for smiley in smileys %}
+		<a class="pointer" onclick="suppText();shoutbox.shoutInsertText('{{ smiley.SMILEY_CODE }}',true);return false;">
+			<img src="{{ smiley.SMILEY_SRC }}" alt="{{ smiley.SMILEY_CODE }}" title="{{ smiley.EMOTION }}" width="{{ smiley.SMILEY_WIDTH }}" height="{{ smiley.SMILEY_HEIGHT }}" />
+		</a>
+	{% endfor %}
+	</div>
+</div>
+
+<span style="margin-left:20px;"><a class="pointer" title="{{ lang('CLOSE_WINDOW') }}" onclick="window.close();return false;">{{ lang('CLOSE_WINDOW') }}</a></span>
+
+<div id="page-footer">
+	<div style="padding-top:6px;text-align:center;"><span style="font-size:1.05em;"><em>{{ SHOUTBOX_VERSION }}</em></span></div>
+</div>
+{% INCLUDEJS T_ASSETS_PATH ~ '/javascript/editor.js' %}
+{% INCLUDEJS '@sylver35_breizhshoutbox/javascript/shoutbox.js' %}
+{% INCLUDE 'simple_footer.html' %}
+
+{% elseif S_IN_SHOUT_ACP %}
+{% INCLUDE 'simple_header.html' %}
+{% INCLUDECSS '@sylver35_breizhshoutbox/shoutbox.css' %}
+
+<h2>{{ lang('SMILIES') }}</h2>
+
+<div class="panel">
+	<div class="inner">
+	{% for smiley in smileys %}
+		<a class="pointer" onclick="insert_text('{{ smiley.SMILEY_CODE }}',true,true);return false;">
+			<img src="{{ smiley.SMILEY_SRC }}" alt="{{ smiley.SMILEY_CODE }}" title="{{ smiley.SMILEY_EMOTION }}" width="{{ smiley.SMILEY_WIDTH }}" height="{{ smiley.SMILEY_HEIGHT }}" />
+		</a>
+	{% endfor %}
+	</div>
+</div>
+
+<span style="margin-left:20px;"><a href="#" title="{{ lang('CLOSE_WINDOW') }}" onclick="window.close();return false;">{{ lang('CLOSE_WINDOW') }}</a></span>
+
+<div id="page-footer">
+	<div style="padding-top:6px;text-align:center;">
+		<span style="font-size:1.05em;"><em>{{ SHOUTBOX_VERSION }}</em></span>
+	</div>
+</div>
+<script>
+	var form_name = 'shout_rules_form',text_name = 'in_rules';
+</script>
+{% INCLUDEJS T_ASSETS_PATH ~ '/javascript/editor.js' %}
+{% INCLUDE 'simple_footer.html' %}
+
+{% elseif S_IN_SHOUT_POP %}
+
+{% INCLUDE 'simple_header.html' %}
+
+{% INCLUDE 'shout_body.html' %}
+
+{% INCLUDE 'simple_footer.html' %}
+
+{% endif %}

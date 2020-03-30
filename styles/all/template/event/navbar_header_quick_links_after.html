@@ -1,0 +1,22 @@
+{% if U_SHOUT_PRIV_PAGE %}
+<li data-last-responsive="true">
+	<a href="{{ U_SHOUT_PRIV_PAGE }}" title="{{ lang('SHOUT_PRIV') }}" role="menuitem">
+		<i class="icon fa-key fa-fw icon-green" aria-hidden="true"></i><span>{{ lang('SHOUTBOX_SECRET') }}</span>
+	</a>
+</li>
+{% endif %}
+{% if U_SHOUT_CONFIG %}
+<li data-last-responsive="true">
+	<a href="{{ U_SHOUT_CONFIG }}" title="{{ lang('SHOUT_CONFIG_OPEN') }}" role="menuitem" onclick="popup(this.href,850,550);return false;">
+		<i class="icon fa-cog fa-fw icon-red" aria-hidden="true"></i><span>{{ lang('SHOUT_CONFIG_URL') }}</span>
+	</a>
+</li>
+{% endif %}
+{% if U_SHOUT_POPUP %}
+<li data-last-responsive="true">
+	<a href="{{ U_SHOUT_POPUP }}" title="{{ lang('SHOUT_POP') }}" role="menuitem" onclick="popup(this.href,{{ SHOUT_POPUP_H }},{{ SHOUT_POPUP_W }});return false;">
+		<i class="icon fa-television fa-fw icon-orange" aria-hidden="true"></i><span>{{ lang('SHOUT_POPUP') }}</span>
+	</a>
+</li>
+{% endif %}
+

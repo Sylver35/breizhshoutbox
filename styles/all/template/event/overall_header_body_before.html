@@ -1,0 +1,26 @@
+{% if not KILL_LATERAL or S_IS_BOT %}
+<div id="lateral_panel" class="panel_{{ PANEL_FLOAT }}">
+	{% if (ACTIVE_PANEL and not S_DISPLAY_SHOUTBOX) or (PANEL_ALL and S_DISPLAY_SHOUTBOX) %}
+	<ul class="no_margin">
+		<li id="dtbox1" class="displayblock" title="{{ lang('SHOUT_LATERAL_OPEN') }}">
+			<input type="image" src="{{ PANEL_OPEN }}" onclick="lateral.openShout();return false;" alt="{{ lang('SHOUT_LATERAL_OPEN') }}" title="{{ lang('SHOUT_LATERAL_OPEN') }}" />
+		</li>
+		<li id="dtbox3" class="no_display">
+			<object id="boxforshout" class="no_display" type="text/html" width="{{ PANEL_WIDTH }}" height="{{ PANEL_HEIGHT }}" data="{% if AUTO_PANEL %}{{ U_SHOUT_LATERAL }}{% endif %}"></object>
+		</li>
+	</ul>
+	<ul id="ul_panel" class="panel_{{ PANEL_FLOAT }}">
+		<li id="dtbox2" class="no_display" title="{{ lang('SHOUT_LATERAL_CLOSE') }}">
+			<input type="image" src="{{ PANEL_CLOSE }}" onclick="lateral.closeShout();return false;" alt="{{ lang('SHOUT_LATERAL_CLOSE') }}" title="{{ lang('SHOUT_LATERAL_CLOSE') }}" />
+		</li>
+	</ul>
+	{% endif %}
+</div>
+<script>
+	var lateral = {
+		displayPanel : {% if AUTO_PANEL %}true{% else %}false{% endif %},
+		lateralUrl : '{{ U_SHOUT_LATERAL }}',
+	};
+</script>
+{% INCLUDEJS '@sylver35_breizhshoutbox/javascript/lateral_panel.js' %}
+{% endif %}

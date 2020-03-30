@@ -1,0 +1,40 @@
+		<ul id="shout_connect" class="topiclist forums ul_rules" style="display:none;">
+			<li>
+				<div id="connect_on" class="shout_rules">
+					<form method="post" action="{{ S_LOGIN_ACTION }}">
+					<fieldset class="quick-login">
+						<label for="username">{{ lang('USERNAME') }}:</label>&nbsp;<input type="text" name="username" id="username_shout" size="10" class="inputbox" title="{{ lang('USERNAME') }}" />  
+						<label for="password">{{ lang('PASSWORD') }}:</label>&nbsp;
+						<div id="passwordContainerShout">
+							<input type="password" name="password" id="password_shout" size="10" class="inputbox" title="{{ lang('PASSWORD') }}" />
+							<input type="text" id="passwordTxtShout" size="10" value="" class="inputbox" autocomplete="off" spellcheck="false" autocorrect="off" style="display:none;"></input>
+							<div id="assist-visual-shout" class="input-control-visual">
+								<div class="assist-area">
+									<div id="assist-icon-shout" class="shout-svg-assist shout-icon-assist-hide">
+										<button id="assist-btn-shout" type="button" class="transparent-btn" title="{{ lang('SHOUT_AFFICHE') }}" onclick="shoutbox.passwordSwitch()"><span id="assist-msg-shout" class="sr-only">{{ lang('SHOUT_AFFICHE') }}</span></button>
+									</div>
+								</div>
+							</div>
+						</div>
+						{% if S_AUTOLOGIN_ENABLED %} | <label for="autologinShout" title="{{ lang('SHOUT_LOG_ME_IN') }}">{{ lang('SHOUT_LOG_ME_IN') }} <input type="checkbox" name="autologin" id="autologinShout" /></label>{% endif %}
+						 | <label for="shout_viewonline" title="{{ lang('HIDE_ME') }}">{{ lang('SHOUT_HIDE_ME') }} <input type="checkbox" name="viewonline" id="shout_viewonline" /> </label>
+						<input type="submit" name="login" value="{{ lang('LOGIN') }}" class="button2" title="{{ lang('LOGIN') }}" />
+						{{ S_LOGIN_REDIRECT }}
+						{{ S_FORM_TOKEN_LOGIN }}
+						{{ S_HIDDEN_FIELDS }}
+					</fieldset>
+					</form>
+				</div>
+			</li>
+		</ul>
+		<ul id="shout_name" class="topiclist forums ul_rules" style="display:none;">
+			<li>
+				<div class="shout_rules">
+					<fieldset class="quick-login">
+						<label for="shoutname">{{ lang('USERNAME') }}:</label>&nbsp;&nbsp;<input type="text" id="shoutname" name="shoutname" value="{{ SHOUT_USERNAME }}" onfocus="shoutbox.sE('shoutnameyes',2);" size="15" maxlength="25" class="inputbox" title="{{ lang('USERNAME') }}" />  
+						<input type="submit" value="{{ lang('SUBMIT') }}" class="button1" onclick="shoutbox.goName();return false;" title="{{ lang('SUBMIT') }}" /><span id="spanName" style="padding-left:8px;">{{ SHOUT_USERNAME_EXPLAIN }}</span>
+						<div id="shoutnameyes" style="display:none;"></div>
+					</fieldset>
+				</div>
+			</li>
+		</ul>

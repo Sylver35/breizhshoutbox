@@ -1,0 +1,79 @@
+<!-- shout_body.html $version v{{ S_SHOUT_VERSION }} //-->
+<div class="forabg" id="all_shout">
+	<div class="inner">
+		<ul class="topiclist">
+			<li class="header">
+				<dl id="shout" class="row-item">
+					<dt id="shout-1" class="shout-left-dt"></dt>
+					<dd id="shout-2" class="shout-left-dd"></dd>
+				</dl>
+			</li>
+		</ul>
+	{% if not S_USER_LOGGED_IN %}
+		{% INCLUDE '@sylver35_breizhshoutbox/shout_connect.html' %}
+	{% endif %}
+	{% if SHOUT_POSTING %}
+		{% INCLUDE '@sylver35_breizhshoutbox/shout_colour.html' %}
+		{% INCLUDE '@sylver35_breizhshoutbox/shout_chars.html' %}
+	{% endif %}
+	{% if TEXT_USER_TOP %}
+		{% INCLUDE '@sylver35_breizhshoutbox/shout_bbcode.html' %}
+	{% endif %}
+		<ul id="shout_rules" class="topiclist forums ul_rules">
+			<li>
+				<div id="rules_on" class="shout_rules"></div>
+			</li>
+		</ul>
+		<ul id="smilies_ul" class="topiclist forums">
+			<li>
+				<div id="smilies"></div>
+			</li>
+		</ul>
+		<ul id="shout_online" class="topiclist forums ul_rules">
+			<li>
+				<h3 class="h3_online">{{ lang('SHOUT_ONLINE_TITLE') }}</h3>
+				<div id="online_shout"></div>
+			</li>
+		</ul>
+		{% INCLUDE '@sylver35_breizhshoutbox/user_action.html' %}
+		<form id="chat_form" name="postform">
+			{% if SHOUT_POSTING %}
+			<ul id="shoutbox_posting" class="topiclist forums ul_rules" style="display:none;">
+				{% INCLUDE 'posting_buttons.html' %}
+			</ul>
+			{% endif %}
+			<div id="shoutbox"></div>
+			{{ S_FORM_TOKEN }}
+		</form>
+		
+		<div id="shout-fields" class="no_display">
+			<fieldset>
+				<input id="sortShoutNb" type="hidden" value="0" />
+				<input id="openEdit" type="hidden" value="0" />
+				<input id="onSound" type="hidden" value="0" />
+				<input id="onBot" type="hidden" value="on" />
+				<input id="nBQuery" type="hidden" value="0" />
+				<input id="nBTemps" type="hidden" value="0" />
+				<input id="nBErrors" type="hidden" value="0" />
+				<input id="shoutLast" type="hidden" value="0" />
+			</fieldset>
+		</div>
+		
+		<noscript>
+			<ul class="topiclist forums">
+				<li class="row">
+					<dl class="row-item" style="background-image:url({{ SHOUT_EXT_PATH }}images/alert.png);background-repeat:no-repeat;">
+						<dt>
+							<div class="list-inner">
+								<a class="forumtitle" title="{{ lang('NO_AJAX_USER') }}" style="color:red;">{{ lang('NO_AJAX_USER') }}</a>
+							</div>
+						</dt>
+						<dd></dd>
+					</dl>
+				</li>
+			</ul>
+		</noscript>
+		
+	</div>
+</div>
+<!-- shout_body.html end //-->

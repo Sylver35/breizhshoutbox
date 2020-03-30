@@ -1,0 +1,11 @@
+{% if SHOUT_EXT_PATH %}
+{% INCLUDEJS '@sylver35_breizhshoutbox/javascript/shoutbox.js' %}
+{% endif %}
+{% if ON_SHOUT_DISPLAY %}
+<script>
+(function($){  // Avoid conflicts with other libraries
+	'use strict';
+	shoutbox.writeShoutbox();
+})(jQuery);
+</script>
+{% endif %}

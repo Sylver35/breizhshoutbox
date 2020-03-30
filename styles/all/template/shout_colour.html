@@ -1,0 +1,23 @@
+<ul id="colour_shoutbox" class="topiclist forums ul_rules">
+	<li>
+		<div id="shoutcolor1" class="{% if COLOR_PANEL eq 1 %}displayblock{% else %}no_display{% endif %}"></div>
+		<div id="shoutcolor2" class="{% if COLOR_PANEL eq 2 %}displayblock{% else %}no_display{% endif %}"></div>
+		<div id="shoutcolor3" class="{% if COLOR_PANEL eq 3 %}displayblock{% else %}no_display{% endif %}">
+			<div class="choose-pic-color">{{ lang('PICK_COLOR') }}:</div>
+			<div id="pickdt">
+				<input id="pick" class="pick color {pickClose:true}" value="0000BF" title="{{ lang('PICK_COLOR') }}" />
+				<input name="pick_button" value="{{ lang('PICK_BUTON') }}" title="{{ lang('PICK_BUTON') }}" type="button" class="button1 btnmain" onclick="validPicker();return false;" />
+			</div>
+		</div>
+		<div id="shoutcolors">
+			{{ lang('SHOUT_CHOICE_COLOR') }}: 
+			<select id="select_div_color" name="select_div_color" onchange="activeColor('shoutcolor'+this.value);">
+				<option value="0" title="{{ lang('SHOUT_COLOR') }}">{{ lang('SHOUT_COLOR') }}</option>
+				<option value="3" title="{{ lang('SHOUT_PICOLOR') }}"{% if COLOR_PANEL eq 3 %} selected="selected"{% endif %}>{{ lang('SHOUT_PICOLOR') }}</option>
+				<option value="1" title="{{ lang('SHOUT_PHPBBCOLOR') }}"{% if COLOR_PANEL eq 1 %} selected="selected"{% endif %}>{{ lang('SHOUT_PHPBBCOLOR') }}</option>
+				<option value="2" title="{{ lang('SHOUT_PHPBB2COLOR') }}"{% if COLOR_PANEL eq 2 %} selected="selected"{% endif %}>{{ lang('SHOUT_PHPBB2COLOR') }}</option>
+			</select>
+		</div>
+	</li>
+</ul>
+{% INCLUDEJS '@sylver35_breizhshoutbox/javascript/colors_palettes.js' %}
