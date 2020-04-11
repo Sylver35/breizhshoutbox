@@ -474,7 +474,7 @@ div.shout-submit {
 	font-size: 1.1em;
 	width: 100%;
 	border: none;
-    color: #333399;
+	color: #333399;
 }
 #char_shout2 {
 	border-left: none;
@@ -531,7 +531,7 @@ input.button_shout_connect:hover, input.button_shout_connect_on:hover {
 	transition-duration: 0.25s;
 	transition-property: all;
 	transition-timing-function: ease-in-out;
-	background-image: url("./images/connect.png");
+	background-image: url("./images/connect.webp");
 	width: 20px;
 	height: 20px;
 }
@@ -568,7 +568,7 @@ input.button_shout_sound, input.button_shout_sound:hover, input.button_shout_sou
 	transition-duration: 0.25s;
 	transition-property: all;
 	transition-timing-function: ease-in-out;
-	background-image: url("./images/shout-icon.png");
+	background-image: url("./images/shout-icon.webp");
 	height: 20px;
 	width: 20px;
 }
@@ -587,7 +587,7 @@ input.button_shout_cite, input.button_shout_cite:hover {
 	transition-duration: 0.25s;
 	transition-property: all;
 	transition-timing-function: ease-in-out;
-	background-image: url("./images/shout-icon-left.png");
+	background-image: url("./images/shout-icon-left.webp");
 	width: 20px;
 	height: 20px;
 	display: inline;
@@ -731,7 +731,7 @@ input.button_shout_robot_no:hover, input.button_shout_purge_no:hover {
 }
 
 input.shout_bot {
-	background-image: url("./images/bot.png");
+	background-image: url("./images/bot.webp");
 	-webkit-transition-property: none;
 	-moz-transition-property: none;
 	transition-property: none;
@@ -929,12 +929,12 @@ div.more-smiley {
 }
 
 #passwordContainerShout {
-    position: relative;
+	position: relative;
 	display: inline;
 }
 #assist-btn-shout, .assist-area {
-    height: 20px;
-    width: 20px;
+	height: 20px;
+	width: 20px;
 }
 #assist-btn-shout:focus {
 	outline: none;
@@ -946,48 +946,48 @@ div.div-table {
 	display: table;
 }
 div.input-control-visual {
-    display: block;
-    position: absolute;
-    right: 0;
-    top: 0;
-    z-index: 2;
+	display: block;
+	position: absolute;
+	right: 0;
+	top: 0;
+	z-index: 2;
 }
 div.assist-area {
-    margin: -2px 9px 0 0;
+	margin: -2px 9px 0 0;
 }
 div.shout-svg-assist {
-    background: center no-repeat;
-    background-image: none;
-    background-size: auto;
-    background-size: contain;
-    display: block;
-    height: 100%;
-    width: 100%;
+	background: center no-repeat;
+	background-image: none;
+	background-size: auto;
+	background-size: contain;
+	display: block;
+	height: 100%;
+	width: 100%;
 }
 div.shout-icon-assist-hide {
-    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201000%201000%22%20width%3D%2230%22%20height%3D%2230%22%3E%3Cpath%20d%3D%22M809.208%20350.568l-43.17%2043.17c47.061%2031.481%2087.2%2069.038%20113.545%20105.978-29.782%2041.6-77.4%2084.079-132.916%20117.815a543.936%20543.936%200%200%201-60.236%2031.655%20240.332%20240.332%200%200%200%2042.215-218.056l-50.895%2050.895q.855%208.747.869%2017.722a179.994%20179.994%200%200%201-180%20180q-8.971%200-17.722-.869L416.177%20743.6a429.382%20429.382%200%200%200%2070.742%206.022c4.017%200%208.04.129%2012.081.129s8.064-.129%2012.081-.129C698.665%20749.621%20888.51%20617.406%20950%20499.75c-26.641-50.976-77.011-104.677-140.792-149.182zM120.417%20499.784C150.2%20458.19%20197.82%20415.7%20253.333%20381.968a545.253%20545.253%200%200%201%2055.918-29.694%20240.373%20240.373%200%200%200-38.318%20223.517l49.622-49.622a180.093%20180.093%200%200%201%20204.487-204.487l64.736-64.736a432.184%20432.184%200%200%200-76.7-7.066c-4.017%200-8.041-.13-12.081-.13s-8.064.13-12.081.13C301.335%20249.88%20111.491%20382.093%2050%20499.75c27.215%2052.073%2079.192%20106.99%20144.932%20152.043l43.24-43.241c-48.872-32.038-90.631-70.73-117.755-108.768zM823.218%20136l-318.76%20318.76-100.54%20100.54L133.25%20825.969%20186.281%20879l275.731-275.731L602.14%20463.141l274.11-274.11z%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E");
+	background-image: url("./images/oeilbarre.png");
 }
 div.shout-icon-assist-show {
-    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201000%201000%22%20width%3D%2230%22%20height%3D%2230%22%3E%3Cpath%20d%3D%22M513.081%20250.129c-4.017%200-8.041-.129-12.081-.129s-8.064.129-12.081.129C301.335%20250.129%20111.491%20382.343%2050%20500c61.491%20117.656%20249.335%20249.871%20436.919%20249.871%204.017%200%208.04.129%2012.081.129s8.064-.129%2012.081-.129C698.665%20749.871%20888.51%20617.656%20950%20500c-61.49-117.657-249.335-249.871-436.919-249.871zM498.62%20680a180%20180%200%201%201%20180-180%20180%20180%200%200%201-180%20180zm-378.2-179.963c29.782-41.595%2077.4-84.081%20132.916-117.816a545.263%20545.263%200%200%201%2055.918-29.695%20239.848%20239.848%200%200%200%20.78%20295.942%20537.117%20537.117%200%200%201-57.553-30.6c-55.012-33.642-102.328-76.134-132.064-117.834zm626.25%20117.747a544.106%20544.106%200%200%201-60.236%2031.655%20239.784%20239.784%200%200%200-.761-299.823%20536.07%20536.07%200%200%201%2061.852%2032.517c55.01%2033.642%20102.326%2076.136%20132.061%20117.836-29.786%2041.595-77.401%2084.076-132.919%20117.812zM597.931%20453.153a48.227%2048.227%200%201%201-62.472-56.6%20109.731%20109.731%200%201%200%2062.472%2056.6z%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E");
+	background-image: url("./images/oeil.png");
 }
 .shout-svg::before, .shout-svg-assist::before {
-    content: " ";
+	content: " ";
 }
 button.transparent-btn {
-    background-color: transparent;
-    border: 0;
-    margin: 0;
-    padding: 0;
-    width: 100%;
+	background-color: transparent;
+	border: 0;
+	margin: 0;
+	padding: 0;
+	width: 100%;
 }
 input.off-screen {
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    height: 0 !important;
-    width: 0 !important;
-    overflow: hidden;
-    opacity: 0;
-    filter: alpha(opacity=0);
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	height: 0 !important;
+	width: 0 !important;
+	overflow: hidden;
+	opacity: 0;
+	filter: alpha(opacity=0);
 }
 

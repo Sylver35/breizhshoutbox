@@ -16,6 +16,12 @@ function suppText(){
 
 <h2>{{ lang('SMILIES') }}</h2>
 
+{% if pagination|length %}
+<div class="pagination">
+	{% INCLUDE 'pagination.html' %}
+</div>
+{% endif %}
+	
 <div class="panel">
 	<div class="inner">
 	{% for smiley in smileys %}
@@ -43,13 +49,19 @@ function suppText(){
 
 <div class="panel">
 	<div class="inner">
-	{% for smiley in smileys %}
+	{% for smiley in smilies %}
 		<a class="pointer" onclick="insert_text('{{ smiley.SMILEY_CODE }}',true,true);return false;">
 			<img src="{{ smiley.SMILEY_SRC }}" alt="{{ smiley.SMILEY_CODE }}" title="{{ smiley.SMILEY_EMOTION }}" width="{{ smiley.SMILEY_WIDTH }}" height="{{ smiley.SMILEY_HEIGHT }}" />
 		</a>
 	{% endfor %}
 	</div>
 </div>
+
+{% if pagination|length %}
+<div class="pagination">
+	{% INCLUDE 'pagination.html' %}
+</div>
+{% endif %}
 
 <span style="margin-left:20px;"><a href="#" title="{{ lang('CLOSE_WINDOW') }}" onclick="window.close();return false;">{{ lang('CLOSE_WINDOW') }}</a></span>
 

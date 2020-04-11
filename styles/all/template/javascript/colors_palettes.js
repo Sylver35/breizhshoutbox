@@ -647,10 +647,10 @@ var picolor = {
 			p.btnS.style.lineHeight=p.btn.style.height;
 			switch(modeID){
 				case 0:
-					var padImg='ps.png';
+					var padImg='ps.webp';
 				break;
 				case 1:
-					var padImg='pv.png';
+					var padImg='pv.webp';
 				break;
 			};
 			p.padM.style.backgroundImage="url('"+picolor.getDir()+"croix.gif')";
@@ -773,7 +773,7 @@ var picolor = {
 			}
 		};
 		var THIS=this;
-		var modeID=this.pickerMode.toLowerCase() === 'hvs'?1 : 0;
+		var modeID=this.pickerMode.toLowerCase() === 'hvs'? 1 : 0;
 		var abortBlur=false;
 		var valueElement=picolor.fetchElement(this.valueElement),styleElement=picolor.fetchElement(this.styleElement);
 		var holdPad=false,holdSld=false;
@@ -794,10 +794,10 @@ var picolor = {
 		};
 		switch(modeID){
 			case 0:
-				picolor.requireImage('ps.png');
+				picolor.requireImage('ps.webp');
 			break;
 			case 1:
-				picolor.requireImage('pv.png');
+				picolor.requireImage('pv.webp');
 			break;
 		};
 		picolor.requireImage('croix.gif');
@@ -806,7 +806,7 @@ var picolor = {
 	}
 };
 picolor.install();
-	
+
 function validPicker(){
 	if($('#shout_user1').attr('disabled') === false){
 		var form_name = 'formuser',text_name = 'shout_user1';
