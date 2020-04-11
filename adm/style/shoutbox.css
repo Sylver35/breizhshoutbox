@@ -160,21 +160,21 @@ legend.left {
 	text-align: left;
 }
 div.cite {
-	background-image: url("./../images/shout-icon-left.png");
+	background-image: url("./../images/shout-icon-left.webp");
 	background-position: -68px 0;
 	width: 20px;
 	height: 20px;
 	display: inline-block;
 }
 div.button-ip {
-	background-image: url("./../images/shout-icon-left.png");
+	background-image: url("./../images/shout-icon-left.webp");
 	background-position: -43px 0;
 	width: 20px;
 	height: 20px;
 	display: inline-block;
 }
 div.buttons-left {
-	background-image: url("./../images/shout-icon-left.png");
+	background-image: url("./../images/shout-icon-left.webp");
 	background-position: 0 0;
 	width: 62px;
 	height: 20px;

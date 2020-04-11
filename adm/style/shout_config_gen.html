@@ -22,7 +22,7 @@
 			<span class="separation"></span>
 			<dl>
 				<dt><label for="shout_color_background">{{ lang('SHOUT_BACKGROUND_COLOR') }}:</label><br />{{ lang('SHOUT_BACKGROUND_COLOR_EXPLAIN') }}</dt>
-				<dd><select id="shout_color_background" onchange="shoutbox.updateColor(this.options[selectedIndex].value,this.id);" name="shout_color_background" title="{SHOUT_BACKGROUND}">{{ COLOR_OPTION }}</select> {{ lang('SHOUT_APERCU') }}<img src="{{ COLOR_IMAGE }}" id="color_image" alt="{{ SHOUT_BACKGROUND }}" title="{SHOUT_BACKGROUND}" width="50" height="25" /></dd>
+				<dd><select id="shout_color_background" onchange="shoutbox.updateColor(this.options[selectedIndex].value,this.id);" name="shout_color_background" title="{{ COLOR_IMAGE }}">{{ COLOR_OPTION }}</select> {{ lang('SHOUT_APERCU') }}<img src="{{ COLOR_PATH }}{{ COLOR_IMAGE }}" id="color_image" alt="{{ COLOR_IMAGE }}" title="{{ COLOR_IMAGE }}" width="50" height="25" /></dd>
 			</dl>
 			<dl>
 				<dt><label for="shout_button_background">{{ lang('SHOUT_BUTTON_BACKGROUND') }}:</label><br />{{ lang('SHOUT_BUTTON_BACKGROUND_EXPLAIN') }}</dt>
