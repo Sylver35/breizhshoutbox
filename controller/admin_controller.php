@@ -9,6 +9,7 @@
 
 namespace sylver35\breizhshoutbox\controller;
 
+use sylver35\breizhshoutbox\core\shoutbox;
 use phpbb\cache\driver\driver_interface as cache;
 use phpbb\config\config;
 use phpbb\controller\helper;
@@ -24,6 +25,9 @@ use phpbb\log\log;
 
 class admin_controller
 {
+	/* @var \sylver35\breizhshoutbox\core\breizhshoutbox */
+	protected $shoutbox;
+
 	/** @var \phpbb\cache\driver\driver_interface */
 	protected $cache;
 
@@ -34,7 +38,7 @@ class admin_controller
 	protected $helper;
 
 	/** @var \phpbb\extension\manager */
-	protected $extension_manager;
+	protected $ext_manager;
 
 	/** @var \phpbb\db\driver\driver_interface */
 	protected $db;
@@ -72,9 +76,6 @@ class admin_controller
 	/** @var string Custom form action */
 	protected $u_action;
 
-	/* @var \sylver35\breizhshoutbox\core\breizhshoutbox */
-	protected $shoutbox;
-
 	/**
 	* The database tables
 	*
@@ -86,12 +87,13 @@ class admin_controller
 	/**
 	* Constructor
 	*/
-	public function __construct(cache $cache, config $config, helper $helper, manager $extension_manager, db $db, pagination $pagination, request $request, template $template, auth $auth, user $user, language $language, log $log, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table, \sylver35\breizhshoutbox\core\shoutbox $shoutbox)
+	public function __construct(shoutbox $shoutbox, cache $cache, config $config, helper $helper, manager $ext_manager, db $db, pagination $pagination, request $request, template $template, auth $auth, user $user, language $language, log $log, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
 	{
+		$this->shoutbox				= $shoutbox;
 		$this->cache				= $cache;
 		$this->config				= $config;
 		$this->helper				= $helper;
-		$this->ext_manager			= $extension_manager;
+		$this->ext_manager			= $ext_manager;
 		$this->db					= $db;
 		$this->pagination			= $pagination;
 		$this->request				= $request;
@@ -105,7 +107,6 @@ class admin_controller
 		$this->shoutbox_table		= $shoutbox_table;
 		$this->shoutbox_priv_table 	= $shoutbox_priv_table;
 		$this->shoutbox_rules_table = $shoutbox_rules_table;
-		$this->shoutbox				= $shoutbox;
 		$this->ext_path				= $this->ext_manager->get_extension_path('sylver35/breizhshoutbox', true);
 	}
 
@@ -139,8 +140,8 @@ class admin_controller
 			$this->config->set('shout_avatar_height', $this->request->variable('shout_avatar_height', 20));
 			$this->config->set('shout_avatar_robot', $this->request->variable('shout_avatar_robot', 1));
 			$this->config->set('shout_avatar_user', $this->request->variable('shout_avatar_user', 1));
-			$this->config->set('shout_avatar_img', $this->request->variable('shout_avatar_img', 'no_avatar.gif'));
-			$this->config->set('shout_avatar_img_robot', $this->request->variable('shout_avatar_img_robot', 'avatar_robot.png'));
+			$this->config->set('shout_avatar_img', $this->request->variable('shout_avatar_img', 'no_avatar.webp'));
+			$this->config->set('shout_avatar_img_robot', $this->request->variable('shout_avatar_img_robot', 'avatar_robot.webp'));
 			$this->config->set('shout_sound_on', $this->request->variable('shout_sound_on', 1));
 			$this->config->set('shout_sound_new', $this->request->variable('shout_sound_new', ''));
 			$this->config->set('shout_sound_error', $this->request->variable('shout_sound_error', ''));
@@ -166,31 +167,31 @@ class admin_controller
 			$this->select_topic = $this->shoutbox->build_select_position($this->config['shout_position_topic'], false, true);
 			$data = $this->shoutbox->get_version();
 			$this->template->assign_vars(array(
-				'SHOUT_TEMP_USERS'			=> (int)$this->config['shout_temp_users'],
-				'SHOUT_TEMP_ANONYMOUS'		=> (int)$this->config['shout_temp_anonymous'],
-				'SHOUT_INACTIV_ANONY'		=> (int)$this->config['shout_inactiv_anony'],
-				'SHOUT_INACTIV_MEMBER'		=> (int)$this->config['shout_inactiv_member'],
+				'SHOUT_TEMP_USERS'			=> (int) $this->config['shout_temp_users'],
+				'SHOUT_TEMP_ANONYMOUS'		=> (int) $this->config['shout_temp_anonymous'],
+				'SHOUT_INACTIV_ANONY'		=> (int) $this->config['shout_inactiv_anony'],
+				'SHOUT_INACTIV_MEMBER'		=> (int) $this->config['shout_inactiv_member'],
 				'SHOUT_DEFIL'				=> $this->shoutbox->construct_radio('shout_defil', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
-				'SHOUT_DATEFORMAT'			=> $this->shoutbox->build_dateformat_option((string)$this->config['shout_dateformat'], true),
-				'DATEFORMAT_VALUE'			=> (string)$this->config['shout_dateformat'],
-				'SHOUT_BBCODE'				=> (string)$this->config['shout_bbcode'],
-				'SHOUT_BBCODE_USER'			=> (string)$this->config['shout_bbcode_user'],
-				'SHOUT_BBCODE_SIZE'			=> (int)$this->config['shout_bbcode_size'],
+				'SHOUT_DATEFORMAT'			=> $this->shoutbox->build_dateformat_option((string) $this->config['shout_dateformat'], true),
+				'DATEFORMAT_VALUE'			=> (string) $this->config['shout_dateformat'],
+				'SHOUT_BBCODE'				=> (string) $this->config['shout_bbcode'],
+				'SHOUT_BBCODE_USER'			=> (string) $this->config['shout_bbcode_user'],
+				'SHOUT_BBCODE_SIZE'			=> (int) $this->config['shout_bbcode_size'],
 				'SHOUT_SEE_BUTTONS'			=> $this->shoutbox->construct_radio('shout_see_buttons', 1),
 				'SHOUT_SEE_BUTTONS_LEFT'	=> $this->shoutbox->construct_radio('shout_see_buttons_left', 1),
 				'SHOUT_SEE_BUTTON_IP'		=> $this->shoutbox->construct_radio('shout_see_button_ip', 1),
 				'SHOUT_SEE_CITE'			=> $this->shoutbox->construct_radio('shout_see_cite', 1),
 				'SHOUT_AVATAR'				=> $this->shoutbox->construct_radio('shout_avatar', 2),
-				'SHOUT_AVATAR_HEIGHT'		=> (int)$this->config['shout_avatar_height'],
+				'SHOUT_AVATAR_HEIGHT'		=> (int) $this->config['shout_avatar_height'],
 				'SHOUT_AVATAR_ROBOT'		=> $this->shoutbox->construct_radio('shout_avatar_robot', 2),
 				'SHOUT_AVATAR_USER'			=> $this->shoutbox->construct_radio('shout_avatar_user', 2),
-				'SHOUT_AVATAR_IMG'			=> (string)$this->config['shout_avatar_img'],
-				'SHOUT_AVATAR_IMG_BOT'		=> (string)$this->config['shout_avatar_img_robot'],
+				'SHOUT_AVATAR_IMG'			=> (string) $this->config['shout_avatar_img'],
+				'SHOUT_AVATAR_IMG_BOT'		=> (string) $this->config['shout_avatar_img_robot'],
 				'SHOUT_AVATAR_IMG_SRC'		=> $this->ext_path . 'images/' . $this->config['shout_avatar_img'],
 				'SHOUT_AVATAR_IMG_BOT_SRC'	=> $this->ext_path . 'images/' . $this->config['shout_avatar_img_robot'],
 				'SHOUT_SOUND_ON'			=> $this->shoutbox->construct_radio('shout_sound_on', 2),
-				'SHOUT_NR_ACP'				=> (int)$this->config['shout_nr_acp'],
-				'SHOUT_MAX_POST_CHARS'		=> (int)$this->config['shout_max_post_chars'],
+				'SHOUT_NR_ACP'				=> (int) $this->config['shout_nr_acp'],
+				'SHOUT_MAX_POST_CHARS'		=> (int) $this->config['shout_max_post_chars'],
 				'SHOUT_INDEX_ON'			=> $this->shoutbox->construct_radio('shout_index', 2),
 				'POS_SHOUT_INDEX'			=> $this->select_index['data'],
 				'SHOUT_FORUM_ON'			=> $this->shoutbox->construct_radio('shout_forum', 2),
@@ -204,7 +205,7 @@ class admin_controller
 				'EDIT_SOUND'				=> $this->shoutbox->build_adm_sound_select('edit'),
 				'SHOUT_SOUNDS_PATH'			=> $this->ext_path . 'sounds/',
 				'SHOUT_IMG_PATH'			=> $this->ext_path . 'images/',
-				'U_DATE_FORMAT'				=> $this->helper->route('sylver35_breizhshoutbox_controller_ajax', array('mode' => 'date_format')),
+				'U_DATE_FORMAT'				=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'date_format')),
 				'SHOUT_VERSION'				=> $data['version'],
 			));
 		}
@@ -242,24 +243,23 @@ class admin_controller
 		}
 		else
 		{
-			$color_path = $this->ext_path . 'styles/all/theme/images/fond/';
+			$color_path = 'styles/all/theme/images/fond/';
 			$this->template->assign_vars(array(
-				'SHOUT_TITLE'			=> (string)$this->config['shout_title'],
-				'SHOUT_WIDTH_POST'		=> (int)$this->config['shout_width_post'],
-				'SHOUT_PRUNE'			=> (int)$this->config['shout_prune'],
-				'SHOUT_MAX_POSTS'		=> (int)$this->config['shout_max_posts'],
-				'SHOUT_MAX_POSTS_ON'	=> (int)$this->config['shout_max_posts_on'],
-				'SHOUT_NON_IE_NR'		=> (int)$this->config['shout_non_ie_nr'],
-				'SHOUT_HEIGHT'			=> (int)$this->config['shout_height'],
+				'SHOUT_TITLE'			=> (string) $this->config['shout_title'],
+				'SHOUT_WIDTH_POST'		=> (int) $this->config['shout_width_post'],
+				'SHOUT_PRUNE'			=> (int) $this->config['shout_prune'],
+				'SHOUT_MAX_POSTS'		=> (int) $this->config['shout_max_posts'],
+				'SHOUT_MAX_POSTS_ON'	=> (int) $this->config['shout_max_posts_on'],
+				'SHOUT_NON_IE_NR'		=> (int) $this->config['shout_non_ie_nr'],
+				'SHOUT_HEIGHT'			=> (int) $this->config['shout_height'],
 				'SHOUT_ON_CRON'			=> $this->shoutbox->construct_radio('shout_on_cron', 2),
 				'SHOUT_LOG_CRON'		=> $this->shoutbox->construct_radio('shout_log_cron', 2),
-				'SHOUT_BACKGROUND'		=> (string)$this->config['shout_color_background'],
-				'COLOR_IMAGE'			=> $color_path . $this->config['shout_color_background'] . '.gif',
+				'COLOR_IMAGE'			=> (string) $this->config['shout_color_background'] . '.webp',
 				'SHOUT_BUTTON'			=> $this->shoutbox->construct_radio('shout_button_background', 1),
-				'SHOUT_BAR_OPTION'		=> (bool)$this->config['shout_bar_option'],
-				'SHOUT_PAGIN_OPTION'	=> (bool)$this->config['shout_pagin_option'],
-				'COLOR_OPTION'			=> $this->shoutbox->build_select_img($color_path, 'shout_color_background', false),
-				'COLOR_PATH'			=> $color_path,
+				'SHOUT_BAR_OPTION'		=> (bool) $this->config['shout_bar_option'],
+				'SHOUT_PAGIN_OPTION'	=> (bool) $this->config['shout_pagin_option'],
+				'COLOR_OPTION'			=> $this->shoutbox->build_select_img($this->ext_path, $color_path, 'shout_color_background', false, 'webp'),
+				'COLOR_PATH'			=> $this->ext_path . $color_path,
 			));
 		}
 		$this->template->assign_var('S_CONFIG_GEN', true);
@@ -323,8 +323,8 @@ class admin_controller
 				
 				if ($on_rules)
 				{
-					$sql = 'UPDATE ' . $this->shoutbox_rules_table . ' 
-						SET ' . $this->db->sql_build_array('UPDATE', $data) . " 
+					$sql = 'UPDATE ' . $this->shoutbox_rules_table . '
+						SET ' . $this->db->sql_build_array('UPDATE', $data) . "
 							WHERE rules_lang = '" . $this->db->sql_escape($iso) . "'";
 					$this->db->sql_query($sql);
 				}
@@ -374,8 +374,8 @@ class admin_controller
 				'LEFT_JOIN'	=> array(
 					array(
 						'FROM'	=> array($this->shoutbox_rules_table => 'r'),
-						'ON'	=> 'r.rules_lang = l.lang_iso'
-					)
+						'ON'	=> 'r.rules_lang = l.lang_iso',
+					),
 				),
 				'ORDER_BY'	=> 'l.lang_id',
 			));
@@ -424,11 +424,11 @@ class admin_controller
 			$this->db->sql_freeresult($result);
 
 			$sql = $this->db->sql_build_query('SELECT', array(
-				'SELECT'	=> 'smiley_id, smiley_url, code, emotion, smiley_width, smiley_height, smiley_order',
+				'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url,  MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
 				'FROM'		=> array(SMILIES_TABLE => ''),
-				'WHERE'		=> 'display_on_shout <> 0',
-				'GROUP_BY'	=> 'emotion',
-				'ORDER_BY'	=> 'smiley_order ASC',
+				'WHERE'		=> 'display_on_shout = 1',
+				'GROUP_BY'	=> 'smiley_url',
+				'ORDER_BY'	=> 'min_smiley_order ASC',
 			));
 			$result = $this->db->sql_query($sql);
 			while ($row = $this->db->sql_fetchrow($result))
@@ -449,8 +449,8 @@ class admin_controller
 				'SHOUT_RULES'			=> $this->shoutbox->construct_radio('shout_rules', 2),
 				'SHOUT_RULES_OPEN'		=> $this->shoutbox->construct_radio('shout_rules_open', 1),
 				'SHOUT_RULES_OPEN_PRIV'	=> $this->shoutbox->construct_radio('shout_rules_open_priv', 1),
-				'U_SHOUT_SMILIES'		=> $this->helper->route('sylver35_breizhshoutbox_controller_smilies_pop'),
-				'U_PREVIEW_AJAX'		=> $this->helper->route('sylver35_breizhshoutbox_controller_ajax', array('mode' => 'preview_rules')),
+				'U_SHOUT_SMILIES'		=> $this->helper->route('sylver35_breizhshoutbox_smilies_pop'),
+				'U_PREVIEW_AJAX'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'preview_rules')),
 				'S_RULES'				=> true,
 			));
 		}
@@ -616,8 +616,8 @@ class admin_controller
 		$start = $this->request->variable('start', 0);
 		$sql_nr = 'SELECT COUNT(DISTINCT shout_id) as total
 			FROM ' . $this->shoutbox_table . '
-			WHERE shout_inp = 0 
-				OR shout_inp = ' . $this->user->data['user_id'] . ' 
+			WHERE shout_inp = 0
+				OR shout_inp = ' . $this->user->data['user_id'] . '
 				OR shout_user_id = ' . $this->user->data['user_id'];
 		$result_nr = $this->db->sql_query($sql_nr);
 		$total_posts = $this->db->sql_fetchfield('total', $result_nr);
@@ -631,12 +631,12 @@ class admin_controller
 			'LEFT_JOIN'	=> array(
 				array(
 					'FROM'	=> array(USERS_TABLE => 'u'),
-					'ON'	=> 's.shout_user_id = u.user_id'
+					'ON'	=> 's.shout_user_id = u.user_id',
 				),
 				array(
 					'FROM'	=> array(USERS_TABLE => 'v'),
-					'ON'	=> 'v.user_id = s.shout_robot_user'
-				)
+					'ON'	=> 'v.user_id = s.shout_robot_user',
+				),
 			),
 			'WHERE'		=> 'shout_inp = 0 OR shout_inp = ' . $this->user->data['user_id'] . ' OR shout_user_id = ' . $this->user->data['user_id'],
 			'ORDER_BY'	=> 's.shout_time DESC',
@@ -672,8 +672,8 @@ class admin_controller
 			'LEFT_JOIN'	=> array(
 				array(
 					'FROM'	=> array(USERS_TABLE => 'u'),
-					'ON'	=> 'l.user_id = u.user_id'
-				)
+					'ON'	=> 'l.user_id = u.user_id',
+				),
 			),
 			'WHERE'		=> $this->db->sql_in_set('log_operation', $log_array),
 			'ORDER_BY'	=> 'log_time DESC',
@@ -872,8 +872,8 @@ class admin_controller
 
 		$sql_nr = 'SELECT COUNT(DISTINCT shout_id) as total 
 			FROM ' . $this->shoutbox_priv_table . '
-			WHERE shout_inp = 0 
-				OR shout_inp = ' . $this->user->data['user_id'] . ' 
+			WHERE shout_inp = 0
+				OR shout_inp = ' . $this->user->data['user_id'] . '
 				OR shout_user_id = ' . $this->user->data['user_id'];
 		$result_nr = $this->db->sql_query($sql_nr);
 		$total_posts = $this->db->sql_fetchfield('total', $result_nr);
@@ -881,7 +881,7 @@ class admin_controller
 
 		$start = $this->request->variable('start', 0);
 		$i = $start_log = $li = 0;
-		$shout_number = (int)$this->config['shout_nr_acp'];
+		$shout_number = (int) $this->config['shout_nr_acp'];
 
 		$sql = $this->db->sql_build_query('SELECT', array(
 			'SELECT'	=> 's.*, u.user_id, u.username, u.user_colour, v.user_id as x_user_id, v.username as x_username, v.user_colour as x_user_colour',
@@ -889,12 +889,12 @@ class admin_controller
 			'LEFT_JOIN'	=> array(
 				array(
 					'FROM'	=> array(USERS_TABLE => 'u'),
-					'ON'	=> 's.shout_user_id = u.user_id'
+					'ON'	=> 's.shout_user_id = u.user_id',
 				),
 				array(
 					'FROM'	=> array(USERS_TABLE => 'v'),
-					'ON'	=> 'v.user_id = s.shout_robot_user'
-				)
+					'ON'	=> 'v.user_id = s.shout_robot_user',
+				),
 			),
 			'WHERE'		=> 'shout_inp = 0 OR shout_inp = ' . $this->user->data['user_id'] . ' OR shout_user_id = ' . $this->user->data['user_id'],
 			'ORDER_BY'	=> 's.shout_time DESC',
@@ -928,8 +928,8 @@ class admin_controller
 			'LEFT_JOIN'	=> array(
 				array(
 					'FROM'	=> array(USERS_TABLE => 'u'),
-					'ON'	=> 'l.user_id = u.user_id'
-				)
+					'ON'	=> 'l.user_id = u.user_id',
+				),
 			),
 			'WHERE'		=> $this->db->sql_in_set('log_operation', $log_array),
 			'ORDER_BY'	=> 'log_time DESC',
@@ -1004,26 +1004,25 @@ class admin_controller
 		else
 		{
 			$option = '';
-			$color_path = $this->ext_path . 'styles/all/theme/images/fond/';
+			$color_path = 'styles/all/theme/images/fond/';
 			$this->template->assign_vars(array(
-				'SHOUT_TITLE_PRIV'			=> (string)$this->config['shout_title_priv'],
-				'SHOUT_WIDTH_POST'			=> (int)$this->config['shout_width_post_priv'],
-				'SHOUT_PRUNE_PRIV'			=> (int)$this->config['shout_prune_priv'],
+				'SHOUT_TITLE_PRIV'			=> (string) $this->config['shout_title_priv'],
+				'SHOUT_WIDTH_POST'			=> (int) $this->config['shout_width_post_priv'],
+				'SHOUT_PRUNE_PRIV'			=> (int) $this->config['shout_prune_priv'],
 				'SHOUT_ON_CRON_PRIV'		=> $this->shoutbox->construct_radio('shout_on_cron_priv', 2),
 				'SHOUT_LOG_CRON_PRIV'		=> $this->shoutbox->construct_radio('shout_log_cron_priv', 2),
 				'SHOUT_BUTTON'				=> $this->shoutbox->construct_radio('shout_button_background_priv', 1),
 				'NEW_SOUND_PRIV'			=> $this->shoutbox->build_adm_sound_select('new_priv'),
-				'SHOUT_MAX_POSTS'			=> (int)$this->config['shout_max_posts_priv'],
-				'SHOUT_MAX_POSTS_ON'		=> (int)$this->config['shout_max_posts_on_priv'],
-				'SHOUT_NON_IE_HEIGHT_PRIV' 	=> (int)$this->config['shout_non_ie_height_priv'],
-				'SHOUT_NON_IE_NR_PRIV'		=> (int)$this->config['shout_non_ie_nr_priv'],
-				'SHOUT_BACKGROUND'			=> (string)$this->config['shout_color_background_priv'],
-				'COLOR_IMAGE'				=> $color_path . $this->config['shout_color_background_priv'] . '.gif',
-				'SHOUT_BAR_TOP'				=> (bool)$this->config['shout_bar_option_priv'],
-				'SHOUT_PAGIN_OPTION'		=> (bool)$this->config['shout_pagin_option_priv'],
+				'SHOUT_MAX_POSTS'			=> (int) $this->config['shout_max_posts_priv'],
+				'SHOUT_MAX_POSTS_ON'		=> (int) $this->config['shout_max_posts_on_priv'],
+				'SHOUT_NON_IE_HEIGHT_PRIV' 	=> (int) $this->config['shout_non_ie_height_priv'],
+				'SHOUT_NON_IE_NR_PRIV'		=> (int) $this->config['shout_non_ie_nr_priv'],
+				'COLOR_IMAGE'				=> (string) $this->config['shout_color_background_priv'] . '.webp',
+				'SHOUT_BAR_TOP'				=> (bool) $this->config['shout_bar_option_priv'],
+				'SHOUT_PAGIN_OPTION'		=> (bool) $this->config['shout_pagin_option_priv'],
 				'SHOUT_SOUNDS_PATH'			=> $this->ext_path . 'sounds/',
-				'OPTION_IMAGE'				=> $this->shoutbox->build_select_img($color_path, 'shout_color_background_priv', false),
-				'COLOR_PATH'				=> $color_path,
+				'OPTION_IMAGE'				=> $this->shoutbox->build_select_img($this->ext_path, $color_path, 'shout_color_background_priv', false, 'webp'),
+				'COLOR_PATH'				=> $this->ext_path . $color_path,
 				'S_PRIV_CONFIG'				=> true,
 			));
 		}
@@ -1056,22 +1055,19 @@ class admin_controller
 		}
 		else
 		{
-			$color_path = $this->ext_path . 'styles/all/theme/images/fond/';
-			$option = $option_sub = $panel_open = $panel_close = '';
+			$color_path = 'styles/all/theme/images/fond/';
 			$this->template->assign_vars(array(
-				'SHOUT_WIDTH_POST'			=> (int)$this->config['shout_width_post_pop'],
-				'SHOUT_NON_IE_HEIGHT_POP'	=> (int)$this->config['shout_non_ie_height_pop'],
-				'SHOUT_NON_IE_NR_POP'		=> (int)$this->config['shout_non_ie_nr_pop'],
-				'SHOUT_HEIGHT_POP'			=> (int)$this->config['shout_popup_height'],
-				'SHOUT_WIDTH_POP'			=> (int)$this->config['shout_popup_width'],
-				'SHOUT_BACKGROUND'			=> (string)$this->config['shout_color_background_pop'],
-				'COLOR_IMAGE'				=> (string)$color_path . $this->config['shout_color_background_pop'] . '.gif',
+				'SHOUT_WIDTH_POST'			=> (int) $this->config['shout_width_post_pop'],
+				'SHOUT_NON_IE_HEIGHT_POP'	=> (int) $this->config['shout_non_ie_height_pop'],
+				'SHOUT_NON_IE_NR_POP'		=> (int) $this->config['shout_non_ie_nr_pop'],
+				'SHOUT_HEIGHT_POP'			=> (int) $this->config['shout_popup_height'],
+				'SHOUT_WIDTH_POP'			=> (int) $this->config['shout_popup_width'],
+				'SHOUT_BAR_OPTION'			=> (bool) $this->config['shout_bar_option_pop'],
+				'SHOUT_PAGIN_OPTION'		=> (bool) $this->config['shout_pagin_option_pop'],
+				'COLOR_IMAGE'				=> (string) $this->config['shout_color_background_pop'] . '.webp',
+				'COLOR_SELECT'				=> $this->shoutbox->build_select_img($this->ext_path, $color_path, 'shout_color_background_pop', false, 'webp'),
 				'SHOUT_BUTTON'				=> $this->shoutbox->construct_radio('shout_button_background_pop', 1),
-				'SHOUT_BAR_OPTION'			=> (bool)$this->config['shout_bar_option_pop'],
-				'SHOUT_PAGIN_OPTION'		=> (bool)$this->config['shout_pagin_option_pop'],
-				'OPTION'					=> $this->shoutbox->build_select_img($color_path, 'shout_color_background_pop', false),
-				'OPTION_SUB'				=> $option_sub,
-				'COLOR_PATH'				=> $color_path,
+				'COLOR_PATH'				=> $this->ext_path . $color_path,
 				'S_POPUP'					=> true,
 			));
 		}
@@ -1104,9 +1100,9 @@ class admin_controller
 		}
 		else
 		{
-			$panel_path = $this->ext_path . 'images/panel/';
+			$panel_path = 'images/panel/';
 			$this->template->assign_vars(array(
-				'PANEL_PATH'				=> $panel_path,
+				'PANEL_PATH'				=> $this->ext_path . $panel_path,
 				'SHOUT_PANEL'				=> $this->shoutbox->construct_radio('shout_panel', 2),
 				'SHOUT_PANEL_ALL'			=> $this->shoutbox->construct_radio('shout_panel_all', 2),
 				'SHOUT_PANEL_AUTO'			=> $this->shoutbox->construct_radio('shout_panel_auto', 2),
@@ -1118,8 +1114,8 @@ class admin_controller
 				'PANEL_EXIT_IMAGE'			=> $this->config['shout_panel_exit_img'],
 				'OPTION_OPEN_TITLE'			=> substr($this->config['shout_panel_img'], 0, strrpos($this->config['shout_panel_img'], '.')),
 				'OPTION_EXIT_TITLE'			=> substr($this->config['shout_panel_exit_img'], 0, strrpos($this->config['shout_panel_exit_img'], '.')),
-				'PANEL_OPEN_OPTION'			=> $this->shoutbox->build_select_img($panel_path, 'shout_panel_img', true),
-				'PANEL_EXIT_OPTION'			=> $this->shoutbox->build_select_img($panel_path, 'shout_panel_exit_img', true),
+				'PANEL_OPEN_OPTION'			=> $this->shoutbox->build_select_img($this->ext_path, $panel_path, 'shout_panel_img', true),
+				'PANEL_EXIT_OPTION'			=> $this->shoutbox->build_select_img($this->ext_path, $panel_path, 'shout_panel_exit_img', true),
 			));
 		}
 		$this->template->assign_var('S_PANEL', true);
@@ -1128,11 +1124,11 @@ class admin_controller
 	public function acp_shoutbox_smilies()
 	{
 		$sql = $this->db->sql_build_query('SELECT', array(
-			'SELECT'	=> 'smiley_id, smiley_url, code, emotion, smiley_width, smiley_height',
+			'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url,  MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
 			'FROM'		=> array(SMILIES_TABLE => ''),
 			'WHERE'		=> 'display_on_shout = 1',
-			'GROUP_BY'	=> 'emotion',
-			'ORDER_BY'	=> 'smiley_order ASC',
+			'GROUP_BY'	=> 'smiley_url',
+			'ORDER_BY'	=> 'min_smiley_order ASC',
 		));
 		$result = $this->db->sql_query($sql);
 		while ($row = $this->db->sql_fetchrow($result))
@@ -1149,11 +1145,11 @@ class admin_controller
 		$this->db->sql_freeresult($result);
 
 		$sql = $this->db->sql_build_query('SELECT', array(
-			'SELECT'	=> 'smiley_id, smiley_url, code, emotion, smiley_width, smiley_height',
+			'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url,  MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
 			'FROM'		=> array(SMILIES_TABLE => ''),
 			'WHERE'		=> 'display_on_shout = 0',
-			'GROUP_BY'	=> 'emotion',
-			'ORDER_BY'	=> 'smiley_order ASC',
+			'GROUP_BY'	=> 'smiley_url',
+			'ORDER_BY'	=> 'min_smiley_order ASC',
 		));
 		$result = $this->db->sql_query($sql);
 		while ($row = $this->db->sql_fetchrow($result))
@@ -1171,7 +1167,7 @@ class admin_controller
 
 		$this->template->assign_vars(array(
 			'S_SMILIES'				=> true,
-			'U_DISPLAY_AJAX'		=> $this->helper->route('sylver35_breizhshoutbox_controller_ajax', array('mode' => 'display_smilies')),
+			'U_DISPLAY_AJAX'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'display_smilies')),
 			'SHOUT_IMG_PATH'		=> $this->ext_path . 'images/',
 		));
 	}
@@ -1249,11 +1245,11 @@ class admin_controller
 			$this->db->sql_freeresult($result);
 			
 			$select_prez = '<select id="shout_prez_form" name="shout_prez_form"><option value="0">' . $this->language->lang('SELECT_FORUM') . '</option><option value="0" disabled="disabled"></option>';
-			$select_prez .= make_forum_select((int)$this->config['shout_prez_form'], false, true, true). '</select>';
+			$select_prez .= make_forum_select((int) $this->config['shout_prez_form'], false, true, true). '</select>';
 
 			$this->template->assign_vars(array(
 				'SHOUT_ENABLE_ROBOT'		=> $this->shoutbox->construct_radio('shout_enable_robot', 2, true),
-				'SHOUT_NAME_ROBOT'			=> (string)$this->config['shout_name_robot'],
+				'SHOUT_NAME_ROBOT'			=> (string) $this->config['shout_name_robot'],
 				'SHOUT_POST_ROBOT'			=> $this->shoutbox->construct_radio('shout_post_robot', 2),
 				'SHOUT_REP_ROBOT'			=> $this->shoutbox->construct_radio('shout_rep_robot', 2),
 				'SHOUT_EDIT_ROBOT'			=> $this->shoutbox->construct_radio('shout_edit_robot', 2),
@@ -1274,7 +1270,7 @@ class admin_controller
 				'SHOUT_COLOR_ROBOT'			=> $this->config['shout_color_robot'],
 				'SHOUT_COLOR_MESSAGE'		=> $this->config['shout_color_message'],
 				'SHOUT_SESSIONS_TIME'		=> $this->config['shout_sessions_time'],
-				'SHOUT_CRON_HOUR'			=> $this->shoutbox->hour_select((string)$this->config['shout_cron_hour'], 'shout_cron_hour'),
+				'SHOUT_CRON_HOUR'			=> $this->shoutbox->hour_select((string) $this->config['shout_cron_hour'], 'shout_cron_hour'),
 				'SHOUT_PREZ_FORM'			=> $select_prez,
 				'SHOUT_EXCLUDE_FORUMS'		=> make_forum_select(explode(', ', $this->config['shout_exclude_forums']), false, false, false, false),
 				'GROUP_OPTIONS'				=> $group_options,
@@ -1294,7 +1290,7 @@ class admin_controller
 				$this->template->assign_vars(array(
 					'SHOUT_ENABLE_YOUTUBE'	=> true,
 					'SHOUT_VIDEO_NEW'		=> $this->shoutbox->construct_radio('shout_video_new', 2),
-					'IMAGE_VIDEO'			=> $this->ext_path . 'images/panel/ecran.png',
+					'IMAGE_VIDEO'			=> $this->ext_path . 'images/panel/ecran.webp',
 				));
 			}
 

@@ -13,12 +13,15 @@ services:
             - '@auth'
             - '@user'
             - '@language'
+            - '@request'
+            - '@pagination'
             - '%core.root_path%'
             - '%core.php_ext%'
 
     sylver35.breizhshoutbox.admin.controller:
         class: sylver35\breizhshoutbox\controller\admin_controller
         arguments:
+            - '@sylver35.breizhshoutbox.shoutbox'
             - '@cache.driver'
             - '@config'
             - '@controller.helper'
@@ -36,7 +39,6 @@ services:
             - '%sylver35.breizhshoutbox.tables.shoutbox%'
             - '%sylver35.breizhshoutbox.tables.shoutbox_priv%'
             - '%sylver35.breizhshoutbox.tables.shoutbox_rules%'
-            - '@sylver35.breizhshoutbox.shoutbox'
 
     sylver35.breizhshoutbox.main_listener:
         class: sylver35\breizhshoutbox\event\main_listener
@@ -49,11 +51,9 @@ services:
             - '@auth'
             - '@user'
             - '@language'
-            - '%core.root_path%'
-            - '%core.php_ext%'
         tags:
             - { name: event.listener }
-            
+
     sylver35.breizhshoutbox.shoutbox:
         class: sylver35\breizhshoutbox\core\shoutbox
         arguments:
@@ -76,7 +76,7 @@ services:
             - '%sylver35.breizhshoutbox.tables.shoutbox%'
             - '%sylver35.breizhshoutbox.tables.shoutbox_priv%'
             - '%sylver35.breizhshoutbox.tables.shoutbox_rules%'
-            
+
     sylver35.breizhshoutbox.controller.ajax:
         class: sylver35\breizhshoutbox\controller\ajax
         arguments:

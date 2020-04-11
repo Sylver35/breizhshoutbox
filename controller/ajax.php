@@ -9,7 +9,6 @@
 
 namespace sylver35\breizhshoutbox\controller;
 
-use phpbb\json_response;
 use sylver35\breizhshoutbox\core\shoutbox;
 use phpbb\config\config;
 use phpbb\controller\helper;
@@ -70,9 +69,6 @@ class ajax
 	/** @var string phpEx */
 	protected $php_ext;
 
-	/** @var string root path web */
-	protected $root_path_web;
-
 	/** @var string Custom form action */
 	protected $u_action;
 
@@ -104,7 +100,6 @@ class ajax
 		$this->php_ext				= $php_ext;
 		$this->shoutbox_table		= $shoutbox_table;
 		$this->shoutbox_priv_table	= $shoutbox_priv_table;
-		$this->root_path_web		= generate_board_url() . '/';
 	}
 
 	/**
@@ -119,8 +114,9 @@ class ajax
 		$val_sort		= $this->request->variable('sort', 2);
 		$val_userid		= $this->user->data['user_id'];
 		$val_is_user	= ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false;
-		$response		= new json_response();
 		$adm_path		= $this->shoutbox->adm_relative_path();
+		$root_path		= $this->shoutbox->root_path();
+		$response		= new \phpbb\json_response;
 
 		// We have our own error handling
 		$this->db->sql_return_on_error(true);
@@ -153,22 +149,22 @@ class ajax
 		{
 			case 'smilies':
 				$i = 0;
-				$content = array();
+				$smilies = [];
 				$sql_ary = array(
-					'SELECT'	=> 'smiley_id, code, smiley_url, smiley_width, smiley_height, emotion',
+					'SELECT'	=> 'smiley_url, MIN(smiley_id) AS smiley_id, MIN(code) AS code, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
 					'FROM'		=> array(SMILIES_TABLE => ''),
 					'WHERE'		=> 'display_on_shout = 1',
-					'GROUP_BY'	=> 'emotion',
-					'ORDER_BY'	=> 'smiley_order ASC',
+					'GROUP_BY'	=> 'smiley_url',
+					'ORDER_BY'	=> 'min_smiley_order ASC',
 				);
-				$result = $this->shoutbox->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary));
+				$result = $this->shoutbox->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary), false, 3600);
 				if (!$result)
 				{
 					break;
 				}
 				while ($row = $this->db->sql_fetchrow($result))
 				{
-					$content['smilies'][$i] = array(
+					$smilies[$i] = array(
 						'nb'		=> $i,
 						'code'		=> $row['code'],
 						'emotion'	=> $row['emotion'],
@@ -179,52 +175,54 @@ class ajax
 					$i++;
 				}
 				$this->db->sql_freeresult($result);
-				
+
 				$sql = 'SELECT COUNT(smiley_id) as total
-					FROM ' .SMILIES_TABLE. '
+					FROM ' . SMILIES_TABLE . '
 						WHERE display_on_shout = 0';
 				$result = $this->shoutbox->shout_sql_query($sql);
 				$row_nb = $this->db->sql_fetchfield('total', $result);
 				$this->db->sql_freeresult($result);
 
+				$content = array(
+					'smilies'	=> $smilies,
+					'total'		=> $i,
+					'nb_pop'	=> $row_nb,
+					'url'		=> $root_path . $this->config['smilies_path'] . '/',
+				);
+
 				/**
 				* You can use this event to modify the content array.
 				*
 				* @event breizhshoutbox.smilies
-				* @var	array	content			The content array to be displayed in the smilies form
+				* @var	array	content		The content array to be displayed in the smilies form
 				* @since 1.7.0
 				*/
 				$vars = array('content');
 				extract($this->phpbb_dispatcher->trigger_event('breizhshoutbox.smilies', compact($vars)));
 
-				$content = array_merge($content, array(
-					'total'		=> $i,
-					'nb_pop'	=> $row_nb,
-					'url'		=> $this->root_path_web . $this->config['smilies_path'] . '/',
-				));
-
 				$response->send($content, true);
 			break;
 
 			case 'smilies_popup':
-				$i = 0;
 				$cat = $this->request->variable('cat', -1);
-				$content = array();
+				$i = 0;
+				$smilies = [];
+
 				$sql_ary = array(
-					'SELECT'	=> '*',
+					'SELECT'	=> 'smiley_url, MIN(smiley_id) AS smiley_id, MIN(code) AS code, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
 					'FROM'		=> array(SMILIES_TABLE => ''),
 					'WHERE'		=> 'display_on_shout = 0',
-					'GROUP_BY'	=> 'emotion',
-					'ORDER_BY'	=> 'smiley_order ASC',
+					'GROUP_BY'	=> 'smiley_url',
+					'ORDER_BY'	=> 'min_smiley_order ASC',
 				);
-				$result = $this->shoutbox->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary));
+				$result = $this->shoutbox->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary), false, 3600);
 				if (!$result)
 				{
 					break;
 				}
 				while ($row = $this->db->sql_fetchrow($result))
 				{
-					$content['smilies'][$i] = array(
+					$smilies[$i] = array(
 						'nb'		=> $i,
 						'code'		=> $row['code'],
 						'emotion'	=> $row['emotion'],
@@ -234,13 +232,14 @@ class ajax
 					);
 					$i++;
 				}
+				$this->db->sql_freeresult($result);
 
-				$content = array_merge($content, array(
+				$content = array(
+					'smilies'	=> $smilies,
 					'total'		=> $i,
 					'nb_pop'	=> 0,
-					'url'		=> $this->root_path_web . $this->config['smilies_path'] . '/',
-				));
-				$this->db->sql_freeresult($result);
+					'url'		=> $root_path . $this->config['smilies_path'] . '/',
+				);
 
 				/**
 				* You can use this event to modify the content array.
@@ -262,6 +261,7 @@ class ajax
 			case 'display_smilies':
 				$smiley = $this->request->variable('smiley', 0);
 				$display = $this->request->variable('display', 3);
+
 				if ($smiley && $display !== 3)
 				{
 					$var_set = ($display === 1) ? 0 : 1;
@@ -270,13 +270,13 @@ class ajax
 					$content = array('type'	=> ($display === 1) ? 1 : 2);
 
 					$i = $j = 0;
-					$list_data = $list_data_pop = '';
+					$smilies = $smilies_pop = [];
 					$sql_ary = array(
-						'SELECT'	=> 'smiley_id, code, smiley_url, smiley_width, smiley_height, emotion',
+						'SELECT'	=> 'smiley_url, MIN(smiley_id) AS smiley_id, MIN(code) AS code, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
 						'FROM'		=> array(SMILIES_TABLE => ''),
 						'WHERE'		=> 'display_on_shout = 1',
-						'GROUP_BY'	=> 'emotion',
-						'ORDER_BY'	=> 'smiley_order ASC',
+						'GROUP_BY'	=> 'smiley_url',
+						'ORDER_BY'	=> 'min_smiley_order ASC',
 					);
 					$result = $this->shoutbox->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary));
 					if (!$result)
@@ -285,7 +285,7 @@ class ajax
 					}
 					while ($row = $this->db->sql_fetchrow($result))
 					{
-						$content['smilies'][$i] = array(
+						$smilies[$i] = array(
 							'nb'		=> $i,
 							'id'		=> $row['smiley_id'],
 							'code'		=> $row['code'],
@@ -299,11 +299,11 @@ class ajax
 					$this->db->sql_freeresult($result);
 
 					$sql_ary = array(
-						'SELECT'	=> 'smiley_id, code, smiley_url, smiley_width, smiley_height, emotion',
+						'SELECT'	=> 'smiley_url, MIN(smiley_id) AS smiley_id, MIN(code) AS code, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
 						'FROM'		=> array(SMILIES_TABLE => ''),
 						'WHERE'		=> 'display_on_shout = 0',
-						'GROUP_BY'	=> 'emotion',
-						'ORDER_BY'	=> 'smiley_order',
+						'GROUP_BY'	=> 'smiley_url',
+						'ORDER_BY'	=> 'min_smiley_order',
 					);
 					$result_pop = $this->shoutbox->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary));
 					if (!$result_pop)
@@ -312,7 +312,7 @@ class ajax
 					}
 					while ($row = $this->db->sql_fetchrow($result_pop))
 					{
-						$content['smiliesPop'][$j] = array(
+						$smilies_pop[$j] = array(
 							'nb'		=> $j,
 							'id'		=> $row['smiley_id'],
 							'code'		=> $row['code'],
@@ -326,9 +326,11 @@ class ajax
 					$this->db->sql_freeresult($result_pop);
 
 					$content = array_merge($content, array(
-						'total'		=> $i,
-						'totalPop'	=> $j,
-						'url'		=> $this->root_path_web . $this->config['smilies_path'] . '/',
+						'smilies'		=> $smilies,
+						'smiliesPop'	=> $smilies_pop,
+						'total'			=> $i,
+						'totalPop'		=> $j,
+						'url'			=> $root_path . $this->config['smilies_path'] . '/',
 					));
 				}
 				else
@@ -345,6 +347,7 @@ class ajax
 				$other = $this->request->variable('other', 0);
 				$on_user = $other ? $other : $val_userid;
 				$text = $message = '';
+
 				// Parse bbcodes
 				$data = $this->shoutbox->parse_shout_bbcodes($open, $close, $other);
 				switch ($data['sort'])// the result of parse
@@ -366,7 +369,7 @@ class ajax
 						$ok_bbcode = (string) ($open . '||' . $close);
 						$uid = $bitfield = $options = '';
 						// Change it in the db
-						$sql = 'UPDATE ' . USERS_TABLE . " SET shout_bbcode = '" . $this->db->sql_escape($ok_bbcode) . " WHERE user_id = $on_user";
+						$sql = 'UPDATE ' . USERS_TABLE . " SET shout_bbcode = '" . $this->db->sql_escape($ok_bbcode) . "' WHERE user_id = $on_user";
 						$result = $this->shoutbox->shout_sql_query($sql);
 						if (!$result)
 						{
@@ -395,16 +398,15 @@ class ajax
 						$message = $data['message'];
 					break;
 				}
-				$content = array(
+
+				$response->send(array(
 					'type'		=> $data['sort'],
 					'before'	=> $open,
 					'after'		=> $close,
 					'on_user'	=> $on_user,
 					'text'		=> $text,
 					'message'	=> $message,
-				);
-
-				$response->send($content, true);
+				), true);
 			break;
 
 			case 'charge_bbcode':
@@ -413,7 +415,7 @@ class ajax
 					'FROM'		=> array(USERS_TABLE => ''),
 					'WHERE'		=> 'user_id = ' . $val_id,
 				));
-				$result = $this->shoutbox->shout_sql_query($sql, 1);
+				$result = $this->shoutbox->shout_sql_query($sql, true, 1);
 				if (!$result)
 				{
 					break;
@@ -433,60 +435,55 @@ class ajax
 					$on_bbcode[1] = '';
 					$message = $this->language->lang('SHOUT_EXEMPLE');
 				}
-				$content = array(
+
+				$response->send(array(
 					'id'		=> $val_id,
 					'name'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour']),
 					'before'	=> $on_bbcode[0],
 					'after'		=> $on_bbcode[1],
 					'message'	=> $message,
-				);
+				), true);
 				$this->db->sql_freeresult($result);
-
-				$response->send($content, true);
 			break;
 
 			case 'online':
 				$data = $this->shoutbox->shout_online();
-				$content = array(
+
+				$response->send(array(
 					'title'		=> $data['l_online'],
 					'liste'		=> $data['userlist'],
-				);
-
-				$response->send($content, true);
+				), true);
 			break;
 
 			case 'rules':
 				$data = $this->shoutbox->shout_rules($val_priv);
-				$content = array(
+
+				$response->send(array(
 					'sort'		=> $data['sort'],
 					'texte'		=> $data['text'],
-				);
-
-				$response->send($content, true);
+				), true);
 			break;
 
 			case 'preview_rules':
 				$rules = $this->request->variable('content', '', true);
 				$uid = $bitfield = $options = '';
 				generate_text_for_storage($rules, $uid, $bitfield, $options, true, false, true);
-				$rules = generate_text_for_display($rules, $uid, $bitfield, $options);
-				$content = array(
-					'content'	=> $rules,
-				);
+				$rules = $this->shoutbox->replace_shout_url(generate_text_for_display($rules, $uid, $bitfield, $options));
 
-				$response->send($content, true);
+				$response->send(array(
+					'content'	=> $rules,
+				), true);
 			break;
 
 			case 'date_format':
 				$date = $this->request->variable('date', '', true);
 				$date = ($date == 'custom') ? $this->config['shout_dateformat'] : $date;
-				$content = array(
+
+				$response->send(array(
 					'format'	=> $date,
 					'date'		=> $this->user->format_date(time() - 60*61, $date),
 					'date2'		=> $this->user->format_date(time() - 60*60*60, $date),
-				);
-
-				$response->send($content, true);
+				), true);
 			break;
 
 			case 'action_sound':
@@ -525,8 +522,8 @@ class ajax
 					'topic'		=> $shout->topic,
 				);
 
-				$sql = 'UPDATE ' . USERS_TABLE . " 
-					SET user_shout = '" . $this->db->sql_escape(json_encode($user_shout)) . "' 
+				$sql = 'UPDATE ' . USERS_TABLE . "
+					SET user_shout = '" . $this->db->sql_escape(json_encode($user_shout)) . "'
 						WHERE user_id = $val_userid";
 				$result = $this->shoutbox->shout_sql_query($sql);
 
@@ -539,7 +536,7 @@ class ajax
 					'FROM'		=> array(USERS_TABLE => ''),
 					'WHERE'		=> 'user_id = ' . $val_id,
 				));
-				$result = $this->shoutbox->shout_sql_query($sql, 1);
+				$result = $this->shoutbox->shout_sql_query($sql, true, 1);
 				if (!$result)
 				{
 					break;
@@ -567,12 +564,10 @@ class ajax
 			case 'action_user':
 				if (!$val_is_user || $val_id == ANONYMOUS || !$val_id)
 				{
-					$content = array(
+					$response->send(array(
 						'type'		=> 0,
-						'message'	=> $this->language->lang('NO_ACTION_PERM')
-					);
-
-					$response->send($content, true);
+						'message'	=> $this->language->lang('NO_ACTION_PERM'),
+					), true);
 				}
 				else
 				{
@@ -583,11 +578,11 @@ class ajax
 							array(
 								'FROM'	=> array(ZEBRA_TABLE => 'z'),
 								'ON'	=> "u.user_id = z.zebra_id AND z.user_id = $val_userid",
-							)
+							),
 						),
 						'WHERE'		=> "u.user_id = $val_id",
 					);
-					$result = $this->shoutbox->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary), 1);
+					$result = $this->shoutbox->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary), true, 1);
 					if (!$result)
 					{
 						break;
@@ -623,12 +618,12 @@ class ajax
 							$url_del_to		= 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DEL_TO_EXPLAIN') . '\'))shoutbox.delReqTo(' . $val_userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DEL_TO') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_DEL_TO');
 							$url_del		= 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DELETE_EXPLAIN') . '\'))shoutbox.delReq(' . $val_userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DELETE') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_DELETE');
 						}
-						$url_profile	= 'href="' . append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", "mode=viewprofile&amp;u={$val_id}", false) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_PROFIL') . ' ' . $this->language->lang('FROM') . ' ' . $row['username'] . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_PROFIL');
+						$url_profile	= 'href="' . append_sid("{$root_path}memberlist.{$this->php_ext}", "mode=viewprofile&amp;u={$val_id}", false) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_PROFIL') . ' ' . $this->language->lang('FROM') . ' ' . $row['username'] . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_PROFIL');
 						$url_cite		= 'onclick="shoutbox.citeMsg();return false;" title="' . $this->language->lang('SHOUT_ACTION_CITE_EXPLAIN') . '">'  . $tpl['span'] . $this->language->lang('SHOUT_ACTION_CITE');
 						$url_cite_m		= 'onclick="shoutbox.citeMultiMsg(\'' . $row['username'] . '\', \'' . $row['user_colour'] . '\');return false;" title="' . $this->language->lang('SHOUT_ACTION_CITE_M_EXPLAIN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_CITE_M');
-						$url_admin		= 'href="' . append_sid("{$this->root_path_web}{$adm_path}index.{$this->php_ext}", "i=users&amp;mode=overview&amp;u=$val_id", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_USER_ADMIN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_USER_ADMIN');
-						$url_modo		= 'href="' . append_sid("{$this->root_path_web}mcp.{$this->php_ext}", "i=notes&amp;mode=user_notes&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_MCP') . '">' . $tpl['span']  . $this->language->lang('SHOUT_ACTION_MCP');
-						$url_ban		= 'href="' . append_sid("{$this->root_path_web}mcp.{$this->php_ext}", "i=ban&amp;mode=user&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_BAN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_BAN');
+						$url_admin		= 'href="' . append_sid("{$root_path}{$adm_path}index.{$this->php_ext}", "i=users&amp;mode=overview&amp;u=$val_id", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_USER_ADMIN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_USER_ADMIN');
+						$url_modo		= 'href="' . append_sid("{$root_path}mcp.{$this->php_ext}", "i=notes&amp;mode=user_notes&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_MCP') . '">' . $tpl['span']  . $this->language->lang('SHOUT_ACTION_MCP');
+						$url_ban		= 'href="' . append_sid("{$root_path}mcp.{$this->php_ext}", "i=ban&amp;mode=user&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_BAN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_BAN');
 						$url_remove		= 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_REMOVE_EXPLAIN') . '\'))shoutbox.removeMsg(' . $val_id . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_REMOVE') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_REMOVE');
 						$url_perso		= 'onclick="shoutbox.changePerso(' . $val_id . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_PERSO') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_PERSO');
 						$url_robot		= 'onclick="shoutbox.iH(\'shout_avatar\',\'\');shoutbox.robotMsg(' . $val_sort . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->config['shout_name_robot']) . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $robot);
@@ -638,7 +633,7 @@ class ajax
 							'id'			=> $val_id,
 							'sort'			=> $val_sort,
 							'foe'			=> $row['foe'] ? true : false,
-							'username'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'], false, append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", "mode=viewprofile")),
+							'username'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'], false, append_sid("{$root_path}memberlist.{$this->php_ext}", "mode=viewprofile")),
 							'avatar'		=> $this->shoutbox->shout_user_avatar($row, 60, true),
 							'url_message'	=> $row['foe'] ? $this->language->lang('SHOUT_USER_IGNORE') : $url_message,
 							'url_profile'	=> $url_profile,
@@ -695,11 +690,11 @@ class ajax
 								array(
 									'FROM'	=> array(ZEBRA_TABLE => 'z'),
 									'ON'	=> "z.zebra_id = u.user_id AND z.user_id = $val_userid",
-								)
+								),
 							),
 							'WHERE'		=> "u.user_id = $val_id",
 						));
-						$result = $this->shoutbox->shout_sql_query($sql, 1);
+						$result = $this->shoutbox->shout_sql_query($sql, true, 1);
 						if (!$result)
 						{
 							break;
@@ -759,7 +754,7 @@ class ajax
 						$content = array(
 							'type'		=> 1,
 							'friend'	=> $friend,
-							'message'	=> $this->language->lang('POSTED')
+							'message'	=> $this->language->lang('POSTED'),
 						);
 					}
 				}
@@ -767,7 +762,7 @@ class ajax
 				{
 					$content = array(
 						'type'		=> 0,
-						'message'	=> $this->language->lang('NO_ACTION_PERM')
+						'message'	=> $this->language->lang('NO_ACTION_PERM'),
 					);
 				}
 
@@ -785,8 +780,8 @@ class ajax
 				else
 				{
 					// Delete all personnal messages of this user
-					$sql = 'DELETE FROM ' . $shoutbox_table . ' 
-						WHERE shout_user_id = ' . $val_userid . ' 
+					$sql = 'DELETE FROM ' . $shoutbox_table . '
+						WHERE shout_user_id = ' . $val_userid . '
 							AND shout_inp <> 0';
 					$result = $this->shoutbox->shout_sql_query($sql);
 					if (!$result)
@@ -860,9 +855,9 @@ class ajax
 				if ($this->auth->acl_get('a_shout_manage') || $this->auth->acl_get('m_shout_delete'))
 				{
 					// Delete all messages of this user
-					$sql = 'DELETE FROM ' . $shoutbox_table . "  
-						WHERE shout_user_id = $val_id 
-							OR shout_robot_user = $val_id 
+					$sql = 'DELETE FROM ' . $shoutbox_table . "
+						WHERE shout_user_id = $val_id
+							OR shout_robot_user = $val_id
 							OR shout_inp = $val_id";
 					$result = $this->shoutbox->shout_sql_query($sql);
 					if (!$result)
@@ -917,10 +912,10 @@ class ajax
 					$can_delete_all	= ($this->auth->acl_get('m_shout_delete') || $this->auth->acl_get("a_shout_{$val_auth_shout}")) ? true : false;
 					$can_delete		= $can_delete_all ? true : $this->auth->acl_get('u_shout_delete_s');
 					
-					$sql = 'SELECT shout_user_id 
-						FROM ' . $shoutbox_table . ' 
+					$sql = 'SELECT shout_user_id
+						FROM ' . $shoutbox_table . '
 							WHERE shout_id = ' . $post;
-					$result = $this->shoutbox->shout_sql_query($sql, 1);
+					$result = $this->shoutbox->shout_sql_query($sql, true, 1);
 					if (!$result)
 					{
 						break;
@@ -946,8 +941,8 @@ class ajax
 					else if ($can_delete && ($val_userid == $on_id) || $can_delete_all)
 					{
 						// Lets delete this post :D
-						$sql = 'DELETE FROM ' . $shoutbox_table . ' 
-							WHERE shout_id = ' . $post;
+						$sql = 'DELETE FROM ' . $shoutbox_table . '
+							WHERE shout_id = ' . (int) $post;
 						$this->db->sql_query($sql);
 
 						$this->shoutbox->update_shout_messages($shoutbox_table, $post);
@@ -1005,7 +1000,7 @@ class ajax
 				{
 					$sort_on = explode(', ', $this->config["shout_robot_choice{$val_priv}"] . ', 4');
 					
-					$sql = 'DELETE FROM ' . $shoutbox_table . ' 
+					$sql = 'DELETE FROM ' . $shoutbox_table . '
 						WHERE ' . $this->db->sql_in_set('shout_info', $sort_on, false, true);
 					$result = $this->shoutbox->shout_sql_query($sql);
 					if (!$result)
@@ -1046,10 +1041,10 @@ class ajax
 				$edit_sort		= $ok_edit = false;
 
 				// We need to be sure its this users his shout.
-				$sql = 'SELECT shout_user_id 
-					FROM ' . $shoutbox_table . ' 
+				$sql = 'SELECT shout_user_id
+					FROM ' . $shoutbox_table . '
 						WHERE shout_id = ' . $shout_id;
-				$result = $this->shoutbox->shout_sql_query($sql, 1);
+				$result = $this->shoutbox->shout_sql_query($sql, true, 1);
 				if (!$result)
 				{
 					break;
@@ -1100,7 +1095,7 @@ class ajax
 				);
 
 				$sql = 'UPDATE ' . $shoutbox_table . '
-					SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . ' 
+					SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
 						WHERE shout_id = ' . $shout_id;
 				$result = $this->shoutbox->shout_sql_query($sql);
 				if (!$result)
@@ -1138,7 +1133,7 @@ class ajax
 				// Checking permissions
 				$allow_bbcode	= $this->auth->acl_get('u_shout_bbcode') ? true : false;
 				$allow_smilies	= $this->auth->acl_get('u_shout_smilies') ? true : false;
-				
+
 				if (!$this->auth->acl_get('u_shout_post'))
 				{
 					$this->shoutbox->shout_error('NO_POST_PERM');
@@ -1223,14 +1218,13 @@ class ajax
 						$this->shoutbox->delete_shout_posts($val_on_priv);
 					}
 				}
-				$content = array(
+
+				$response->send(array(
 					'mode'		=> $mode,
 					'cite'		=> $cite,
 					'type'		=> 1,
 					'message'	=> $this->language->lang('POSTED'),
-				);
-
-				$response->send($content, true);
+				), true);
 			break;
 
 			case 'check':
@@ -1286,7 +1280,7 @@ class ajax
 					'WHERE'		=> $sql_where . $sql_and,
 					'ORDER_BY'	=> 'shout_time DESC',
 				));
-				$result = $this->shoutbox->shout_sql_query($sql, 1);
+				$result = $this->shoutbox->shout_sql_query($sql, true, 1);
 				if (!$result)
 				{
 					break;
@@ -1295,11 +1289,10 @@ class ajax
 				$this->db->sql_freeresult($result);
 				// check just with the last 4 numbers
 				$on_time = substr($time, 6, 4);
-				$content = array(
-					't'	=> $on_time,
-				);
 
-				$response->send($content, true);
+				$response->send(array(
+					't'	=> $on_time,
+				), true);
 			break;
 
 			case 'view':
@@ -1311,10 +1304,11 @@ class ajax
 					$this->shoutbox->shout_error("NO_VIEW{$val_privat}_PERM");
 					break;
 				}
+
 				$start = $this->request->variable('start', 0);
 				$i = 0;
 				$content = array(
-					'messages'	=> array()
+					'messages'	=> array(),
 				);
 
 				$dateformat = $this->config['shout_dateformat'];
@@ -1375,17 +1369,17 @@ class ajax
 					'LEFT_JOIN'	=> array(
 						array(
 							'FROM'	=> array(USERS_TABLE => 'u'),
-							'ON'	=> 'u.user_id = s.shout_user_id'
+							'ON'	=> 'u.user_id = s.shout_user_id',
 						),
 						array(
 							'FROM'	=> array(USERS_TABLE => 'v'),
-							'ON'	=> 'v.user_id = s.shout_robot_user'
-						)
+							'ON'	=> 'v.user_id = s.shout_robot_user',
+						),
 					),
 					'WHERE'		=> $sql_where . $sql_and,
 					'ORDER_BY'	=> 's.shout_id DESC',
 				));
-				$result = $this->shoutbox->shout_sql_query($sql, $this->config["shout_non_ie_nr{$val_sort_on}"], $start);
+				$result = $this->shoutbox->shout_sql_query($sql, true, $this->config["shout_non_ie_nr{$val_sort_on}"], $start);
 				if (!$result)
 				{
 					break;
@@ -1409,7 +1403,7 @@ class ajax
 					{
 						if (!$val_is_user || ($row['shout_inp'] != $val_userid) && ($row['shout_user_id'] != $val_userid))
 						{
-							continue; // No permission to see it, continue...
+							continue;// No permission to see it, continue...
 						}
 					}
 
@@ -1486,7 +1480,7 @@ class ajax
 					'WHERE'		=> $sql_where . $sql_and,
 					'ORDER_BY'	=> 's.shout_id DESC',
 				));
-				$result_time = $this->shoutbox->shout_sql_query($sql, 1);
+				$result_time = $this->shoutbox->shout_sql_query($sql, true, 1);
 				if (!$result_time)
 				{
 					break;

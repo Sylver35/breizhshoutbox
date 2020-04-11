@@ -17,6 +17,8 @@ use phpbb\template\template;
 use phpbb\auth\auth;
 use phpbb\user;
 use phpbb\language\language;
+use phpbb\request\request;
+use phpbb\pagination;
 
 class main
 {
@@ -44,6 +46,12 @@ class main
 	/** @var \phpbb\language\language */
 	protected $language;
 
+	/** @var \phpbb\request\request */
+	protected $request;
+
+	/** @var \phpbb\pagination */
+	protected $pagination;
+
 	/** @var string phpBB root path */
 	protected $root_path;
 
@@ -53,7 +61,7 @@ class main
 	/**
 	* Constructor
 	*/
-	public function __construct(shoutbox $shoutbox, config $config, helper $helper, db $db, template $template, auth $auth, user $user, language $language, $root_path, $php_ext)
+	public function __construct(shoutbox $shoutbox, config $config, helper $helper, db $db, template $template, auth $auth, user $user, language $language, request $request, pagination $pagination, $root_path, $php_ext)
 	{
 		$this->shoutbox			= $shoutbox;
 		$this->config			= $config;
@@ -61,8 +69,10 @@ class main
 		$this->db 				= $db;
 		$this->template			= $template;
 		$this->auth				= $auth;
-		$this->language			= $language;
 		$this->user				= $user;
+		$this->language			= $language;
+		$this->request			= $request;
+		$this->pagination		= $pagination;
 		$this->root_path		= $root_path;
 		$this->php_ext			= $php_ext;
 	}
@@ -86,7 +96,7 @@ class main
 			$this->template->assign_block_vars_array('navlinks', array(
 				array(
 					'FORUM_NAME'	=> $this->language->lang('SHOUTBOX_SECRET'),
-					'U_VIEW_FORUM'	=> $this->helper->route('sylver35_breizhshoutbox_controller_private'),
+					'U_VIEW_FORUM'	=> $this->helper->route('sylver35_breizhshoutbox_private'),
 				),
 			));
 			page_header($this->language->lang('SHOUTBOX_SECRET'), true);
@@ -158,18 +168,27 @@ class main
 
 	public function shoutbox_smilies_pop()
 	{
-		$this->user->setup('posting');
-		$sql = $this->db->sql_build_query('SELECT', array(
-			'SELECT'	=> 'smiley_id, smiley_url, code, emotion, smiley_width, smiley_height, smiley_order',
-			'FROM'		=> array(SMILIES_TABLE => ''),
-			'WHERE'		=> 'display_on_posting <> 1',
-			'GROUP_BY'	=> 'emotion',
-			'ORDER_BY'	=> 'smiley_order ASC',
-		));
+		$start	= $this->request->variable('start', 0);
+		$url	= $this->helper->route('sylver35_breizhshoutbox_smilies_pop');
+
+		$sql = 'SELECT COUNT(DISTINCT smiley_url) AS smilies_count
+			FROM ' . SMILIES_TABLE . '
+				WHERE display_on_shout = 0';
 		$result = $this->db->sql_query($sql);
+		$count = (int) $this->db->sql_fetchfield('smilies_count');
+		$this->db->sql_freeresult($result);
+
+		$sql = $this->db->sql_build_query('SELECT', array(
+			'SELECT'	=> 'smiley_url, MIN(smiley_id) AS smiley_id, MIN(code) AS code, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
+			'FROM'		=> array(SMILIES_TABLE => ''),
+			'WHERE'		=> 'display_on_shout = 0',
+			'GROUP_BY'	=> 'smiley_url',
+			'ORDER_BY'	=> 'min_smiley_order ASC',
+		));
+		$result = $this->db->sql_query_limit($sql, $this->config['smilies_per_page'], $start);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$this->template->assign_block_vars('smileys', array(
+			$this->template->assign_block_vars('smilies', array(
 				'SMILEY_CODE'		=> $row['code'],
 				'SMILEY_EMOTION'	=> $row['emotion'],
 				'SMILEY_WIDTH'		=> $row['smiley_width'],
@@ -179,6 +198,9 @@ class main
 		}
 		$this->db->sql_freeresult($result);
 
+		$start = $this->pagination->validate_start($start, $this->config['smilies_per_page'], $count);
+		$this->pagination->generate_template_pagination($url, 'pagination', 'start', $count, $this->config['smilies_per_page'], $start);
+
 		$data = $this->shoutbox->get_version();
 		$this->template->assign_vars(array(
 			'S_IN_SHOUT_ACP'	=> true,
@@ -186,9 +208,11 @@ class main
 		));
 
 		page_header($this->language->lang('SMILIES'));
+
 		$this->template->set_filenames(array(
 			'body' => '@sylver35_breizhshoutbox/shout_template.html')
 		);
+
 		page_footer();
 	}
 }
