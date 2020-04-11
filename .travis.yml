@@ -25,8 +25,8 @@ matrix:
 
 env:
     global:
-        - EXTNAME="sylver35/smiliescat" # CHANGE name of the extension HERE
-        - GITREPO="Sylver35/smiliescat" # CHANGE name of the repository HERE
+        - EXTNAME="sylver35/breizhshoutbox" # CHANGE name of the extension HERE
+        - GITREPO="Sylver35/breizhshoutbox" # CHANGE name of the repository HERE
         - SNIFF="1"        # Should we run code sniffer on your code?
         - IMAGE_ICC="1"    # Should we run icc profile sniffer on your images?
         - EPV="1"          # Should we run EPV (Extension Pre Validator) on your code?
