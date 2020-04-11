@@ -45,17 +45,11 @@ class main_listener implements EventSubscriberInterface
 	/** @var \phpbb\language\language */
 	protected $language;
 
-	/** @var string phpBB root path */
-	protected $root_path;
-
-	/** @var string phpEx */
-	protected $php_ext;
-
 	/**
 	* Constructor
 	*
 	*/
-	public function __construct(shoutbox $shoutbox, config $config, helper $helper, request $request, template $template, auth $auth, user $user, language $language, $root_path, $php_ext)
+	public function __construct(shoutbox $shoutbox, config $config, helper $helper, request $request, template $template, auth $auth, user $user, language $language)
 	{
 		$this->shoutbox		= $shoutbox;
 		$this->config		= $config;
@@ -65,8 +59,6 @@ class main_listener implements EventSubscriberInterface
 		$this->auth			= $auth;
 		$this->user			= $user;
 		$this->language		= $language;
-		$this->root_path	= $root_path;
-		$this->php_ext		= $php_ext;
 	}
 
 	static public function getSubscribedEvents()
@@ -118,10 +110,10 @@ class main_listener implements EventSubscriberInterface
 		$this->template->assign_vars(array(
 			'SHOUT_POPUP_H'			=> $this->config['shout_popup_width'],
 			'SHOUT_POPUP_W'			=> $this->config['shout_popup_height'],
-			'U_SHOUT_PRIV_PAGE'		=> $this->auth->acl_get('u_shout_priv') ? $this->helper->route('sylver35_breizhshoutbox_controller_private') : '',
-			'U_SHOUT_POPUP'			=> $this->auth->acl_get('u_shout_popup') ? $this->helper->route('sylver35_breizhshoutbox_controller_popup') : '',
-			'U_SHOUT_CONFIG'		=> $this->auth->acl_get('u_shout_post') ? $this->helper->route('sylver35_breizhshoutbox_controller_configshout') : '',
-			'U_SHOUT_AJAX'			=> $this->helper->route('sylver35_breizhshoutbox_controller_ajax', array('mode' => 'display_smilies')),
+			'U_SHOUT_PRIV_PAGE'		=> $this->auth->acl_get('u_shout_priv') ? $this->helper->route('sylver35_breizhshoutbox_private') : '',
+			'U_SHOUT_POPUP'			=> $this->auth->acl_get('u_shout_popup') ? $this->helper->route('sylver35_breizhshoutbox_popup') : '',
+			'U_SHOUT_CONFIG'		=> $this->auth->acl_get('u_shout_post') ? $this->helper->route('sylver35_breizhshoutbox_configshout') : '',
+			'U_SHOUT_AJAX'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'display_smilies')),
 			'SHOUT_COPYRIGHT'		=> $this->language->lang('SHOUTBOX_VER', $data['version']),
 		));
 		$this->shoutbox->shout_panel();
@@ -264,7 +256,7 @@ class main_listener implements EventSubscriberInterface
 			'u_shout_bbcode'		=> array('lang' => 'ACL_U_SHOUT_BBCODE',		'cat' => 'shoutbox'),
 			'u_shout_bbcode_change'	=> array('lang' => 'ACL_U_SHOUT_BBCODE_CHANGE',	'cat' => 'shoutbox'),
 			'u_shout_chars'			=> array('lang' => 'ACL_U_SHOUT_CHARS',			'cat' => 'shoutbox'),
-			'u_shout_color'			=> array('lang' => 'ACL_U_SHOUT_COLOR',		'cat' => 'shoutbox'),
+			'u_shout_color'			=> array('lang' => 'ACL_U_SHOUT_COLOR',			'cat' => 'shoutbox'),
 			'u_shout_delete_s'		=> array('lang' => 'ACL_U_SHOUT_DELETE_S',		'cat' => 'shoutbox'),
 			'u_shout_edit'			=> array('lang' => 'ACL_U_SHOUT_EDIT',			'cat' => 'shoutbox'),
 			'u_shout_hide'			=> array('lang' => 'ACL_U_SHOUT_HIDE',			'cat' => 'shoutbox'),
