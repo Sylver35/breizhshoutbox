@@ -1436,7 +1436,7 @@ class shoutbox
 			}
 		}
 
-		return $username_full;
+		return $this->replace_shout_url($username_full);
 	}
 
 	/* 
@@ -1468,7 +1468,7 @@ class shoutbox
 	*/
 	public function replace_shout_url($url)
 	{
-		return str_replace(array('./../../../../', './../../../', './../../', './../', './'), $this->root_path_web, $url);
+		return str_replace(array('./../../../../', './../../../', './../../', './../', './'), generate_board_url() . '/', $url);
 	}
 
 	/*
