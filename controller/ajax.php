@@ -110,40 +110,41 @@ class ajax
 	 */
 	public function construct_ajax($mode)
 	{
-		$val_id			= $this->request->variable('user', 0);
-		$val_sort		= $this->request->variable('sort', 2);
-		$val_userid		= $this->user->data['user_id'];
-		$val_is_user	= ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false;
-		$adm_path		= $this->shoutbox->adm_relative_path();
-		$root_path		= $this->shoutbox->root_path();
-		$response		= new \phpbb\json_response;
-
-		// We have our own error handling
-		$this->db->sql_return_on_error(true);
+		$val_id		= $this->request->variable('user', 0);
+		$val_sort	= $this->request->variable('sort', 2);
+		$userid		= $this->user->data['user_id'];
+		$is_user	= ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false;
+		$adm_path	= $this->shoutbox->adm_relative_path();
+		$board_url	= generate_board_url() . '/';
+		$response	= new \phpbb\json_response;
 
 		// First initialize somes variables, protect private
 		// And select the good table for the type of shoutbox
-		$val_on_priv = false;
-		$val_perm = '_view';
-		$val_auth_shout = 'manage';
-		$val_priv = $val_privat = '';
-		$shoutbox_table = $this->shoutbox_table;
+		$val_on_priv	= false;
+		$val_perm		= '_view';
+		$val_auth		= 'manage';
+		$val_priv		= $val_privat = '';
 		switch ($val_sort)
 		{
 			case 1:// Popup shoutbox
 				$val_sort_on = '_pop';
+				$shoutbox_table	= $this->shoutbox_table;
 			break;
 			case 2:// Normal shoutbox
 				$val_sort_on = '';
+				$shoutbox_table	= $this->shoutbox_table;
 			break;
 			case 3:// Private shoutbox
 				$val_on_priv = true;
 				$val_sort_on = $val_perm = $val_priv = '_priv';
-				$val_auth_shout = 'priv';
+				$val_auth = 'priv';
 				$val_privat = '_PRIV';
 				$shoutbox_table = $this->shoutbox_priv_table;
 			break;
 		}
+
+		// We have our own error handling
+		$this->db->sql_return_on_error(true);
 
 		switch ($mode)
 		{
@@ -187,7 +188,7 @@ class ajax
 					'smilies'	=> $smilies,
 					'total'		=> $i,
 					'nb_pop'	=> $row_nb,
-					'url'		=> $root_path . $this->config['smilies_path'] . '/',
+					'url'		=> $board_url . $this->config['smilies_path'] . '/',
 				);
 
 				/**
@@ -238,7 +239,7 @@ class ajax
 					'smilies'	=> $smilies,
 					'total'		=> $i,
 					'nb_pop'	=> 0,
-					'url'		=> $root_path . $this->config['smilies_path'] . '/',
+					'url'		=> $board_url . $this->config['smilies_path'] . '/',
 				);
 
 				/**
@@ -330,7 +331,7 @@ class ajax
 						'smiliesPop'	=> $smilies_pop,
 						'total'			=> $i,
 						'totalPop'		=> $j,
-						'url'			=> $root_path . $this->config['smilies_path'] . '/',
+						'url'			=> $board_url . $this->config['smilies_path'] . '/',
 					));
 				}
 				else
@@ -345,7 +346,7 @@ class ajax
 				$open = $this->request->variable('open', '');
 				$close = $this->request->variable('close', '');
 				$other = $this->request->variable('other', 0);
-				$on_user = $other ? $other : $val_userid;
+				$on_user = $other ? $other : $userid;
 				$text = $message = '';
 
 				// Parse bbcodes
@@ -524,7 +525,7 @@ class ajax
 
 				$sql = 'UPDATE ' . USERS_TABLE . "
 					SET user_shout = '" . $this->db->sql_escape(json_encode($user_shout)) . "'
-						WHERE user_id = $val_userid";
+						WHERE user_id = $userid";
 				$result = $this->shoutbox->shout_sql_query($sql);
 
 				$response->send($content, true);
@@ -562,7 +563,7 @@ class ajax
 			break;
 
 			case 'action_user':
-				if (!$val_is_user || $val_id == ANONYMOUS || !$val_id)
+				if (!$is_user || $val_id == ANONYMOUS || !$val_id)
 				{
 					$response->send(array(
 						'type'		=> 0,
@@ -577,7 +578,7 @@ class ajax
 						'LEFT_JOIN'	=> array(
 							array(
 								'FROM'	=> array(ZEBRA_TABLE => 'z'),
-								'ON'	=> "u.user_id = z.zebra_id AND z.user_id = $val_userid",
+								'ON'	=> "u.user_id = z.zebra_id AND z.user_id = $userid",
 							),
 						),
 						'WHERE'		=> "u.user_id = $val_id",
@@ -615,15 +616,15 @@ class ajax
 						if ($inp)
 						{
 							$url_message	= 'onclick="shoutbox.personalMsg();return false;" title="' . $this->language->lang('SHOUT_ACTION_MSG') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_MSG');
-							$url_del_to		= 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DEL_TO_EXPLAIN') . '\'))shoutbox.delReqTo(' . $val_userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DEL_TO') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_DEL_TO');
-							$url_del		= 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DELETE_EXPLAIN') . '\'))shoutbox.delReq(' . $val_userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DELETE') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_DELETE');
+							$url_del_to		= 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DEL_TO_EXPLAIN') . '\'))shoutbox.delReqTo(' . $userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DEL_TO') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_DEL_TO');
+							$url_del		= 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DELETE_EXPLAIN') . '\'))shoutbox.delReq(' . $userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DELETE') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_DELETE');
 						}
-						$url_profile	= 'href="' . append_sid("{$root_path}memberlist.{$this->php_ext}", "mode=viewprofile&amp;u={$val_id}", false) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_PROFIL') . ' ' . $this->language->lang('FROM') . ' ' . $row['username'] . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_PROFIL');
+						$url_profile	= 'href="' . append_sid("{$board_url}memberlist.{$this->php_ext}", "mode=viewprofile&amp;u={$val_id}", false) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_PROFIL') . ' ' . $this->language->lang('FROM') . ' ' . $row['username'] . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_PROFIL');
 						$url_cite		= 'onclick="shoutbox.citeMsg();return false;" title="' . $this->language->lang('SHOUT_ACTION_CITE_EXPLAIN') . '">'  . $tpl['span'] . $this->language->lang('SHOUT_ACTION_CITE');
 						$url_cite_m		= 'onclick="shoutbox.citeMultiMsg(\'' . $row['username'] . '\', \'' . $row['user_colour'] . '\');return false;" title="' . $this->language->lang('SHOUT_ACTION_CITE_M_EXPLAIN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_CITE_M');
-						$url_admin		= 'href="' . append_sid("{$root_path}{$adm_path}index.{$this->php_ext}", "i=users&amp;mode=overview&amp;u=$val_id", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_USER_ADMIN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_USER_ADMIN');
-						$url_modo		= 'href="' . append_sid("{$root_path}mcp.{$this->php_ext}", "i=notes&amp;mode=user_notes&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_MCP') . '">' . $tpl['span']  . $this->language->lang('SHOUT_ACTION_MCP');
-						$url_ban		= 'href="' . append_sid("{$root_path}mcp.{$this->php_ext}", "i=ban&amp;mode=user&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_BAN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_BAN');
+						$url_admin		= 'href="' . append_sid("{$board_url}{$adm_path}index.{$this->php_ext}", "i=users&amp;mode=overview&amp;u=$val_id", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_USER_ADMIN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_USER_ADMIN');
+						$url_modo		= 'href="' . append_sid("{$board_url}mcp.{$this->php_ext}", "i=notes&amp;mode=user_notes&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_MCP') . '">' . $tpl['span']  . $this->language->lang('SHOUT_ACTION_MCP');
+						$url_ban		= 'href="' . append_sid("{$board_url}mcp.{$this->php_ext}", "i=ban&amp;mode=user&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_BAN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_BAN');
 						$url_remove		= 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_REMOVE_EXPLAIN') . '\'))shoutbox.removeMsg(' . $val_id . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_REMOVE') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_REMOVE');
 						$url_perso		= 'onclick="shoutbox.changePerso(' . $val_id . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_PERSO') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_PERSO');
 						$url_robot		= 'onclick="shoutbox.iH(\'shout_avatar\',\'\');shoutbox.robotMsg(' . $val_sort . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->config['shout_name_robot']) . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $robot);
@@ -633,7 +634,7 @@ class ajax
 							'id'			=> $val_id,
 							'sort'			=> $val_sort,
 							'foe'			=> $row['foe'] ? true : false,
-							'username'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'], false, append_sid("{$root_path}memberlist.{$this->php_ext}", "mode=viewprofile")),
+							'username'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'], false, append_sid("{$board_url}memberlist.{$this->php_ext}", "mode=viewprofile")),
 							'avatar'		=> $this->shoutbox->shout_user_avatar($row, 60, true),
 							'url_message'	=> $row['foe'] ? $this->language->lang('SHOUT_USER_IGNORE') : $url_message,
 							'url_profile'	=> $url_profile,
@@ -674,7 +675,7 @@ class ajax
 							$personal = false;
 							$robot = true;
 							$go = true;
-							$val_id = $val_userid = 0;
+							$val_id = $userid = 0;
 						}
 						else// no perm, out...
 						{
@@ -689,7 +690,7 @@ class ajax
 							'LEFT_JOIN'	=> array(
 								array(
 									'FROM'	=> array(ZEBRA_TABLE => 'z'),
-									'ON'	=> "z.zebra_id = u.user_id AND z.user_id = $val_userid",
+									'ON'	=> "z.zebra_id = u.user_id AND z.user_id = $userid",
 								),
 							),
 							'WHERE'		=> "u.user_id = $val_id",
@@ -740,7 +741,7 @@ class ajax
 							'shout_bbcode_bitfield'		=> $bitfield,
 							'shout_bbcode_flags'		=> $options,
 							'shout_time'				=> (int) time(),
-							'shout_user_id'				=> $val_userid,
+							'shout_user_id'				=> $userid,
 							'shout_ip'					=> (string) $this->user->ip,
 							'shout_robot_user'			=> (int) $val_id,
 							'shout_robot'				=> 0,
@@ -770,7 +771,7 @@ class ajax
 			break;
 
 			case 'action_del':
-				if ($val_id != $val_userid)
+				if ($val_id != $userid)
 				{
 					$content = array(
 						'type'		=> 0,
@@ -781,7 +782,7 @@ class ajax
 				{
 					// Delete all personnal messages of this user
 					$sql = 'DELETE FROM ' . $shoutbox_table . '
-						WHERE shout_user_id = ' . $val_userid . '
+						WHERE shout_user_id = ' . $userid . '
 							AND shout_inp <> 0';
 					$result = $this->shoutbox->shout_sql_query($sql);
 					if (!$result)
@@ -811,7 +812,7 @@ class ajax
 			break;
 
 			case 'action_del_to':
-				if ($val_id != $val_userid)
+				if ($val_id != $userid)
 				{
 					$content = array(
 						'type'		=> 0,
@@ -822,8 +823,8 @@ class ajax
 				{
 					// Delete all personnal messages to this user
 					$sql = 'DELETE FROM ' . $shoutbox_table . "
-						WHERE shout_inp = $val_userid
-							AND shout_user_id <> $val_userid";
+						WHERE shout_inp = $userid
+							AND shout_user_id <> $userid";
 					$result = $this->shoutbox->shout_sql_query($sql);
 					if (!$result)
 					{
@@ -901,7 +902,7 @@ class ajax
 					$this->shoutbox->shout_error('NO_SHOUT_ID');
 					break;
 				}
-				else if ($val_userid == ANONYMOUS)
+				else if ($userid == ANONYMOUS)
 				{
 					$this->shoutbox->shout_error('NO_DELETE_PERM');
 					break;
@@ -909,7 +910,7 @@ class ajax
 				else
 				{
 					// If someone can delete all messages, he can delete it's messages :)
-					$can_delete_all	= ($this->auth->acl_get('m_shout_delete') || $this->auth->acl_get("a_shout_{$val_auth_shout}")) ? true : false;
+					$can_delete_all	= ($this->auth->acl_get('m_shout_delete') || $this->auth->acl_get("a_shout_{$val_auth}")) ? true : false;
 					$can_delete		= $can_delete_all ? true : $this->auth->acl_get('u_shout_delete_s');
 					
 					$sql = 'SELECT shout_user_id
@@ -923,12 +924,12 @@ class ajax
 					$on_id = $this->db->sql_fetchfield('shout_user_id');
 					$this->db->sql_freeresult($result);
 					
-					if (!$can_delete && ($val_userid == $on_id))
+					if (!$can_delete && ($userid == $on_id))
 					{
 						$this->shoutbox->shout_error('NO_DELETE_PERM_S');
 						break;
 					}
-					else if (!$can_delete_all && $can_delete && ($val_userid != $on_id))
+					else if (!$can_delete_all && $can_delete && ($userid != $on_id))
 					{
 						$this->shoutbox->shout_error('NO_DELETE_PERM_T');
 						break;
@@ -938,7 +939,7 @@ class ajax
 						$this->shoutbox->shout_error('NO_DELETE_PERM');
 						break;
 					}
-					else if ($can_delete && ($val_userid == $on_id) || $can_delete_all)
+					else if ($can_delete && ($userid == $on_id) || $can_delete_all)
 					{
 						// Lets delete this post :D
 						$sql = 'DELETE FROM ' . $shoutbox_table . '
@@ -980,7 +981,7 @@ class ajax
 					$deleted = $this->db->sql_affectedrows();
 
 					$this->config->increment("shout_del_purge{$val_priv}", $deleted, true);
-					$this->shoutbox->post_robot_shout($val_userid, $this->user->ip, $val_on_priv, true, false, false, false);
+					$this->shoutbox->post_robot_shout($userid, $this->user->ip, $val_on_priv, true, false, false, false);
 					$content = array(
 						'type'	=> 1,
 						'nr'	=> $deleted,
@@ -1010,7 +1011,7 @@ class ajax
 					$deleted = $this->db->sql_affectedrows();
 					
 					$this->config->increment("shout_del_purge{$val_priv}", $deleted, true);
-					$this->shoutbox->post_robot_shout($val_userid, $this->user->ip, $val_on_priv, true, true, false, false);
+					$this->shoutbox->post_robot_shout($userid, $this->user->ip, $val_on_priv, true, true, false, false);
 					$content = array(
 						'type'	=> 1,
 						'nr'	=> $deleted,
@@ -1036,7 +1037,7 @@ class ajax
 				$allow_bbcode	= $this->auth->acl_get('u_shout_bbcode') ? true : false;
 				$allow_smilies	= $this->auth->acl_get('u_shout_smilies') ? true : false;
 				// If someone can edit all messages, he can edit it's messages :) (if errors in permissions set)
-				$can_edit_all	= ($this->auth->acl_get('m_shout_edit_mod') || $this->auth->acl_get("a_shout_{$val_auth_shout}")) ? true : false;
+				$can_edit_all	= ($this->auth->acl_get('m_shout_edit_mod') || $this->auth->acl_get("a_shout_{$val_auth}")) ? true : false;
 				$can_edit		= $can_edit_all ? true : $this->auth->acl_get('u_shout_edit');
 				$edit_sort		= $ok_edit = false;
 
@@ -1055,7 +1056,7 @@ class ajax
 				if (!$can_edit_all)// If not able to edit all messages
 				{
 					// Not his shout, display error
-					if (!$on_id || $on_id != $val_userid)
+					if (!$on_id || $on_id != $userid)
 					{
 						$this->shoutbox->shout_error('NO_EDIT_PERM');
 						break;
@@ -1147,7 +1148,7 @@ class ajax
 					$sql = $this->db->sql_build_query('SELECT', array(
 						'SELECT'	=> 'MAX(shout_time) AS last_post_time',
 						'FROM'		=> array($shoutbox_table => ''),
-						'WHERE'		=> (!$this->user->data['is_registered']) ? "shout_ip = '" . $this->db->sql_escape((string) $this->user->ip) . "'" : 'shout_user_id = ' . $val_userid,
+						'WHERE'		=> (!$this->user->data['is_registered']) ? "shout_ip = '" . $this->db->sql_escape((string) $this->user->ip) . "'" : 'shout_user_id = ' . $userid,
 					));
 					$result = $this->shoutbox->shout_sql_query($sql);
 					if (!$result)
@@ -1190,7 +1191,7 @@ class ajax
 
 				$sql_ary = array(
 					'shout_time'			=> time(),
-					'shout_user_id'			=> (int) $val_userid,
+					'shout_user_id'			=> (int) $userid,
 					'shout_ip'				=> (string) $this->user->ip,
 					'shout_text'			=> (string) $message,
 					'shout_text2'			=> (string) $name,
@@ -1265,13 +1266,13 @@ class ajax
 				}
 
 				// count and add personal messages if needed
-				if (!$val_is_user)
+				if (!$is_user)
 				{
 					$sql_and = ' AND shout_inp = 0';
 				}
 				else
 				{
-					$sql_and = " AND (shout_inp = 0 OR (shout_inp = $val_userid OR shout_user_id = $val_userid))";
+					$sql_and = " AND (shout_inp = 0 OR (shout_inp = $userid OR shout_user_id = $userid))";
 				}
 
 				$sql = $this->db->sql_build_query('SELECT', array(
@@ -1312,7 +1313,7 @@ class ajax
 				);
 
 				$dateformat = $this->config['shout_dateformat'];
-				if ($val_is_user)
+				if ($is_user)
 				{
 					$shout2 = json_decode($this->user->data['user_shoutbox']);
 					$dateformat = ($shout2->dateformat != '') ? $shout2->dateformat : $dateformat;
@@ -1325,15 +1326,15 @@ class ajax
 
 				// Prevents some errors for the allocation of permissions
 				// If someone can edit all messages, he can edit its own messages :)
-				$can_edit_all	= ($this->auth->acl_get('m_shout_edit_mod') || $this->auth->acl_get("a_shout_{$val_auth_shout}")) ? true : false;
+				$can_edit_all	= ($this->auth->acl_get('m_shout_edit_mod') || $this->auth->acl_get("a_shout_{$val_auth}")) ? true : false;
 				$can_edit		= $can_edit_all ? true : $this->auth->acl_get('u_shout_edit');
 
 				// If someone can delete all messages, he can delete its own messages :)
-				$can_delete_all = ($this->auth->acl_get('m_shout_delete') || $this->auth->acl_get("a_shout_{$val_auth_shout}")) ? true : false;
+				$can_delete_all = ($this->auth->acl_get('m_shout_delete') || $this->auth->acl_get("a_shout_{$val_auth}")) ? true : false;
 				$can_delete		= $can_delete_all ? true : $this->auth->acl_get('u_shout_delete_s');
 
 				// If someone can view all ip, he can view its own ip :)
-				$can_info_all	= ($this->auth->acl_get('m_shout_info') || $this->auth->acl_get("a_shout_{$val_auth_shout}")) ? true : false;
+				$can_info_all	= ($this->auth->acl_get('m_shout_info') || $this->auth->acl_get("a_shout_{$val_auth}")) ? true : false;
 				$can_info		= $can_info_all ? true : $this->auth->acl_get('u_shout_info_s');
 
 				// Read the forums permissions
@@ -1354,9 +1355,9 @@ class ajax
 				}
 
 				// Add personal messages if needed
-				if ($val_is_user)
+				if ($is_user)
 				{
-					$sql_and = ' AND (s.shout_inp = 0 OR (s.shout_inp = ' . $val_userid . ' OR s.shout_user_id = ' . $val_userid . '))';
+					$sql_and = ' AND (s.shout_inp = 0 OR (s.shout_inp = ' . $userid . ' OR s.shout_user_id = ' . $userid . '))';
 				}
 				else
 				{
@@ -1394,14 +1395,14 @@ class ajax
 						'avatar_img'	=> false,
 						'msg_plain'		=> false,
 						'on_ip'			=> false,
-						'is_user'		=> (($row['shout_user_id'] > 1) && ($row['shout_user_id'] != $val_userid)) ? true : false,
+						'is_user'		=> (($row['shout_user_id'] > 1) && ($row['shout_user_id'] != $userid)) ? true : false,
 						'name'			=> $row['username'],
 					));
 
 					// Double protect private messages to both users concerned
 					if ($row['shout_inp'])
 					{
-						if (!$val_is_user || ($row['shout_inp'] != $val_userid) && ($row['shout_user_id'] != $val_userid))
+						if (!$is_user || ($row['shout_inp'] != $userid) && ($row['shout_user_id'] != $userid))
 						{
 							continue;// No permission to see it, continue...
 						}
@@ -1433,19 +1434,19 @@ class ajax
 					$row['on_time'] = $this->user->format_date($row['shout_time'], $dateformat);
 
 					// Checks permissions for delete, edit and show_ip
-					if ($val_is_user)
+					if ($is_user)
 					{
-						if ($can_delete_all || ($row['shout_user_id'] == $val_userid) && $can_delete)
+						if ($can_delete_all || ($row['shout_user_id'] == $userid) && $can_delete)
 						{
 							$row['delete'] = true;
 						}
-						if ($can_edit_all || ($row['shout_user_id'] == $val_userid) && $can_edit)
+						if ($can_edit_all || ($row['shout_user_id'] == $userid) && $can_edit)
 						{
 							$row['edit'] = true;
 							$row['msg_plain'] = $row['shout_text'];
 							decode_message($row['msg_plain'], $row['shout_bbcode_uid']);
 						}
-						if ($can_info_all || ($row['shout_user_id'] == $val_userid) && $can_info)
+						if ($can_info_all || ($row['shout_user_id'] == $userid) && $can_info)
 						{
 							$row['show_ip'] = true;
 							$row['on_ip'] = $row['shout_ip'];
