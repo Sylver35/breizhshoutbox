@@ -46,19 +46,19 @@ class main_listener implements EventSubscriberInterface
 	protected $language;
 
 	/**
-	* Constructor
-	*
-	*/
+	 * Constructor
+	 *
+	 */
 	public function __construct(shoutbox $shoutbox, config $config, helper $helper, request $request, template $template, auth $auth, user $user, language $language)
 	{
-		$this->shoutbox		= $shoutbox;
-		$this->config		= $config;
-		$this->helper		= $helper;
-		$this->request		= $request;
-		$this->template		= $template;
-		$this->auth			= $auth;
-		$this->user			= $user;
-		$this->language		= $language;
+		$this->shoutbox = $shoutbox;
+		$this->config = $config;
+		$this->helper = $helper;
+		$this->request = $request;
+		$this->template = $template;
+		$this->auth = $auth;
+		$this->user = $user;
+		$this->language = $language;
 	}
 
 	static public function getSubscribedEvents()
@@ -96,7 +96,7 @@ class main_listener implements EventSubscriberInterface
 		$lang_set_ext = $event['lang_set_ext'];
 		$lang_set_ext[] = array(
 			'ext_name' => 'sylver35/breizhshoutbox',
-			'lang_set' => array('shout', 'info_acp_shoutbox'),
+			'lang_set' => array('shout', 'acp/info_acp_shoutbox'),
 		);
 		$event['lang_set_ext'] = $lang_set_ext;
 	}
