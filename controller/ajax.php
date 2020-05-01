@@ -73,9 +73,9 @@ class ajax
 	protected $u_action;
 
 	/**
-	* The database tables
-	*
-	* @var string */
+	 * The database tables
+	 *
+	 * @var string */
 	protected $shoutbox_table;
 	protected $shoutbox_priv_table;
 
@@ -84,22 +84,22 @@ class ajax
 	 */
 	public function __construct(shoutbox $shoutbox, config $config, helper $helper, db $db, request $request, template $template, auth $auth, user $user, language $language, manager $ext_manager, path_helper $path_helper, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table)
 	{
-		$this->shoutbox				= $shoutbox;
-		$this->config				= $config;
-		$this->helper				= $helper;
-		$this->db					= $db;
-		$this->request				= $request;
-		$this->template				= $template;
-		$this->auth					= $auth;
-		$this->user					= $user;
-		$this->language				= $language;
-		$this->ext_manager			= $ext_manager;
-		$this->path_helper			= $path_helper;
-		$this->phpbb_dispatcher		= $phpbb_dispatcher;
-		$this->root_path			= $root_path;
-		$this->php_ext				= $php_ext;
-		$this->shoutbox_table		= $shoutbox_table;
-		$this->shoutbox_priv_table	= $shoutbox_priv_table;
+		$this->shoutbox = $shoutbox;
+		$this->config = $config;
+		$this->helper = $helper;
+		$this->db = $db;
+		$this->request = $request;
+		$this->template = $template;
+		$this->auth = $auth;
+		$this->user = $user;
+		$this->language = $language;
+		$this->ext_manager = $ext_manager;
+		$this->path_helper = $path_helper;
+		$this->phpbb_dispatcher = $phpbb_dispatcher;
+		$this->root_path = $root_path;
+		$this->php_ext = $php_ext;
+		$this->shoutbox_table = $shoutbox_table;
+		$this->shoutbox_priv_table = $shoutbox_priv_table;
 	}
 
 	/**
@@ -110,31 +110,34 @@ class ajax
 	 */
 	public function construct_ajax($mode)
 	{
-		$val_id		= $this->request->variable('user', 0);
-		$val_sort	= $this->request->variable('sort', 2);
-		$userid		= $this->user->data['user_id'];
-		$is_user	= ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false;
-		$adm_path	= $this->shoutbox->adm_relative_path();
-		$board_url	= generate_board_url() . '/';
-		$response	= new \phpbb\json_response;
+		$val_id = $this->request->variable('user', 0);
+		$val_sort = $this->request->variable('sort', 2);
+		$userid = $this->user->data['user_id'];
+		$is_user = ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false;
+		$adm_path = $this->shoutbox->adm_relative_path();
+		$board_url = generate_board_url() . '/';
+		$response = new \phpbb\json_response;
 
 		// First initialize somes variables, protect private
 		// And select the good table for the type of shoutbox
-		$val_on_priv	= false;
-		$val_perm		= '_view';
-		$val_auth		= 'manage';
-		$val_priv		= $val_privat = '';
+		$val_on_priv = false;
+		$val_perm = '_view';
+		$val_auth = 'manage';
+		$val_priv = $val_privat = '';
 		switch ($val_sort)
 		{
-			case 1:// Popup shoutbox
+			// Popup shoutbox
+			case 1:
 				$val_sort_on = '_pop';
 				$shoutbox_table	= $this->shoutbox_table;
 			break;
-			case 2:// Normal shoutbox
+			// Normal shoutbox
+			case 2:
 				$val_sort_on = '';
 				$shoutbox_table	= $this->shoutbox_table;
 			break;
-			case 3:// Private shoutbox
+			// Private shoutbox
+			case 3:
 				$val_on_priv = true;
 				$val_sort_on = $val_perm = $val_priv = '_priv';
 				$val_auth = 'priv';
@@ -192,12 +195,12 @@ class ajax
 				);
 
 				/**
-				* You can use this event to modify the content array.
-				*
-				* @event breizhshoutbox.smilies
-				* @var	array	content		The content array to be displayed in the smilies form
-				* @since 1.7.0
-				*/
+				 * You can use this event to modify the content array.
+				 *
+				 * @event breizhshoutbox.smilies
+				 * @var	array	content		The content array to be displayed in the smilies form
+				 * @since 1.7.0
+				 */
 				$vars = array('content');
 				extract($this->phpbb_dispatcher->trigger_event('breizhshoutbox.smilies', compact($vars)));
 
@@ -243,13 +246,13 @@ class ajax
 				);
 
 				/**
-				* You can use this event to modify the content array.
-				*
-				* @event breizhshoutbox.smilies
-				* @var	array	content			The content array to be displayed in the smilies form
-				* @var	int		cat				The id of smilies category if needed
-				* @since 1.7.0
-				*/
+				 * You can use this event to modify the content array.
+				 *
+				 * @event breizhshoutbox.smilies
+				 * @var	array	content			The content array to be displayed in the smilies form
+				 * @var	int		cat				The id of smilies category if needed
+				 * @since 1.7.0
+				 */
 				$vars = array(
 					'content',
 					'cat',
@@ -351,9 +354,11 @@ class ajax
 
 				// Parse bbcodes
 				$data = $this->shoutbox->parse_shout_bbcodes($open, $close, $other);
-				switch ($data['sort'])// the result of parse
+				// the result of parse
+				switch ($data['sort'])
 				{
-					case 1:// Remove the bbcodes
+					// Remove the bbcodes
+					case 1:
 						$sql = 'UPDATE ' . USERS_TABLE . " SET shout_bbcode = '' WHERE user_id = $on_user";
 						$result = $this->shoutbox->shout_sql_query($sql);
 						if (!$result)
@@ -363,10 +368,12 @@ class ajax
 						$message = $this->language->lang('SHOUT_BBCODE_SUP');
 						$text = $this->language->lang('SHOUT_EXEMPLE');
 					break;
-					case 2:// Retun error message
+					// Retun error message
+					case 2:
 						$message = $data['message'];
 					break;
-					case 3:// Good ! Update the bbcodes
+					// Good ! Update the bbcodes
+					case 3:
 						$ok_bbcode = (string) ($open . '||' . $close);
 						$uid = $bitfield = $options = '';
 						// Change it in the db
@@ -381,7 +388,8 @@ class ajax
 						$text = generate_text_for_display($text, $uid, $bitfield, $options);
 						$message = $this->language->lang('SHOUT_BBCODE_SUCCESS');
 					break;
-					case 4:// Return no change message
+					// Return no change message
+					case 4:
 						$uid = $bitfield = $options = '';
 						if ($open != '1')
 						{
@@ -395,7 +403,8 @@ class ajax
 						}
 						$message = $data['message'];
 					break;
-					case 5:// Return error no permission
+					// Return error no permission
+					case 5:
 						$message = $data['message'];
 					break;
 				}
@@ -493,20 +502,22 @@ class ajax
 				$on_sound = ($shout->user == 2) ? $on_sound : $shout->user;
 				switch ($on_sound)
 				{
-					case 1:// Turn off the sounds
+					// Turn off the sounds
+					case 1:
 						$content = array(
 							'type'		=> 0,
-							'classOut'	=> 'button_shout_sound',// Retry css sound
-							'classIn'	=> 'button_shout_sound_off',// Apply css sound off
-							'title'		=> $this->language->lang('SHOUT_CLICK_SOUND_ON'),// Apply title to turn on
+							'classOut'	=> 'button_shout_sound',
+							'classIn'	=> 'button_shout_sound_off',
+							'title'		=> $this->language->lang('SHOUT_CLICK_SOUND_ON'),
 						);
 					break;
-					case 0:// Turn on the sounds
+					// Turn on the sounds
+					case 0:
 						$content = array(
 							'type'		=> 1,
-							'classOut'	=> 'button_shout_sound_off',// Retry css sound off
-							'classIn'	=> 'button_shout_sound',// Apply css sound on
-							'title'		=> $this->language->lang('SHOUT_CLICK_SOUND_OFF'),// Apply title to turn off
+							'classOut'	=> 'button_shout_sound_off',
+							'classIn'	=> 'button_shout_sound',
+							'title'		=> $this->language->lang('SHOUT_CLICK_SOUND_OFF'),
 						);
 					break;
 				}
@@ -607,27 +618,27 @@ class ajax
 					else
 					{
 						// Construct urls to be displayed via javascript
-						$url_message	= $url_del_to = $url_del = false;
-						$inp			= ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_')) ? true : false;// administrators & moderators can always use this part
-						$go_founder		= ($row['user_type'] != USER_FOUNDER || $this->user->data['user_type'] == USER_FOUNDER) ? true : false;// Founders protections
-						$robot			= $this->shoutbox->construct_action_shout(0);
-						$tpl['span']	= '<span title="">';
+						$url_message = $url_del_to = $url_del = false;
+						$inp = ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_')) ? true : false;// administrators & moderators can always use this part
+						$go_founder = ($row['user_type'] != USER_FOUNDER || $this->user->data['user_type'] == USER_FOUNDER) ? true : false;// Founders protections
+						$robot = $this->shoutbox->construct_action_shout(0);
+						$tpl['span'] = '<span title="">';
 
 						if ($inp)
 						{
-							$url_message	= 'onclick="shoutbox.personalMsg();return false;" title="' . $this->language->lang('SHOUT_ACTION_MSG') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_MSG');
-							$url_del_to		= 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DEL_TO_EXPLAIN') . '\'))shoutbox.delReqTo(' . $userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DEL_TO') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_DEL_TO');
-							$url_del		= 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DELETE_EXPLAIN') . '\'))shoutbox.delReq(' . $userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DELETE') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_DELETE');
+							$url_message = 'onclick="shoutbox.personalMsg();return false;" title="' . $this->language->lang('SHOUT_ACTION_MSG') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_MSG');
+							$url_del_to = 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DEL_TO_EXPLAIN') . '\'))shoutbox.delReqTo(' . $userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DEL_TO') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_DEL_TO');
+							$url_del = 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DELETE_EXPLAIN') . '\'))shoutbox.delReq(' . $userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DELETE') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_DELETE');
 						}
-						$url_profile	= 'href="' . append_sid("{$board_url}memberlist.{$this->php_ext}", "mode=viewprofile&amp;u={$val_id}", false) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_PROFIL') . ' ' . $this->language->lang('FROM') . ' ' . $row['username'] . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_PROFIL');
-						$url_cite		= 'onclick="shoutbox.citeMsg();return false;" title="' . $this->language->lang('SHOUT_ACTION_CITE_EXPLAIN') . '">'  . $tpl['span'] . $this->language->lang('SHOUT_ACTION_CITE');
-						$url_cite_m		= 'onclick="shoutbox.citeMultiMsg(\'' . $row['username'] . '\', \'' . $row['user_colour'] . '\');return false;" title="' . $this->language->lang('SHOUT_ACTION_CITE_M_EXPLAIN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_CITE_M');
-						$url_admin		= 'href="' . append_sid("{$board_url}{$adm_path}index.{$this->php_ext}", "i=users&amp;mode=overview&amp;u=$val_id", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_USER_ADMIN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_USER_ADMIN');
-						$url_modo		= 'href="' . append_sid("{$board_url}mcp.{$this->php_ext}", "i=notes&amp;mode=user_notes&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_MCP') . '">' . $tpl['span']  . $this->language->lang('SHOUT_ACTION_MCP');
-						$url_ban		= 'href="' . append_sid("{$board_url}mcp.{$this->php_ext}", "i=ban&amp;mode=user&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_BAN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_BAN');
-						$url_remove		= 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_REMOVE_EXPLAIN') . '\'))shoutbox.removeMsg(' . $val_id . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_REMOVE') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_REMOVE');
-						$url_perso		= 'onclick="shoutbox.changePerso(' . $val_id . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_PERSO') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_PERSO');
-						$url_robot		= 'onclick="shoutbox.iH(\'shout_avatar\',\'\');shoutbox.robotMsg(' . $val_sort . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->config['shout_name_robot']) . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $robot);
+						$url_profile = 'href="' . append_sid("{$board_url}memberlist.{$this->php_ext}", "mode=viewprofile&amp;u={$val_id}", false) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_PROFIL') . ' ' . $this->language->lang('FROM') . ' ' . $row['username'] . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_PROFIL');
+						$url_cite = 'onclick="shoutbox.citeMsg();return false;" title="' . $this->language->lang('SHOUT_ACTION_CITE_EXPLAIN') . '">'  . $tpl['span'] . $this->language->lang('SHOUT_ACTION_CITE');
+						$url_cite_m = 'onclick="shoutbox.citeMultiMsg(\'' . $row['username'] . '\', \'' . $row['user_colour'] . '\');return false;" title="' . $this->language->lang('SHOUT_ACTION_CITE_M_EXPLAIN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_CITE_M');
+						$url_admin = 'href="' . append_sid("{$board_url}{$adm_path}index.{$this->php_ext}", "i=users&amp;mode=overview&amp;u=$val_id", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_USER_ADMIN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_USER_ADMIN');
+						$url_modo = 'href="' . append_sid("{$board_url}mcp.{$this->php_ext}", "i=notes&amp;mode=user_notes&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_MCP') . '">' . $tpl['span']  . $this->language->lang('SHOUT_ACTION_MCP');
+						$url_ban = 'href="' . append_sid("{$board_url}mcp.{$this->php_ext}", "i=ban&amp;mode=user&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_BAN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_BAN');
+						$url_remove = 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_REMOVE_EXPLAIN') . '\'))shoutbox.removeMsg(' . $val_id . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_REMOVE') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_REMOVE');
+						$url_perso = 'onclick="shoutbox.changePerso(' . $val_id . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_PERSO') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_PERSO');
+						$url_robot = 'onclick="shoutbox.iH(\'shout_avatar\',\'\');shoutbox.robotMsg(' . $val_sort . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->config['shout_name_robot']) . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $robot);
 
 						$content = array(
 							'type'			=> 3,
@@ -657,32 +668,37 @@ class ajax
 			break;
 
 			case 'action_post':
-				$go = $personal = $robot = $friend = false;// Important! initialize
+				// Important! initialize
+				$go = $personal = $robot = $friend = false;
 				$shout_info = 0;
 				if ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('m_shout_robot') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_'))// Administrators and moderators can always post personnal messages
 				{
 					$message = $this->request->variable('message', '', true);
 					$pr = $this->request->variable('pr', 0);
 					$row = array();
-					if (!$val_id)// any user id
+					// any user id
+					if (!$val_id)
 					{
 						$content = array('type'	=> 0);
 					}
-					else if ($val_id == 1)// post a robot message
+					// post a robot message
+					else if ($val_id == 1)
 					{
-						if ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_robot'))// let's go
+						if ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_robot'))
 						{
 							$personal = false;
 							$robot = true;
 							$go = true;
 							$val_id = $userid = 0;
 						}
-						else// no perm, out...
+						// no perm, out...
+						else
 						{
 							$content = array('type'	=> 0);
 						}
 					}
-					else if ($val_id > 1)// post a personal message
+					// post a personal message
+					else if ($val_id > 1)
 					{
 						$sql = $this->db->sql_build_query('SELECT', array(
 							'SELECT'	=> 'u.user_id, u.user_type, z.friend, z.foe',
@@ -701,18 +717,21 @@ class ajax
 							break;
 						}
 						$row = $this->db->sql_fetchrow($result);
-						if (!$row || $row['user_type'] == USER_IGNORE)// user id don't exist or ignore
+						// user id don't exist or ignore
+						if (!$row || $row['user_type'] == USER_IGNORE)
 						{
 							$content = array('type'	=> 0);
 						}
-						else if ($row['foe'])// user is foe
+						// user is foe
+						else if ($row['foe'])
 						{
 							$content = array(
 								'type'		=> 2,
 								'message'	=> $this->language->lang('SHOUT_USER_IGNORE'),
 							);
 						}
-						else// let's go
+						// let's go
+						else
 						{
 							$personal = true;
 							$go = true;
@@ -730,7 +749,8 @@ class ajax
 							$message = $this->shoutbox->personalize_shout_message($message);
 						}
 
-						$uid = $bitfield = $options = '';// will be modified by generate_text_for_storage
+						// will be modified by generate_text_for_storage
+						$uid = $bitfield = $options = '';
 						$allow_bbcode	= ($this->auth->acl_get('u_shout_bbcode')) ? true : false;
 						$allow_smilies	= ($this->auth->acl_get('u_shout_smilies')) ? true : false;
 						generate_text_for_storage($message, $uid, $bitfield, $options, $allow_bbcode, true, $allow_smilies);
@@ -799,7 +819,8 @@ class ajax
 					}
 					else
 					{
-						$this->shoutbox->update_shout_messages($shoutbox_table, 1);// For reload the message to everybody
+						// For reload the message to everybody
+						$this->shoutbox->update_shout_messages($shoutbox_table, 1);
 						$this->config->increment("shout_del_user{$val_priv}", $deleted, true);
 						$content = array(
 							'type'		=> 1,
@@ -1025,7 +1046,8 @@ class ajax
 				$shout_id = $this->request->variable('shout_id', 0);
 				$message = $this->request->variable('chat_message', '', true);
 
-				$uid = $bitfield = $options = '';// will be modified by generate_text_for_storage
+				// will be modified by generate_text_for_storage
+				$uid = $bitfield = $options = '';
 				$allow_urls = true;
 				$content = array(
 					'mode'		=> $mode,
@@ -1053,7 +1075,8 @@ class ajax
 				$on_id = (int) $this->db->sql_fetchfield('shout_user_id');
 				$this->db->sql_freeresult($result);
 				$anomym = ($on_id == 1) ? true : false;
-				if (!$can_edit_all)// If not able to edit all messages
+				// If not able to edit all messages
+				if (!$can_edit_all)
 				{
 					// Not his shout, display error
 					if (!$on_id || $on_id != $userid)
@@ -1104,7 +1127,8 @@ class ajax
 					break;
 				}
 
-				$this->shoutbox->update_shout_messages($shoutbox_table, 1);// For reload the message to everybody
+				// For reload the message to everybody
+				$this->shoutbox->update_shout_messages($shoutbox_table, 1);
 				$message = generate_text_for_display($message, $uid, $bitfield, $options);
 				$content = array(
 					'type'		=> 2,
@@ -1404,7 +1428,8 @@ class ajax
 					{
 						if (!$is_user || ($row['shout_inp'] != $userid) && ($row['shout_user_id'] != $userid))
 						{
-							continue;// No permission to see it, continue...
+							// No permission to see it, continue...
+							continue;
 						}
 					}
 
@@ -1429,7 +1454,8 @@ class ajax
 						}
 					}
 
-					$row['username'] = ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'];// Message made by anonymous
+					// Message made by anonymous
+					$row['username'] = ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'];
 					$row['username'] = $this->shoutbox->construct_action_shout($row['user_id'], $row['username'], $row['user_colour']);
 					$row['on_time'] = $this->user->format_date($row['shout_time'], $dateformat);
 

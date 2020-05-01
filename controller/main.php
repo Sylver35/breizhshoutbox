@@ -63,24 +63,23 @@ class main
 	*/
 	public function __construct(shoutbox $shoutbox, config $config, helper $helper, db $db, template $template, auth $auth, user $user, language $language, request $request, pagination $pagination, $root_path, $php_ext)
 	{
-		$this->shoutbox			= $shoutbox;
-		$this->config			= $config;
-		$this->helper			= $helper;
-		$this->db 				= $db;
-		$this->template			= $template;
-		$this->auth				= $auth;
-		$this->user				= $user;
-		$this->language			= $language;
-		$this->request			= $request;
-		$this->pagination		= $pagination;
-		$this->root_path		= $root_path;
-		$this->php_ext			= $php_ext;
+		$this->shoutbox = $shoutbox;
+		$this->config = $config;
+		$this->helper = $helper;
+		$this->db = $db;
+		$this->template = $template;
+		$this->auth = $auth;
+		$this->user = $user;
+		$this->language = $language;
+		$this->request = $request;
+		$this->pagination = $pagination;
+		$this->root_path = $root_path;
+		$this->php_ext = $php_ext;
 	}
 
 	/**
-	* @return \Symfony\Component\HttpFoundation\Response A Symfony Response object
-	*/
-
+	 * @return \Symfony\Component\HttpFoundation\Response A Symfony Response object
+	 */
 	public function handle_private()
 	{
 		if ($this->auth->acl_get('u_shout_priv'))

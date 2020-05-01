@@ -85,29 +85,29 @@ class admin_controller
 	protected $shoutbox_rules_table;
 
 	/**
-	* Constructor
-	*/
+	 * Constructor
+	 */
 	public function __construct(shoutbox $shoutbox, cache $cache, config $config, helper $helper, manager $ext_manager, db $db, pagination $pagination, request $request, template $template, auth $auth, user $user, language $language, log $log, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
 	{
-		$this->shoutbox				= $shoutbox;
-		$this->cache				= $cache;
-		$this->config				= $config;
-		$this->helper				= $helper;
-		$this->ext_manager			= $ext_manager;
-		$this->db					= $db;
-		$this->pagination			= $pagination;
-		$this->request				= $request;
-		$this->template				= $template;
-		$this->auth					= $auth;
-		$this->user					= $user;
-		$this->language				= $language;
-		$this->log					= $log;
-		$this->root_path			= $root_path;
-		$this->php_ext				= $php_ext;
-		$this->shoutbox_table		= $shoutbox_table;
-		$this->shoutbox_priv_table 	= $shoutbox_priv_table;
+		$this->shoutbox = $shoutbox;
+		$this->cache = $cache;
+		$this->config = $config;
+		$this->helper = $helper;
+		$this->ext_manager = $ext_manager;
+		$this->db = $db;
+		$this->pagination = $pagination;
+		$this->request = $request;
+		$this->template = $template;
+		$this->auth = $auth;
+		$this->user = $user;
+		$this->language = $language;
+		$this->log = $log;
+		$this->root_path = $root_path;
+		$this->php_ext = $php_ext;
+		$this->shoutbox_table = $shoutbox_table;
+		$this->shoutbox_priv_table = $shoutbox_priv_table;
 		$this->shoutbox_rules_table = $shoutbox_rules_table;
-		$this->ext_path				= $this->ext_manager->get_extension_path('sylver35/breizhshoutbox', true);
+		$this->ext_path = $this->ext_manager->get_extension_path('sylver35/breizhshoutbox', true);
 	}
 
 	public function acp_shoutbox_configs()
