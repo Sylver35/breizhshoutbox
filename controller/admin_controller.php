@@ -77,9 +77,9 @@ class admin_controller
 	protected $u_action;
 
 	/**
-	* The database tables
-	*
-	* @var string */
+	 * The database tables
+	 *
+	 * @var string */
 	protected $shoutbox_table;
 	protected $shoutbox_priv_table;
 	protected $shoutbox_rules_table;
@@ -115,7 +115,7 @@ class admin_controller
 		$this->language->add_lang('acp/board');
 		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
-		add_form_key ($form_key);
+		add_form_key($form_key);
 		if ($this->request->is_set_post('update'))
 		{
 			if (!check_form_key($form_key))
@@ -216,7 +216,7 @@ class admin_controller
 	{
 		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
-		add_form_key ($form_key);
+		add_form_key($form_key);
 		if ($this->request->is_set_post('update'))
 		{
 			if (!check_form_key($form_key))
@@ -294,7 +294,7 @@ class admin_controller
 			while ($row = $this->db->sql_fetchrow($result))
 			{
 				$iso = $row['lang_iso'];
-				$rules_uid = $rules_bitfield = $rules_flags = $rules_uid_priv = $rules_bitfield_priv = $rules_flags_priv = '';// will be modified by generate_text_for_storage
+				$rules_uid = $rules_bitfield = $rules_flags = $rules_uid_priv = $rules_bitfield_priv = $rules_flags_priv = '';
 				$rules_text	= $this->request->variable("rules_text_$iso", '', true);
 				$rules_text_priv = $this->request->variable("rules_text_priv_$iso", '', true);
 				generate_text_for_storage($rules_text, $rules_uid, $rules_bitfield, $rules_flags, true, true, true);
@@ -468,7 +468,7 @@ class admin_controller
 		$deletemarklog 	= $this->request->is_set_post('delmarkedlog') ? true : false;
 		$mode			= $this->request->variable('mode', '');
 		$form_key		= 'sylver35/breizhshoutbox';
-		add_form_key ($form_key);
+		add_form_key($form_key);
 
 		if ($deletemark)
 		{
@@ -491,7 +491,7 @@ class admin_controller
 				}
 				if ($where_sql)
 				{
-					$sql = 'DELETE FROM ' . $this->shoutbox_table .  $where_sql;
+					$sql = 'DELETE FROM ' . $this->shoutbox_table . $where_sql;
 					$this->db->sql_query($sql);
 					$deleted = $this->db->sql_affectedrows();
 					
@@ -539,7 +539,7 @@ class admin_controller
 					$this->db->sql_query($sql);
 					$deleted = $this->db->sql_affectedrows();
 					
-					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX'), time(),  array($deleted));
+					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX'), time()),  array($deleted));
 				}
 			}
 			else
@@ -659,7 +659,7 @@ class admin_controller
 				'POSTER'			=> $this->shoutbox->construct_action_shout($row['shout_user_id'], $row['username'], $row['user_colour'], true),
 				'ID'				=> $row['shout_id'],
 				'MESSAGE'			=> $row['shout_text'],
-				'ROW_NUMBER'		=> $i+ ($start +1),
+				'ROW_NUMBER'		=> $i + ($start + 1),
 			));
 			$i++;
 		}
@@ -719,17 +719,17 @@ class admin_controller
 
 	public function acp_shoutbox_private()
 	{
-		$id 			= $this->request->variable('i', '');
-		$action			= $this->request->variable('action', '');
-		$start			= $this->request->variable('start', 0);
-		$marked			= $this->request->variable('mark', array(0));
-		$creation		= $this->request->variable('creation_time', 0);
-		$token			= $this->request->variable('form_token', '');
-		$deletemark		= $this->request->is_set_post('delmarked') ? true : false;
-		$deletemarklog 	= $this->request->is_set_post('delmarkedlog') ? true : false;
-		$mode			= $this->request->variable('mode', '');
-		$form_key		= 'sylver35/breizhshoutbox';
-		add_form_key ($form_key);
+		$id = $this->request->variable('i', '');
+		$action = $this->request->variable('action', '');
+		$start = $this->request->variable('start', 0);
+		$marked = $this->request->variable('mark', array(0));
+		$creation = $this->request->variable('creation_time', 0);
+		$token = $this->request->variable('form_token', '');
+		$deletemark = $this->request->is_set_post('delmarked') ? true : false;
+		$deletemarklog = $this->request->is_set_post('delmarkedlog') ? true : false;
+		$mode = $this->request->variable('mode', '');
+		$form_key = 'sylver35/breizhshoutbox';
+		add_form_key($form_key);
 
 		if ($deletemark)
 		{
@@ -975,7 +975,7 @@ class admin_controller
 	{
 		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
-		add_form_key ($form_key);
+		add_form_key($form_key);
 		if ($this->request->is_set_post('update'))
 		{
 			if (!check_form_key($form_key))
@@ -1032,7 +1032,7 @@ class admin_controller
 	{
 		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
-		add_form_key ($form_key);
+		add_form_key($form_key);
 		if ($this->request->is_set_post('update'))
 		{
 			if (!check_form_key($form_key))
@@ -1077,7 +1077,7 @@ class admin_controller
 	{
 		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
-		add_form_key ($form_key);
+		add_form_key($form_key);
 		if ($this->request->is_set_post('update'))
 		{
 			if (!check_form_key($form_key))
@@ -1176,7 +1176,7 @@ class admin_controller
 	{
 		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
-		add_form_key ($form_key);
+		add_form_key($form_key);
 
 		if ($this->request->is_set_post('update'))
 		{
@@ -1240,12 +1240,12 @@ class admin_controller
 			while ($row = $this->db->sql_fetchrow($result))
 			{
 				$selected = (in_array($row['group_id'], explode(', ', $this->config['shout_birthday_exclude']))) ? ' selected="selected"' : '';
-				$group_options .= '<option' . (($row['group_type'] == GROUP_SPECIAL) ? ' class="sep"' : '') . ' value="' . $row['group_id'] . '" style="color:#' . $row['group_colour'] . ';font-weight:bold;"' . $selected . '>' .(($row['group_type'] == GROUP_SPECIAL) ? $this->language->lang('G_' . $row['group_name']) : $row['group_name']). "</option>\n";
+				$group_options .= '<option' . (($row['group_type'] == GROUP_SPECIAL) ? ' class="sep"' : '') . ' value="' . $row['group_id'] . '" style="color:#' . $row['group_colour'] . ';font-weight:bold;"' . $selected . '>' . (($row['group_type'] == GROUP_SPECIAL) ? $this->language->lang('G_' . $row['group_name']) : $row['group_name']) . "</option>\n";
 			}
 			$this->db->sql_freeresult($result);
 			
 			$select_prez = '<select id="shout_prez_form" name="shout_prez_form"><option value="0">' . $this->language->lang('SELECT_FORUM') . '</option><option value="0" disabled="disabled"></option>';
-			$select_prez .= make_forum_select((int) $this->config['shout_prez_form'], false, true, true). '</select>';
+			$select_prez .= make_forum_select((int) $this->config['shout_prez_form'], false, true, true) . '</select>';
 
 			$this->template->assign_vars(array(
 				'SHOUT_ENABLE_ROBOT'		=> $this->shoutbox->construct_radio('shout_enable_robot', 2, true),

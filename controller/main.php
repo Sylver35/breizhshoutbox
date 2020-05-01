@@ -59,8 +59,8 @@ class main
 	protected $php_ext;
 
 	/**
-	* Constructor
-	*/
+	 * Constructor
+	 */
 	public function __construct(shoutbox $shoutbox, config $config, helper $helper, db $db, template $template, auth $auth, user $user, language $language, request $request, pagination $pagination, $root_path, $php_ext)
 	{
 		$this->shoutbox = $shoutbox;
@@ -167,8 +167,8 @@ class main
 
 	public function shoutbox_smilies_pop()
 	{
-		$start	= $this->request->variable('start', 0);
-		$url	= $this->helper->route('sylver35_breizhshoutbox_smilies_pop');
+		$start = $this->request->variable('start', 0);
+		$url = $this->helper->route('sylver35_breizhshoutbox_smilies_pop');
 
 		$sql = 'SELECT COUNT(DISTINCT smiley_url) AS smilies_count
 			FROM ' . SMILIES_TABLE . '
