@@ -89,9 +89,9 @@ class shoutbox
 	protected $u_action;
 
 	/**
-	* The database tables
-	*
-	* @var string */
+	 * The database tables
+	 *
+	 * @var string */
 	protected $shoutbox_table;
 	protected $shoutbox_priv_table;
 	protected $shoutbox_rules_table;
@@ -101,37 +101,37 @@ class shoutbox
 	 */
 	public function __construct(cache $cache, config $config, helper $helper, path_helper $path_helper, db $db, pagination $pagination, request $request, template $template, auth $auth, user $user, language $language, log $log, Container $phpbb_container, manager $ext_manager, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
 	{
-		$this->cache				= $cache;
-		$this->config				= $config;
-		$this->helper				= $helper;
-		$this->path_helper			= $path_helper;
-		$this->db					= $db;
-		$this->pagination			= $pagination;
-		$this->request				= $request;
-		$this->template				= $template;
-		$this->auth					= $auth;
-		$this->user					= $user;
-		$this->language				= $language;
-		$this->log					= $log;
-		$this->phpbb_container		= $phpbb_container;
-		$this->ext_manager			= $ext_manager;
-		$this->root_path			= $root_path;
-		$this->php_ext				= $php_ext;
-		$this->shoutbox_table		= $shoutbox_table;
-		$this->shoutbox_priv_table	= $shoutbox_priv_table;
-		$this->shoutbox_rules_table	= $shoutbox_rules_table;
-		$this->root_path_web		= generate_board_url() . '/';
-		$this->ext_path				= $this->ext_manager->get_extension_path('sylver35/breizhshoutbox', true);
-		$this->ext_path_web			= $this->path_helper->update_web_root_path($this->ext_path);
+		$this->cache = $cache;
+		$this->config = $config;
+		$this->helper = $helper;
+		$this->path_helper = $path_helper;
+		$this->db = $db;
+		$this->pagination  $pagination;
+		$this->request = $request;
+		$this->template = $template;
+		$this->auth = $auth;
+		$this->user = $user;
+		$this->language  $language;
+		$this->log = $log;
+		$this->phpbb_container = $phpbb_container;
+		$this->ext_manager = $ext_manager;
+		$this->root_path = $root_path;
+		$this->php_ext = $php_ext;
+		$this->shoutbox_table = $shoutbox_table;
+		$this->shoutbox_priv_table = $shoutbox_priv_table;
+		$this->shoutbox_rules_table = $shoutbox_rules_table;
+		$this->root_path_web = generate_board_url() . '/';
+		$this->ext_path = $this->ext_manager->get_extension_path('sylver35/breizhshoutbox', true);
+		$this->ext_path_web = $this->path_helper->update_web_root_path($this->ext_path);
 	}
 
 	/**
-	* Prints a sql error.
-	* @param string $sql Sql query
-	* @param int $line Line number
-	* @param string $file Filename
-	* @return void
-	*/
+	 * Prints a sql error.
+	 * @param string $sql Sql query
+	 * @param int $line Line number
+	 * @param string $file Filename
+	 * @return void
+	 */
 	private function shout_sql_error($sql, $line, $file)
 	{
 		$response = new json_response();
@@ -148,10 +148,10 @@ class shoutbox
 	}
 
 	/**
-	* Return error.
-	* @param string $message Error
-	* @return void
-	*/
+	 * Return error.
+	 * @param string $message Error
+	 * @return void
+	 */
 	public function shout_error($message, $on1 = false, $on2 = false, $on3 = false)
 	{
 		$response = new json_response();
@@ -183,12 +183,12 @@ class shoutbox
 	}
 
 	/**
-	* execute sql query or return error
-	* @param string $sql
-	* @param int $limit
-	* @param int $start
-	* @return string
-	*/
+	 * execute sql query or return error
+	 * @param string $sql
+	 * @param int $limit
+	 * @param int $start
+	 * @return string
+	 */
 	public function shout_sql_query($sql, $limit = false, $nb = false, $start = false)
 	{
 		if ($limit && $nb && $start)
@@ -220,27 +220,27 @@ class shoutbox
 	}
 
 	/**
-	* Get the adm relative path
-	* @return string
-	*/
+	 * Get the adm relative path
+	 * @return string
+	 */
 	public function adm_relative_path()
 	{
 		return $this->path_helper->get_adm_relative_path();
 	}
 
 	/**
-	* Get the root path
-	* @return string
-	*/
+	 * Get the root path
+	 * @return string
+	 */
 	public function root_path()
 	{
 		return (defined('PHPBB_USE_BOARD_URL_PATH') && PHPBB_USE_BOARD_URL_PATH) ? generate_board_url() . '/' : $this->path_helper->get_web_root_path();
 	}
 
 	/**
-	* test if the extension abbc3 is running
-	* @return bool
-	*/
+	 * test if the extension abbc3 is running
+	 * @return bool
+	 */
 	public function abbc3_exist()
 	{
 		if ($this->phpbb_container->has('vse.abbc3.bbcodes_config'))
@@ -251,9 +251,9 @@ class shoutbox
 	}
 
 	/**
-	* test if the extension smiliecreator is running
-	* @return bool
-	*/
+	 * test if the extension smiliecreator is running
+	 * @return bool
+	 */
 	public function smiliecreator_exist()
 	{
 		if ($this->phpbb_container->has('sylver35.smilecreator.listener'))
@@ -264,9 +264,9 @@ class shoutbox
 	}
 
 	/**
-	* test if the extension smiliescat is running
-	* @return bool
-	*/
+	 * test if the extension smiliescat is running
+	 * @return bool
+	 */
 	public function smiliescategory_exist()
 	{
 		if ($this->phpbb_container->has('sylver35.smiliescat.listener'))
@@ -277,9 +277,9 @@ class shoutbox
 	}
 
 	/**
-	* test if the extension breizhyoutube is running
-	* @return bool
-	*/
+	 * test if the extension breizhyoutube is running
+	 * @return bool
+	 */
 	public function breizhyoutube_exist()
 	{
 		if ($this->phpbb_container->has('sylver35.breizhyoutube.listener'))
@@ -290,9 +290,9 @@ class shoutbox
 	}
 
 	/**
-	* test if the extension relaxarcade is running
-	* @return bool
-	*/
+	 * test if the extension relaxarcade is running
+	 * @return bool
+	 */
 	public function relaxarcade_exist()
 	{
 		if ($this->phpbb_container->has('teamrelax.relaxarcade.listener.main'))
@@ -303,9 +303,9 @@ class shoutbox
 	}
 
 	/**
-	* Runs the cron functions if time is up
-	* Work with normal and private shoutbox
-	*/
+	 * Runs the cron functions if time is up
+	 * Work with normal and private shoutbox
+	 */
 	private function execute_shout_cron($sort)
 	{
 		if ($sort)
@@ -354,13 +354,13 @@ class shoutbox
 	}
 
 	/**
-	* Delete posts when the maximum reaches
-	* Work in normal and private shoutbox
-	*/
+	 * Delete posts when the maximum reaches
+	 * Work in normal and private shoutbox
+	 */
 	public function delete_shout_posts($sort)
 	{
 		$deleted	= '';
-		$nb_to_del	= 9;// delete 10 messages in 1 operation
+		$nb_to_del	= 9;
 		if ($sort)
 		{
 			$shoutbox_table = $this->shoutbox_priv_table;
@@ -418,9 +418,9 @@ class shoutbox
 	}
 
 	/*
-	* Change time of the last message to one second +
-	* to update the shoutbox of all users
-	*/
+	 * Change time of the last message to one second +
+	 * to update the shoutbox of all users
+	 */
 	public function update_shout_messages($shoutbox_table, $post)
 	{
 		$sql = 'SELECT MAX(shout_id) AS shout_end
@@ -449,16 +449,17 @@ class shoutbox
 				'version'	=> $meta['version'],
 				'homepage'	=> $meta['homepage'],
 			);
-			$this->cache->put('_shout_version', $data, 604800);// cache for 7 days
+			// cache for 7 days
+			$this->cache->put('_shout_version', $data, 604800);
 		}
 
 		return $data;
 	}
 
 	/**
-	* Check if the rules with apropriate language exist
-	* @param string sort of shoutbox
-	*/
+	 * Check if the rules with apropriate language exist
+	 * @param string sort of shoutbox
+	 */
 	private function check_shout_rules($sort)
 	{
 		if ($this->config['shout_rules'])
@@ -486,8 +487,8 @@ class shoutbox
 	}
 
 	/**
-	* Get the rules from the cache
-	*/
+	 * Get the rules from the cache
+	 */
 	private function get_shout_rules()
 	{
 		if (($rules = $this->cache->get('_shout_rules')) === false)
@@ -523,17 +524,18 @@ class shoutbox
 			}
 			$this->db->sql_freeresult($result);
 
-			$this->cache->put('_shout_rules', $rules, 604800);// cache for 7 days
+			// cache for 7 days
+			$this->cache->put('_shout_rules', $rules, 604800);
 		}
 
 		return $rules;
 	}
 
 	/**
-	* Displays the rules with apropriate language
-	* @param $sort string sort of shoutbox 
-	* Return array
-	*/
+	 * Displays the rules with apropriate language
+	 * @param $sort string sort of shoutbox 
+	 * Return array
+	 */
 	public function shout_rules($sort)
 	{
 		$content = array(
@@ -563,10 +565,10 @@ class shoutbox
 	}
 
 	/**
-	* Displays list of users online
-	* Replace urls for users actions shout
-	* Return array
-	*/
+	 * Displays list of users online
+	 * Replace urls for users actions shout
+	 * Return array
+	 */
 	public function shout_online()
 	{
 		$online = obtain_users_online();
@@ -619,12 +621,12 @@ class shoutbox
 	}
 
 	/**
-	* Extract information from a string
-	* @param $string	string where search in
-	* @param $start		string start of search
-	* @param $end		string end of search
-	* Return string
-	*/
+	 * Extract information from a string
+	 * @param $string	string where search in
+	 * @param $start		string start of search
+	 * @param $end		string end of search
+	 * Return string
+	 */
 	private function find_my_string($string, $start, $end)
 	{
 		$ini = strpos($string, $start);
@@ -688,8 +690,8 @@ class shoutbox
 	}
 
 	/**
-	* Displays the shoutbox
-	*/
+	 * Displays the shoutbox
+	 */
 	public function shout_display($sort_of)
 	{
 		if (!$this->auth->acl_get('u_shout_view'))
@@ -756,13 +758,16 @@ class shoutbox
 		$panel = false;
 		if ($this->auth->acl_get('u_shout_lateral'))
 		{
-			if ($in_priv)// Activate it in private shoutbox
+			// Activate it in private shoutbox
+			if ($in_priv)
 			{
-				$this->config['shout_panel_auto'] = true;// Force autoload here
+				// Force autoload here
+				$this->config['shout_panel_auto'] = true;
 				$panel = true;
 			}
-			else// And verifie in another pages
+			else
 			{
+				// And verifie in another pages
 				$panel = ($this->config['shout_panel'] && $this->config['shout_panel_all']) ? true : false;
 			}
 		}
@@ -838,10 +843,10 @@ class shoutbox
 	}
 
 	/**
-	* Search compatibles browsers
-	* To display correctly the shout
-	* Return int value
-	*/
+	 * Search compatibles browsers
+	 * To display correctly the shout
+	 * Return int value
+	 */
 	public function compatibles_browsers()
 	{
 		$sort = 0;
@@ -849,24 +854,29 @@ class shoutbox
 
 		if (!empty($browser))
 		{
-			if (preg_match("#ipad|tablet#i", $browser))// Ipad and tablet ok
+			if (preg_match("#ipad|tablet#i", $browser))
 			{
+				// Ipad and tablet ok
 				$sort = 3;
 			}
-			else if (preg_match("#mobile|android|iphone|mobi|ipod|fennec|webos|j2me|midp|cdc|cdlc|bada#i", $browser))// Mobiles browsers
+			else if (preg_match("#mobile|android|iphone|mobi|ipod|fennec|webos|j2me|midp|cdc|cdlc|bada#i", $browser))
 			{
+				// Mobiles browsers
 				$sort = 2;
 			}
-			else if (strpos($browser, 'msie') === false)// Another browsers not IE
+			else if (strpos($browser, 'msie') === false)E
 			{
+				// Another browsers not I
 				$sort = 5;
 			}
-			else if (preg_match("#msie 11\.0|msie 10\.0|msie 9\.0#i", $browser))// IE 9, 10 & 11
+			else if (preg_match("#msie 11\.0|msie 10\.0|msie 9\.0#i", $browser))
 			{
+				// IE 9, 10 & 11
 				$sort = 4;
 			}
-			else// Another old IE versions
+			else
 			{
+				// Another old IE versions
 				$sort = 1;
 			}
 		}
@@ -875,9 +885,9 @@ class shoutbox
 	}
 
 	/**
-	* Displays the retractable lateral panel
-	* Return true or false
-	*/
+	 * Displays the retractable lateral panel
+	 * Return true or false
+	 */
 	public function shout_panel()
 	{
 		if (!$this->auth->acl_get('u_shout_lateral') || $this->user->data['is_bot'] || $this->config['board_disable'])
@@ -917,23 +927,25 @@ class shoutbox
 	}
 
 	/*
-	* Function for display or not the lateral panel
-	* based on page list in config
-	* Never display it for mobile phones (ipad ok)
-	* Return true or false
-	*/
+	 * Function for display or not the lateral panel
+	 * based on page list in config
+	 * Never display it for mobile phones (ipad ok)
+	 * Return true or false
+	 */
 	public function kill_lateral_on()
 	{
-		if (!$this->auth->acl_get('u_shout_lateral') || $this->user->data['is_bot'])// No permission
+		if (!$this->auth->acl_get('u_shout_lateral') || $this->user->data['is_bot'])
 		{
+			// No permission
 			return false;
 		}
 		else if (!$this->user->data['is_registered'] && !$this->config['shout_panel'])
 		{
 			return false;
 		}
-		else if ($this->compatibles_browsers() == 2)// Not for mobile browsers (not ipad)
+		else if ($this->compatibles_browsers() == 2)
 		{
+			// Not for mobile browsers (not ipad)
 			return false;
 		}
 		// Registred users can set this option
@@ -958,12 +970,13 @@ class shoutbox
 			}
 		}
 
-		$is_param = $is_dir = $_page = $param = $dir = $Page = false;// Initialise
-		if (preg_match("#ucp|mcp|search#i", $this->user->page['page_name']) || preg_match("#adm#i", $this->user->page['page_dir']))// Exclude all pages in this list
+		$is_param = $is_dir = $_page = $param = $dir = $Page = false;
+		// Exclude all pages in this list
+		if (preg_match("#ucp|mcp|search#i", $this->user->page['page_name']) || preg_match("#adm#i", $this->user->page['page_dir']))
 		{
 			return false;
 		}
-		$exclude_list = str_replace('&amp;', '&', $this->config['shout_page_exclude']);// Exclude list
+		$exclude_list = str_replace('&amp;', '&', $this->config['shout_page_exclude']);
 		if ($exclude_list != '')
 		{
 			$on_page = ($this->user->page['page_dir'] ? $this->user->page['page_dir'].'/' : '') . $this->user->page['page_name'] . ($this->user->page['query_string'] ? '?' . $this->user->page['query_string'] : '');
@@ -1010,13 +1023,14 @@ class shoutbox
 			}
 		}
 
-		return true;// Ok, let's go to display it baby (^_^)
+		// Ok, let's go to display it baby (^_^)
+		return true;
 	}
 
 	/*
-	* Ignore info robot in forum messages
-	* Return bool
-	*/
+	 * Ignore info robot in forum messages
+	 * Return bool
+	 */
 	public function shout_post_hide($mode, $s_hide_robot)
 	{
 		if ($this->auth->acl_get('u_shout_hide') && $s_hide_robot)
@@ -1037,9 +1051,9 @@ class shoutbox
 	}
 
 	/*
-	* Personalize message before submit
-	* Return string
-	*/
+	 * Personalize message before submit
+	 * Return string
+	 */
 	public function personalize_shout_message($message)
 	{
 		if ($this->user->data['shout_bbcode'])
@@ -1060,19 +1074,19 @@ class shoutbox
 	}
 
 	/*
-	* Personalize robot messages before submit
-	* Return string
-	*/
+	 * Personalize robot messages before submit
+	 * Return string
+	 */
 	public function bbcode_shout_message($message)
 	{
 		return '[color=#' . $this->config['shout_color_message'] . '][i]' . $message . '[/i][/color]';
 	}
 
 	/*
-	* Parse bbcodes in personalisation
-	* before submit
-	* Return array
-	*/
+	 * Parse bbcodes in personalisation
+	 * before submit
+	 * Return array
+	 */
 	public function parse_shout_bbcodes($open, $close, $other)
 	{
 		// Return error no permission for change personalisation of another
@@ -1110,7 +1124,8 @@ class shoutbox
 			$shout_bbcode = $this->user->data['shout_bbcode'];
 		}
 
-		if ($open == 1 && $close == 1)// Any modification
+		// Any modification
+		if ($open == 1 && $close == 1)
 		{
 			if ($shout_bbcode)
 			{
@@ -1126,22 +1141,25 @@ class shoutbox
 				);
 			}
 		}
-		else if ($open == '' && $close != '' || $open != '' && $close == '')// If one is empty
+		else if ($open == '' && $close != '' || $open != '' && $close == '')
 		{
+			// If one is empty
 			return array(
 				'sort'		=> 2,
 				'message'	=> $this->language->lang('SHOUT_BBCODE_ERROR'),
 			);
 		}
-		else if (sizeof($array_open) != sizeof($array_close))// If the number of bbcodes opening and closing is different
+		else if (sizeof($array_open) != sizeof($array_close))different
 		{
+			// If the number of bbcodes opening and closing is 
 			return array(
 				'sort'		=> 2,
 				'message'	=> $this->language->lang('SHOUT_BBCODE_ERROR_COUNT'),
 			);
 		}
-		else if (!preg_match("#^\[|\[|\]|\]$#", $open) || !preg_match("#^\[|\[|\[/|\]|\]$#", $close))// If a square bracket is absent
+		else if (!preg_match("#^\[|\[|\]|\]$#", $open) || !preg_match("#^\[|\[|\[/|\]|\]$#", $close))ent
 		{
+			// If a square bracket is abs
 			return array(
 				'sort'		=> 2,
 				'message'	=> $this->language->lang('SHOUT_BBCODE_ERROR_COUNT'),
@@ -1252,6 +1270,7 @@ class shoutbox
 					continue;
 				}
 			}
+
 			// If all is ok, return 3
 			return array(
 				'sort'	=> 3,
@@ -1260,9 +1279,9 @@ class shoutbox
 	}
 
 	/*
-	* Parse message before submit
-	* Prevent some hacking too...
-	*/
+	 * Parse message before submit
+	 * Prevent some hacking too...
+	 */
 	public function parse_shout_message($message, $sort_shout = false, $mode = 'post', $robot = false)
 	{
 		$priv = (!$sort_shout) ? '' : '_priv';
@@ -1377,8 +1396,8 @@ class shoutbox
 	}
 
 	/*
-	* Build a number for differentiate guests
-	*/
+	 * Build a number for differentiate guests
+	 */
 	public function add_random_ip($username)
 	{
 		$rand = 0;
@@ -1400,12 +1419,12 @@ class shoutbox
 	}
 
 	/* 
-	* Construct/change profile url
-	* to add actions in javascript
-	* Only if user have right permissions
-	* But never in acp
-	* Return string
-	*/
+	 * Construct/change profile url
+	 * to add actions in javascript
+	 * Only if user have right permissions
+	 * But never in acp
+	 * Return string
+	 */
 	public function construct_action_shout($id, $username = '', $colour = '', $acp = false)
 	{
 		if (!$id)
@@ -1440,18 +1459,19 @@ class shoutbox
 	}
 
 	/* 
-	* Construct url whithout sid
-	* Because urls must be construct for all and use append_sid after
-	*/
+	 * Construct url whithout sid
+	 * Because urls must be construct for all and use append_sid after
+	 */
 	private function shout_url_free_sid($content)
 	{
 		if (strpos($content, 'sid=') !== false)
 		{
-			$rep = explode('sid=', $content);// explode url
-			if (sizeof($rep[1]) > 32)// the sid number is on second part
+			$rep = explode('sid=', $content);
+			// the sid number is on second part
+			if (sizeof($rep[1]) > 32)
 			{
 				$sid_32 = substr($rep[1], 0, 32);
-				$content = str_replace($sid_32, '', $content);// substact it
+				$content = str_replace($sid_32, '', $content);
 				$content = str_replace(array('&amp;sid=', '&sid=', '?sid=', '-sid='), '', $content);
 				$content = str_replace(array('&&amp;', '&amp&amp;', '&amp;&amp;'), '&amp;', $content);
 			}
@@ -1460,20 +1480,21 @@ class shoutbox
 				$content = $rep[0];
 			}
 		}
+
 		return $content;
 	}
 
 	/*
-	* Replace relatives urls with complete urls
-	*/
+	 * Replace relatives urls with complete urls
+	 */
 	public function replace_shout_url($url)
 	{
 		return str_replace(array('./../../../../', './../../../', './../../', './../', './'), generate_board_url() . '/', $url);
 	}
 
 	/*
-	* protect title value for robot messages
-	*/
+	 * protect title value for robot messages
+	 */
 	private function shout_chars($value)
 	{
 		$value = str_replace(array('<t>', '</t>', '&lt;t&gt;', '&lt;/t&gt;'), '', $value);
@@ -1481,8 +1502,8 @@ class shoutbox
 	}
 
 	/*
-	* Forms for robot messages
-	*/
+	 * Forms for robot messages
+	 */
 	private function tpl($sort, $content1 = '', $content2 = '', $content3 = '')
 	{
 		$tpl = array(
@@ -1497,9 +1518,6 @@ class shoutbox
 		return $tpl[$sort];
 	}
 
-	/*
-	* 
-	*/
 	public function shout_text_for_display($row, $sort, $acp)
 	{
 		if ($row['shout_info'])
@@ -1535,9 +1553,9 @@ class shoutbox
 	}
 
 	/*
-	* Traduct and display infos robot
-	* for all infos robot functions
-	*/
+	 * Traduct and display infos robot
+	 * for all infos robot functions
+	 */
 	private function display_infos_robot($row, $acp)
 	{
 		$start = $this->language->lang('SHOUT_ROBOT_START');
@@ -1579,12 +1597,14 @@ class shoutbox
 			break;
 			case 11:
 				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				if ($row['shout_info_nb'] > 0)// With age to display in birthdays
+				// With age to display in birthdays
+				if ($row['shout_info_nb'] > 0)
 				{
 					$message = $this->language->lang('SHOUT_BIRTHDAY_ROBOT_FULL', $this->config['sitename'], $username,  $this->tpl('close'),  $this->tpl('bold') . $row['shout_info_nb']);
 				}
-				else// No age to display in birthdays
+				else
 				{
+					// No age to display in birthdays
 					$message = $this->language->lang('SHOUT_BIRTHDAY_ROBOT', $this->config['sitename'], $username);
 				}
 			break;
@@ -1728,9 +1748,9 @@ class shoutbox
 	}
 
 	/*
-	* Display infos Robot for purge, delete messages
-	* and enter in the private shoutbox
-	*/
+	 * Display infos Robot for purge, delete messages
+	 * and enter in the private shoutbox
+	 */
 	public function post_robot_shout($user_id, $ip, $priv = false, $purge = false, $robot = false, $auto = false, $delete = false, $deleted = '')
 	{
 		$sort_info	= 1;
@@ -1816,8 +1836,8 @@ class shoutbox
 	}
 
 	/*
-	* Display infos Robot for connections
-	*/
+	 * Display infos Robot for connections
+	 */
 	public function post_session_shout($event)
 	{
 		if ($event['session_user_id'] == ANONYMOUS || !$this->config['shout_enable_robot'])
@@ -1851,7 +1871,7 @@ class shoutbox
 			$sql = $this->db->sql_build_query('SELECT', array(
 				'SELECT'	=> 'shout_time',
 				'FROM'		=> array($this->shoutbox_table => ''),
-				'WHERE'		=> "shout_robot = 1 AND shout_robot_user = $userid AND shout_time BETWEEN " . (time() - $interval) . " AND " . time(),// $interval For no enter message if user was connect less than X minutes before
+				'WHERE'		=> "shout_robot = 1 AND shout_robot_user = $userid AND shout_time BETWEEN " . (time() - $interval) . " AND " . time(),
 			));
 			$result = $this->db->sql_query($sql);
 			$is_posted = $this->db->sql_fetchfield('shout_time');
@@ -1862,7 +1882,7 @@ class shoutbox
 			$sql = $this->db->sql_build_query('SELECT', array(
 				'SELECT'	=> 'shout_time',
 				'FROM'		=> array($this->shoutbox_priv_table => ''),
-				'WHERE'		=> "shout_robot = 1 AND shout_robot_user = $userid AND shout_time BETWEEN " . (time() - $interval) . " AND " . time(),// $interval For no enter message if user was connect less than X minutes before
+				'WHERE'		=> "shout_robot = 1 AND shout_robot_user = $userid AND shout_time BETWEEN " . (time() - $interval) . " AND " . time(),
 			));
 			$result = $this->db->sql_query($sql);
 			$is_posted_priv = $this->db->sql_fetchfield('shout_time');
@@ -1901,8 +1921,8 @@ class shoutbox
 	}
 
 	/*
-	* Display infos Robot for new posts, subjects, topics...
-	*/
+	 * Display infos Robot for new posts, subjects, topics...
+	 */
 	public function advert_post_shoutbox($event)
 	{
 		if (!$this->config['shout_enable_robot'])
@@ -2090,8 +2110,8 @@ class shoutbox
 	}
 
 	/*
-	* Display info of birthdays
-	*/
+	 * Display info of birthdays
+	 */
 	public function robot_birthday_shout()
 	{
 		if (!$this->config['shout_birthday'] && !$this->config['shout_birthday_priv'])
@@ -2208,8 +2228,8 @@ class shoutbox
 	}
 
 	/*
-	* Display the date info Robot
-	*/
+	 * Display the date info Robot
+	 */
 	public function hello_robot_shout()
 	{
 		if (!$this->config['shout_hello'] && !$this->config['shout_hello_priv'])
@@ -2277,8 +2297,8 @@ class shoutbox
 	}
 
 	/*
-	* Display first connection for new users
-	*/
+	 * Display first connection for new users
+	 */
 	public function shout_add_newest_user($event)
 	{
 		if (!$this->config['shout_enable_robot'] || !$this->config['shout_newest'] && !$this->config['shout_newest_priv'])
@@ -2404,8 +2424,8 @@ class shoutbox
 	}
 
 	/*
-	* Build radio input with specific lang
-	*/
+	 * Build radio input with specific lang
+	 */
 	public function construct_radio($name, $sort = 1, $outline = false, $on1 = '', $on2 = '')
 	{
 		switch ($sort)
@@ -2435,9 +2455,9 @@ class shoutbox
 	}
 
 	/*
-	* Build select for infos hour
-	* 24 hours format only
-	*/
+	 * Build select for infos hour
+	 * 24 hours format only
+	 */
 	public function hour_select($value, $select_name)
 	{
 		$select = '<select id="' . $select_name . '" name="' . $select_name . '">';
@@ -2453,11 +2473,11 @@ class shoutbox
 	}
 
 	/*
-	* Display user avatar with resizing
-	* Add avatar type for robot, users with no avatar and anonymous
-	* Add title with username
-	* Return string or false
-	*/
+	 * Display user avatar with resizing
+	 * Add avatar type for robot, users with no avatar and anonymous
+	 * Add title with username
+	 * Return string or false
+	 */
 	public function shout_user_avatar($row, $height, $force = false)
 	{
 		if (!$force)
@@ -2864,16 +2884,19 @@ class shoutbox
 		$on_priv = false;
 		switch ($sort_of)
 		{
-			case 1:// Popup shoutbox
+			// Popup shoutbox
+			case 1:
 				$sort = $on_priv = '';
 				$sort_p = '_pop';
 				$sort_auth = '_view';
 			break;
-			case 2:// Normal shoutbox
+			// Normal shoutbox
+			case 2:
 				$sort = $sort_p = $on_priv = '';
 				$sort_auth = '_view';
 			break;
-			case 3:// Private shoutbox
+			// Private shoutbox
+			case 3:
 				$sort_auth = $sort = $sort_p = '_priv';
 				$on_priv = '_PRIV';
 				$on_priv = true;
@@ -2941,7 +2964,8 @@ class shoutbox
 			if ($this->user->data['is_bot'])
 			{
 				$refresh = 60*1000;
-				$sound['active'] = false;// No sounds for bots, they have no ears [:-)
+				// No sounds for bots, they have no ears [:-)
+				$sound['active'] = false;
 				$sound['new'] = $sound['error'] = $sound['del'] = $sound['add'] = $sound['edit'] = '';
 			}
 			else
