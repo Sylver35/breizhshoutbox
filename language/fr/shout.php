@@ -249,7 +249,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_ACTION_REMOVE_NO'		=> 'Aucun message supprimé',
 	'SHOUT_USER_ADMIN'				=> 'Administrer l’utilisateur',
 	'SHOUT_ACTION_PERSO'			=> 'Modifier la mise en forme des messages de l’utilisateur',
-	'SHOUT_USER_POST'				=> '@MP_',// Before a private message
+	'SHOUT_USER_POST'				=> '@MP_', // Before a private message
 	'SHOUT_USER_IGNORE'				=> 'Vous avez défini ce membre en ignoré',
 	'SHOUT_USER_NONE'				=> 'Aucune action possible pour ce membre',
 

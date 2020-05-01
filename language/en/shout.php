@@ -242,7 +242,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_ACTION_REMOVE_NO'		=> 'Any deleted message',
 	'SHOUT_USER_ADMIN'				=> 'Administer the user',
 	'SHOUT_ACTION_PERSO'			=> 'Change the formatting of user’s messages',
-	'SHOUT_USER_POST'				=> '@PM_',// Before a personnal message
+	'SHOUT_USER_POST'				=> '@PM_', // Before a personnal message
 	'SHOUT_USER_IGNORE'				=> 'You have set this member to foe',
 	'SHOUT_USER_NONE'				=> 'No action possible for this member',
 
@@ -255,8 +255,8 @@ $lang = array_merge($lang, array(
 	'SHOUT_ROBOT_ON'			=> 'Disable Robot infos',
 	'SHOUT_ROBOT_OFF'			=> 'Show Robot infos',
 	'SHOUT_SELECT_ROBOT'		=> 'Disable the publication by the shoutbox’s robot',
-	'SHOUT_ROBOT_START'			=> 'Info:',// At the beginning of infos robot
-	'SHOUT_ROBOT_DATE'			=> 'l F j, Y',// Form of the info date
+	'SHOUT_ROBOT_START'			=> 'Info:', // At the beginning of infos robot
+	'SHOUT_ROBOT_DATE'			=> 'l F j, Y', // Form of the info date
 	
 	// Robot info messages
 	'SHOUT_GLOBAL_ROBOT'		=> '%1$s %2$s just create a global announcement: %3$s',
