@@ -915,7 +915,7 @@ class admin_controller
 				'POSTER'			=> $this->shoutbox->construct_action_shout($row['shout_user_id'], $row['username'], $row['user_colour'], true),
 				'ID'				=> $row['shout_id'],
 				'MESSAGE'			=> $this->shoutbox->shout_text_for_display($row, 3, true),
-				'ROW_NUMBER'		=> $i+ ($start + 1),
+				'ROW_NUMBER'		=> $i + ($start + 1),
 			));
 			$i++;
 		}
