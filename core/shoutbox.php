@@ -106,12 +106,12 @@ class shoutbox
 		$this->helper = $helper;
 		$this->path_helper = $path_helper;
 		$this->db = $db;
-		$this->pagination  $pagination;
+		$this->pagination = $pagination;
 		$this->request = $request;
 		$this->template = $template;
 		$this->auth = $auth;
 		$this->user = $user;
-		$this->language  $language;
+		$this->language = $language;
 		$this->log = $log;
 		$this->phpbb_container = $phpbb_container;
 		$this->ext_manager = $ext_manager;
@@ -864,9 +864,9 @@ class shoutbox
 				// Mobiles browsers
 				$sort = 2;
 			}
-			else if (strpos($browser, 'msie') === false)E
+			else if (strpos($browser, 'msie') === false)
 			{
-				// Another browsers not I
+				// Another browsers not IE
 				$sort = 5;
 			}
 			else if (preg_match("#msie 11\.0|msie 10\.0|msie 9\.0#i", $browser))
@@ -1151,17 +1151,17 @@ class shoutbox
 				'message'	=> $this->language->lang('SHOUT_BBCODE_ERROR'),
 			);
 		}
-		else if (sizeof($array_open) != sizeof($array_close))different
+		else if (sizeof($array_open) != sizeof($array_close))
 		{
-			// If the number of bbcodes opening and closing is 
+			// If the number of bbcodes opening and closing is different
 			return array(
 				'sort'		=> 2,
 				'message'	=> $this->language->lang('SHOUT_BBCODE_ERROR_COUNT'),
 			);
 		}
-		else if (!preg_match("#^\[|\[|\]|\]$#", $open) || !preg_match("#^\[|\[|\[/|\]|\]$#", $close))ent
+		else if (!preg_match("#^\[|\[|\]|\]$#", $open) || !preg_match("#^\[|\[|\[/|\]|\]$#", $close))
 		{
-			// If a square bracket is abs
+			// If a square bracket is absent
 			return array(
 				'sort'		=> 2,
 				'message'	=> $this->language->lang('SHOUT_BBCODE_ERROR_COUNT'),
@@ -2991,7 +2991,7 @@ class shoutbox
 		}
 		$inactiv = ($inactiv > 0 && !$on_priv) ? round($inactiv * 60 / ($refresh / 1000)) : 0;
 		$cookie_bot = $this->request->variable($this->config['cookie_name'] . '_set-robot', 'on', false, \phpbb\request\request_interface::COOKIE);
-		$this->d = $this->user->create_datetime();
+		$this->dt = $this->user->create_datetime();
 		$creator = ($this->smiliecreator_exist()) ? true : false;
 		$category = ($this->smiliescategory_exist()) ? true : false;
 		if ($creator)
