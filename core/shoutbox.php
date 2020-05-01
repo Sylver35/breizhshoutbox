@@ -1760,7 +1760,7 @@ class shoutbox
 		$userid = (int) $user_id;
 		$_priv = ($priv) ? '_priv' : '';
 		$enter_priv = ($priv && !$purge && !$robot && !$auto && !$delete) ? true : false;
-		$shoutbox_table = ($priv) ?  $this->shoutbox_priv_table : $this->shoutbox_table;
+		$shoutbox_table = ($priv) ? $this->shoutbox_priv_table : $this->shoutbox_table;
 
 		if (!$this->config['shout_enable_robot'] && !$enter_priv)
 		{
@@ -2818,7 +2818,7 @@ class shoutbox
 			$select_forum = $this->build_select_position(($shout->forum == '3') ? $this->config['shout_position_forum'] : $shout->forum);
 			$select_topic = $this->build_select_position(($shout->topic == '3') ? $this->config['shout_position_topic'] : $shout->topic);
 			$shout2->bar = ($shout2->bar === 'N') ? $this->config['shout_bar_option'] : (bool) $shout2->bar;
-			$shout2->bar_pop = ($shout2->bar_pop === 'N') ? $this->config['shout_bar_option_pop'] :(bool) $shout2->bar_pop;
+			$shout2->bar_pop = ($shout2->bar_pop === 'N') ? $this->config['shout_bar_option_pop'] : (bool) $shout2->bar_pop;
 			$shout2->bar_priv = ($shout2->bar_priv === 'N') ? $this->config['shout_bar_option_priv'] : (bool) $shout2->bar_priv;
 			$shout2->pagin = ($shout2->pagin === 'N') ? $this->config['shout_pagin_option'] : (bool) $shout2->pagin;
 			$shout2->pagin_pop = ($shout2->pagin_pop === 'N') ? $this->config['shout_pagin_option_pop'] : (bool) $shout2->pagin_pop;
@@ -2930,7 +2930,7 @@ class shoutbox
 		{
 			$shout = json_decode($this->user->data['user_shout']);
 			$shout2 = json_decode($this->user->data['user_shoutbox']);
-			$refresh = $this->config['shout_temp_users']*1000;
+			$refresh = $this->config['shout_temp_users'] * 1000;
 			$inactiv = ($this->auth->acl_get('u_shout_inactiv') || $on_priv) ? 0 : $this->config['shout_inactiv_member'];
 			$shout->user = ($shout->user == '2') ? $this->config['shout_sound_on'] : $shout->user;
 			$sound = array(
@@ -2990,7 +2990,7 @@ class shoutbox
 			}
 		}
 		$inactiv = ($inactiv > 0 && !$on_priv) ? round($inactiv * 60 / ($refresh / 1000)) : 0;
-		$cookie_bot = $this->request->variable($this->config['cookie_name']. '_set-robot', 'on', false, \phpbb\request\request_interface::COOKIE);
+		$cookie_bot = $this->request->variable($this->config['cookie_name'] . '_set-robot', 'on', false, \phpbb\request\request_interface::COOKIE);
 		$this->d = $this->user->create_datetime();
 		$creator = ($this->smiliecreator_exist()) ? true : false;
 		$category = ($this->smiliescategory_exist()) ? true : false;
