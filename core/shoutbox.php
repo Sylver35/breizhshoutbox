@@ -185,7 +185,8 @@ class shoutbox
 	/**
 	 * execute sql query or return error
 	 * @param string $sql
-	 * @param int $limit
+	 * @param bool $limit
+	 * @param int $nb
 	 * @param int $start
 	 * @return string
 	 */
@@ -359,7 +360,6 @@ class shoutbox
 	 */
 	public function delete_shout_posts($sort)
 	{
-		$deleted = '';
 		$nb_to_del = 9;
 		if ($sort)
 		{
@@ -696,7 +696,9 @@ class shoutbox
 	{
 		if (!$this->auth->acl_get('u_shout_view'))
 		{
-			$this->template->assign_var('S_DISPLAY_SHOUTBOX', false);
+			$this->template->assign_vars(array(
+				'S_DISPLAY_SHOUTBOX'	=> false,
+			));
 			return;
 		}
 
@@ -709,7 +711,9 @@ class shoutbox
 		{
 			if (!$this->auth->acl_get('u_shout_priv'))
 			{
-				$this->template->assign_var('S_DISPLAY_SHOUTBOX', false);
+				$this->template->assign_vars(array(
+					'S_DISPLAY_SHOUTBOX'	=> false,
+				));
 				return;
 			}
 			else
@@ -902,7 +906,9 @@ class shoutbox
 		// Display only if we are not in excluded page
 		if (!$this->kill_lateral_on())
 		{
-			$this->template->assign_var('KILL_LATERAL', true);
+			$this->template->assign_vars(array(
+				'KILL_LATERAL'	=> true,
+			));
 			return false;
 		}
 		else
@@ -970,7 +976,7 @@ class shoutbox
 			}
 		}
 
-		$is_param = $is_dir = $_page = $param = $dir = $Page = false;
+		$is_param = $_page = $param = false;
 		// Exclude all pages in this list
 		if (preg_match("#ucp|mcp|search#i", $this->user->page['page_name']) || preg_match("#adm#i", $this->user->page['page_dir']))
 		{
@@ -982,10 +988,10 @@ class shoutbox
 			$on_page = ($this->user->page['page_dir'] ? $this->user->page['page_dir'] . '/' : '') . $this->user->page['page_name'] . ($this->user->page['query_string'] ? '?' . $this->user->page['query_string'] : '');
 			$on_page1 = ($this->user->page['page_dir'] ? $this->user->page['page_dir'] . '/' : '') . $this->user->page['page_name'];
 			$pages = explode('||', $exclude_list);
-			$pages = explode('||', $exclude_list);
 			foreach ($pages as $page)
 			{
 				$page = str_replace('app.php/', '', $page);
+				$query_string = ($this->user->page['query_string']) ? explode('&', $this->user->page['query_string']) : '-';
 				if (preg_match("#{$page}#i", $this->user->page['page_name']))
 				{
 					return false;
@@ -994,7 +1000,6 @@ class shoutbox
 				{
 					$is_param = true;
 					list($_page, $param) = explode('?', $page);
-					$query_string = ($this->user->page['query_string']) ? explode('&', $this->user->page['query_string']) : '-';
 				}
 
 				if (!$is_param)
@@ -1143,7 +1148,7 @@ class shoutbox
 				);
 			}
 		}
-		else if ($open == '' && $close != '' || $open != '' && $close == '')
+		else if (($open == '') && ($close != '') || ($open != '') && ($close == ''))
 		{
 			// If one is empty
 			return array(
@@ -1336,7 +1341,7 @@ class shoutbox
 		$video_array = array('flash', 'swf', 'mp4', 'mts', 'avi', '3gp', 'asf', 'flv', 'mpeg', 'video', 'embed', 'BBvideo', 'scrippet', 'quicktime', 'ram', 'gvideo', 'youtube', 'veoh', 'collegehumor', 'dm', 'gamespot', 'gametrailers', 'ignvideo', 'liveleak');
 		foreach ($video_array as $video)
 		{
-			if (strpos($message, '[' . $video) !== false && strpos($message, '[/' . $video) !== false || strpos($message, '<' . $video) !== false && strpos($message, '</' . $video) !== false)
+			if ((strpos($message, '[' . $video) !== false) && (strpos($message, '[/' . $video) !== false) || (strpos($message, '<' . $video) !== false) && (strpos($message, '</' . $video) !== false))
 			{
 				$this->shout_error('SHOUT_NO_VIDEO');
 				return;
@@ -1347,8 +1352,8 @@ class shoutbox
 			}
 		}
 		// Die script and vbscript for all the time... and log it
-		if (strpos($message, '&lt;script') !== false && strpos($message, '&lt;/script') !== false || strpos($message, '<script') !== false && strpos($message, '</script') !== false ||
-			 strpos($message, '&lt;vbscript') !== false && strpos($message, '&lt;/vbscript') !== false || strpos($message, '<vbscript') !== false && strpos($message, '</vbscript') !== false)
+		if ((strpos($message, '&lt;script') !== false) && (strpos($message, '&lt;/script') !== false) || (strpos($message, '<script') !== false) && (strpos($message, '</script') !== false) ||
+			 (strpos($message, '&lt;vbscript') !== false) && (strpos($message, '&lt;/vbscript') !== false) || (strpos($message, '<vbscript') !== false) && (strpos($message, '</vbscript') !== false))
 		{
 			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_SCRIPT' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
 			$this->config->increment("shout_nr_log{$priv}", 1, true);
@@ -1356,7 +1361,7 @@ class shoutbox
 			return;
 		}
 		// Die applet for all the time...  and log it
-		else if (strpos($message, '&lt;applet') !== false && strpos($message, '&lt;/applet') !== false || strpos($message, '<applet') !== false && strpos($message, '</applet') !== false)
+		else if ((strpos($message, '&lt;applet') !== false) && (strpos($message, '&lt;/applet') !== false) || (strpos($message, '<applet') !== false) && (strpos($message, '</applet') !== false))
 		{
 			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_APPLET' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
 			$this->config->increment("shout_nr_log{$priv}", 1, true);
@@ -1364,7 +1369,7 @@ class shoutbox
 			return;
 		}
 		// Die activex for all the time...  and log it
-		else if (strpos($message, '&lt;activex') !== false && strpos($message, '&lt;/activex') !== false || strpos($message, '<activex') !== false && strpos($message, '</activex') !== false)
+		else if ((strpos($message, '&lt;activex') !== false) && (strpos($message, '&lt;/activex') !== false) || (strpos($message, '<activex') !== false) && (strpos($message, '</activex') !== false))
 		{
 			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_ACTIVEX' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
 			$this->config->increment("shout_nr_log{$priv}", 1, true);
@@ -1372,9 +1377,9 @@ class shoutbox
 			return;
 		}
 		// Die about and chrome objects for all the time...  and log it
-		else if (strpos($message, '&lt;object') !== false && strpos($message, '&lt;/object') !== false || strpos($message, '<object') !== false && strpos($message, '</object') !== false ||
-				 strpos($message, '&lt;about') !== false && strpos($message, '&lt;/about') !== false || strpos($message, '<about') !== false && strpos($message, '</about') !== false ||
-				 strpos($message, '&lt;chrome') !== false && strpos($message, '&lt;/chrome') !== false || strpos($message, '<chrome') !== false && strpos($message, '</chrome') !== false)
+		else if ((strpos($message, '&lt;object') !== false) && (strpos($message, '&lt;/object') !== false) || (strpos($message, '<object') !== false) && (strpos($message, '</object') !== false) ||
+				 (strpos($message, '&lt;about') !== false) && (strpos($message, '&lt;/about') !== false) || (strpos($message, '<about') !== false) && (strpos($message, '</about') !== false) ||
+				 (strpos($message, '&lt;chrome') !== false) && (strpos($message, '&lt;/chrome') !== false) || (strpos($message, '<chrome') !== false) && (strpos($message, '</chrome') !== false))
 		{
 			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_OBJECTS' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
 			$this->config->increment("shout_nr_log{$priv}", 1, true);
@@ -1382,7 +1387,7 @@ class shoutbox
 			return;
 		}
 		// Die iframe for all the time...  and log it
-		else if (strpos($message, '&lt;iframe') !== false && strpos($message, '&lt;/iframe') !== false || strpos($message, '<iframe') !== false && strpos($message, '</iframe') !== false || strpos($message, '[iframe') !== false && strpos($message, '[/iframe') !== false)
+		else if ((strpos($message, '&lt;iframe') !== false) && (strpos($message, '&lt;/iframe') !== false) || (strpos($message, '<iframe') !== false) && (strpos($message, '</iframe') !== false) || (strpos($message, '[iframe') !== false) && (strpos($message, '[/iframe') !== false))
 		{
 			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_IFRAME' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
 			$this->config->increment("shout_nr_log{$priv}", 1, true);
@@ -1406,7 +1411,7 @@ class shoutbox
 		$in = array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
 		$out = array('1', '2', '3', '4', '5', '6', '7', '8', '9', '1', '2', '3', '4', '5', '6', '7', '8', '9', '1', '2', '3', '4', '5', '6', '7', '8');
 		$ip = str_replace($in, $out, strtolower($this->user->ip));
-		$act = explode('.', $this->user->ip);
+		$act = explode('.', $ip);
 		for ($i = 0, $nb = sizeof($act); $i < $nb; $i++)
 		{
 			if ($act[$i] == 0)
@@ -1443,7 +1448,7 @@ class shoutbox
 		}
 		else if ($id === $this->user->data['user_id'] || $acp)
 		{
-			$username_full = get_username_string('full', $id, $username, $colour, false, append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", "mode=viewprofile"));
+			$username_full = get_username_string('full', $id, $username, $colour, '', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", "mode=viewprofile"));
 		}
 		else
 		{
@@ -1470,7 +1475,7 @@ class shoutbox
 		{
 			$rep = explode('sid=', $content);
 			// the sid number is on second part
-			if (sizeof($rep[1]) > 32)
+			if (strlen($rep[1]) > 32)
 			{
 				$sid_32 = substr($rep[1], 0, 32);
 				$content = str_replace($sid_32, '', $content);
@@ -1690,12 +1695,12 @@ class shoutbox
 				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
 				$message = generate_text_for_display($row['shout_text'], $row['shout_bbcode_uid'], $row['shout_bbcode_bitfield'], $row['shout_bbcode_flags']);
 				return $this->tpl('cite', $this->language->lang('SHOUT_USER_POST'), $username, $message);
-			break;
+			// no break here
 			case 66:
 				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
 				$message = generate_text_for_display($row['shout_text'], $row['shout_bbcode_uid'], $row['shout_bbcode_bitfield'], $row['shout_bbcode_flags']);
 				return $this->tpl('cite', $this->language->lang('SHOUT_ACTION_CITE_ON'), $username, $message);
-			break;
+			// no break here
 			case 70:
 				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
 				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
@@ -1834,7 +1839,7 @@ class shoutbox
 
 		$sql = 'INSERT INTO ' . $shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
 		$this->db->sql_query($sql);
-		$this->config->increment("shout_nr{$priv}", 1, true);
+		$this->config->increment("shout_nr{$_priv}", 1, true);
 	}
 
 	/*
@@ -1868,7 +1873,7 @@ class shoutbox
 		$interval = (int) $this->config['shout_sessions_time'] * 60;
 		$is_posted = $is_posted_priv = false;
 		
-		if ($bot && $this->config['shout_sessions_bots'] || !$bot && $this->config['shout_sessions'])
+		if (($bot && $this->config['shout_sessions_bots']) || (!$bot && $this->config['shout_sessions']))
 		{
 			$sql = $this->db->sql_build_query('SELECT', array(
 				'SELECT'	=> 'shout_time',
@@ -1879,7 +1884,7 @@ class shoutbox
 			$is_posted = $this->db->sql_fetchfield('shout_time');
 			$this->db->sql_freeresult($result);
 		}
-		if ($bot && $this->config['shout_sessions_bots_priv'] || !$bot && $this->config['shout_sessions_priv'])
+		if (($bot && $this->config['shout_sessions_bots_priv']) || (!$bot && $this->config['shout_sessions_priv']))
 		{
 			$sql = $this->db->sql_build_query('SELECT', array(
 				'SELECT'	=> 'shout_time',
@@ -1908,13 +1913,13 @@ class shoutbox
 			'shout_info'				=> $shout_info,
 		);
 
-		if (($bot && $this->config['shout_sessions_bots'] || !$bot && $this->config['shout_sessions']) && !$is_posted)
+		if ((($bot && $this->config['shout_sessions_bots']) || (!$bot && $this->config['shout_sessions'])) && !$is_posted)
 		{
 			$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);
 			$this->config->increment('shout_nr', 1, true);
 		}
-		if (($bot && $this->config['shout_sessions_bots_priv'] || !$bot && $this->config['shout_sessions_priv']) && !$is_posted_priv)
+		if ((($bot && $this->config['shout_sessions_bots_priv']) || (!$bot && $this->config['shout_sessions_priv'])) && !$is_posted_priv)
 		{
 			$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);
