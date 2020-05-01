@@ -295,7 +295,7 @@ class admin_controller
 			{
 				$iso = $row['lang_iso'];
 				$rules_uid = $rules_bitfield = $rules_flags = $rules_uid_priv = $rules_bitfield_priv = $rules_flags_priv = '';
-				$rules_text	= $this->request->variable("rules_text_$iso", '', true);
+				$rules_text = $this->request->variable("rules_text_$iso", '', true);
 				$rules_text_priv = $this->request->variable("rules_text_priv_$iso", '', true);
 				generate_text_for_storage($rules_text, $rules_uid, $rules_bitfield, $rules_flags, true, true, true);
 				generate_text_for_storage($rules_text_priv, $rules_uid_priv, $rules_bitfield_priv, $rules_flags_priv, true, true, true);
@@ -382,14 +382,14 @@ class admin_controller
 			$result = $this->db->sql_query($sql);
 			while ($row = $this->db->sql_fetchrow($result))
 			{
-				$text			= isset($row['rules_text']) ? $row['rules_text'] : '';
-				$uid			= isset($row['rules_uid']) ? $row['rules_uid'] : '';
-				$bitfield		= isset($row['rules_bitfield']) ? $row['rules_bitfield'] : '';
-				$flags			= isset($row['rules_flags']) ? $row['rules_flags'] : '';
-				$text_priv		= isset($row['rules_text_priv']) ? $row['rules_text_priv'] : '';
-				$uid_priv		= isset($row['rules_uid_priv']) ? $row['rules_uid_priv'] : '';
-				$bitfield_priv	= isset($row['rules_bitfield_priv']) ? $row['rules_bitfield_priv'] : '';
-				$flags_priv		= isset($row['rules_flags_priv']) ? $row['rules_flags_priv'] : '';
+				$text = isset($row['rules_text']) ? $row['rules_text'] : '';
+				$uid = isset($row['rules_uid']) ? $row['rules_uid'] : '';
+				$bitfield = isset($row['rules_bitfield']) ? $row['rules_bitfield'] : '';
+				$flags = isset($row['rules_flags']) ? $row['rules_flags'] : '';
+				$text_priv = isset($row['rules_text_priv']) ? $row['rules_text_priv'] : '';
+				$uid_priv = isset($row['rules_uid_priv']) ? $row['rules_uid_priv'] : '';
+				$bitfield_priv = isset($row['rules_bitfield_priv']) ? $row['rules_bitfield_priv'] : '';
+				$flags_priv = isset($row['rules_flags_priv']) ? $row['rules_flags_priv'] : '';
 
 				$decoded_text = $decoded_text_priv = $text_display = $text_display_priv = '';
 				if ($text)
@@ -458,16 +458,16 @@ class admin_controller
 
 	public function acp_shoutbox_overview()
 	{
-		$id				= $this->request->variable('i', '');
-		$action			= $this->request->variable('action', '');
-		$start			= $this->request->variable('start', 0);
-		$marked			= $this->request->variable('mark', array(0));
-		$creation		= $this->request->variable('creation_time', 0);
-		$token			= $this->request->variable('form_token', '');
-		$deletemark 	= $this->request->is_set_post('delmarked') ? true : false;
-		$deletemarklog 	= $this->request->is_set_post('delmarkedlog') ? true : false;
-		$mode			= $this->request->variable('mode', '');
-		$form_key		= 'sylver35/breizhshoutbox';
+		$id = $this->request->variable('i', '');
+		$action = $this->request->variable('action', '');
+		$start = $this->request->variable('start', 0);
+		$marked = $this->request->variable('mark', array(0));
+		$creation = $this->request->variable('creation_time', 0);
+		$token = $this->request->variable('form_token', '');
+		$deletemark = $this->request->is_set_post('delmarked') ? true : false;
+		$deletemarklog = $this->request->is_set_post('delmarkedlog') ? true : false;
+		$mode = $this->request->variable('mode', '');
+		$form_key = 'sylver35/breizhshoutbox';
 		add_form_key($form_key);
 
 		if ($deletemark)
@@ -539,7 +539,7 @@ class admin_controller
 					$this->db->sql_query($sql);
 					$deleted = $this->db->sql_affectedrows();
 					
-					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX'), time()),  array($deleted));
+					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX'), time()), array($deleted));
 				}
 			}
 			else
@@ -756,7 +756,7 @@ class admin_controller
 					$this->db->sql_query($sql);
 					$deleted = $this->db->sql_affectedrows();
 
-					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_SELECT', $deleted, '_SHOUTBOX_PRIV'), time(),  array($deleted));
+					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_SELECT', $deleted, '_SHOUTBOX_PRIV'), time(), array($deleted));
 					$this->config->increment('shout_del_acp_priv', $deleted, true);
 				}
 			}
@@ -799,7 +799,7 @@ class admin_controller
 					$this->db->sql_query($sql);
 					$deleted = $this->db->sql_affectedrows();
 					
-					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX_PRIV'), time(),  array($deleted));
+					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX_PRIV'), time(), array($deleted));
 				}
 			}
 			else
@@ -826,7 +826,7 @@ class admin_controller
 				}
 				if ($confirm)
 				{
-					confirm_box(false,  $this->language->lang($confirm_lang), build_hidden_fields(array(
+					confirm_box(false, $this->language->lang($confirm_lang), build_hidden_fields(array(
 						'i'				=> $id,
 						'action'		=> $action,
 						'creation_time'	=> $creation,
@@ -915,7 +915,7 @@ class admin_controller
 				'POSTER'			=> $this->shoutbox->construct_action_shout($row['shout_user_id'], $row['username'], $row['user_colour'], true),
 				'ID'				=> $row['shout_id'],
 				'MESSAGE'			=> $this->shoutbox->shout_text_for_display($row, 3, true),
-				'ROW_NUMBER'		=> $i+ ($start +1),
+				'ROW_NUMBER'		=> $i+ ($start + 1),
 			));
 			$i++;
 		}

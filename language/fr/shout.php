@@ -72,7 +72,7 @@ $lang = array_merge($lang, array(
 	'DEL_SHOUT'				=> 'Êtes vous sûr de vouloir supprimer ce message ?',
 	'MSG_DEL_DONE'			=> 'Message en cours de suppression…',
 	'NO_SHOUT_ID'			=> 'Pas de numéro id de message.',
-	'SHOUT_PAGE'			=> 'Page N° ',// Pagination
+	'SHOUT_PAGE'			=> 'Page N° ',
 	'CODE'					=> 'code',
 	'EDIT'					=> 'Éditer',
 	'CANCEL'				=> 'Abandonner',
@@ -98,10 +98,10 @@ $lang = array_merge($lang, array(
 	'SHOUT_LESS_SMILIES'	=> 'Moins de smileys',
 	'SHOUT_LESS_SMILIES_ALT' => 'Cliquez ici pour voir moins de smileys',
 	'SHOUT_POST_IP'			=> 'IP de l’utilisateur :',
-	'SHOUTBOX'				=> '<a href="%1$s">%2$s</a>',// Don't traduct this
-	'SHOUTBOX_VER'			=> 'Breizh Shoutbox v%s',// Don't traduct this
-	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2020',// Don't traduct this
-	'SHOUT_TOUCH'			=> 'The Breizh Touch',// Don't traduct this
+	'SHOUTBOX'				=> '<a href="%1$s">%2$s</a>', // Don't traduct this
+	'SHOUTBOX_VER'			=> 'Breizh Shoutbox v%s', // Don't traduct this
+	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2020', // Don't traduct this
+	'SHOUT_TOUCH'			=> 'The Breizh Touch', // Don't traduct this
 	'SHOUTBOX_POPUP'		=> 'Popup Breizh Shoutbox',
 	'SHOUT_POP'				=> 'Ouvrir la shoutbox dans une popup',
 	'SHOUT_POPUP'			=> 'Popup Shoutbox',
@@ -262,8 +262,8 @@ $lang = array_merge($lang, array(
 	'SHOUT_ROBOT_ON'			=> 'Désactiver les infos Robot',
 	'SHOUT_ROBOT_OFF'			=> 'Afficher les infos Robot',
 	'SHOUT_SELECT_ROBOT'		=> 'Désactiver la publication par le robot de la shoutbox',
-	'SHOUT_ROBOT_START'			=> 'Info :',// Au début des infos robot
-	'SHOUT_ROBOT_DATE'			=> 'l j F Y',// Forme de la date du jour
+	'SHOUT_ROBOT_START'			=> 'Info :', // Au début des infos robot
+	'SHOUT_ROBOT_DATE'			=> 'l j F Y', // Forme de la date du jour
 
 // Robot info messages
 	'SHOUT_GLOBAL_ROBOT'		=> '%1$s %2$s vient de publier une annonce générale : %3$s',

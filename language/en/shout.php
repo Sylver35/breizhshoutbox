@@ -99,10 +99,10 @@ $lang = array_merge($lang, array(
 	'SHOUT_LESS_SMILIES'	=> 'Less smilies',
 	'SHOUT_LESS_SMILIES_ALT' => 'Click here to see less smilies',
 	'SHOUT_POST_IP'			=> 'IP of the user:',
-	'SHOUTBOX'				=> '<a href="%1$s">%2$s</a>',// Don't traduct this
-	'SHOUTBOX_VER'			=> 'Breizh Shoutbox v%s',// Don't traduct this
-	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2020',// Don't traduct this
-	'SHOUT_TOUCH'			=> 'The Breizh Touch',// Don't traduct this
+	'SHOUTBOX'				=> '<a href="%1$s">%2$s</a>', // Don't traduct this
+	'SHOUTBOX_VER'			=> 'Breizh Shoutbox v%s', // Don't traduct this
+	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2020', // Don't traduct this
+	'SHOUT_TOUCH'			=> 'The Breizh Touch', // Don't traduct this
 	'SHOUTBOX_POPUP'		=> 'Breizh Shoutbox Popup',
 	'SHOUT_POP'				=> 'Open shoutbox in a popup',
 	'SHOUT_POPUP'			=> 'Shoutbox Popup',
