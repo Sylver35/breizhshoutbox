@@ -17,10 +17,10 @@ class breizhshoutbox_1_0_0 extends migration
 	{
 		return $this->db_tools->sql_column_exists($this->table_prefix . 'users', 'user_shout') && $this->db_tools->sql_table_exists($this->table_prefix . 'shoutbox');
 	}
-	
+
 	static public function depends_on()
 	{
-		return array('\phpbb\db\migration\data\v32x\v325');
+		return array('\phpbb\db\migration\data\v32x\v328');
 	}
 
 	public function update_data()
@@ -518,10 +518,10 @@ class breizhshoutbox_1_0_0 extends migration
 				'shout_info'				=> 99,
 			);
 			
-			$sql = 'INSERT INTO ' .$this->table_prefix. 'shoutbox ' . $this->db->sql_build_array('INSERT', $sql_data);
+			$sql = 'INSERT INTO ' . $this->table_prefix . 'shoutbox ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);
 			
-			$sql = 'INSERT INTO ' .$this->table_prefix. 'shoutbox_priv ' . $this->db->sql_build_array('INSERT', $sql_data);
+			$sql = 'INSERT INTO ' . $this->table_prefix . 'shoutbox_priv ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);
 		}
 	}
