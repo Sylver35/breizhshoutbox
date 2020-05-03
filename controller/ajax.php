@@ -24,7 +24,7 @@ use phpbb\event\dispatcher_interface as phpbb_dispatcher;
 
 class ajax
 {
-	/* @var \sylver35\breizhshoutbox\core\breizhshoutbox */
+	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
 
 	/** @var \phpbb\config\config */
@@ -57,7 +57,7 @@ class ajax
 	/** @var \phpbb\path_helper */
 	protected $path_helper;
 
-	/** @var phpbb\event\dispatcher_interface */
+	/** @var \phpbb\event\dispatcher_interface */
 	protected $phpbb_dispatcher;
 
 	/** @var string phpBB root path */

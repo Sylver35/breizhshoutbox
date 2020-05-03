@@ -188,9 +188,9 @@ class shoutbox
 	 * @param bool $limit
 	 * @param int $nb
 	 * @param int $start
-	 * @return string
+	 * @return string|bool
 	 */
-	public function shout_sql_query($sql, $limit = false, $nb = false, $start = false)
+	public function shout_sql_query($sql, $limit = false, $nb = 0, $start = 0)
 	{
 		if ($limit && $nb && $start)
 		{
@@ -227,15 +227,6 @@ class shoutbox
 	public function adm_relative_path()
 	{
 		return $this->path_helper->get_adm_relative_path();
-	}
-
-	/**
-	 * Get the root path
-	 * @return string
-	 */
-	public function root_path()
-	{
-		return (defined('PHPBB_USE_BOARD_URL_PATH') && PHPBB_USE_BOARD_URL_PATH) ? generate_board_url() . '/' : $this->path_helper->get_web_root_path();
 	}
 
 	/**
@@ -332,12 +323,11 @@ class shoutbox
 		}
 		else if (($this->config["shout_prune{$priv}"] > 0) && ($this->config["shout_max_posts{$priv}"] == 0))
 		{
-			$deleted = 0;
 			$time = time() - ($this->config["shout_prune{$priv}"] * 3600);
 
 			$sql = 'DELETE FROM ' . $shoutbox_table . " WHERE shout_time < '$time'";
 			$this->db->sql_query($sql);
-			$deleted = $this->db->sql_affectedrows();
+			$deleted = (int) $this->db->sql_affectedrows();
 			if ($deleted > 0)
 			{
 				$this->config->increment("shout_del_auto{$priv}", $deleted, true);
@@ -391,7 +381,7 @@ class shoutbox
 				'FROM'		=> array($shoutbox_table => ''),
 				'ORDER_BY'	=> 'shout_time DESC',
 			));
-			$result = $this->shout_sql_query($sql, true, $this->config["shout_max_posts{$val_priv}"]);
+			$result = $this->shout_sql_query($sql, true, (int) $this->config["shout_max_posts{$val_priv}"]);
 			if (!$result)
 			{
 				return;
@@ -458,7 +448,6 @@ class shoutbox
 
 	/**
 	 * Check if the rules with apropriate language exist
-	 * @param string sort of shoutbox
 	 */
 	private function check_shout_rules($sort)
 	{
