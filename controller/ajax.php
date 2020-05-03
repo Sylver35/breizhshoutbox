@@ -161,7 +161,7 @@ class ajax
 					'GROUP_BY'	=> 'smiley_url',
 					'ORDER_BY'	=> 'min_smiley_order ASC',
 				);
-				$result = $this->shoutbox->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary), false, 3600);
+				$result = $this->shoutbox->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary), true, 3600);
 				if (!$result)
 				{
 					break;
@@ -219,7 +219,7 @@ class ajax
 					'GROUP_BY'	=> 'smiley_url',
 					'ORDER_BY'	=> 'min_smiley_order ASC',
 				);
-				$result = $this->shoutbox->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary), false, 3600);
+				$result = $this->shoutbox->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary), true, 3600);
 				if (!$result)
 				{
 					break;
@@ -1407,7 +1407,7 @@ class ajax
 					'WHERE'		=> $sql_where . $sql_and,
 					'ORDER_BY'	=> 's.shout_id DESC',
 				));
-				$result = $this->shoutbox->shout_sql_query($sql, true, $this->config["shout_non_ie_nr{$val_sort_on}"], $start);
+				$result = $this->shoutbox->shout_sql_query($sql, true, (int) $this->config["shout_non_ie_nr{$val_sort_on}"], $start);
 				if (!$result)
 				{
 					break;
