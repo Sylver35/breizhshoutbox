@@ -2864,6 +2864,7 @@ class shoutbox
 	public function javascript_shout($sort_of)
 	{
 		$sort = $sort_p = '';
+		$sort_auth = '_view';
 		switch ($sort_of)
 		{
 			// Popup shoutbox
