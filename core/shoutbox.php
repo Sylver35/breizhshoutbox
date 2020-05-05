@@ -1447,7 +1447,7 @@ class shoutbox
 			}
 			else
 			{
-				$username_full = get_username_string('full', $id, $username, $colour, false, append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", "mode=viewprofile"));
+				$username_full = get_username_string('full', $id, $username, $colour, '', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", "mode=viewprofile"));
 			}
 		}
 
@@ -1945,7 +1945,7 @@ class shoutbox
 			return;
 		}
 
-		$info = 0;
+		$info = $sort_info = 0;
 		$ip = (string) $this->user->ip;
 		$userid = (int) $this->user->data['user_id'];
 		$topic_id = (int) $event['data']['topic_id'];
@@ -2676,12 +2676,6 @@ class shoutbox
 
 	public function build_dateformat_option($dateformat, $adm = false)
 	{
-		// Let the format_date function operate with the acp values
-		if ($adm)
-		{
-			$old_tz = $this->user->timezone;
-			$old_dst = $this->user->dst;
-		}
 		$options = '';
 		$on_select = false;
 		foreach ($this->language->lang_raw('dateformats') as $format => $null)
@@ -2694,13 +2688,6 @@ class shoutbox
 		}
 		$select = (!$on_select) ? ' selected="selected"' : '';
 		$options .= '<option value="custom"' . $select . '>' . $this->language->lang('CUSTOM_DATEFORMAT') . '</option>';
-
-		// Reset users date options
-		if ($adm)
-		{
-			$this->user->timezone = $old_tz;
-			$this->user->dst = $old_dst;
-		}
 
 		return $options;
 	}
@@ -2877,23 +2864,21 @@ class shoutbox
 	public function javascript_shout($sort_of)
 	{
 		$on_priv = false;
+		$sort = $sort_p = $on_priv = '';
 		switch ($sort_of)
 		{
 			// Popup shoutbox
 			case 1:
-				$sort = $on_priv = '';
 				$sort_p = '_pop';
 				$sort_auth = '_view';
 			break;
 			// Normal shoutbox
 			case 2:
-				$sort = $sort_p = $on_priv = '';
 				$sort_auth = '_view';
 			break;
 			// Private shoutbox
 			case 3:
 				$sort_auth = $sort = $sort_p = '_priv';
-				$on_priv = '_PRIV';
 				$on_priv = true;
 			break;
 		}
@@ -2911,6 +2896,7 @@ class shoutbox
 
 		// Display the rules if wanted
 		$rules = $rules_open = false;
+		$config_shout = $sound = array();
 		if ($this->check_shout_rules($sort))
 		{
 			$rules = true;
@@ -2977,14 +2963,14 @@ class shoutbox
 				);
 				if (isset($_COOKIE[$this->config['cookie_name'] . '_shout']))
 				{
-					$cookie = $this->request->variable($this->config['cookie_name'] . '_shout', 'on', false, \phpbb\request\request_interface::COOKIE);
+					$cookie = $this->request->variable($this->config['cookie_name'] . '_shout', 'on', false, /** @scrutinizer ignore-type */ \phpbb\request\request_interface::COOKIE);
 					$sound['active'] = ($cookie == 'on') ? true : false;
 				}
 			}
 		}
 		$inactiv = ($inactiv > 0 && !$on_priv) ? round($inactiv * 60 / ($refresh / 1000)) : 0;
-		$cookie_bot = $this->request->variable($this->config['cookie_name'] . '_set-robot', 'on', false, \phpbb\request\request_interface::COOKIE);
-		$this->dt = $this->user->create_datetime();
+		$cookie_bot = $this->request->variable($this->config['cookie_name'] . '_set-robot', 'on', false, /** @scrutinizer ignore-type */ \phpbb\request\request_interface::COOKIE);
+		$dt = $this->user->create_datetime();
 		$creator = ($this->smiliecreator_exist()) ? true : false;
 		$category = ($this->smiliescategory_exist()) ? true : false;
 		if ($creator)
@@ -3056,7 +3042,7 @@ class shoutbox
 			'cookiePath'		=> '; path=' . $this->config['cookie_path'],
 			'sortBot'			=> $cookie_bot,
 			'extensionUrl'		=> $this->replace_shout_url($this->ext_path_web),
-			'userTimezone'		=> phpbb_format_timezone_offset($this->dt->getOffset()),
+			'userTimezone'		=> phpbb_format_timezone_offset($dt->getOffset()),
 			'dateFormat'		=> $dateformat,
 			'dateDefault'		=> $this->config['shout_dateformat'],
 			'newSound'			=> $sound["new{$sort}"],
