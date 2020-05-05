@@ -124,17 +124,17 @@ class ajax
 		$val_perm = '_view';
 		$val_auth = 'manage';
 		$val_priv = $val_privat = '';
+		$val_sort_on = '';
+		$shoutbox_table = $this->shoutbox_table;
 		switch ($val_sort)
 		{
 			// Popup shoutbox
 			case 1:
 				$val_sort_on = '_pop';
-				$shoutbox_table = $this->shoutbox_table;
 			break;
 			// Normal shoutbox
 			case 2:
 				$val_sort_on = '';
-				$shoutbox_table = $this->shoutbox_table;
 			break;
 			// Private shoutbox
 			case 3:
@@ -391,7 +391,8 @@ class ajax
 					break;
 					// Return no change message
 					case 4:
-						$uid = $bitfield = $options = '';
+						$options = 0;
+						$uid = $bitfield = '';
 						if ($open != '1')
 						{
 							$text = $open . $this->language->lang('SHOUT_EXEMPLE') . $close;
@@ -923,7 +924,6 @@ class ajax
 
 			case 'delete':
 				$post = $this->request->variable('post', 0);
-				$content = array('type'	=> 0);
 				if (!$post)
 				{
 					$this->shoutbox->shout_error('NO_SHOUT_ID');
@@ -1351,7 +1351,7 @@ class ajax
 					$shout2 = json_decode($this->user->data['user_shoutbox']);
 					$dateformat = ($shout2->dateformat != '') ? $shout2->dateformat : $dateformat;
 				}
-				$cookie_bot = $this->request->variable($this->config['cookie_name'] . '_set-robot', 'on', false, \phpbb\request\request_interface::COOKIE);
+				$cookie_bot = $this->request->variable($this->config['cookie_name'] . '_set-robot', 'on', false, /** @scrutinizer ignore-type */ \phpbb\request\request_interface::COOKIE);
 				$bot = ($cookie_bot == 'off') ? false : true;
 
 				// Display avatars ?

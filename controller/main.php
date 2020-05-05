@@ -8,7 +8,6 @@
 */
 
 namespace sylver35\breizhshoutbox\controller;
-
 use sylver35\breizhshoutbox\core\shoutbox;
 use phpbb\config\config;
 use phpbb\controller\helper;
@@ -22,7 +21,7 @@ use phpbb\pagination;
 
 class main
 {
-	/* @var \sylver35\breizhshoutbox\core\breizhshoutbox */
+	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
 
 	/** @var \phpbb\config\config */
@@ -146,7 +145,9 @@ class main
 		}
 		else
 		{
-			$this->template->assign_var('KILL_LATERAL', true);
+			$this->template->assign_vars(array(
+				'KILL_LATERAL'	=> true,
+			));
 			return false;
 		}
 	}
@@ -184,7 +185,7 @@ class main
 			'GROUP_BY'	=> 'smiley_url',
 			'ORDER_BY'	=> 'min_smiley_order ASC',
 		));
-		$result = $this->db->sql_query_limit($sql, $this->config['smilies_per_page'], $start);
+		$result = $this->db->sql_query_limit($sql, (int) $this->config['smilies_per_page'], $start);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
 			$this->template->assign_block_vars('smilies', array(
@@ -197,8 +198,8 @@ class main
 		}
 		$this->db->sql_freeresult($result);
 
-		$start = $this->pagination->validate_start($start, $this->config['smilies_per_page'], $count);
-		$this->pagination->generate_template_pagination($url, 'pagination', 'start', $count, $this->config['smilies_per_page'], $start);
+		$start = $this->pagination->validate_start($start, (int) $this->config['smilies_per_page'], $count);
+		$this->pagination->generate_template_pagination($url, 'pagination', 'start', $count, (int) $this->config['smilies_per_page'], $start);
 
 		$data = $this->shoutbox->get_version();
 		$this->template->assign_vars(array(
