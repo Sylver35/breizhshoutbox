@@ -8,7 +8,6 @@
 */
 
 namespace sylver35\breizhshoutbox\controller;
-
 use sylver35\breizhshoutbox\core\shoutbox;
 use phpbb\cache\driver\driver_interface as cache;
 use phpbb\config\config;
@@ -1121,7 +1120,9 @@ class admin_controller
 				'PANEL_EXIT_OPTION'			=> $this->shoutbox->build_select_img($this->ext_path, $panel_path, 'shout_panel_exit_img', true),
 			));
 		}
-		$this->template->assign_var('S_PANEL', true);
+		$this->template->assign_vars(array(
+			'S_PANEL'	=> true,
+		));
 	}
 
 	public function acp_shoutbox_smilies()
@@ -1307,7 +1308,9 @@ class admin_controller
 				));
 			}
 		}
-		$this->template->assign_var('S_ROBOT', true);
+		$this->template->assign_vars(array(
+			'S_ROBOT'	=> true,
+		));
 	}
 
 	/**

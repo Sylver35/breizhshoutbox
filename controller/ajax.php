@@ -683,7 +683,9 @@ class ajax
 					// any user id
 					if (!$val_id)
 					{
-						$content = array('type'	=> 0);
+						$response->send(array(
+							'type'		=> 0,
+						), true);
 					}
 					// post a robot message
 					else if ($val_id == 1)
@@ -697,7 +699,9 @@ class ajax
 						// no perm, out...
 						else
 						{
-							$content = array('type'	=> 0);
+							$response->send(array(
+								'type'		=> 0,
+							), true);
 						}
 					}
 					// post a personal message
@@ -723,15 +727,17 @@ class ajax
 						// user id don't exist or ignore
 						if (!$row || $row['user_type'] == USER_IGNORE)
 						{
-							$content = array('type'	=> 0);
+							$response->send(array(
+								'type'		=> 0,
+							), true);
 						}
 						// user is foe
 						else if ($row['foe'])
 						{
-							$content = array(
+							$response->send(array(
 								'type'		=> 2,
 								'message'	=> $this->language->lang('SHOUT_USER_IGNORE'),
-							);
+							), true);
 						}
 						// let's go
 						else
@@ -774,22 +780,20 @@ class ajax
 						$sql = 'INSERT INTO ' . $shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_ary);
 						$this->db->sql_query($sql);
 						$this->config->increment("shout_nr{$val_priv}", 1, true);
-						$content = array(
+						$response->send(array(
 							'type'		=> 1,
 							'friend'	=> $friend,
 							'message'	=> $this->language->lang('POSTED'),
-						);
+						), true);
 					}
 				}
 				else
 				{
-					$content = array(
+					$response->send(array(
 						'type'		=> 0,
 						'message'	=> $this->language->lang('NO_ACTION_PERM'),
-					);
+					), true);
 				}
-
-				$response->send($content, true);
 			break;
 
 			case 'action_del':

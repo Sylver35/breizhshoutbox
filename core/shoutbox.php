@@ -1309,7 +1309,7 @@ class shoutbox
 		// Permission to ignore the limit of characters in a message
 		if (!$this->auth->acl_get('u_shout_limit_post') && $this->config['shout_max_post_chars'])
 		{
-			$message_length = ($mode == 'post') ? utf8_strlen($message) : utf8_strlen(preg_replace('#\[\/?[a-z\*\+\-]+(=[\S]+)?\]#ius', ' ', $message));
+			$message_length = ($mode == 'post') ? mb_strlen($message, 'utf-8') : mb_strlen(preg_replace('#\[\/?[a-z\*\+\-]+(=[\S]+)?\]#ius', ' ', $message), 'utf-8');
 			if ($message_length > $this->config['shout_max_post_chars'])
 			{
 				$this->shout_error('TOO_MANY_CHARS_POST', $message_length, $this->config['shout_max_post_chars']);
@@ -1330,7 +1330,7 @@ class shoutbox
 		$video_array = array('flash', 'swf', 'mp4', 'mts', 'avi', '3gp', 'asf', 'flv', 'mpeg', 'video', 'embed', 'BBvideo', 'scrippet', 'quicktime', 'ram', 'gvideo', 'youtube', 'veoh', 'collegehumor', 'dm', 'gamespot', 'gametrailers', 'ignvideo', 'liveleak');
 		foreach ($video_array as $video)
 		{
-			if ((strpos($message, '[' . $video) !== false) && (strpos($message, '[/' . $video) !== false) || (strpos($message, '<' . $video) !== false) && (strpos($message, '</' . $video) !== false))
+			if ((strpos($message, '[' . $video) !== false && strpos($message, '[/' . $video) !== false) || (strpos($message, '<' . $video) !== false && strpos($message, '</' . $video) !== false))
 			{
 				$this->shout_error('SHOUT_NO_VIDEO');
 				return;
@@ -1341,8 +1341,8 @@ class shoutbox
 			}
 		}
 		// Die script and vbscript for all the time... and log it
-		if ((strpos($message, '&lt;script') !== false) && (strpos($message, '&lt;/script') !== false) || (strpos($message, '<script') !== false) && (strpos($message, '</script') !== false) ||
-			 (strpos($message, '&lt;vbscript') !== false) && (strpos($message, '&lt;/vbscript') !== false) || (strpos($message, '<vbscript') !== false) && (strpos($message, '</vbscript') !== false))
+		if ((strpos($message, '&lt;script') !== false && strpos($message, '&lt;/script') !== false) || (strpos($message, '<script') !== false && strpos($message, '</script') !== false) ||
+			 (strpos($message, '&lt;vbscript') !== false && strpos($message, '&lt;/vbscript') !== false) || (strpos($message, '<vbscript') !== false && strpos($message, '</vbscript') !== false))
 		{
 			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_SCRIPT' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
 			$this->config->increment("shout_nr_log{$priv}", 1, true);
@@ -1350,7 +1350,7 @@ class shoutbox
 			return;
 		}
 		// Die applet for all the time...  and log it
-		else if ((strpos($message, '&lt;applet') !== false) && (strpos($message, '&lt;/applet') !== false) || (strpos($message, '<applet') !== false) && (strpos($message, '</applet') !== false))
+		else if ((strpos($message, '&lt;applet') !== false && strpos($message, '&lt;/applet') !== false) || (strpos($message, '<applet') !== false && strpos($message, '</applet') !== false))
 		{
 			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_APPLET' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
 			$this->config->increment("shout_nr_log{$priv}", 1, true);
@@ -1358,7 +1358,7 @@ class shoutbox
 			return;
 		}
 		// Die activex for all the time...  and log it
-		else if ((strpos($message, '&lt;activex') !== false) && (strpos($message, '&lt;/activex') !== false) || (strpos($message, '<activex') !== false) && (strpos($message, '</activex') !== false))
+		else if ((strpos($message, '&lt;activex') !== false && strpos($message, '&lt;/activex') !== false) || (strpos($message, '<activex') !== false && strpos($message, '</activex') !== false))
 		{
 			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_ACTIVEX' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
 			$this->config->increment("shout_nr_log{$priv}", 1, true);
@@ -1366,9 +1366,9 @@ class shoutbox
 			return;
 		}
 		// Die about and chrome objects for all the time...  and log it
-		else if ((strpos($message, '&lt;object') !== false) && (strpos($message, '&lt;/object') !== false) || (strpos($message, '<object') !== false) && (strpos($message, '</object') !== false) ||
-				 (strpos($message, '&lt;about') !== false) && (strpos($message, '&lt;/about') !== false) || (strpos($message, '<about') !== false) && (strpos($message, '</about') !== false) ||
-				 (strpos($message, '&lt;chrome') !== false) && (strpos($message, '&lt;/chrome') !== false) || (strpos($message, '<chrome') !== false) && (strpos($message, '</chrome') !== false))
+		else if ((strpos($message, '&lt;object') !== false && strpos($message, '&lt;/object') !== false) || (strpos($message, '<object') !== false && strpos($message, '</object') !== false) ||
+				 (strpos($message, '&lt;about') !== false && strpos($message, '&lt;/about') !== false) || (strpos($message, '<about') !== false && strpos($message, '</about') !== false) ||
+				 (strpos($message, '&lt;chrome') !== false && strpos($message, '&lt;/chrome') !== false) || (strpos($message, '<chrome') !== false && strpos($message, '</chrome') !== false))
 		{
 			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_OBJECTS' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
 			$this->config->increment("shout_nr_log{$priv}", 1, true);
@@ -1376,7 +1376,7 @@ class shoutbox
 			return;
 		}
 		// Die iframe for all the time...  and log it
-		else if ((strpos($message, '&lt;iframe') !== false) && (strpos($message, '&lt;/iframe') !== false) || (strpos($message, '<iframe') !== false) && (strpos($message, '</iframe') !== false) || (strpos($message, '[iframe') !== false) && (strpos($message, '[/iframe') !== false))
+		else if ((strpos($message, '&lt;iframe') !== false && strpos($message, '&lt;/iframe') !== false) || (strpos($message, '<iframe') !== false && strpos($message, '</iframe') !== false) || (strpos($message, '[iframe') !== false && strpos($message, '[/iframe') !== false))
 		{
 			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_IFRAME' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
 			$this->config->increment("shout_nr_log{$priv}", 1, true);
@@ -1981,21 +1981,6 @@ class shoutbox
 			$prez_poster = ($topic_poster == $userid) ? 1 : 0;
 		}
 
-		if ($userid == ANONYMOUS)
-		{
-			$username = $this->language->lang('GUEST');
-		}
-		else if ($userid == 0)
-		{
-			$username = $this->config['shout_name_robot'];
-			$user_colour = $this->config['shout_color_robot'];
-		}
-		else
-		{
-			$username = $this->user->data['username'];
-			$user_colour = $this->user->data['user_colour'];
-		}
-
 		if ($topic_type == 3 && $post_mode == 'post')
 		{
 			$post_mode = 'global';
@@ -2435,6 +2420,8 @@ class shoutbox
 	 */
 	public function construct_radio($name, $sort = 1, $outline = false, $on1 = '', $on2 = '')
 	{
+		$title1 = $this->language->lang('YES');
+		$title2 = $this->language->lang('NO');
 		switch ($sort)
 		{
 			case 1:
@@ -2489,7 +2476,7 @@ class shoutbox
 	{
 		if (!$force)
 		{
-			if (!$this->user->optionget('viewavatars') || !$this->config['shout_avatar'] || !$this->config['allow_avatar'])
+			if (!$this->config['shout_avatar'] || !$this->config['allow_avatar'])
 			{
 				return false;
 			}
@@ -2657,6 +2644,7 @@ class shoutbox
 
 	public function build_select_position($value, $sort = false, $acp = false)
 	{
+		$option = [];
 		$selected_0 = $selected_1 = $selected_2 = $selected_4 = '';
 		switch ($value)
 		{
