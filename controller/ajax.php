@@ -375,7 +375,6 @@ class ajax
 					// Good ! Update the bbcodes
 					case 3:
 						$ok_bbcode = (string) ($open . '||' . $close);
-						$options = 0;
 						$uid = $bitfield = '';
 						// Change it in the db
 						$sql = 'UPDATE ' . USERS_TABLE . " SET shout_bbcode = '" . $this->db->sql_escape($ok_bbcode) . "' WHERE user_id = $on_user";
@@ -385,7 +384,7 @@ class ajax
 							break;
 						}
 						$text = $open . $this->language->lang('SHOUT_EXEMPLE') . $close;
-						generate_text_for_storage($text, $uid, $bitfield, $options, true, false, true);
+						generate_text_for_storage($text, $uid, $bitfield, 0, true, false, true);
 						$text = generate_text_for_display($text, $uid, $bitfield, $options);
 						$message = $this->language->lang('SHOUT_BBCODE_SUCCESS');
 					break;
@@ -396,7 +395,7 @@ class ajax
 						if ($open != '1')
 						{
 							$text = $open . $this->language->lang('SHOUT_EXEMPLE') . $close;
-							generate_text_for_storage($text, $uid, $bitfield, $options, true, false, true);
+							generate_text_for_storage($text, $uid, $bitfield, 0, true, false, true);
 							$text = generate_text_for_display($text, $uid, $bitfield, $options);
 						}
 						else
@@ -439,7 +438,7 @@ class ajax
 					$on_bbcode = explode('||', $row['shout_bbcode']);
 					$uid = $bitfield = $options = '';
 					$message = $on_bbcode[0] . $this->language->lang('SHOUT_EXEMPLE') . $on_bbcode[1];
-					generate_text_for_storage($message, $uid, $bitfield, $options, true, false, true);
+					generate_text_for_storage($message, $uid, $bitfield, 0, true, false, true);
 					$message = generate_text_for_display($message, $uid, $bitfield, $options);
 				}
 				else
@@ -479,8 +478,8 @@ class ajax
 
 			case 'preview_rules':
 				$rules = $this->request->variable('content', '', true);
-				$uid = $bitfield = $options = '';
-				generate_text_for_storage($rules, $uid, $bitfield, $options, true, false, true);
+				$uid = $bitfield = '';
+				generate_text_for_storage($rules, $uid, $bitfield, 0, true, false, true);
 				$rules = $this->shoutbox->replace_shout_url(generate_text_for_display($rules, $uid, $bitfield, $options));
 
 				$response->send(array(
@@ -759,10 +758,10 @@ class ajax
 						}
 
 						// will be modified by generate_text_for_storage
-						$uid = $bitfield = $options = '';
+						$uid = $bitfield = '';
 						$allow_bbcode = ($this->auth->acl_get('u_shout_bbcode')) ? true : false;
 						$allow_smilies = ($this->auth->acl_get('u_shout_smilies')) ? true : false;
-						generate_text_for_storage($message, $uid, $bitfield, $options, $allow_bbcode, true, $allow_smilies);
+						generate_text_for_storage($message, $uid, $bitfield, 0, $allow_bbcode, true, $allow_smilies);
 
 						$sql_ary = array(
 							'shout_text'				=> (string) $message,
@@ -1051,13 +1050,8 @@ class ajax
 				$message = $this->request->variable('chat_message', '', true);
 
 				// will be modified by generate_text_for_storage
-				$uid = $bitfield = $options = '';
+				$uid = $bitfield = '';
 				$allow_urls = true;
-				$content = array(
-					'mode'		=> $mode,
-					'type'		=> 0,
-					'message'	=> '',
-				);
 
 				// Protect by checking permissions
 				$allow_bbcode = $this->auth->acl_get('u_shout_bbcode') ? true : false;
@@ -1118,7 +1112,7 @@ class ajax
 				// Multi protections at this time...
 				$message = $this->shoutbox->parse_shout_message($message, $val_on_priv, 'edit', false);
 
-				generate_text_for_storage($message, $uid, $bitfield, $options, $allow_bbcode, $allow_urls, $allow_smilies);
+				generate_text_for_storage($message, $uid, $bitfield, 0, $allow_bbcode, $allow_urls, $allow_smilies);
 
 				$sql_ary = array(
 					'shout_text'				=> (string) $message,
@@ -1157,7 +1151,7 @@ class ajax
 				$shout_info = ($cite > 1) ? 66 : 0;
 
 				// will be modified by generate_text_for_storage
-				$uid = $bitfield = $options = '';
+				$uid = $bitfield = '';
 				$content = array(
 					'mode'		=> $mode,
 					'type'		=> 10,
@@ -1214,7 +1208,7 @@ class ajax
 					$message = $this->shoutbox->personalize_shout_message($message);
 				}
 
-				generate_text_for_storage($message, $uid, $bitfield, $options, $allow_bbcode, true, $allow_smilies);
+				generate_text_for_storage($message, $uid, $bitfield, 0, $allow_bbcode, true, $allow_smilies);
 
 				// For guest, add a random number from ip after name
 				if (!$this->user->data['is_registered'])
