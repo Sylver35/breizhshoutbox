@@ -12,7 +12,7 @@ namespace sylver35\breizhshoutbox\acp;
 
 class main_info
 {
-	function module()
+	public function module()
 	{
 		return array(
 			'filename'	=> '\sylver35\breizhshoutbox\acp\main_module',

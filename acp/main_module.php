@@ -28,7 +28,7 @@ class main_module
 	 * @return void
 	 * @access public
 	 */
-	public function main($id, $mode)
+	public function main(/** @scrutinizer ignore-unused */$id, $mode)
 	{
 		global $phpbb_container, $phpbb_root_path;
 
