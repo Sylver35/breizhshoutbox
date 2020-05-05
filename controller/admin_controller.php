@@ -543,7 +543,7 @@ class admin_controller
 					$this->db->sql_query($sql);
 					$deleted = $this->db->sql_affectedrows();
 					
-					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX'), time()), array($deleted));
+					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX'), time(), array($deleted));
 				}
 			}
 			else
