@@ -2863,8 +2863,7 @@ class shoutbox
 
 	public function javascript_shout($sort_of)
 	{
-		$on_priv = false;
-		$sort = $sort_p = $on_priv = '';
+		$sort = $sort_p = '';
 		switch ($sort_of)
 		{
 			// Popup shoutbox
@@ -2879,7 +2878,6 @@ class shoutbox
 			// Private shoutbox
 			case 3:
 				$sort_auth = $sort = $sort_p = '_priv';
-				$on_priv = true;
 			break;
 		}
 
@@ -2910,7 +2908,7 @@ class shoutbox
 			$shout = json_decode($this->user->data['user_shout']);
 			$shout2 = json_decode($this->user->data['user_shoutbox']);
 			$refresh = $this->config['shout_temp_users'] * 1000;
-			$inactiv = ($this->auth->acl_get('u_shout_inactiv') || $on_priv) ? 0 : $this->config['shout_inactiv_member'];
+			$inactiv = ($this->auth->acl_get('u_shout_inactiv') || ($sort_of == 3)) ? 0 : $this->config['shout_inactiv_member'];
 			$shout->user = ($shout->user == '2') ? $this->config['shout_sound_on'] : $shout->user;
 			$sound = array(
 				'new'		=> ($shout->new == '0') ? $this->config['shout_sound_new'] : $shout->new,
@@ -2968,7 +2966,7 @@ class shoutbox
 				}
 			}
 		}
-		$inactiv = ($inactiv > 0 && !$on_priv) ? round($inactiv * 60 / ($refresh / 1000)) : 0;
+		$inactiv = (($inactiv > 0) && ($sort_of !== 3)) ? round($inactiv * 60 / ($refresh / 1000)) : 0;
 		$cookie_bot = $this->request->variable($this->config['cookie_name'] . '_set-robot', 'on', false, /** @scrutinizer ignore-type */ \phpbb\request\request_interface::COOKIE);
 		$dt = $this->user->create_datetime();
 		$creator = ($this->smiliecreator_exist()) ? true : false;
@@ -2994,7 +2992,7 @@ class shoutbox
 			'isGuest'			=> $this->return_bool($this->user->data['user_id'] == ANONYMOUS),
 			'isRobot'			=> $this->return_bool($this->user->data['is_bot']),
 			'enableSound'		=> $this->return_bool($sound['active']),
-			'isPriv'			=> $this->return_bool($on_priv),
+			'isPriv'			=> $this->return_bool(($sort_of === 3)),
 			'isUser'			=> $this->return_bool($is_user),
 			'rulesOk'			=> $this->return_bool($rules),
 			'rulesOpen'			=> $this->return_bool($rules_open),
