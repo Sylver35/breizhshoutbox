@@ -726,7 +726,7 @@ class shoutbox
 			$this->language->add_lang('ucp');
 			$this->template->assign_vars(array(
 				'SHOUT_USERNAME_EXPLAIN'	=> $this->language->lang($this->config['allow_name_chars'] . '_EXPLAIN', $this->language->lang('CHARACTERS', (int) $this->config['min_name_chars']), $this->language->lang('CHARACTERS', (int) $this->config['max_name_chars'])),
-				'SHOUT_USERNAME'			=> $this->request->variable($this->config['cookie_name'] . '_shout-name', '', true, \phpbb\request\request_interface::COOKIE),
+				'SHOUT_USERNAME'			=> $this->request->variable($this->config['cookie_name'] . '_shout-name', '', true, /** @scrutinizer ignore-type */ \phpbb\request\request_interface::COOKIE),
 			));
 			// Add form token for login box
 			add_form_key('login', '_LOGIN');
@@ -1137,7 +1137,7 @@ class shoutbox
 				);
 			}
 		}
-		else if (($open == '') && ($close != '') || ($open != '') && ($close == ''))
+		else if (($open == '' && $close != '') || ($open != '' && $close == ''))
 		{
 			// If one is empty
 			return array(
@@ -1555,6 +1555,7 @@ class shoutbox
 	private function display_infos_robot($row, $acp)
 	{
 		$start = $this->language->lang('SHOUT_ROBOT_START');
+		$message = '';
 
 		switch ($row['shout_info'])
 		{
@@ -1749,6 +1750,7 @@ class shoutbox
 	 */
 	public function post_robot_shout($user_id, $ip, $priv = false, $purge = false, $robot = false, $auto = false, $delete = false, $deleted = '')
 	{
+		$info = 0;
 		$sort_info = 1;
 		$message = '-';
 		$userid = (int) $user_id;
@@ -1902,17 +1904,23 @@ class shoutbox
 			'shout_info'				=> $shout_info,
 		);
 
-		if ((($bot && $this->config['shout_sessions_bots']) || (!$bot && $this->config['shout_sessions'])) && !$is_posted)
+		if (!$is_posted)
 		{
-			$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-			$this->db->sql_query($sql);
-			$this->config->increment('shout_nr', 1, true);
+			if (($bot && $this->config['shout_sessions_bots']) || (!$bot && $this->config['shout_sessions']))
+			{
+				$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
+				$this->db->sql_query($sql);
+				$this->config->increment('shout_nr', 1, true);
+			}
 		}
-		if ((($bot && $this->config['shout_sessions_bots_priv']) || (!$bot && $this->config['shout_sessions_priv'])) && !$is_posted_priv)
+		if (!$is_posted_priv)
 		{
-			$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-			$this->db->sql_query($sql);
-			$this->config->increment('shout_nr_priv', 1, true);
+			if (($bot && $this->config['shout_sessions_bots_priv']) || (!$bot && $this->config['shout_sessions_priv']))
+			{
+				$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
+				$this->db->sql_query($sql);
+				$this->config->increment('shout_nr_priv', 1, true);
+			}
 		}
 	}
 
@@ -1937,6 +1945,7 @@ class shoutbox
 			return;
 		}
 
+		$info = 0;
 		$ip = (string) $this->user->ip;
 		$userid = (int) $this->user->data['user_id'];
 		$topic_id = (int) $event['data']['topic_id'];
@@ -1945,11 +1954,8 @@ class shoutbox
 		$post_mode = (string) $event['mode'];
 		$topic_type = (string) $event['topic_type'];
 		$url = (string) $this->shout_url_free_sid($event['url']);
-		$is_approved = (isset($event['post_visibility'])) ? $event['post_visibility'] : false;
 		$is_prez_form = ($this->config->offsetExists('shout_prez_form') && ($forum_id == $this->config['shout_prez_form'])) ? true : false;
-		$topic_poster = 0;
 
-		$exclude_forums = array();
 		if ($this->config['shout_exclude_forums'])
 		{
 			$exclude_forums = explode(',', $this->config['shout_exclude_forums']);
@@ -1963,6 +1969,7 @@ class shoutbox
 		$subject = str_replace(array('http://www.', 'http://', 'https://www.', 'https://', 'www.'), '', $subject);
 		$subject = $this->db->sql_escape(str_replace("'", $this->language->lang('SHOUT_PROTECT'), $subject));
 
+		$prez_poster = 0;
 		if ($is_prez_form)
 		{
 			$sql = 'SELECT topic_poster
@@ -1974,8 +1981,6 @@ class shoutbox
 			$prez_poster = ($topic_poster == $userid) ? 1 : 0;
 		}
 
-		$username = $this->user->data['username'];
-		$user_colour = $this->user->data['user_colour'];
 		if ($userid == ANONYMOUS)
 		{
 			$username = $this->language->lang('GUEST');
@@ -1984,6 +1989,11 @@ class shoutbox
 		{
 			$username = $this->config['shout_name_robot'];
 			$user_colour = $this->config['shout_color_robot'];
+		}
+		else
+		{
+			$username = $this->user->data['username'];
+			$user_colour = $this->user->data['user_colour'];
 		}
 
 		if ($topic_type == 3 && $post_mode == 'post')
@@ -2364,6 +2374,7 @@ class shoutbox
 		{
 			return;
 		}
+		$shout_info = 38;
 		$submit = false;
 		switch ($type)
 		{
