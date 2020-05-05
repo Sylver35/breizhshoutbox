@@ -25,7 +25,7 @@ use phpbb\log\log;
 
 class admin_controller
 {
-	/* @var \sylver35\breizhshoutbox\core\breizhshoutbox */
+	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
 
 	/** @var \phpbb\cache\driver\driver_interface */
@@ -162,9 +162,9 @@ class admin_controller
 		}
 		else
 		{
-			$this->select_index = $this->shoutbox->build_select_position($this->config['shout_position_index'], true, true);
-			$this->select_forum = $this->shoutbox->build_select_position($this->config['shout_position_forum'], false, true);
-			$this->select_topic = $this->shoutbox->build_select_position($this->config['shout_position_topic'], false, true);
+			$select_index = $this->shoutbox->build_select_position($this->config['shout_position_index'], true, true);
+			$select_forum = $this->shoutbox->build_select_position($this->config['shout_position_forum'], false, true);
+			$select_topic = $this->shoutbox->build_select_position($this->config['shout_position_topic'], false, true);
 			$data = $this->shoutbox->get_version();
 			$this->template->assign_vars(array(
 				'SHOUT_TEMP_USERS'			=> (int) $this->config['shout_temp_users'],
@@ -193,11 +193,11 @@ class admin_controller
 				'SHOUT_NR_ACP'				=> (int) $this->config['shout_nr_acp'],
 				'SHOUT_MAX_POST_CHARS'		=> (int) $this->config['shout_max_post_chars'],
 				'SHOUT_INDEX_ON'			=> $this->shoutbox->construct_radio('shout_index', 2),
-				'POS_SHOUT_INDEX'			=> $this->select_index['data'],
+				'POS_SHOUT_INDEX'			=> $select_index['data'],
 				'SHOUT_FORUM_ON'			=> $this->shoutbox->construct_radio('shout_forum', 2),
-				'POS_SHOUT_FORUM'			=> $this->select_forum['data'],
+				'POS_SHOUT_FORUM'			=> $select_forum['data'],
 				'SHOUT_TOPIC_ON'			=> $this->shoutbox->construct_radio('shout_topic', 2),
-				'POS_SHOUT_TOPIC'			=> $this->select_topic['data'],
+				'POS_SHOUT_TOPIC'			=> $select_topic['data'],
 				'NEW_SOUND'					=> $this->shoutbox->build_adm_sound_select('new'),
 				'ERROR_SOUND'				=> $this->shoutbox->build_adm_sound_select('error'),
 				'DEL_SOUND'					=> $this->shoutbox->build_adm_sound_select('del'),
@@ -209,7 +209,9 @@ class admin_controller
 				'SHOUT_VERSION'				=> $data['version'],
 			));
 		}
-		$this->template->assign_var('S_CONFIGS', true);
+		$this->template->assign_vars(array(
+			'S_CONFIGS'	=> true
+		));
 	}
 
 	public function acp_shoutbox_config_gen()
@@ -262,14 +264,15 @@ class admin_controller
 				'COLOR_PATH'			=> $this->ext_path . $color_path,
 			));
 		}
-		$this->template->assign_var('S_CONFIG_GEN', true);
+		$this->template->assign_vars(array(
+			'S_CONFIG_GEN'	=> true
+		));
 	}
 
 	public function acp_shoutbox_rules()
 	{
 		include($this->root_path . 'includes/functions_posting.' . $this->php_ext);
 		include($this->root_path . 'includes/functions_display.' . $this->php_ext);
-		$mode = $this->request->variable('mode', '');
 		$this->language->add_lang('posting');
 		$form_key = 'sylver35/breizhshoutbox';
 		add_form_key($form_key);
@@ -294,7 +297,8 @@ class admin_controller
 			while ($row = $this->db->sql_fetchrow($result))
 			{
 				$iso = $row['lang_iso'];
-				$rules_uid = $rules_bitfield = $rules_flags = $rules_uid_priv = $rules_bitfield_priv = $rules_flags_priv = '';
+				$rules_flags = $rules_flags_priv = 0;
+				$rules_uid = $rules_bitfield = $rules_uid_priv = $rules_bitfield_priv = '';
 				$rules_text = $this->request->variable("rules_text_$iso", '', true);
 				$rules_text_priv = $this->request->variable("rules_text_priv_$iso", '', true);
 				generate_text_for_storage($rules_text, $rules_uid, $rules_bitfield, $rules_flags, true, true, true);
@@ -336,7 +340,7 @@ class admin_controller
 
 				if (!$this->config->offsetExists("shout_rules_{$iso}"))
 				{
-					$this->config->set_atomic("shout_rules_{$iso}", 0, false);
+					$this->config->set_atomic("shout_rules_{$iso}", 0, '');
 				}
 				if ($data['rules_text'] != '')
 				{
@@ -349,7 +353,7 @@ class admin_controller
 
 				if (!$this->config->offsetExists("shout_rules_priv_{$iso}"))
 				{
-					$this->config->set_atomic("shout_rules_priv_{$iso}", 0, false);
+					$this->config->set_atomic("shout_rules_priv_{$iso}", 0, '');
 				}
 				if ($data['rules_text_priv'] != '')
 				{
@@ -641,7 +645,7 @@ class admin_controller
 			'WHERE'		=> 'shout_inp = 0 OR shout_inp = ' . $this->user->data['user_id'] . ' OR shout_user_id = ' . $this->user->data['user_id'],
 			'ORDER_BY'	=> 's.shout_time DESC',
 		));
-		$result = $this->db->sql_query_limit($sql, $shout_number, $start);
+		$result = $this->db->sql_query_limit($sql, (int) $shout_number, $start);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
 			if ($row['shout_inp'])
@@ -705,7 +709,7 @@ class admin_controller
 			'SHOUT_VERSION'				=> $data['version'],
 			'TOTAL_MESSAGES'			=> $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $total_posts), $total_posts),
 			'MESSAGES_TOTAL_NR'			=> $this->language->lang('SHOUT_MESSAGES_TOTAL_NR', $this->config['shout_nr'], $this->user->format_date($this->config['shout_time'])),
-			'PAGE_NUMBER' 				=> $this->pagination->validate_start($total_posts, $shout_number, $start),	
+			'PAGE_NUMBER' 				=> $this->pagination->validate_start($total_posts, (int) $shout_number, $start),	
 			'LAST_SHOUT_RUN'			=> ($this->config['shout_last_run'] == $this->config['shout_time']) ? $this->language->lang('SHOUT_NEVER') : $this->user->format_date($this->config['shout_last_run']),
 			'LOGS_TOTAL_NR'				=> $this->language->lang($this->shoutbox->plural('NUMBER_LOG', $this->config['shout_nr_log'], '_TOTAL'), $this->config['shout_nr_log'], $this->user->format_date($this->config['shout_time'])),
 			'MESSAGES_DEL_TOTAL'		=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $total_del), $total_del) . $this->language->lang('SHOUT_DEL_TOTAL'),
@@ -714,7 +718,7 @@ class admin_controller
 			'MESSAGES_DEL_PURGE'		=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_purge']), $this->config['shout_del_purge']),
 			'MESSAGES_DEL_USER'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_user']), $this->config['shout_del_user']),
 		));
-		$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $total_posts, $shout_number, $start);
+		$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $total_posts, (int) $shout_number, $start);
 	}
 
 	public function acp_shoutbox_private()
@@ -1003,7 +1007,6 @@ class admin_controller
 		}
 		else
 		{
-			$option = '';
 			$color_path = 'styles/all/theme/images/fond/';
 			$this->template->assign_vars(array(
 				'SHOUT_TITLE_PRIV'			=> (string) $this->config['shout_title_priv'],
