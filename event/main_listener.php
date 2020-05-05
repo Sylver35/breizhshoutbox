@@ -8,7 +8,6 @@
 */
 
 namespace sylver35\breizhshoutbox\event;
-
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use sylver35\breizhshoutbox\core\shoutbox;
 use phpbb\config\config;
@@ -21,7 +20,7 @@ use phpbb\language\language;
 
 class main_listener implements EventSubscriberInterface
 {
-	/* @var \sylver35\breizhshoutbox\core\breizhshoutbox */
+	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
 
 	/** @var \phpbb\config\config */
@@ -206,7 +205,6 @@ class main_listener implements EventSubscriberInterface
 	{
 		$s_hide_robot = true;
 		$shout_hide_allowed = false;
-		$exclude_forums = array();
 		if (!empty($this->config['shout_exclude_forums']))
 		{
 			$exclude_forums = explode(',', $this->config['shout_exclude_forums']);
