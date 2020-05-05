@@ -89,7 +89,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function load_language_on_setup($event)
 	{
@@ -125,7 +125,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function charge_post_session_shout($event)
 	{
@@ -133,7 +133,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function charge_advert_post($event)
 	{
@@ -141,7 +141,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function charge_add_newest_user($event)
 	{
@@ -149,7 +149,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function remove_disallowed_bbcodes($event)
 	{
@@ -160,7 +160,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function shout_modify_post_data($event)
 	{
@@ -170,7 +170,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function shout_modify_post_before_data($event)
 	{
@@ -180,7 +180,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function shout_modify_post_before($event)
 	{
@@ -190,7 +190,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function shout_submission_post_data($event)
 	{
@@ -200,7 +200,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function shout_modify_template_vars($event)
 	{
@@ -234,7 +234,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function add_permissions($event)
 	{
@@ -274,7 +274,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function submit_new_video($event)
 	{
@@ -282,7 +282,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function submit_new_score($event)
 	{
@@ -293,7 +293,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function submit_new_urecord($event)
 	{
@@ -304,7 +304,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	/**
-	 * @param \phpbb\event\data $event
+	 * @param array $event
 	 */
 	public function submit_new_record($event)
 	{
