@@ -375,7 +375,8 @@ class ajax
 					// Good ! Update the bbcodes
 					case 3:
 						$ok_bbcode = (string) ($open . '||' . $close);
-						$uid = $bitfield = $options = '';
+						$options = 0;
+						$uid = $bitfield = '';
 						// Change it in the db
 						$sql = 'UPDATE ' . USERS_TABLE . " SET shout_bbcode = '" . $this->db->sql_escape($ok_bbcode) . "' WHERE user_id = $on_user";
 						$result = $this->shoutbox->shout_sql_query($sql);
@@ -431,6 +432,7 @@ class ajax
 					break;
 				}
 				$row = $this->db->sql_fetchrow($result);
+				$on_bbcode = [];
 				if ($row['shout_bbcode'])
 				{
 					$on_bbcode = explode('||', $row['shout_bbcode']);
@@ -500,6 +502,7 @@ class ajax
 				$on_sound = $this->request->variable('sound', 1);
 				$shout = json_decode($this->user->data['user_shout']);
 				$on_sound = ($shout->user == 2) ? $on_sound : $shout->user;
+				$content = array();
 				switch ($on_sound)
 				{
 					// Turn off the sounds
@@ -537,7 +540,7 @@ class ajax
 				$sql = 'UPDATE ' . USERS_TABLE . "
 					SET user_shout = '" . $this->db->sql_escape(json_encode($user_shout)) . "'
 						WHERE user_id = $userid";
-				$result = $this->shoutbox->shout_sql_query($sql);
+				$this->db->sql_query($sql);
 
 				$response->send($content, true);
 			break;
@@ -624,30 +627,30 @@ class ajax
 						// Founders protections
 						$go_founder = ($row['user_type'] != USER_FOUNDER || $this->user->data['user_type'] == USER_FOUNDER) ? true : false;
 						$robot = $this->shoutbox->construct_action_shout(0);
-						$tpl['span'] = '<span title="">';
+						$tpl_span = '<span title="">';
 
 						if ($inp)
 						{
-							$url_message = 'onclick="shoutbox.personalMsg();return false;" title="' . $this->language->lang('SHOUT_ACTION_MSG') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_MSG');
-							$url_del_to = 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DEL_TO_EXPLAIN') . '\'))shoutbox.delReqTo(' . $userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DEL_TO') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_DEL_TO');
-							$url_del = 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DELETE_EXPLAIN') . '\'))shoutbox.delReq(' . $userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DELETE') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_DELETE');
+							$url_message = 'onclick="shoutbox.personalMsg();return false;" title="' . $this->language->lang('SHOUT_ACTION_MSG') . '">' . $tpl_span . $this->language->lang('SHOUT_ACTION_MSG');
+							$url_del_to = 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DEL_TO_EXPLAIN') . '\'))shoutbox.delReqTo(' . $userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DEL_TO') . '">' . $tpl_span . $this->language->lang('SHOUT_ACTION_DEL_TO');
+							$url_del = 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DELETE_EXPLAIN') . '\'))shoutbox.delReq(' . $userid . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_DELETE') . '">' . $tpl_span . $this->language->lang('SHOUT_ACTION_DELETE');
 						}
-						$url_profile = 'href="' . append_sid("{$board_url}memberlist.{$this->php_ext}", "mode=viewprofile&amp;u={$val_id}", false) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_PROFIL') . ' ' . $this->language->lang('FROM') . ' ' . $row['username'] . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_PROFIL');
-						$url_cite = 'onclick="shoutbox.citeMsg();return false;" title="' . $this->language->lang('SHOUT_ACTION_CITE_EXPLAIN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_CITE');
-						$url_cite_m = 'onclick="shoutbox.citeMultiMsg(\'' . $row['username'] . '\', \'' . $row['user_colour'] . '\');return false;" title="' . $this->language->lang('SHOUT_ACTION_CITE_M_EXPLAIN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_CITE_M');
-						$url_admin = 'href="' . append_sid("{$board_url}{$adm_path}index.{$this->php_ext}", "i=users&amp;mode=overview&amp;u=$val_id", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_USER_ADMIN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_USER_ADMIN');
-						$url_modo = 'href="' . append_sid("{$board_url}mcp.{$this->php_ext}", "i=notes&amp;mode=user_notes&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_MCP') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_MCP');
-						$url_ban = 'href="' . append_sid("{$board_url}mcp.{$this->php_ext}", "i=ban&amp;mode=user&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_BAN') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_BAN');
-						$url_remove = 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_REMOVE_EXPLAIN') . '\'))shoutbox.removeMsg(' . $val_id . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_REMOVE') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_REMOVE');
-						$url_perso = 'onclick="shoutbox.changePerso(' . $val_id . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_PERSO') . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_PERSO');
-						$url_robot = 'onclick="shoutbox.iH(\'shout_avatar\',\'\');shoutbox.robotMsg(' . $val_sort . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->config['shout_name_robot']) . '">' . $tpl['span'] . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $robot);
+						$url_profile = 'href="' . append_sid("{$board_url}memberlist.{$this->php_ext}", "mode=viewprofile&amp;u={$val_id}", false) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_PROFIL') . ' ' . $this->language->lang('FROM') . ' ' . $row['username'] . '">' . $tpl_span . $this->language->lang('SHOUT_ACTION_PROFIL');
+						$url_cite = 'onclick="shoutbox.citeMsg();return false;" title="' . $this->language->lang('SHOUT_ACTION_CITE_EXPLAIN') . '">' . $tpl_span . $this->language->lang('SHOUT_ACTION_CITE');
+						$url_cite_m = 'onclick="shoutbox.citeMultiMsg(\'' . $row['username'] . '\', \'' . $row['user_colour'] . '\');return false;" title="' . $this->language->lang('SHOUT_ACTION_CITE_M_EXPLAIN') . '">' . $tpl_span . $this->language->lang('SHOUT_ACTION_CITE_M');
+						$url_admin = 'href="' . append_sid("{$board_url}{$adm_path}index.{$this->php_ext}", "i=users&amp;mode=overview&amp;u=$val_id", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_USER_ADMIN') . '">' . $tpl_span . $this->language->lang('SHOUT_USER_ADMIN');
+						$url_modo = 'href="' . append_sid("{$board_url}mcp.{$this->php_ext}", "i=notes&amp;mode=user_notes&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_MCP') . '">' . $tpl_span . $this->language->lang('SHOUT_ACTION_MCP');
+						$url_ban = 'href="' . append_sid("{$board_url}mcp.{$this->php_ext}", "i=ban&amp;mode=user&amp;u={$val_id}", true, $this->user->session_id) . '" onclick="window.open(this.href);return false" title="' . $this->language->lang('SHOUT_ACTION_BAN') . '">' . $tpl_span . $this->language->lang('SHOUT_ACTION_BAN');
+						$url_remove = 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_REMOVE_EXPLAIN') . '\'))shoutbox.removeMsg(' . $val_id . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_REMOVE') . '">' . $tpl_span . $this->language->lang('SHOUT_ACTION_REMOVE');
+						$url_perso = 'onclick="shoutbox.changePerso(' . $val_id . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_PERSO') . '">' . $tpl_span . $this->language->lang('SHOUT_ACTION_PERSO');
+						$url_robot = 'onclick="shoutbox.iH(\'shout_avatar\',\'\');shoutbox.robotMsg(' . $val_sort . ');return false;" title="' . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->config['shout_name_robot']) . '">' . $tpl_span . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $robot);
 
 						$content = array(
 							'type'			=> 3,
 							'id'			=> $val_id,
 							'sort'			=> $val_sort,
 							'foe'			=> $row['foe'] ? true : false,
-							'username'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'], false, append_sid("{$board_url}memberlist.{$this->php_ext}", "mode=viewprofile")),
+							'username'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'], '', append_sid("{$board_url}memberlist.{$this->php_ext}", "mode=viewprofile")),
 							'avatar'		=> $this->shoutbox->shout_user_avatar($row, 60, true),
 							'url_message'	=> $row['foe'] ? $this->language->lang('SHOUT_USER_IGNORE') : $url_message,
 							'url_profile'	=> $url_profile,
@@ -671,14 +674,12 @@ class ajax
 
 			case 'action_post':
 				// Important! initialize
-				$go = $personal = $robot = $friend = false;
+				$go = $robot = $friend = false;
 				$shout_info = 0;
 				// Administrators and moderators can always post personnal messages
 				if ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('m_shout_robot') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_'))
 				{
 					$message = $this->request->variable('message', '', true);
-					$pr = $this->request->variable('pr', 0);
-					$row = array();
 					// any user id
 					if (!$val_id)
 					{
@@ -689,7 +690,6 @@ class ajax
 					{
 						if ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_robot'))
 						{
-							$personal = false;
 							$robot = true;
 							$go = true;
 							$val_id = $userid = 0;
@@ -736,7 +736,6 @@ class ajax
 						// let's go
 						else
 						{
-							$personal = true;
 							$go = true;
 							$friend = ($row['friend']) ? true : false;
 							$shout_info = 65;
@@ -963,7 +962,7 @@ class ajax
 						$this->shoutbox->shout_error('NO_DELETE_PERM');
 						break;
 					}
-					else if ($can_delete && ($userid == $on_id) || $can_delete_all)
+					else if (($can_delete && ($userid == $on_id)) || $can_delete_all)
 					{
 						// Lets delete this post :D
 						$sql = 'DELETE FROM ' . $shoutbox_table . '
@@ -972,11 +971,11 @@ class ajax
 
 						$this->shoutbox->update_shout_messages($shoutbox_table, $post);
 						$this->config->increment("shout_del_user{$val_priv}", 1, true);
-						$content = array(
+						$response->send(array(
 							'type'	=> 1,
 							'post'	=> $post,
 							'sort'	=> $val_perm,
-						);
+						), true);
 					}
 					else
 					{
@@ -984,8 +983,6 @@ class ajax
 						break;
 					}
 				}
-
-				$response->send($content, true);
 			break;
 
 			case 'purge':
@@ -1064,7 +1061,7 @@ class ajax
 				// If someone can edit all messages, he can edit it's messages :) (if errors in permissions set)
 				$can_edit_all = ($this->auth->acl_get('m_shout_edit_mod') || $this->auth->acl_get("a_shout_{$val_auth}")) ? true : false;
 				$can_edit = $can_edit_all ? true : $this->auth->acl_get('u_shout_edit');
-				$edit_sort = $ok_edit = false;
+				$ok_edit = false;
 
 				// We need to be sure its this users his shout.
 				$sql = 'SELECT shout_user_id
@@ -1077,7 +1074,6 @@ class ajax
 				}
 				$on_id = (int) $this->db->sql_fetchfield('shout_user_id');
 				$this->db->sql_freeresult($result);
-				$anomym = ($on_id == 1) ? true : false;
 				// If not able to edit all messages
 				if (!$can_edit_all)
 				{
@@ -1092,9 +1088,15 @@ class ajax
 						$ok_edit = true;
 					}
 				}
-				else
+				else if ($can_edit)
 				{
 					$ok_edit = true;
+				}
+
+				if (!$ok_edit)
+				{
+					$this->shoutbox->shout_error('NO_EDIT_PERM');
+					break;
 				}
 
 				// First verification of empty message
@@ -1107,7 +1109,7 @@ class ajax
 				// Don't parse img if unautorised and return img url only
 				if ((strpos($message, '[img]') !== false) && (strpos($message, '[/img]') !== false) && !$this->auth->acl_get('u_shout_image'))
 				{
-					$_message = str_replace(array('[img]', '[/img]'), '', $message);
+					$message = str_replace(array('[img]', '[/img]'), '', $message);
 				}
 				// Multi protections at this time...
 				$message = $this->shoutbox->parse_shout_message($message, $val_on_priv, 'edit', false);
@@ -1272,7 +1274,7 @@ class ajax
 					// Wish birthdays Mr Robot :-)
 					$this->shoutbox->robot_birthday_shout();
 				}
-				$cookie_bot = $this->request->variable($this->config['cookie_name'] . '_set-robot', 'on', false, \phpbb\request\request_interface::COOKIE);
+				$cookie_bot = $this->request->variable($this->config['cookie_name'] . '_set-robot', 'on', false, /** @scrutinizer ignore-type */ \phpbb\request\request_interface::COOKIE);
 				$bot = ($cookie_bot == 'off') ? false : true;
 
 				// Read the forums permissions
