@@ -1924,62 +1924,11 @@ class shoutbox
 		}
 	}
 
-	/*
-	 * Display infos Robot for new posts, subjects, topics...
-	 */
-	public function advert_post_shoutbox($event)
+	private function sort_info($post_mode, $topic_type, $is_prez_form, $prez_poster)
 	{
-		if (!$this->config['shout_enable_robot'])
-		{
-			return;
-		}
 		$ok_shout = $this->config['shout_post_robot'] ? true : false;
 		$ok_shout_priv = $this->config['shout_post_robot_priv'] ? true : false;
-		$hide_robot = (isset($event['data']['hide_robot'])) ? $event['data']['hide_robot'] : false;
-		if (!$ok_shout && !$ok_shout_priv)
-		{
-			return;
-		}
-		if ($hide_robot != false)
-		{
-			return;
-		}
-
-		$info = $sort_info = 0;
-		$ip = (string) $this->user->ip;
-		$userid = (int) $this->user->data['user_id'];
-		$topic_id = (int) $event['data']['topic_id'];
-		$forum_id = (int) $event['data']['forum_id'];
-		$subject = (string) $event['subject'];
-		$post_mode = (string) $event['mode'];
-		$topic_type = (string) $event['topic_type'];
-		$url = (string) $this->shout_url_free_sid($event['url']);
-		$is_prez_form = ($this->config->offsetExists('shout_prez_form') && ($forum_id == $this->config['shout_prez_form'])) ? true : false;
-
-		if ($this->config['shout_exclude_forums'])
-		{
-			$exclude_forums = explode(',', $this->config['shout_exclude_forums']);
-			if (in_array($forum_id, $exclude_forums))
-			{
-				return;
-			}
-		}
-
-		// Parse web adress in subject to prevent bug
-		$subject = str_replace(array('http://www.', 'http://', 'https://www.', 'https://', 'www.'), '', $subject);
-		$subject = $this->db->sql_escape(str_replace("'", $this->language->lang('SHOUT_PROTECT'), $subject));
-
-		$prez_poster = 0;
-		if ($is_prez_form)
-		{
-			$sql = 'SELECT topic_poster
-				FROM ' . TOPICS_TABLE . '
-				WHERE topic_id = ' . $topic_id;
-			$result = $this->db->sql_query_limit($sql, 1);
-			$topic_poster = $this->db->sql_fetchfield('topic_poster');
-			$this->db->sql_freeresult($result);
-			$prez_poster = ($topic_poster == $userid) ? 1 : 0;
-		}
+		$sort_info = $info = 0;
 
 		if ($topic_type == 3 && $post_mode == 'post')
 		{
@@ -1988,11 +1937,6 @@ class shoutbox
 		else if ($topic_type == 2 && $post_mode == 'post')
 		{
 			$post_mode = 'annoucement';
-		}
-		// Delete Re: in the subject
-		if (strpos($subject, 'Re: ') !== false)
-		{
-			$subject = str_replace('Re: ', '', $subject);
 		}
 
 		switch ($post_mode)
@@ -2010,6 +1954,7 @@ class shoutbox
 				$info = (!$is_prez_form) ? 16 : 60;
 			break;
 			case 'edit':
+				$sort_info = 3;
 				if ($is_prez_form)
 				{
 					$info = ($prez_poster == 0) ? 70 : 71;
@@ -2020,10 +1965,10 @@ class shoutbox
 				}
 				$ok_shout = ($this->config['shout_edit_robot']) ? true : false;
 				$ok_shout_priv = ($this->config['shout_edit_robot_priv']) ? true : false;
-				$sort_info = 3;
 			break;
 			case 'edit_topic':
 			case 'edit_first_post':
+				$sort_info = 3;
 				if ($is_prez_form)
 				{
 					$info = ($prez_poster == 0) ? 72 : 73;
@@ -2034,9 +1979,9 @@ class shoutbox
 				}
 				$ok_shout = ($this->config['shout_edit_robot']) ? true : false;
 				$ok_shout_priv = ($this->config['shout_edit_robot_priv']) ? true : false;
-				$sort_info = 3;
 			break;
 			case 'edit_last_post':
+				$sort_info = 3;
 				if ($is_prez_form)
 				{
 					$info = ($prez_poster == 0) ? 74 : 75;
@@ -2047,15 +1992,15 @@ class shoutbox
 				}
 				$ok_shout = ($this->config['shout_edit_robot']) ? true : false;
 				$ok_shout_priv = ($this->config['shout_edit_robot_priv']) ? true : false;
-				$sort_info = 3;
 			break;
 			case 'quote':
+				$sort_info = 3;
 				$ok_shout = ($this->config['shout_rep_robot']) ? true : false;
 				$ok_shout_priv = ($this->config['shout_rep_robot_priv']) ? true : false;
-				$sort_info = 3;
 				$info = (!$is_prez_form) ? 20 : 80;
 			break;
 			case 'reply':
+				$sort_info = 3;
 				if ($is_prez_form)
 				{
 					$info = ($prez_poster == 0) ? 76 : 77;
@@ -2066,33 +2011,84 @@ class shoutbox
 				}
 				$ok_shout = ($this->config['shout_rep_robot']) ? true : false;
 				$ok_shout_priv = ($this->config['shout_rep_robot_priv']) ? true : false;
-				$sort_info = 3;
 			break;
 		}
+
+		return array(
+			'info'			=> (int) $info,
+			'sort_info'		=> (int) $sort_info,
+			'ok_shout'		=> (bool) $ok_shout,
+			'ok_shout_priv'	=> (bool) $ok_shout_priv,
+		);
+	}
+
+	/*
+	 * Display infos Robot for new posts, subjects, topics...
+	 */
+	public function advert_post_shoutbox($event)
+	{
+		$ok_shout = $this->config['shout_post_robot'] ? true : false;
+		$ok_shout_priv = $this->config['shout_post_robot_priv'] ? true : false;
+		$hide_robot = (isset($event['data']['hide_robot'])) ? $event['data']['hide_robot'] : false;
+		if ((!$ok_shout && !$ok_shout_priv) || $hide_robot != false || !$this->config['shout_enable_robot'])
+		{
+			return;
+		}
+
+		$userid = (int) $this->user->data['user_id'];
+		$topic_id = (int) $event['data']['topic_id'];
+		$forum_id = (int) $event['data']['forum_id'];
+		$is_prez_form = ($forum_id == $this->config['shout_prez_form']) ? true : false;
+
+		if ($this->config['shout_exclude_forums'])
+		{
+			$exclude_forums = explode(',', $this->config['shout_exclude_forums']);
+			if (in_array($forum_id, $exclude_forums))
+			{
+				return;
+			}
+		}
+
+		// Parse web adress in subject to prevent bug
+		$subject = str_replace(array('http://www.', 'http://', 'https://www.', 'https://', 'www.', 'Re: ', "'"), array('', '', '', '', '', '', $this->language->lang('SHOUT_PROTECT')), (string) $event['subject']);
+
+		$prez_poster = 0;
+		if ($is_prez_form)
+		{
+			$sql = 'SELECT topic_poster
+				FROM ' . TOPICS_TABLE . '
+				WHERE topic_id = ' . $topic_id;
+			$result = $this->db->sql_query_limit($sql, 1);
+			$topic_poster = $this->db->sql_fetchfield('topic_poster');
+			$this->db->sql_freeresult($result);
+			$prez_poster = ($topic_poster == $userid) ? 1 : 0;
+		}
+
+		$on_info = $this->sort_info($event['mode'], $event['topic_type'], $is_prez_form, $prez_poster);
 
 		$sql_data = array(
 			'shout_time'				=> (string) time(),
 			'shout_user_id'				=> 0,
-			'shout_ip'					=> (string) $ip,
+			'shout_ip'					=> (string) $this->user->ip,
 			'shout_text'				=> (string) $subject,
-			'shout_text2'				=> (string) $url,
+			'shout_text2'				=> (string) $this->shout_url_free_sid($event['url']),
 			'shout_bbcode_uid'			=> '',
 			'shout_bbcode_bitfield'		=> '',
 			'shout_bbcode_flags'		=> 0,
-			'shout_robot'				=> (int) $sort_info,
+			'shout_robot'				=> (int) $on_info['sort_info'],
 			'shout_robot_user'			=> (int) $userid,
 			'shout_forum'				=> (int) $forum_id,
 			'shout_info_nb'				=> (int) $forum_id,
-			'shout_info'				=> (int) $info,
+			'shout_info'				=> (int) $on_info['info'],
 		);
 
-		if ($ok_shout)
+		if ($on_info['ok_shout'])
 		{
 			$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);
 			$this->config->increment('shout_nr', 1, true);
 		}
-		if ($ok_shout_priv)
+		if ($on_info['ok_shout_priv'])
 		{
 			$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);
@@ -2359,60 +2355,27 @@ class shoutbox
 		{
 			return;
 		}
-		$shout_info = 38;
-		$submit = false;
-		switch ($type)
-		{
-			case 2:
-				$shout_info = 36;
-				if ((($event['game_scoretype'] == 0) && ($event['gamescore'] > $event['mscore']))
-					 || (($event['game_scoretype'] == 1) && ($event['gamescore'] < $event['mscore']))
-					 || is_null($event['mscore']) || $event['muserid'] == 0)
-				{
-					$submit = true;
-				}
-			break;
-			case 3:
-				$shout_info = 37;
-				if ((($event['game_scoretype'] == 0) && ($event['gamescore'] > $event['mscore']))
-					 || (($event['game_scoretype'] == 1) && ($event['gamescore'] < $event['mscore']))
-					 || is_null($event['mscore']) || $event['muserid'] == 0)
-				{
-					$submit = true;
-				}
-			break;
-			case 4:
-				$shout_info = 38;
-				if ((($event['game_scoretype'] == 0) && ($event['gamescore'] > $event['highscore']))
-					 || (($event['game_scoretype'] == 1) && ($event['gamescore'] < $event['highscore'])) || is_null($event['highscore']))
-				{
-					$submit = true;
-				}
-			break;
-		}
-		if ($submit)
-		{
-			$title = (isset($event['row']['ra_cat_title'])) ? $event['row']['ra_cat_title'] : '';
-			$sql_data = array(
-				'shout_time'				=> time(),
-				'shout_user_id'				=> (int) $this->user->data['user_id'],
-				'shout_ip'					=> (string) $this->user->ip,
-				'shout_text'				=> (string) $event['row']['game_name'],
-				'shout_text2'				=> (string) $title,
-				'shout_bbcode_uid'			=> '',
-				'shout_bbcode_bitfield'		=> '',
-				'shout_bbcode_flags'		=> 0,
-				'shout_robot'				=> (int) $event['gamescore'],
-				'shout_robot_user'			=> (int) $event['row']['ra_cat_id'],
-				'shout_forum'				=> 0,
-				'shout_info_nb'				=> (int) $event['gid'],
-				'shout_info'				=> $shout_info,
-			);
 
-			$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-			$this->db->sql_query($sql);
-			$this->config->increment('shout_nr', 1, true);
-		}
+		$title = (isset($event['row']['ra_cat_title'])) ? $event['row']['ra_cat_title'] : '';
+		$sql_data = array(
+			'shout_time'				=> time(),
+			'shout_user_id'				=> (int) $this->user->data['user_id'],
+			'shout_ip'					=> (string) $this->user->ip,
+			'shout_text'				=> (string) $event['row']['game_name'],
+			'shout_text2'				=> (string) $title,
+			'shout_bbcode_uid'			=> '',
+			'shout_bbcode_bitfield'		=> '',
+			'shout_bbcode_flags'		=> 0,
+			'shout_robot'				=> (int) $event['gamescore'],
+			'shout_robot_user'			=> (int) $event['row']['ra_cat_id'],
+			'shout_forum'				=> 0,
+			'shout_info_nb'				=> (int) $event['gid'],
+			'shout_info'				=> (int) $type,
+		);
+
+		$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
+		$this->db->sql_query($sql);
+		$this->config->increment('shout_nr', 1, true);
 	}
 
 	/*
