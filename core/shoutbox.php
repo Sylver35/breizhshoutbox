@@ -1924,20 +1924,11 @@ class shoutbox
 		}
 	}
 
-	private function sort_info($post_mode, $topic_type, $is_prez_form, $prez_poster)
+	private function sort_info($post_mode, $is_prez_form, $prez_poster)
 	{
 		$ok_shout = $this->config['shout_post_robot'] ? true : false;
 		$ok_shout_priv = $this->config['shout_post_robot_priv'] ? true : false;
 		$sort_info = $info = 0;
-
-		if ($topic_type == 3 && $post_mode == 'post')
-		{
-			$post_mode = 'global';
-		}
-		else if ($topic_type == 2 && $post_mode == 'post')
-		{
-			$post_mode = 'annoucement';
-		}
 
 		switch ($post_mode)
 		{
@@ -1955,13 +1946,10 @@ class shoutbox
 			break;
 			case 'edit':
 				$sort_info = 3;
+				$info = 17;
 				if ($is_prez_form)
 				{
-					$info = ($prez_poster == 0) ? 70 : 71;
-				}
-				else
-				{
-					$info = 17;
+					$info = (!$prez_poster) ? 70 : 71;
 				}
 				$ok_shout = ($this->config['shout_edit_robot']) ? true : false;
 				$ok_shout_priv = ($this->config['shout_edit_robot_priv']) ? true : false;
@@ -1969,26 +1957,20 @@ class shoutbox
 			case 'edit_topic':
 			case 'edit_first_post':
 				$sort_info = 3;
+				$info = 18;
 				if ($is_prez_form)
 				{
-					$info = ($prez_poster == 0) ? 72 : 73;
-				}
-				else
-				{
-					$info = 18;
+					$info = (!$prez_poster) ? 72 : 73;
 				}
 				$ok_shout = ($this->config['shout_edit_robot']) ? true : false;
 				$ok_shout_priv = ($this->config['shout_edit_robot_priv']) ? true : false;
 			break;
 			case 'edit_last_post':
 				$sort_info = 3;
+				$info = 19;
 				if ($is_prez_form)
 				{
-					$info = ($prez_poster == 0) ? 74 : 75;
-				}
-				else
-				{
-					$info = 19;
+					$info = (!$prez_poster) ? 74 : 75;
 				}
 				$ok_shout = ($this->config['shout_edit_robot']) ? true : false;
 				$ok_shout_priv = ($this->config['shout_edit_robot_priv']) ? true : false;
@@ -2001,13 +1983,10 @@ class shoutbox
 			break;
 			case 'reply':
 				$sort_info = 3;
+				$info = 21;
 				if ($is_prez_form)
 				{
-					$info = ($prez_poster == 0) ? 76 : 77;
-				}
-				else
-				{
-					$info = 21;
+					$info = (!$prez_poster) ? 76 : 77;
 				}
 				$ok_shout = ($this->config['shout_rep_robot']) ? true : false;
 				$ok_shout_priv = ($this->config['shout_rep_robot_priv']) ? true : false;
@@ -2038,7 +2017,7 @@ class shoutbox
 		$userid = (int) $this->user->data['user_id'];
 		$topic_id = (int) $event['data']['topic_id'];
 		$forum_id = (int) $event['data']['forum_id'];
-		$is_prez_form = ($forum_id == $this->config['shout_prez_form']) ? true : false;
+		$is_prez_form = ($forum_id === (int) $this->config['shout_prez_form']) ? true : false;
 
 		if ($this->config['shout_exclude_forums'])
 		{
@@ -2052,19 +2031,27 @@ class shoutbox
 		// Parse web adress in subject to prevent bug
 		$subject = str_replace(array('http://www.', 'http://', 'https://www.', 'https://', 'www.', 'Re: ', "'"), array('', '', '', '', '', '', $this->language->lang('SHOUT_PROTECT')), (string) $event['subject']);
 
-		$prez_poster = 0;
+		$prez_poster = false;
 		if ($is_prez_form)
 		{
 			$sql = 'SELECT topic_poster
 				FROM ' . TOPICS_TABLE . '
 				WHERE topic_id = ' . $topic_id;
 			$result = $this->db->sql_query_limit($sql, 1);
-			$topic_poster = $this->db->sql_fetchfield('topic_poster');
+			$topic_poster = (int) $this->db->sql_fetchfield('topic_poster');
 			$this->db->sql_freeresult($result);
-			$prez_poster = ($topic_poster == $userid) ? 1 : 0;
+			$prez_poster = ($topic_poster === $userid) ? true : false;
 		}
 
-		$on_info = $this->sort_info($event['mode'], $event['topic_type'], $is_prez_form, $prez_poster);
+		if ($event['topic_type'] == 3 && $event['mode'] == 'post')
+		{
+			$event['mode'] = 'global';
+		}
+		else if ($event['topic_type'] == 2 && $event['mode'] == 'post')
+		{
+			$event['mode'] = 'annoucement';
+		}
+		$on_info = $this->sort_info($event['mode'], $is_prez_form, $prez_poster);
 
 		$sql_data = array(
 			'shout_time'				=> (string) time(),
