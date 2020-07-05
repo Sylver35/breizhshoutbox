@@ -78,6 +78,9 @@ class main_listener implements EventSubscriberInterface
 			'core.posting_modify_submission_errors'		=> 'shout_submission_post_data',
 			'core.posting_modify_template_vars'			=> 'shout_modify_template_vars',
 			'core.permissions'							=> 'add_permissions',
+			'core.delete_user_after'					=> 'shout_delete_user',
+			'core.delete_topics_after_query'			=> 'shout_delete_topics',
+			'core.delete_posts_after'					=> 'shout_delete_posts',
 			'video.submit_new_video'					=> 'submit_new_video',
 			'arcade.submit_new_score'					=> 'submit_new_score',
 			'arcade.submit_new_urecord'					=> 'submit_new_urecord',
@@ -274,6 +277,42 @@ class main_listener implements EventSubscriberInterface
 	/**
 	 * @param array $event
 	 */
+	public function shout_delete_user($event)
+	{
+		if ($event['mode'] == 'remove')
+		{
+			foreach ($event['user_ids'] as $user_id)
+			{
+				$this->shoutbox->delete_user_messages($user_id);
+			}
+		}
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function shout_delete_topics($event)
+	{
+		foreach ($event['topic_ids'] as $topic_id)
+		{
+			$this->shoutbox->shout_delete_topic($topic_id);
+		}
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function shout_delete_posts($event)
+	{
+		foreach ($event['post_ids'] as $post_id)
+		{
+			$this->shoutbox->shout_delete_post($post_id);
+		}
+	}
+
+	/**
+	 * @param array $event
+	 */
 	public function submit_new_video($event)
 	{
 		$this->shoutbox->submit_new_video($event);
@@ -286,7 +325,12 @@ class main_listener implements EventSubscriberInterface
 	{
 		if ($this->config['shout_arcade_new'])
 		{
-			$this->shoutbox->submit_arcade_score($event, 2);
+			if ((($event['game_scoretype'] == 0) && ($event['gamescore'] > $event['mscore']))
+				 || (($event['game_scoretype'] == 1) && ($event['gamescore'] < $event['mscore']))
+				 || is_null($event['mscore']) || $event['muserid'] == 0)
+			{
+				$this->shoutbox->submit_arcade_score($event, 36);
+			}
 		}
 	}
 
@@ -297,7 +341,12 @@ class main_listener implements EventSubscriberInterface
 	{
 		if ($this->config['shout_arcade_urecord'] && $event['gamescore'] > 0)
 		{
-			$this->shoutbox->submit_arcade_score($event, 3);
+			if ((($event['game_scoretype'] == 0) && ($event['gamescore'] > $event['mscore']))
+				 || (($event['game_scoretype'] == 1) && ($event['gamescore'] < $event['mscore']))
+				 || is_null($event['mscore']) || $event['muserid'] == 0)
+			{
+				$this->shoutbox->submit_arcade_score($event, 37);
+			}
 		}
 	}
 
@@ -308,7 +357,11 @@ class main_listener implements EventSubscriberInterface
 	{
 		if ($this->config['shout_arcade_record'])
 		{
-			$this->shoutbox->submit_arcade_score($event, 4);
+			if ((($event['game_scoretype'] == 0) && ($event['gamescore'] > $event['highscore']))
+				 || (($event['game_scoretype'] == 1) && ($event['gamescore'] < $event['highscore'])) || is_null($event['highscore']))
+			{
+				$this->shoutbox->submit_arcade_score($event, 38);
+			}
 		}
 	}
 }

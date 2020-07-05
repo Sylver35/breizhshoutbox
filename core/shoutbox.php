@@ -679,7 +679,99 @@ class shoutbox
 	}
 
 	/**
-	 * Displays the shoutbox
+	 * Delete all robot messages of a topic
+	 */
+	public function shout_delete_topic($topic_id)
+	{
+		$sql = 'DELETE FROM ' . $this->shoutbox_table . "
+			WHERE shout_forum <> 0
+				AND shout_text2 LIKE '%&amp;t=$topic_id%'";
+		$this->db->sql_query($sql);
+		$deleted = $this->db->sql_affectedrows();
+		if ($deleted)
+		{
+			$this->config->increment('shout_del_auto', $deleted, true);
+		}
+
+		$sql = 'DELETE FROM ' . $this->shoutbox_priv_table . "
+			WHERE shout_forum <> 0
+				AND shout_text2 LIKE '%&amp;t=$topic_id%'";
+		$this->db->sql_query($sql);
+		$deleted = $this->db->sql_affectedrows();
+		if ($deleted)
+		{
+			$this->config->increment('shout_del_auto_priv', $deleted, true);
+		}
+
+		// For reload the shoutbox to everybody
+		$this->update_shout_messages($this->shoutbox_table, 1);
+		$this->update_shout_messages($this->shoutbox_priv_table, 1);
+	}
+
+	/**
+	 * Delete all robot messages of a post
+	 */
+	public function shout_delete_post($post_id)
+	{
+		$sql = 'DELETE FROM ' . $this->shoutbox_table . "
+			WHERE shout_forum <> 0
+				AND shout_text2 LIKE '%&amp;p=$post_id%'";
+		$this->db->sql_query($sql);
+		$deleted = $this->db->sql_affectedrows();
+		if ($deleted)
+		{
+			$this->config->increment('shout_del_auto', $deleted, true);
+		}
+
+		$sql = 'DELETE FROM ' . $this->shoutbox_priv_table . "
+			WHERE shout_forum <> 0
+				AND shout_text2 LIKE '%&amp;p=$post_id%'";
+		$this->db->sql_query($sql);
+		$deleted = $this->db->sql_affectedrows();
+		if ($deleted)
+		{
+			$this->config->increment('shout_del_auto_priv', $deleted, true);
+		}
+
+		// For reload the shoutbox to everybody
+		$this->update_shout_messages($this->shoutbox_table, 1);
+		$this->update_shout_messages($this->shoutbox_priv_table, 1);
+	}
+
+	/**
+	 * Delete all messages of user
+	 */
+	public function delete_user_messages($user_id)
+	{
+		$sql = 'DELETE FROM ' . $this->shoutbox_table . "
+			WHERE shout_user_id = $user_id
+				OR shout_robot_user = $user_id
+				OR shout_inp = $user_id";
+		$this->db->sql_query($sql);
+		$deleted = $this->db->sql_affectedrows();
+		if ($deleted)
+		{
+			$this->config->increment('shout_del_auto', $deleted, true);
+		}
+
+		$sql = 'DELETE FROM ' . $this->shoutbox_priv_table . "
+			WHERE shout_user_id = $user_id
+				OR shout_robot_user = $user_id
+				OR shout_inp = $user_id";
+		$this->db->sql_query($sql);
+		$deleted = $this->db->sql_affectedrows();
+		if ($deleted)
+		{
+			$this->config->increment('shout_del_auto_priv', $deleted, true);
+		}
+
+		// For reload the shoutbox to everybody
+		$this->update_shout_messages($this->shoutbox_table, 1);
+		$this->update_shout_messages($this->shoutbox_priv_table, 1);
+	}
+
+	/**
+	 * Display the shoutbox
 	 */
 	public function shout_display($sort_of)
 	{
@@ -1503,7 +1595,7 @@ class shoutbox
 	private function tpl($sort, $content1 = '', $content2 = '', $content3 = '')
 	{
 		$tpl = array(
-			'action'	=> '<a onclick="shoutbox.actionUser(\'' . $content1 . '\');return false;" title="' . $content2 . '" class="username-coloured action-user">' . $content3 . '</a>',
+			'action'	=> '<a onclick="shoutbox.actionUser(' . $content1 . ');" title="' . $content2 . '" class="username-coloured action-user">' . $content3 . '</a>',
 			'cite'		=> '<span style="color:#' . $this->config['shout_color_message'] . ';font-weight:bold;">' . $content1 . ' </span> ' . $content2 . ' :: ' . $content3,
 			'url'		=> '<a class="action-user" href="' . $content1 . '" title="' . $this->shout_chars(($content3 !== '') ? $content3 : $content2) . '">' . $content2 . '</a>',
 			'italic'	=> '<span class="shout-italic" style="color:#' . $this->config['shout_color_message'] . '">' . $content1 . '</span>',
