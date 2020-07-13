@@ -411,21 +411,18 @@ class shoutbox
 	 * Change time of the last message to one second +
 	 * to update the shoutbox of all users
 	 */
-	public function update_shout_messages($shoutbox_table, $post)
+	public function update_shout_messages($shoutbox_table)
 	{
 		$sql = 'SELECT MAX(shout_id) AS shout_end
 			FROM ' . $shoutbox_table;
 		$result = $this->db->sql_query($sql);
-		$max_shout = (int) $this->db->sql_fetchfield('shout_end', $result);
+		$max = (int) $this->db->sql_fetchfield('shout_end', $result);
 		$this->db->sql_freeresult($result);
 
-		if ($max_shout != $post)
-		{
-			$sql = 'UPDATE ' . $shoutbox_table . '
-				SET shout_time = shout_time + 1
-					WHERE shout_id = ' . $max_shout;
-			$this->db->sql_query($sql);
-		}
+		$sql = 'UPDATE ' . $shoutbox_table . '
+			SET shout_time = shout_time + 1
+				WHERE shout_id = ' . $max;
+		$this->db->sql_query($sql);
 	}
 
 	public function get_version()
@@ -679,10 +676,45 @@ class shoutbox
 	}
 
 	/**
+	 * Delete all messages of a user
+	 */
+	public function delete_user_messages($user_id)
+	{
+		// Phase 1 delete messages in shoutbox table
+		$sql = 'DELETE FROM ' . $this->shoutbox_table . "
+			WHERE shout_user_id = $user_id
+				OR shout_robot_user = $user_id
+				OR shout_inp = $user_id";
+		$this->db->sql_query($sql);
+		$deleted = $this->db->sql_affectedrows();
+		if ($deleted)
+		{
+			$this->config->increment('shout_del_auto', $deleted, true);
+		}
+
+		// Phase 2 delete messages in private shoutbox table
+		$sql = 'DELETE FROM ' . $this->shoutbox_priv_table . "
+			WHERE shout_user_id = $user_id
+				OR shout_robot_user = $user_id
+				OR shout_inp = $user_id";
+		$this->db->sql_query($sql);
+		$deleted = $this->db->sql_affectedrows();
+		if ($deleted)
+		{
+			$this->config->increment('shout_del_auto_priv', $deleted, true);
+		}
+
+		// phase 3 for reload the shoutbox to everybody
+		$this->update_shout_messages($this->shoutbox_table);
+		$this->update_shout_messages($this->shoutbox_priv_table);
+	}
+
+	/**
 	 * Delete all robot messages of a topic
 	 */
 	public function shout_delete_topic($topic_id)
 	{
+		// Phase 1 delete messages in shoutbox table
 		$sql = 'DELETE FROM ' . $this->shoutbox_table . "
 			WHERE shout_forum <> 0
 				AND shout_text2 LIKE '%&amp;t=$topic_id%'";
@@ -693,6 +725,7 @@ class shoutbox
 			$this->config->increment('shout_del_auto', $deleted, true);
 		}
 
+		// Phase 2 delete messages in private shoutbox table
 		$sql = 'DELETE FROM ' . $this->shoutbox_priv_table . "
 			WHERE shout_forum <> 0
 				AND shout_text2 LIKE '%&amp;t=$topic_id%'";
@@ -703,9 +736,9 @@ class shoutbox
 			$this->config->increment('shout_del_auto_priv', $deleted, true);
 		}
 
-		// For reload the shoutbox to everybody
-		$this->update_shout_messages($this->shoutbox_table, 1);
-		$this->update_shout_messages($this->shoutbox_priv_table, 1);
+		// phase 3 for reload the shoutbox to everybody
+		$this->update_shout_messages($this->shoutbox_table);
+		$this->update_shout_messages($this->shoutbox_priv_table);
 	}
 
 	/**
@@ -713,6 +746,7 @@ class shoutbox
 	 */
 	public function shout_delete_post($post_id)
 	{
+		// Phase 1 delete messages in shoutbox table
 		$sql = 'DELETE FROM ' . $this->shoutbox_table . "
 			WHERE shout_forum <> 0
 				AND shout_text2 LIKE '%&amp;p=$post_id%'";
@@ -723,6 +757,7 @@ class shoutbox
 			$this->config->increment('shout_del_auto', $deleted, true);
 		}
 
+		// Phase 2 delete messages in private shoutbox table
 		$sql = 'DELETE FROM ' . $this->shoutbox_priv_table . "
 			WHERE shout_forum <> 0
 				AND shout_text2 LIKE '%&amp;p=$post_id%'";
@@ -733,41 +768,9 @@ class shoutbox
 			$this->config->increment('shout_del_auto_priv', $deleted, true);
 		}
 
-		// For reload the shoutbox to everybody
-		$this->update_shout_messages($this->shoutbox_table, 1);
-		$this->update_shout_messages($this->shoutbox_priv_table, 1);
-	}
-
-	/**
-	 * Delete all messages of user
-	 */
-	public function delete_user_messages($user_id)
-	{
-		$sql = 'DELETE FROM ' . $this->shoutbox_table . "
-			WHERE shout_user_id = $user_id
-				OR shout_robot_user = $user_id
-				OR shout_inp = $user_id";
-		$this->db->sql_query($sql);
-		$deleted = $this->db->sql_affectedrows();
-		if ($deleted)
-		{
-			$this->config->increment('shout_del_auto', $deleted, true);
-		}
-
-		$sql = 'DELETE FROM ' . $this->shoutbox_priv_table . "
-			WHERE shout_user_id = $user_id
-				OR shout_robot_user = $user_id
-				OR shout_inp = $user_id";
-		$this->db->sql_query($sql);
-		$deleted = $this->db->sql_affectedrows();
-		if ($deleted)
-		{
-			$this->config->increment('shout_del_auto_priv', $deleted, true);
-		}
-
-		// For reload the shoutbox to everybody
-		$this->update_shout_messages($this->shoutbox_table, 1);
-		$this->update_shout_messages($this->shoutbox_priv_table, 1);
+		// phase 3 for reload the shoutbox to everybody
+		$this->update_shout_messages($this->shoutbox_table);
+		$this->update_shout_messages($this->shoutbox_priv_table);
 	}
 
 	/**
@@ -2623,20 +2626,23 @@ class shoutbox
 
 	public function purge_shout_admin($sort, $priv = false)
 	{
-		$shoutbox_table = ($priv) ? $this->shoutbox_priv_table : $this->shoutbox_table;
-		$val_priv = $priv ? '_priv' : '';
-		$val_priv_on = $priv ? '_PRIV' : '';
+		$shoutbox_table = $this->shoutbox_table;
+		$val_priv = $val_priv_on = '';
+		if ($priv !== false)
+		{
+			$shoutbox_table = $this->shoutbox_priv_table;
+			$val_priv = '_priv';
+			$val_priv_on = '_PRIV';
+		}
 
-		$sql = 'DELETE FROM ' . $shoutbox_table . '
-			WHERE shout_robot = 1
-				OR shout_robot = ' . (int) $sort;
+		$sql = 'DELETE FROM ' . $shoutbox_table . " WHERE shout_robot = $sort";
 		$this->db->sql_query($sql);
 		$deleted = $this->db->sql_affectedrows();
 
 		if ($deleted)
 		{
 			$this->config->increment("shout_del_purge{$val_priv}", $deleted, true);
-			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_PURGE_SHOUTBOX' . $val_priv_on . '_ROBOT', time());
+			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, "LOG_PURGE_SHOUTBOX{$val_priv_on}_ROBOT", time(), array($deleted));
 			$this->post_robot_shout(0, $this->user->ip, $priv, true, true);
 			return false;
 		}
@@ -2646,14 +2652,14 @@ class shoutbox
 		}
 	}
 
-	public function filelist_all($rootdir, $dir = '', $type = false, $sort_values = true)
+	public function filelist_all($rootdir, $dir = '', $type = '', $sort_values = true)
 	{
 		if (!function_exists('filelist'))
 		{
 			include($this->root_path . 'includes/functions_admin.' . $this->php_ext);
 		}
 
-		$type = ($type === false) ? 'gif|jpg|jpeg|png|webp|jp2|j2k|jpf|jpm|jpg2|j2c|jpc' : $type;
+		$type = ($type === '') ? 'gif|jpg|jpeg|png|webp|jp2|j2k|jpf|jpm|jpg2|j2c|jpc' : $type;
 		$list = filelist($rootdir, $dir, $type);
 		if ($sort_values)
 		{
@@ -2663,10 +2669,9 @@ class shoutbox
 		return $list;
 	}
 
-	public function build_select_img($rootdir, $path, $sort, $panel = false, $type = false)
+	public function build_select_img($rootdir, $path, $sort, $panel = false, $type = '')
 	{
 		$select = '';
-		$type = ($type === false) ? false : $type;
 		$imglist = $this->filelist_all($rootdir, $path, $type, true);
 		foreach ($imglist as $key => $image)
 		{

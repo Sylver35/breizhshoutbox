@@ -287,11 +287,9 @@ class admin_controller
 			$this->config->set('shout_rules_open', $this->request->variable('shout_rules_open', 0));
 			$this->config->set('shout_rules_open_priv', $this->request->variable('shout_rules_open_priv', 0));
 
-			$sql = $this->db->sql_build_query('SELECT', array(
-				'SELECT'	=> 'lang_iso',
-				'FROM'		=> array(LANG_TABLE => ''),
-				'ORDER_BY'	=> 'lang_id',
-			));
+			$sql = 'SELECT lang_iso
+				FROM ' . LANG_TABLE . '
+				ORDER BY lang_id';
 			$result = $this->db->sql_query($sql);
 			while ($row = $this->db->sql_fetchrow($result))
 			{
@@ -497,6 +495,8 @@ class admin_controller
 					$sql = 'DELETE FROM ' . $this->shoutbox_table . $where_sql;
 					$this->db->sql_query($sql);
 					$deleted = $this->db->sql_affectedrows();
+					// Reload the shoutbox for all
+					$this->shoutbox->update_shout_messages($this->shoutbox_table);
 					
 					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_SELECT', $deleted, '_SHOUTBOX'), time(), array($deleted));
 					$this->config->increment('shout_del_acp', $deleted, true);
@@ -607,7 +607,7 @@ class admin_controller
 					case 'purge_7':
 					case 'purge_8':
 						$sort = str_replace('purge_', '', $action);
-						$retour = $this->purge_shout_admin($sort);
+						$retour = $this->shoutbox->purge_shout_admin($sort);
 						if ($retour)
 						{
 							adm_back_link($this->u_action);
@@ -758,6 +758,8 @@ class admin_controller
 					$sql = 'DELETE FROM ' . $this->shoutbox_priv_table . $where_sql;
 					$this->db->sql_query($sql);
 					$deleted = $this->db->sql_affectedrows();
+					// Reload the shoutbox for all
+					$this->shoutbox->update_shout_messages($this->shoutbox_priv_table);
 
 					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_SELECT', $deleted, '_SHOUTBOX_PRIV'), time(), array($deleted));
 					$this->config->increment('shout_del_acp_priv', $deleted, true);
@@ -863,7 +865,7 @@ class admin_controller
 					case 'purge_7':
 					case 'purge_8':
 						$sort = str_replace('purge_', '', $action);
-						$retour = $this->purge_shout_admin($sort, true);
+						$retour = $this->shoutbox->purge_shout_admin($sort, true);
 						if ($retour)
 						{
 							adm_back_link($this->u_action);

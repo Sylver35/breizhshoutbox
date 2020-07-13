@@ -811,9 +811,9 @@ class ajax
 				else
 				{
 					// Delete all personnal messages of this user
-					$sql = 'DELETE FROM ' . $shoutbox_table . '
-						WHERE shout_user_id = ' . $userid . '
-							AND shout_inp <> 0';
+					$sql = 'DELETE FROM ' . $shoutbox_table . "
+						WHERE shout_user_id = $userid
+							AND shout_inp <> 0";
 					$result = $this->shoutbox->shout_sql_query($sql);
 					if (!$result)
 					{
@@ -830,7 +830,7 @@ class ajax
 					else
 					{
 						// For reload the message to everybody
-						$this->shoutbox->update_shout_messages($shoutbox_table, 1);
+						$this->shoutbox->update_shout_messages($shoutbox_table);
 						$this->config->increment("shout_del_user{$val_priv}", $deleted, true);
 						$content = array(
 							'type'		=> 1,
@@ -871,7 +871,7 @@ class ajax
 					}
 					else
 					{
-						$this->shoutbox->update_shout_messages($shoutbox_table, 1);
+						$this->shoutbox->update_shout_messages($shoutbox_table);
 						$this->config->increment("shout_del_user{$val_priv}", $deleted, true);
 						$content = array(
 							'type'		=> 1,
@@ -906,7 +906,7 @@ class ajax
 					}
 					else
 					{
-						$this->shoutbox->update_shout_messages($shoutbox_table, 1);
+						$this->shoutbox->update_shout_messages($shoutbox_table);
 						$this->config->increment("shout_del_user{$val_priv}", $deleted, true);
 						$content = array(
 							'type'		=> 1,
@@ -944,8 +944,8 @@ class ajax
 					$can_delete = $can_delete_all ? true : $this->auth->acl_get('u_shout_delete_s');
 					
 					$sql = 'SELECT shout_user_id
-						FROM ' . $shoutbox_table . '
-							WHERE shout_id = ' . $post;
+						FROM ' . $shoutbox_table . "
+							WHERE shout_id = $post";
 					$result = $this->shoutbox->shout_sql_query($sql, true, 1);
 					if (!$result)
 					{
@@ -972,11 +972,11 @@ class ajax
 					else if (($can_delete && ($userid == $on_id)) || $can_delete_all)
 					{
 						// Lets delete this post :D
-						$sql = 'DELETE FROM ' . $shoutbox_table . '
-							WHERE shout_id = ' . (int) $post;
+						$sql = 'DELETE FROM ' . $shoutbox_table . "
+							WHERE shout_id = $post";
 						$this->db->sql_query($sql);
 
-						$this->shoutbox->update_shout_messages($shoutbox_table, $post);
+						$this->shoutbox->update_shout_messages($shoutbox_table);
 						$this->config->increment("shout_del_user{$val_priv}", 1, true);
 						$response->send(array(
 							'type'	=> 1,
@@ -1068,8 +1068,8 @@ class ajax
 
 				// We need to be sure its this users his shout.
 				$sql = 'SELECT shout_user_id
-					FROM ' . $shoutbox_table . '
-						WHERE shout_id = ' . $shout_id;
+					FROM ' . $shoutbox_table . "
+						WHERE shout_id = $shout_id";
 				$result = $this->shoutbox->shout_sql_query($sql, true, 1);
 				if (!$result)
 				{
@@ -1136,7 +1136,7 @@ class ajax
 				}
 
 				// For reload the message to everybody
-				$this->shoutbox->update_shout_messages($shoutbox_table, 1);
+				$this->shoutbox->update_shout_messages($shoutbox_table);
 				$message = generate_text_for_display($message, $uid, $bitfield, $options);
 				$content = array(
 					'type'		=> 2,
