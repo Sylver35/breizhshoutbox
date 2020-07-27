@@ -808,11 +808,12 @@ var picolor = {
 picolor.install();
 
 function validPicker(){
-	if($('#shout_user1').attr('disabled') === false){
+	var value = $('#pick').val();
+	if($('#chat_message').attr('disabled') == 'disabled'){
 		var form_name = 'formuser',text_name = 'shout_user1';
 	}else{
 		var form_name = 'postform',text_name = 'chat_message';
 	}
 	shoutbox.suppText(text_name);
-	bbfontstyle('[color=#'+$('#pick').val()+']','[/color]');
+	bbfontstyle('[color=#'+value+']','[/color]');
 }

@@ -4,6 +4,9 @@
 * @license		http://opensource.org/licenses/gpl-license.php GNU Public License
 */
 
+/** global: config */
+/** global: bzhLang */
+/** global: shoutbox */
 var tpl = new Array(),uastring = navigator.userAgent,index,navigateur,version,is_ie = ((uastring.indexOf('msie') != -1) && (uastring.indexOf('opera') == -1)),headersContent = {'Cache-Control': 'private, no-cache, no-store, must-revalidate, proxy-revalidate','Pragma': 'no-cache'};
 var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postform',text_name = 'chat_message',imgChargeOn = '<img src="'+config.extensionUrl+'images/run.gif" alt="" style="margin-right:15px;" />',imgLoadOn = '<img src="'+config.extensionUrl+'images/run2.gif" alt="" style="margin-right:15px;" />',imgTurnOn = '<img src="'+config.extensionUrl+'images/spinner.gif" alt="" style="margin-right:15px;" />',ajaxLoaderOn = '<img src="'+config.extensionUrl+'images/ajax_loader_2.gif" alt="" style="margin-right:15px;" />',imgLoader = '<img src="'+config.extensionUrl+'images/ajax_loader.gif" alt="" style="margin-right:15px;" />';
 
@@ -168,12 +171,12 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 	shoutbox.permutUser = function(sort){
 		if(sort){
 			var form_name = 'formuser',text_name = 'shout_user1';
-			$('#chat_message').css('background-color','#CCCCCC').prop('disabled',true);
+			$('#chat_message').css('background-color','#CCCCCC').prop('disabled',true).attr('disabled','disabled');
 			$('#shout_user1').val('').prop('disabled',false).attr({'autocomplete':'off','spellcheck':'true'});
 		}else{
 			var form_name = 'postform',text_name = 'chat_message';
 			$('#chat_message').css('background-color','white').prop('disabled',false).attr('autocomplete', 'off');
-			$('#shout_user1').val('').prop('disabled',true);
+			$('#shout_user1').val('').prop('disabled',true).attr('disabled','disabled');
 		}
 	};
 
@@ -327,7 +330,6 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				goSound = true;
 			}
 		}
-		
 		if(goSound){
 			// 1 : New message, 2 : Error (default), 3 : Delete, 4 : Add message, 5 : Edit message, 6 : special auto sound
 			if($('#shoutAudio-'+sort).attr('title') !== 'off'){
@@ -663,22 +665,24 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 						$('#h3user').html(response.username);
 						$('#shout_url').html(response.message).css('color','red');
 					}else if(response.type === 3){
-						tpl = {'open':'<strong>&#187;</strong><span class="profile-shout">','close':'</span></a></span>','span':'<span title="">','return':'<br /><br />','a':'<a onmouseover="shoutbox.iH(\'onText\',this.title,false);" onmouseout="shoutbox.iH(\'onText\',\'\',false);" class="tooltip pointer"','openRed':'<strong>&#187;</strong><span class="profile-shout" style="color:red">'};
+						tpl = {'open':'<strong>&#187;</strong><span class="profile-shout">','close':'</span></a></span>','span':'<span title="">','return':'<br /><br />','a':'<a onmouseover="shoutbox.iH(\'onText\',this.title,false);" onmouseout="shoutbox.iH(\'onText\',\'\',false);" class="tooltip pointer"','ext':' onclick="window.open(this.href);return false;" href="'};
 						$('#user_inp').val(response.id);
 						$('#user_inp_sort').val(response.sort);
 						$('#h3user').html(response.username);
 						$('#shout_avatar').html('<span class="avatar-shout">'+response.avatar+'</span>');
-						var content = ((!response.foe) ? tpl['open']+tpl['a'] : tpl['openRed'])+response.url_message+tpl['close']+tpl['return'];
-						content += tpl['open']+tpl['a']+response.url_profile+tpl['close']+tpl['open']+tpl['a']+response.url_cite_m+tpl['close']+tpl['open']+tpl['a']+response.url_cite+tpl['close'];
+						var content = '<br />';
+						content += (response.foe) ? '<strong>&#187;</strong><span class="profile-shout" style="color:red">'+bzhLang['USER_IGNORE']+tpl['close']+tpl['return'] : '';
+						content += (!response.foe && response.inp) ? tpl['open']+tpl['a']+response.url_message+tpl['close']+tpl['return'] : '';
+						content += tpl['open']+tpl['a']+tpl['ext']+response.url_profile+tpl['close']+tpl['open']+tpl['a']+response.url_cite_m+tpl['close']+tpl['open']+tpl['a']+response.url_cite+tpl['close'];
 						content += (response.retour) ? tpl['return'] : '';
-						content += (response.url_admin) ? tpl['open']+tpl['a']+response.url_admin+tpl['close'] : '';
-						content += (response.url_modo) ? tpl['open']+tpl['a']+response.url_modo+tpl['close'] : '';
-						content += (response.url_ban) ? tpl['open']+tpl['a']+response.url_ban+tpl['close'] : '';
+						content += (response.url_admin) ? tpl['open']+tpl['a']+tpl['ext']+response.url_admin+tpl['close'] : '';
+						content += (response.url_modo) ? tpl['open']+tpl['a']+tpl['ext']+response.url_modo+tpl['close'] : '';
+						content += (response.url_ban) ? tpl['open']+tpl['a']+tpl['ext']+response.url_ban+tpl['close'] : '';
 						content += (response.url_remove) ? tpl['return']+tpl['open']+tpl['a']+response.url_remove+tpl['close'] : '';
 						content += (response.url_perso) ? tpl['return']+tpl['open']+tpl['a']+response.url_perso+tpl['close'] : '';
 						content += '<br /><hr class="dotted" /><hr class="dotted" />';
-						content += (response.url_del_to) ? tpl['open']+tpl['a']+response.url_del_to+tpl['close']+tpl['return'] : '';
-						content += (response.url_del) ? tpl['open']+tpl['a']+response.url_del+tpl['close'] : '';
+						content += (response.inp) ? tpl['open']+tpl['a']+response.url_del_to+tpl['close']+tpl['return'] : '';
+						content += (response.inp) ? tpl['open']+tpl['a']+response.url_del+tpl['close'] : '';
 						content += (response.url_robot) ? tpl['return']+tpl['open']+tpl['a']+response.url_robot+tpl['close'] : '';
 						$('#shout_url').html(content);
 					}
@@ -1056,7 +1060,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			type: 'POST',
 			dataType: 'json',
 			url: config.checkUrl+random,
-			data: 'sort='+config.sortShoutNb,
+			data: 'sort='+config.sortShoutNb+'&on_bot='+$('#onBot').val(),
 			cache: false,
 			headers : headersContent,
 			success: function(update){
@@ -1066,7 +1070,8 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					shoutbox.message(update,true,3000,false);
 					shoutbox.reloadAll(true);
 				}else if(update.t != $onShoutLast){
-					if($onShoutLast != 0){ /* A new message... */
+					if($onShoutLast != 0){
+						/* A new message... */
 						shoutbox.playSound(1,false);
 					}
 					$('#shoutLast').val(update.t);
@@ -1084,7 +1089,6 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		var totalPages = Math.ceil(number / config.perPage),onPage = Math.floor(onCount / config.perPage) + 1,direction = (config.direction == 'right') ? 'left' : 'right';
 		if(totalPages < 2 || number < config.perPage){
 			$('#divnr').hide();
-			$('#linr').hide();
 			return;
 		}
 		$('#divnr').show();
@@ -1132,7 +1136,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			type: 'POST',
 			dataType: 'json',
 			url: config.viewUrl,
-			data: 'start='+onCount+'&l='+$('#shoutLast').val()+'&sort='+config.sortShoutNb,
+			data: 'start='+onCount+'&l='+$('#shoutLast').val()+'&sort='+config.sortShoutNb+'&on_bot='+$('#onBot').val(),
 			cache: false,
 			headers : headersContent,
 			success: function(datas){
@@ -1615,14 +1619,14 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 						popup.onclick = function(){alert(bzhLang['NO_POP'])};
 					}
 					postingBox.appendChild(popup);
-				}
-				if(config.purgeOn){
-					var purgeRobot = shoutbox.cE('input','purgeRobot','button_shout_robot button_shout','',bzhLang['PURGE_ROBOT_ALT'],'button',false,false);
-					purgeRobot.onclick = function(){if(confirm(bzhLang['PURGE_ROBOT_BOX'])){shoutbox.purgeShout('purge_robot'+(config.isPriv ? '_priv' : ''),true)}};
-					var purge = shoutbox.cE('input','purge','button_shout_purge button_shout','',bzhLang['PURGE_ALT'],'button',false,false);
-					purge.onclick = function(){if(confirm(bzhLang['PURGE_BOX'])){shoutbox.purgeShout('purge'+(config.isPriv ? '_priv' : ''),false);}};
-					postingBox.appendChild(purgeRobot);
-					postingBox.appendChild(purge);
+					if(config.purgeOn){
+						var purgeRobot = shoutbox.cE('input','purgeRobot','button_shout_robot button_shout','',bzhLang['PURGE_ROBOT_ALT'],'button',false,false);
+						purgeRobot.onclick = function(){if(confirm(bzhLang['PURGE_ROBOT_BOX'])){shoutbox.purgeShout('purge_robot'+(config.isPriv ? '_priv' : ''),true)}};
+						var purge = shoutbox.cE('input','purge','button_shout_purge button_shout','',bzhLang['PURGE_ALT'],'button',false,false);
+						purge.onclick = function(){if(confirm(bzhLang['PURGE_BOX'])){shoutbox.purgeShout('purge'+(config.isPriv ? '_priv' : ''),false);}};
+						postingBox.appendChild(purgeRobot);
+						postingBox.appendChild(purge);
+					}
 				}
 				if(config.isUser){
 					if(config.sortShoutNb !== 3 && config.privOk){

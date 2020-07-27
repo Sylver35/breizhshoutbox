@@ -894,7 +894,8 @@ span.cell-separate {
 	padding: 5px 15px;
 	position: absolute;
 	z-index: 1000;
-	width: 220px;
+	width: auto;
+	min-width: 100px;
 }
 .tooltip:hover:before{
 	border: solid;
