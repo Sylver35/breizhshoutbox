@@ -582,7 +582,7 @@ class shoutbox
 			{
 				$list .= ($i > 0) ? ', ' : '';
 				$id = $this->find_string($user, '&amp;u=', '" ');
-				if ($id == false || $id == $this->user->data['user_id'])
+				if (!$id || $id == $this->user->data['user_id'])
 				{
 					$list .= $this->replace_shout_url($user);
 				}
@@ -606,14 +606,14 @@ class shoutbox
 	 * @param $string	string where search in
 	 * @param $start	string start of search
 	 * @param $end		string end of search
-	 * Return string or bool
+	 * Return string
 	 */
 	private function find_string($string, $start, $end)
 	{
 		$ini = strpos($string, $start);
 		if ($ini == 0)
 		{
-			return false;
+			return $ini;
 		}
 		$ini += strlen($start);
 		$len = strpos($string, $end, $ini) - $ini;
