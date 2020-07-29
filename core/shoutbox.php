@@ -2780,7 +2780,7 @@ class shoutbox
 			// Remove the bbcodes
 			case 1:
 				$sql = 'UPDATE ' . USERS_TABLE . " SET shout_bbcode = '' WHERE user_id = $on_user";
-				$result = $this->shout_sql_query($sql);
+				$this->shout_sql_query($sql);
 				$message = $this->language->lang('SHOUT_BBCODE_SUP');
 				$text = $this->language->lang('SHOUT_EXEMPLE');
 			break;
@@ -2795,7 +2795,7 @@ class shoutbox
 				$uid = $bitfield = '';
 				// Change it in the db
 				$sql = 'UPDATE ' . USERS_TABLE . " SET shout_bbcode = '" . $this->db->sql_escape($ok_bbcode) . "' WHERE user_id = $on_user";
-				$result = $this->shout_sql_query($sql);
+				$this->shout_sql_query($sql);
 				$text = $open . $this->language->lang('SHOUT_EXEMPLE') . $close;
 				generate_text_for_storage($text, $uid, $bitfield, $options, true, false, true);
 				$text = generate_text_for_display($text, $uid, $bitfield, $options);
@@ -3151,7 +3151,7 @@ class shoutbox
 			$sql = 'DELETE FROM ' . $val['table'] . '
 				WHERE shout_user_id = ' . $val['userid'] . '
 					AND shout_inp <> 0';
-			$result = $this->shout_sql_query($sql);
+			$this->shout_sql_query($sql);
 			$deleted = $this->db->sql_affectedrows();
 			if (!$deleted)
 			{
@@ -3190,7 +3190,7 @@ class shoutbox
 			$sql = 'DELETE FROM ' . $val['table'] . '
 				WHERE shout_inp = ' . $val['userid'] . '
 					AND shout_user_id <> ' . $val['userid'];
-			$result = $this->shout_sql_query($sql);
+			$this->shout_sql_query($sql);
 			$deleted = $this->db->sql_affectedrows();
 			if (!$deleted)
 			{
@@ -3222,7 +3222,7 @@ class shoutbox
 				WHERE shout_user_id = ' . $val['id'] . '
 					OR shout_robot_user = ' . $val['id'] . '
 					OR shout_inp = ' . $val['id'];
-			$result = $this->shout_sql_query($sql);
+			$this->shout_sql_query($sql);
 			$deleted = $this->db->sql_affectedrows();
 			if ($deleted)
 			{
@@ -3325,7 +3325,7 @@ class shoutbox
 		else
 		{
 			$sql = 'DELETE FROM ' . $val['table'];
-			$result = $this->shout_sql_query($sql);
+			$this->shout_sql_query($sql);
 			$deleted = $this->db->sql_affectedrows();
 
 			$this->config->increment("shout_del_purge{$val['priv']}", $deleted, true);
@@ -3341,7 +3341,7 @@ class shoutbox
 	{
 		if (!$this->auth->acl_get('m_shout_purge') && !$this->auth->acl_get('a_shout_manage'))
 		{
-			$this->shoutbox->shout_error('NO_PURGE_ROBOT_PERM');
+			$this->shout_error('NO_PURGE_ROBOT_PERM');
 			return false;
 		}
 		else
@@ -3350,7 +3350,7 @@ class shoutbox
 
 			$sql = 'DELETE FROM ' . $val['table'] . '
 				WHERE ' . $this->db->sql_in_set('shout_info', $sort_on, false, true);
-			$result = $this->shout_sql_query($sql);
+			$this->shout_sql_query($sql);
 			$deleted = $this->db->sql_affectedrows();
 
 			$this->config->increment("shout_del_purge{$val['priv']}", $deleted, true);
@@ -3436,7 +3436,7 @@ class shoutbox
 		$sql = 'UPDATE ' . $val['table'] . '
 			SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
 				WHERE shout_id = ' . $shout_id;
-		$result = $this->shout_sql_query($sql);
+		$this->shout_sql_query($sql);
 
 		// For reload the message to everybody
 		$this->update_shout_messages($val['table']);
@@ -3527,7 +3527,7 @@ class shoutbox
 		);
 
 		$sql = 'INSERT INTO ' . $val['table'] . ' ' . $this->db->sql_build_array('INSERT', $sql_ary);
-		$result = $this->shout_sql_query($sql);
+		$this->shout_sql_query($sql);
 		$this->config->increment("shout_nr{$val['priv']}", 1, true);
 		
 		if ($this->config["shout_on_cron{$val['priv']}"])
