@@ -182,7 +182,23 @@ class ajax
 			break;
 
 			case 'action_post':
-				$content = $this->shoutbox->shout_action_post($val, $this->request->variable('message', '', true));
+				if (!$val['id'])
+				{
+					$content = array(
+						'type'	=> 0,
+					);
+				}
+				else if ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('m_shout_robot') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_'))
+				{
+					$content = $this->shoutbox->shout_action_post($val, $this->request->variable('message', '', true));
+				}
+				else
+				{
+					$content = array(
+						'type'		=> 0,
+						'message'	=> $this->language->lang('NO_ACTION_PERM'),
+					);
+				}
 
 				$response->send($content, true);
 			break;
@@ -206,8 +222,20 @@ class ajax
 			break;
 
 			case 'delete':
-				$content = $this->shoutbox->shout_delete($val, $this->request->variable('post', 0));
-				
+				$post = $this->request->variable('post', 0);
+				if (!$post)
+				{
+					$this->shoutbox->shout_error('NO_SHOUT_ID');
+					break;
+				}
+				else if ($val['userid'] == ANONYMOUS)
+				{
+					$this->shoutbox->shout_error('NO_DELETE_PERM');
+					break;
+				}
+
+				$content = $this->shoutbox->shout_ajax_delete($val, $post);
+
 				if ($content)
 				{
 					$response->send($content, true);
@@ -242,6 +270,12 @@ class ajax
 			break;
 
 			case 'post':
+				if (!$this->auth->acl_get('u_shout_post'))
+				{
+					$this->shoutbox->shout_error('NO_POST_PERM');
+					break;
+				}
+
 				$content = $this->shoutbox->shout_ajax_post($val, $this->request->variable('chat_message', '', true), $this->request->variable('name', '', true), $this->request->variable('cite', 0));
 
 				if ($content)
