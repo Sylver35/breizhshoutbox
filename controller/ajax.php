@@ -110,43 +110,43 @@ class ajax
 		switch ($mode)
 		{
 			case 'smilies':
-				$content = $this->shoutbox->shout_smilies();
+				$content = $this->shoutbox->shout_ajax_smilies();
 
 				$response->send($content, true);
 			break;
 
 			case 'smilies_popup':
-				$content = $this->shoutbox->shout_smilies_popup($this->request->variable('cat', -1));
+				$content = $this->shoutbox->shout_ajax_smilies_popup($this->request->variable('cat', -1));
 
 				$response->send($content, true);
 			break;
 
 			case 'display_smilies':
-				$content = $this->shoutbox->shout_display_smilies($this->request->variable('smiley', 0), $this->request->variable('display', 3));
+				$content = $this->shoutbox->shout_ajax_display_smilies($this->request->variable('smiley', 0), $this->request->variable('display', 3));
 
 				$response->send($content, true);
 			break;
 
 			case 'user_bbcode':
-				$data = $this->shoutbox->shout_user_bbcode($this->request->variable('open', ''), $this->request->variable('close', ''), $this->request->variable('other', 0));
+				$data = $this->shoutbox->shout_ajax_user_bbcode($this->request->variable('open', ''), $this->request->variable('close', ''), $this->request->variable('other', 0));
 				
 				$response->send($data, true);
 			break;
 
 			case 'charge_bbcode':
-				$data = $this->shoutbox->shout_charge_bbcode($val['id']);
+				$data = $this->shoutbox->shout_ajax_charge_bbcode($val['id']);
 
 				$response->send($data, true);
 			break;
 
 			case 'online':
-				$data = $this->shoutbox->shout_online();
+				$data = $this->shoutbox->shout_ajax_online();
 
 				$response->send($data, true);
 			break;
 
 			case 'rules':
-				$data = $this->shoutbox->shout_rules($val['priv']);
+				$data = $this->shoutbox->shout_ajax_rules($val['priv']);
 
 				$response->send($data, true);
 			break;
@@ -164,19 +164,19 @@ class ajax
 			break;
 
 			case 'action_sound':
-				$content = $this->shoutbox->shout_action_sound($this->request->variable('sound', 1));
+				$content = $this->shoutbox->shout_ajax_action_sound($this->request->variable('sound', 1));
 
 				$response->send($content, true);
 			break;
 
 			case 'cite':
-				$content = $this->shoutbox->shout_cite($val['id']);
+				$content = $this->shoutbox->shout_ajax_cite($val['id']);
 
 				$response->send($content, true);
 			break;
 
 			case 'action_user':
-				$content = $this->shoutbox->shout_action_user($val);
+				$content = $this->shoutbox->shout_ajax_action_user($val);
 
 				$response->send($content, true);
 			break;
@@ -190,7 +190,7 @@ class ajax
 				}
 				else if ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('m_shout_robot') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_'))
 				{
-					$content = $this->shoutbox->shout_action_post($val, $this->request->variable('message', '', true));
+					$content = $this->shoutbox->shout_ajax_action_post($val, $this->request->variable('message', '', true));
 				}
 				else
 				{
@@ -204,19 +204,19 @@ class ajax
 			break;
 
 			case 'action_del':
-				$content = $this->shoutbox->shout_action_del($val);
+				$content = $this->shoutbox->shout_ajax_action_del($val);
 
 				$response->send($content, true);
 			break;
 
 			case 'action_del_to':
-				$content = $this->shoutbox->shout_action_del_to($val);
+				$content = $this->shoutbox->shout_ajax_action_del_to($val);
 
 				$response->send($content, true);
 			break;
 
 			case 'action_remove':
-				$content = $this->shoutbox->shout_action_remove($val);
+				$content = $this->shoutbox->shout_ajax_action_remove($val);
 
 				$response->send($content, true);
 			break;
@@ -309,7 +309,7 @@ class ajax
 					break;
 				}
 
-				$content = $this->shoutbox->shout_ajax_view($val, $this->request->variable('start', 0), $this->request->variable('on_bot', 'on'));
+				$content = $this->shoutbox->shout_ajax_view($val, $this->request->variable('on_bot', 'on'), $this->request->variable('start', 0));
 
 				$response->send($content, true);
 			break;

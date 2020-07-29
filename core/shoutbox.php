@@ -232,18 +232,18 @@ class shoutbox
 		// First initialize somes variables, protect private
 		// And select the good table for the type of shoutbox
 		$val = array(
-			'is_user'	=> ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false,
-			'userid'	=> $this->user->data['user_id'],
-			'id'		=> $id,
-			'on_priv'	=> false,
-			'perm'		=> '_view',
-			'auth'		=> 'manage',
-			'priv'		=> '',
-			'privat'	=> '',
-			'sort'		=> $sort,
-			'mode'		=> $mode,
-			'board'		=> generate_board_url() . '/',
-			'table'		=> $this->shoutbox_table,
+			'is_user'		=> ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false,
+			'userid'		=> $this->user->data['user_id'],
+			'id'			=> $id,
+			'on_priv'		=> false,
+			'perm'			=> '_view',
+			'auth'			=> 'manage',
+			'priv'			=> '',
+			'privat'		=> '',
+			'sort'			=> $sort,
+			'mode'			=> $mode,
+			'board'			=> generate_board_url() . '/',
+			'shout_table'	=> $this->shoutbox_table,
 		);
 
 		switch ($sort)
@@ -262,7 +262,7 @@ class shoutbox
 				$val['sort_on'] = $val['perm'] = $val['priv'] = '_priv';
 				$val['auth'] = 'priv';
 				$val['privat'] = '_PRIV';
-				$val['table'] = $this->shoutbox_priv_table;
+				$val['shout_table'] = $this->shoutbox_priv_table;
 			break;
 		}
 
@@ -571,7 +571,7 @@ class shoutbox
 	 * @param $sort string sort of shoutbox 
 	 * Return array
 	 */
-	public function shout_rules($sort)
+	public function shout_ajax_rules($sort)
 	{
 		$content = array(
 			'sort'	=> 0,
@@ -604,7 +604,7 @@ class shoutbox
 	 * Replace urls for users actions shout
 	 * Return array
 	 */
-	public function shout_online()
+	public function shout_ajax_online()
 	{
 		$online = obtain_users_online();
 		$online_strings = obtain_users_online_string($online);
@@ -1184,21 +1184,20 @@ class shoutbox
 	 */
 	public function personalize_shout_message($message)
 	{
-		if ($this->user->data['shout_bbcode'])
+		if ($this->user->data['shout_bbcode'] && $this->auth->acl_get('u_shout_bbcode_change'))
 		{
 			list($open, $close) = explode('||', $this->user->data['shout_bbcode']);
+			// Don't personalize if somes bbcodes are presents
+			if (strpos($message, '[spoil') !== false || strpos($message, '[hidden') !== false || strpos($message, '[offtopic') !== false || strpos($message, '[mod=') !== false || strpos($message, '[quote') !== false || strpos($message, '[code') !== false || strpos($message, '[list') !== false)
+			{
+				return $message;
+			}
+			return $open . $message . $close;
 		}
 		else
 		{
 			return $message;
 		}
-		// Don't personalize if somes bbcodes are presents
-		if (strpos($message, '[spoil') !== false || strpos($message, '[hidden') !== false || strpos($message, '[offtopic') !== false || strpos($message, '[mod=') !== false || strpos($message, '[quote') !== false || strpos($message, '[code') !== false || strpos($message, '[list') !== false)
-		{
-			return $message;
-		}
-
-		return $open . $message . $close;
 	}
 
 	/*
@@ -2591,7 +2590,7 @@ class shoutbox
 		return $select;
 	}
 
-	public function shout_smilies()
+	public function shout_ajax_smilies()
 	{
 		$i = 0;
 		$smilies = [];
@@ -2644,7 +2643,7 @@ class shoutbox
 		return $content;
 	}
 
-	public function shout_smilies_popup($cat)
+	public function shout_ajax_smilies_popup($cat)
 	{
 		$i = 0;
 		$smilies = [];
@@ -2695,7 +2694,7 @@ class shoutbox
 		return $content;
 	}
 
-	public function shout_display_smilies($smiley, $display)
+	public function shout_ajax_display_smilies($smiley, $display)
 	{
 		if ($smiley && $display !== 3)
 		{
@@ -2768,7 +2767,7 @@ class shoutbox
 		return $content;
 	}
 
-	public function shout_user_bbcode($open, $close, $other)
+	public function shout_ajax_user_bbcode($open, $close, $other)
 	{
 		$text = $message = '';
 		$on_user = $other ? $other : $this->user->data['user_id'];
@@ -2833,7 +2832,7 @@ class shoutbox
 		);
 	}
 
-	public function shout_charge_bbcode($id)
+	public function shout_ajax_charge_bbcode($id)
 	{
 		$sql = $this->db->sql_build_query('SELECT', array(
 			'SELECT'	=> 'user_id, user_type, username, user_colour, shout_bbcode',
@@ -2892,7 +2891,7 @@ class shoutbox
 		);
 	}
 
-	public function shout_action_sound($on_sound)
+	public function shout_ajax_action_sound($on_sound)
 	{
 		$shout = json_decode($this->user->data['user_shout']);
 		$on_sound = ($shout->user == 2) ? $on_sound : $shout->user;
@@ -2939,7 +2938,7 @@ class shoutbox
 		return $content;
 	}
 
-	public function shout_cite($id)
+	public function shout_ajax_cite($id)
 	{
 		$sql = 'SELECT user_id, user_type
 			FROM ' . USERS_TABLE . '
@@ -2965,7 +2964,7 @@ class shoutbox
 		return $content;
 	}
 
-	public function shout_action_user($val)
+	public function shout_ajax_action_user($val)
 	{
 		if (!$val['is_user'] || !$val['id'] || $val['id'] == ANONYMOUS)
 		{
@@ -3013,130 +3012,134 @@ class shoutbox
 		return $content;
 	}
 
-	public function shout_action_post($val, $message)
+	public function shout_ajax_action_post($val, $message)
 	{
 		// Important! initialize
-		$shout_info = 0;
-		$go = $robot = $friend = false;
+		$info = 65;
+		$robot = false;
+		$data = array(
+			'type'	=> 3,
+			'go'	=> false,
+		);
 
-		// Administrators and moderators can always post personnal messages
-		if ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('m_shout_robot') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_'))
+		// post a robot message
+		if ($val['id'] == 1)
 		{
-			// any user id
-			if (!$val['id'])
+			if ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_robot'))
 			{
+				$info = 0;
+				$robot = true;
+				$data['go'] = true;
+				$val['id'] = $val['userid'] = 0;
+			}
+			else
+			{
+				// no perm, out...
 				return array(
-					'type'	=> 0,
-				);
-			}
-			// post a robot message
-			else if ($val['id'] == 1)
-			{
-				if ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_robot'))
-				{
-					$robot = true;
-					$go = true;
-					$val['id'] = $val['userid'] = 0;
-				}
-				else
-				{
-					// no perm, out...
-					return array(
-						'type'		=> 0,
-					);
-				}
-			}
-			// post a personal message
-			else if ($val['id'] > 1)
-			{
-				$sql = $this->db->sql_build_query('SELECT', array(
-					'SELECT'	=> 'u.user_id, u.user_type, z.friend, z.foe',
-					'FROM'		=> array(USERS_TABLE => 'u'),
-					'LEFT_JOIN'	=> array(
-						array(
-							'FROM'	=> array(ZEBRA_TABLE => 'z'),
-							'ON'	=> 'z.zebra_id = u.user_id AND z.user_id = ' . $val['userid'],
-						),
-					),
-					'WHERE'		=> 'u.user_id = ' . $val['id'],
-				));
-				$result = $this->shout_sql_query($sql, true, 1);
-				$row = $this->db->sql_fetchrow($result);
-				$this->db->sql_freeresult($result);
-				if (!$row || $row['user_type'] == USER_IGNORE)
-				{
-					// user id don't exist or ignore
-					return array(
-						'type'	=> 0,
-					);
-				}
-				else if ($row['foe'])
-				{
-					// if user is foe
-					return array(
-						'type'		=> 2,
-						'message'	=> $this->language->lang('SHOUT_USER_IGNORE'),
-					);
-				}
-				else
-				{
-					// let's go
-					$go = true;
-					$friend = ($row['friend']) ? true : false;
-					$shout_info = 65;
-				}
-			}
-			if ($go)
-			{
-				$message = $this->parse_shout_message($message, $val['on_priv'], 'post', $robot);
-				// Personalize message
-				if ($this->user->data['shout_bbcode'] && $this->auth->acl_get('u_shout_bbcode_change') && ($val['id'] != 0))
-				{
-					$message = $this->personalize_shout_message($message);
-				}
-
-				// will be modified by generate_text_for_storage
-				$options = 0;
-				$uid = $bitfield = '';
-				$allow_bbcode = ($this->auth->acl_get('u_shout_bbcode')) ? true : false;
-				$allow_smilies = ($this->auth->acl_get('u_shout_smilies')) ? true : false;
-				generate_text_for_storage($message, $uid, $bitfield, $options, $allow_bbcode, true, $allow_smilies);
-
-				$sql_ary = array(
-					'shout_text'				=> (string) $message,
-					'shout_bbcode_uid'			=> $uid,
-					'shout_bbcode_bitfield'		=> $bitfield,
-					'shout_bbcode_flags'		=> $options,
-					'shout_time'				=> (int) time(),
-					'shout_user_id'				=> $val['userid'],
-					'shout_ip'					=> (string) $this->user->ip,
-					'shout_robot_user'			=> $val['id'],
-					'shout_robot'				=> 0,
-					'shout_forum'				=> 0,
-					'shout_info'				=> $shout_info,
-					'shout_inp'					=> $val['id'],
-				);
-				$sql = 'INSERT INTO ' . $val['table'] . ' ' . $this->db->sql_build_array('INSERT', $sql_ary);
-				$this->db->sql_query($sql);
-				$this->config->increment("shout_nr{$val['priv']}", 1, true);
-
-				return array(
-					'type'		=> 1,
-					'friend'	=> $friend,
-					'message'	=> $this->language->lang('POSTED'),
+					'type'		=> 0,
 				);
 			}
 		}
-		else
+		else if ($val['id'] > 1)
 		{
+			// post a personal message
+			$data = $this->shout_is_foe($val['userid'], $val['id']);
+			if ($data['type'] > 0)
+			{
+				return array(
+					'type'		=> $data['type'],
+					'message'	=> $data['message'],
+				);
+			}
+		}
+
+		if ($data['go'])
+		{
+			$message = $this->parse_shout_message($message, $val['on_priv'], 'post', $robot);
+			// Personalize message
+			if ($val['id'] != 0)
+			{
+				$message = $this->personalize_shout_message($message);
+			}
+
+			// will be modified by generate_text_for_storage
+			$options = 0;
+			$uid = $bitfield = '';
+			generate_text_for_storage($message, $uid, $bitfield, $options, $this->auth->acl_get('u_shout_bbcode'), true, $this->auth->acl_get('u_shout_smilies'));
+
+			$sql_ary = array(
+				'shout_text'				=> (string) $message,
+				'shout_bbcode_uid'			=> $uid,
+				'shout_bbcode_bitfield'		=> $bitfield,
+				'shout_bbcode_flags'		=> $options,
+				'shout_time'				=> (int) time(),
+				'shout_user_id'				=> $val['userid'],
+				'shout_ip'					=> (string) $this->user->ip,
+				'shout_robot_user'			=> $val['id'],
+				'shout_robot'				=> 0,
+				'shout_forum'				=> 0,
+				'shout_info'				=> $info,
+				'shout_inp'					=> $val['id'],
+			);
+			$sql = 'INSERT INTO ' . $val['shout_table'] . ' ' . $this->db->sql_build_array('INSERT', $sql_ary);
+			$this->db->sql_query($sql);
+			$this->config->increment("shout_nr{$val['priv']}", 1, true);
+
 			return array(
-				'type'		=> 0,
-				'message'	=> $this->language->lang('NO_ACTION_PERM'),
+				'type'		=> 1,
+				'message'	=> $this->language->lang('POSTED'),
 			);
 		}
 	}
 
-	public function shout_action_del($val)
+	public function shout_is_foe($userid, $id)
+	{
+		$content = array(
+			'go'		=> false,
+			'message'	=> '',
+		);
+
+		$sql = $this->db->sql_build_query('SELECT', array(
+			'SELECT'	=> 'u.user_id, u.user_type, z.friend, z.foe',
+			'FROM'		=> array(USERS_TABLE => 'u'),
+			'LEFT_JOIN'	=> array(
+				array(
+					'FROM'	=> array(ZEBRA_TABLE => 'z'),
+					'ON'	=> 'z.zebra_id = u.user_id AND z.user_id = ' . $userid,
+				),
+			),
+			'WHERE'		=> 'u.user_id = ' . $id,
+		));
+		$result = $this->shout_sql_query($sql, true, 1);
+		$row = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
+		if (!$row || $row['user_type'] == USER_IGNORE)
+		{
+			// user id don't exist or ignore
+			$content = array(
+				'type'		=> 1,
+			);
+		}
+		else if ($row['foe'])
+		{
+			// if user is foe
+			$content = array(
+				'type'		=> 2,
+				'message'	=> $this->language->lang('SHOUT_USER_IGNORE'),
+			);
+		}
+		else
+		{
+			$content = array(
+				'go'		=> true,
+				'type'		=> 0,
+			);
+		}
+
+		return $content;
+	}
+
+	public function shout_ajax_action_del($val)
 	{
 		if ($val['id'] != $val['userid'])
 		{
@@ -3148,7 +3151,7 @@ class shoutbox
 		else
 		{
 			// Delete all personnal messages of this user
-			$sql = 'DELETE FROM ' . $val['table'] . '
+			$sql = 'DELETE FROM ' . $val['shout_table'] . '
 				WHERE shout_user_id = ' . $val['userid'] . '
 					AND shout_inp <> 0';
 			$this->shout_sql_query($sql);
@@ -3163,7 +3166,7 @@ class shoutbox
 			else
 			{
 				// For reload the message to everybody
-				$this->update_shout_messages($val['table']);
+				$this->update_shout_messages($val['shout_table']);
 				$this->config->increment("shout_del_user{$val['priv']}", $deleted, true);
 				$content = array(
 					'type'		=> 1,
@@ -3175,7 +3178,7 @@ class shoutbox
 		return $content;
 	}
 
-	public function shout_action_del_to($val)
+	public function shout_ajax_action_del_to($val)
 	{
 		if ($val['id'] != $val['userid'])
 		{
@@ -3187,7 +3190,7 @@ class shoutbox
 		else
 		{
 			// Delete all personnal messages to this user
-			$sql = 'DELETE FROM ' . $val['table'] . '
+			$sql = 'DELETE FROM ' . $val['shout_table'] . '
 				WHERE shout_inp = ' . $val['userid'] . '
 					AND shout_user_id <> ' . $val['userid'];
 			$this->shout_sql_query($sql);
@@ -3201,7 +3204,7 @@ class shoutbox
 			}
 			else
 			{
-				$this->update_shout_messages($val['table']);
+				$this->update_shout_messages($val['shout_table']);
 				$this->config->increment("shout_del_user{$val['priv']}", $deleted, true);
 				$content = array(
 					'type'		=> 1,
@@ -3213,12 +3216,12 @@ class shoutbox
 		return $content;
 	}
 
-	public function shout_action_remove($val)
+	public function shout_ajax_action_remove($val)
 	{
 		if ($this->auth->acl_get('a_shout_manage') || $this->auth->acl_get('m_shout_delete'))
 		{
 			// Delete all messages of this user
-			$sql = 'DELETE FROM ' . $val['table'] . '
+			$sql = 'DELETE FROM ' . $val['shout_table'] . '
 				WHERE shout_user_id = ' . $val['id'] . '
 					OR shout_robot_user = ' . $val['id'] . '
 					OR shout_inp = ' . $val['id'];
@@ -3226,7 +3229,7 @@ class shoutbox
 			$deleted = $this->db->sql_affectedrows();
 			if ($deleted)
 			{
-				$this->update_shout_messages($val['table']);
+				$this->update_shout_messages($val['shout_table']);
 				$this->config->increment("shout_del_user{$val['priv']}", $deleted, true);
 				$content = array(
 					'type'		=> 1,
@@ -3252,67 +3255,75 @@ class shoutbox
 		return $content;
 	}
 
-	public function shout_delete($val, $post)
+	public function shout_ajax_delete($val, $post)
 	{
-		if (!$post)
+		// If someone can delete all messages, he can delete it's messages :)
+		$can_delete_all = ($this->auth->acl_get('m_shout_delete') || $this->auth->acl_get("a_shout_{$val['auth']}")) ? true : false;
+		$can_delete = $can_delete_all ? true : $this->auth->acl_get('u_shout_delete_s');
+
+		$sql = 'SELECT shout_user_id
+			FROM ' . $val['shout_table'] . "
+				WHERE shout_id = $post";
+		$result = $this->shout_sql_query($sql, true, 1);
+		$on_id = $this->db->sql_fetchfield('shout_user_id');
+		$this->db->sql_freeresult($result);
+
+		$verify = $this->shout_verify_delete($val['userid'], $on_id, $can_delete_all, $can_delete);
+
+		if (!$verify['result'])
 		{
-			$this->shout_error('NO_SHOUT_ID');
-			return false;
-		}
-		else if ($val['userid'] == ANONYMOUS)
-		{
-			$this->shout_error('NO_DELETE_PERM');
+			$this->shout_error($verify['message']);
 			return false;
 		}
 		else
 		{
-			// If someone can delete all messages, he can delete it's messages :)
-			$can_delete_all = ($this->auth->acl_get('m_shout_delete') || $this->auth->acl_get("a_shout_{$val['auth']}")) ? true : false;
-			$can_delete = $can_delete_all ? true : $this->auth->acl_get('u_shout_delete_s');
+			// Lets delete this post :D
+			$sql = 'DELETE FROM ' . $val['shout_table'] . "
+				WHERE shout_id = $post";
+			$this->db->sql_query($sql);
 
-			$sql = 'SELECT shout_user_id
-				FROM ' . $val['table'] . "
-					WHERE shout_id = $post";
-			$result = $this->shout_sql_query($sql, true, 1);
-			$on_id = $this->db->sql_fetchfield('shout_user_id');
-			$this->db->sql_freeresult($result);
-
-			if (!$can_delete && ($val['userid'] == $on_id))
-			{
-				$this->shout_error('NO_DELETE_PERM_S');
-				return false;
-			}
-			else if (!$can_delete_all && $can_delete && ($val['userid'] != $on_id))
-			{
-				$this->shout_error('NO_DELETE_PERM_T');
-				return false;
-			}
-			else if (!$can_delete)
-			{
-				$this->shout_error('NO_DELETE_PERM');
-				return false;
-			}
-			else if (($can_delete && ($val['userid'] == $on_id)) || $can_delete_all)
-			{
-				// Lets delete this post :D
-				$sql = 'DELETE FROM ' . $val['table'] . "
-					WHERE shout_id = $post";
-				$this->db->sql_query($sql);
-
-				$this->update_shout_messages($val['table']);
-				$this->config->increment("shout_del_user{$val['priv']}", 1, true);
-				return array(
-					'type'	=> 1,
-					'post'	=> $post,
-					'sort'	=> $val['perm'],
-				);
-			}
-			else
-			{
-				$this->shout_error('NO_DELETE_PERM');
-				return false;
-			}
+			$this->update_shout_messages($val['shout_table']);
+			$this->config->increment("shout_del_user{$val['priv']}", 1, true);
+			return array(
+				'type'	=> 1,
+				'post'	=> $post,
+				'sort'	=> $val['perm'],
+			);
 		}
+	}
+
+	private function shout_verify_delete($userid, $on_id, $can_delete_all, $can_delete)
+	{
+		if (!$can_delete && ($userid == $on_id))
+		{
+			$message = 'NO_DELETE_PERM_S';
+			$result = false;
+		}
+		else if (!$can_delete_all && $can_delete && ($userid != $on_id))
+		{
+			$message = 'NO_DELETE_PERM_T';
+			$result = false;
+		}
+		else if (!$can_delete)
+		{
+			$message = 'NO_DELETE_PERM';
+			$result = false;
+		}
+		else if (($can_delete && ($userid == $on_id)) || $can_delete_all)
+		{
+			$message = '';
+			$result = true;
+		}
+		else
+		{
+			$message = 'NO_DELETE_PERM';
+			$result = false;
+		}
+		
+		return array(
+			'message'	=> $message,
+			'result'	=> $result,
+		);
 	}
 
 	public function shout_ajax_purge($val)
@@ -3324,12 +3335,13 @@ class shoutbox
 		}
 		else
 		{
-			$sql = 'DELETE FROM ' . $val['table'];
+			$sql = 'DELETE FROM ' . $val['shout_table'];
 			$this->shout_sql_query($sql);
 			$deleted = $this->db->sql_affectedrows();
 
 			$this->config->increment("shout_del_purge{$val['priv']}", $deleted, true);
 			$this->post_robot_shout($val['userid'], $this->user->ip, $val['on_priv'], true, false, false, false);
+
 			return array(
 				'type'	=> 1,
 				'nr'	=> $deleted,
@@ -3348,13 +3360,14 @@ class shoutbox
 		{
 			$sort_on = explode(', ', $this->config["shout_robot_choice{$val['priv']}"] . ', 4');
 
-			$sql = 'DELETE FROM ' . $val['table'] . '
+			$sql = 'DELETE FROM ' . $val['shout_table'] . '
 				WHERE ' . $this->db->sql_in_set('shout_info', $sort_on, false, true);
 			$this->shout_sql_query($sql);
 			$deleted = $this->db->sql_affectedrows();
 
 			$this->config->increment("shout_del_purge{$val['priv']}", $deleted, true);
 			$this->post_robot_shout($val['userid'], $this->user->ip, $val['on_priv'], true, true, false, false);
+
 			return array(
 				'type'	=> 1,
 				'nr'	=> $deleted,
@@ -3367,52 +3380,12 @@ class shoutbox
 		// will be modified by generate_text_for_storage
 		$options = 0;
 		$uid = $bitfield = '';
-		$allow_urls = true;
 
-		// Protect by checking permissions
-		$allow_bbcode = $this->auth->acl_get('u_shout_bbcode') ? true : false;
-		$allow_smilies = $this->auth->acl_get('u_shout_smilies') ? true : false;
-		// If someone can edit all messages, he can edit it's messages :) (if errors in permissions set)
-		$can_edit_all = ($this->auth->acl_get('m_shout_edit_mod') || $this->auth->acl_get("a_shout_{$val['auth']}")) ? true : false;
-		$can_edit = $can_edit_all ? true : $this->auth->acl_get('u_shout_edit');
-		$ok_edit = false;
-
-		// We need to be sure its this users his shout.
-		$sql = 'SELECT shout_user_id
-			FROM ' . $val['table'] . "
-				WHERE shout_id = $shout_id";
-		$result = $this->shout_sql_query($sql, true, 1);
-		$on_id = (int) $this->db->sql_fetchfield('shout_user_id');
-		$this->db->sql_freeresult($result);
-		// If not able to edit all messages
-		if (!$can_edit_all)
-		{
-			// Not his shout, display error
-			if (!$on_id || $on_id != $val['userid'])
-			{
-				$this->shout_error('NO_EDIT_PERM');
-				return false;
-			}
-			else
-			{
-				$ok_edit = true;
-			}
-		}
-		else if ($can_edit)
-		{
-			$ok_edit = true;
-		}
+		$ok_edit = $this->shout_check_edit($val, $shout_id);
 
 		if (!$ok_edit)
 		{
 			$this->shout_error('NO_EDIT_PERM');
-			return false;
-		}
-
-		// First verification of empty message
-		if ($message == '')
-		{
-			$this->shout_error('MESSAGE_EMPTY');
 			return false;
 		}
 
@@ -3424,7 +3397,7 @@ class shoutbox
 		// Multi protections at this time...
 		$message = $this->parse_shout_message($message, $val['on_priv'], 'edit', false);
 
-		generate_text_for_storage($message, $uid, $bitfield, $options, $allow_bbcode, $allow_urls, $allow_smilies);
+		generate_text_for_storage($message, $uid, $bitfield, $options, $this->auth->acl_get('u_shout_bbcode'), true, $this->auth->acl_get('u_shout_smilies'));
 
 		$sql_ary = array(
 			'shout_text'			=> (string) $message,
@@ -3433,13 +3406,13 @@ class shoutbox
 			'shout_bbcode_flags'	=> $options,
 		);
 
-		$sql = 'UPDATE ' . $val['table'] . '
+		$sql = 'UPDATE ' . $val['shout_table'] . '
 			SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
 				WHERE shout_id = ' . $shout_id;
 		$this->shout_sql_query($sql);
 
 		// For reload the message to everybody
-		$this->update_shout_messages($val['table']);
+		$this->update_shout_messages($val['shout_table']);
 		$message = generate_text_for_display($message, $uid, $bitfield, $options);
 
 		return array(
@@ -3450,31 +3423,51 @@ class shoutbox
 			'texte'		=> $message,
 		);
 	}
+	
+	private function shout_check_edit($val, $shout_id)
+	{
+		// Protect by checking permissions
+		// If someone can edit all messages, he can edit it's messages :) (if errors in permissions set)
+		if ($this->auth->acl_get('m_shout_edit_mod') || $this->auth->acl_get("a_shout_{$val['auth']}"))
+		{
+			return true;
+		}
+		else if ($this->auth->acl_get('u_shout_edit'))
+		{
+			// We need to be sure its this users his shout.
+			$sql = 'SELECT shout_user_id
+				FROM ' . $val['shout_table'] . "
+					WHERE shout_id = $shout_id";
+			$result = $this->shout_sql_query($sql, true, 1);
+			$on_id = (int) $this->db->sql_fetchfield('shout_user_id');
+			$this->db->sql_freeresult($result);
+			// Not his shout, display error
+			if (!$on_id || $on_id != $val['userid'])
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	public function shout_ajax_post($val, $message, $name, $cite)
 	{
-		$shout_info = ($cite > 1) ? 66 : 0;
 		// will be modified by generate_text_for_storage
 		$options = 0;
 		$uid = $bitfield = '';
 
-		// Checking permissions
-		$allow_bbcode = $this->auth->acl_get('u_shout_bbcode') ? true : false;
-		$allow_smilies = $this->auth->acl_get('u_shout_smilies') ? true : false;
-
-		if (!$this->auth->acl_get('u_shout_post'))
-		{
-			$this->shout_error('NO_POST_PERM');
-			return false;
-		}
-
 		// Flood control, not in private
-		if (!$this->auth->acl_get('u_shout_ignore_flood') && !$val['on_priv'])
+		if (!$val['on_priv'] && !$this->auth->acl_get('u_shout_ignore_flood'))
 		{
 			$current_time = time();
 			$sql = $this->db->sql_build_query('SELECT', array(
 				'SELECT'	=> 'MAX(shout_time) AS last_post_time',
-				'FROM'		=> array($val['table'] => ''),
+				'FROM'		=> array($val['shout_table'] => ''),
 				'WHERE'		=> (!$this->user->data['is_registered']) ? "shout_ip = '" . $this->db->sql_escape((string) $this->user->ip) . "'" : 'shout_user_id = ' . $val['userid'],
 			));
 			$result = $this->shout_sql_query($sql);
@@ -3498,12 +3491,9 @@ class shoutbox
 		$message = $this->parse_shout_message($message, $val['on_priv'], 'post', false);
 
 		// Personalize message
-		if ($this->user->data['is_registered'] && $this->user->data['shout_bbcode'] && $this->auth->acl_get('u_shout_bbcode_change'))
-		{
-			$message = $this->personalize_shout_message($message);
-		}
+		$message = $this->personalize_shout_message($message);
 
-		generate_text_for_storage($message, $uid, $bitfield, $options, $allow_bbcode, true, $allow_smilies);
+		generate_text_for_storage($message, $uid, $bitfield, $options, $this->auth->acl_get('u_shout_bbcode'), true, $this->auth->acl_get('u_shout_smilies'));
 
 		// For guest, add a random number from ip after name
 		if (!$this->user->data['is_registered'])
@@ -3517,16 +3507,16 @@ class shoutbox
 			'shout_ip'				=> (string) $this->user->ip,
 			'shout_text'			=> (string) $message,
 			'shout_text2'			=> (string) $name,
-			'shout_bbcode_uid'		=> $uid,
-			'shout_bbcode_bitfield'	=> $bitfield,
-			'shout_bbcode_flags'	=> $options,
-			'shout_robot_user'		=> $cite,
+			'shout_bbcode_uid'		=> (string) $uid,
+			'shout_bbcode_bitfield'	=> (string) $bitfield,
+			'shout_bbcode_flags'	=> (int) $options,
+			'shout_robot_user'		=> (int) $cite,
 			'shout_robot'			=> 0,
 			'shout_forum'			=> 0,
-			'shout_info'			=> $shout_info,
+			'shout_info'			=> ($cite > 1) ? 66 : 0,
 		);
 
-		$sql = 'INSERT INTO ' . $val['table'] . ' ' . $this->db->sql_build_array('INSERT', $sql_ary);
+		$sql = 'INSERT INTO ' . $val['shout_table'] . ' ' . $this->db->sql_build_array('INSERT', $sql_ary);
 		$this->shout_sql_query($sql);
 		$this->config->increment("shout_nr{$val['priv']}", 1, true);
 		
@@ -3579,7 +3569,7 @@ class shoutbox
 
 		$sql = $this->db->sql_build_query('SELECT', array(
 			'SELECT'	=> 'shout_time',
-			'FROM'		=> array($val['table'] => ''),
+			'FROM'		=> array($val['shout_table'] => ''),
 			'WHERE'		=> $sql_where,
 			'ORDER_BY'	=> 'shout_time DESC',
 		));
@@ -3594,7 +3584,7 @@ class shoutbox
 		);
 	}
 
-	public function shout_ajax_view($val, $start, $on_bot)
+	public function shout_ajax_view($val, $on_bot, $start)
 	{
 		$i = 0;
 		$content = array(
@@ -3647,7 +3637,7 @@ class shoutbox
 
 		$sql = $this->db->sql_build_query('SELECT', array(
 			'SELECT'	=> 's.*, u.user_id, u.username, u.user_colour, u.user_avatar, u.user_avatar_type, u.user_avatar_width, u.user_avatar_height, u.user_type, v.user_id as x_user_id, v.username as x_username, v.user_colour as x_user_colour, v.user_avatar as x_user_avatar, v.user_avatar_type as x_user_avatar_type, v.user_avatar_width as x_user_avatar_width, v.user_avatar_height as x_user_avatar_height, v.user_type as x_user_type',
-			'FROM'		=> array($val['table'] => 's'),
+			'FROM'		=> array($val['shout_table'] => 's'),
 			'LEFT_JOIN'	=> array(
 				array(
 					'FROM'	=> array(USERS_TABLE => 'u'),
@@ -3756,7 +3746,7 @@ class shoutbox
 
 		$sql = $this->db->sql_build_query('SELECT', array(
 			'SELECT'	=> 's.shout_time',
-			'FROM'		=> array($val['table'] => 's'),
+			'FROM'		=> array($val['shout_table'] => 's'),
 			'WHERE'		=> $sql_where,
 			'ORDER_BY'	=> 's.shout_id DESC',
 		));
@@ -3766,7 +3756,7 @@ class shoutbox
 		// check just with the last 4 numbers
 		$last_time = substr($last_time, 6, 4);
 		// The number of total messages for pagination
-		$number = $this->shout_pagination($val['table'], $val['priv'], $on_bot);
+		$number = $this->shout_pagination($val['shout_table'], $val['priv'], $on_bot);
 
 		$content = array_merge($content, array(
 			'total'		=> $i,
