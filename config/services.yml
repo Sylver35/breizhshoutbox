@@ -71,6 +71,7 @@ services:
             - '@log'
             - '@service_container'
             - '@ext.manager'
+            - '@dispatcher'
             - '%core.root_path%'
             - '%core.php_ext%'
             - '%sylver35.breizhshoutbox.tables.shoutbox%'
@@ -94,5 +95,3 @@ services:
             - '@dispatcher'
             - '%core.root_path%'
             - '%core.php_ext%'
-            - '%sylver35.breizhshoutbox.tables.shoutbox%'
-            - '%sylver35.breizhshoutbox.tables.shoutbox_priv%'
