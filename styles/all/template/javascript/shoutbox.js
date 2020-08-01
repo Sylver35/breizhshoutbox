@@ -144,20 +144,9 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		if($username.length < config.minName || $username.length > config.maxName){
 			setTimeout(shoutbox.goNameRed,1500);
 		}else{
-			shoutbox.cookieShout('shout-name',encodeURIComponent($username),60);
+			shoutbox.cookieShout('shout-name',$username,60);
 			setTimeout(shoutbox.goNameGreen,1500);
 		}
-	};
-
-	shoutbox.setRobot = function(){
-		var value = shoutbox.getCookie('set-robot'),onValue = (value == 'on') ? 'off' : 'on';
-		shoutbox.cookieShout('set-robot',onValue,60);
-		shoutbox.playSound(6,true);
-		$('#onBot').val(onValue);
-		$('#iconBot').removeClass('button_shout_bot_'+value).addClass('button_shout_bot_'+onValue).attr('title', bzhLang['ROBOT_'+onValue.toUpperCase()]);
-		onCount = 0;
-		clearInterval(timerIn);
-		shoutbox.loadMessages();
 	};
 
 	shoutbox.goNameRed = function(){
@@ -166,6 +155,17 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 
 	shoutbox.goNameGreen = function(){
 		$('#shoutnameyes').html(bzhLang['CHOICE_YES']).css({'color':'green', 'font-weight':'normal'});
+	};
+
+	shoutbox.setRobot = function(){
+		var value = shoutbox.getCookie('shout-robot'),setCookieBot = (value == '1') ? '0' : '1',onBot = (value == '1') ? 'on' : 'off',setBot = (value == '1') ? 'off' : 'on';
+		shoutbox.cookieShout('shout-robot',setCookieBot,60);
+		shoutbox.playSound(6,true);
+		$('#onBot').val(setCookieBot);
+		$('#iconBot').removeClass('button_shout_bot_'+onBot).addClass('button_shout_bot_'+setBot).attr('title', bzhLang['ROBOT_'+setBot.toUpperCase()]);
+		onCount = 0;
+		clearInterval(timerIn);
+		shoutbox.loadMessages();
 	};
 
 	shoutbox.permutUser = function(sort){
@@ -180,15 +180,15 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		}
 	};
 
-	shoutbox.message = function(msg, color, clearOn, reload){
-		var colorMsg = color ? 'red' : 'green';
-		var tempsMsg = color ? 5000 : 3000;
-		var align = 'center',msgDisplay = '',span = '<span style="color:black;font-weight:bold;">';
+	shoutbox.message = function(msg, red, clearOn, reload){
+		var colorMsg = red ? 'red' : 'green';
+		var tempsMsg = red ? 5000 : 3000;
+		var align = 'center',msgDisplay = '',span = '<span style="color:black;font-weight:bold;">',endSpan = ' : </span>',bR = '<br />';
 		if(typeof msg === 'object'){
-			msgDisplay = span+bzhLang['ERROR']+' :</span> '+msg['message'];
-			msgDisplay += msg['line'] ? '<br />'+span+bzhLang['LINE']+' : </span>'+msg['line'] : '';
-			msgDisplay += msg['file'] ? '<br />'+span+bzhLang['FILE']+' : </span>'+msg['file'] : '';
-			msgDisplay += msg['content'] ? '<br />'+span+bzhLang['DETAILS']+' : </span>'+msg['content'] : '';
+			msgDisplay = span+bzhLang['ERROR']+endSpan+msg['message'];
+			msgDisplay += msg['line'] ? bR+span+bzhLang['LINE']+endSpan+msg['line'] : '';
+			msgDisplay += msg['file'] ? bR+span+bzhLang['FILE']+endSpan+msg['file'] : '';
+			msgDisplay += msg['content'] ? bR+span+bzhLang['DETAILS']+endSpan+msg['content'] : '';
 			align = config.direction;
 		}else{
 			msgDisplay = msg;
@@ -309,6 +309,14 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		return value;
 	};
 
+	shoutbox.encodeUtf8 = function(string){
+		return encodeURIComponent(string);
+	};
+
+	shoutbox.decodeUtf8 = function(string){
+		return decodeURIComponent(string);
+	};
+
 	shoutbox.htmlEncode = function(value){
 		return $('<div/>').text(value).html();
 	};
@@ -323,7 +331,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			goSound = true;
 		}else{
 			if(config.isGuest){
-				if(shoutbox.getCookie('shout') == 'on'){
+				if(shoutbox.getCookie('shout-sound') == '1'){
 					goSound = true;
 				}
 			}else if($('#onSound').val() == 1){
@@ -339,22 +347,6 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					$('#shoutAudio-'+sort).trigger('pause'); 
 				}
 			}
-		}
-	};
-
-	shoutbox.encodeUtf8 = function(string){
-		if(uastring.indexOf('opera') != -1 || uastring.indexOf('chrome') != -1){
-			return string;
-		}else{
-			return unescape(encodeURIComponent(string));
-		}
-	};
-
-	shoutbox.decodeUtf8 = function(string){
-		if(uastring.indexOf('opera') != -1 || uastring.indexOf('chrome') != -1){
-			return string;
-		}else{
-			return decodeURIComponent(escape(string));
 		}
 	};
 
@@ -564,7 +556,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			type: 'POST',
 			dataType: 'json',
 			url: config.ubbcodeUrl,
-			data: 'open='+encodeURIComponent(value1)+'&close='+encodeURIComponent(value2)+'&other='+value3+'&sort='+config.sortShoutNb,
+			data: 'open='+shoutbox.encodeUtf8(value1)+'&close='+shoutbox.encodeUtf8(value2)+'&other='+value3+'&sort='+config.sortShoutNb,
 			cache: false,
 			headers : headersContent,
 			success: function(response){
@@ -708,7 +700,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			return;
 		}else{
 			$('#msg_txt').html(bzhLang['SENDING']);
-			var ondata = 'user='+$('#user_inp').val()+'&pr='+$('#user_inp_sort').val()+'&sort='+config.sortShoutNb+'&message='+encodeURIComponent($('#shout_user1').val());
+			var ondata = 'user='+$('#user_inp').val()+'&pr='+$('#user_inp_sort').val()+'&sort='+config.sortShoutNb+'&message='+shoutbox.encodeUtf8($('#shout_user1').val());
 			shoutbox.permutUser(false);
 			shoutbox.sE('msg_user_shout',2);
 			shoutbox.sE('user_action',2);
@@ -894,12 +886,12 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 	shoutbox.soundReq = function(){
 		shoutbox.playSound(6,true);
 		if(config.isGuest){
-			if(shoutbox.getCookie('shout') == 'on'){
-				var changec = 'off',change = 0,soundClass = 'button_shout_sound_off',soundClassOut = 'button_shout_sound',title = bzhLang['SOUND_ON'];
+			if(shoutbox.getCookie('shout-sound') == '1'){
+				var changec = '0',change = 0,soundClass = 'button_shout_sound_off',soundClassOut = 'button_shout_sound',title = bzhLang['SOUND_ON'];
 			}else{
-				var changec = 'on',change = 1,soundClass = 'button_shout_sound',soundClassOut = 'button_shout_sound_off',title = bzhLang['SOUND_OFF'];
+				var changec = '1',change = 1,soundClass = 'button_shout_sound',soundClassOut = 'button_shout_sound_off',title = bzhLang['SOUND_OFF'];
 			}
-			shoutbox.cookieShout('shout',changec,60);
+			shoutbox.cookieShout('shout-sound',changec,60);
 			$('#onSound').val(change);
 			$('#iconSound').removeClass(soundClassOut).addClass(soundClass).attr('title', title);
 		}else{
@@ -915,6 +907,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 						shoutbox.message(response,true,5000,true);
 						return;
 					}
+					shoutbox.cookieShout('shout-sound',response.type,60);
 					$('#onSound').val(response.type);
 					$('#iconSound').removeClass(response.classOut).addClass(response.classIn).attr('title', response.title);
 				},
@@ -992,6 +985,60 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		$('#shout_messages').fadeOut(600,'linear').fadeIn(600,'linear');
 		$('#msg_txt').hide();
 		shoutbox.reloadAll(false);
+	};
+
+	shoutbox.openEdit = function(thisId){
+		if($('#openEdit').val() == 1){
+			shoutbox.playSound(2,true);
+			alert(bzhLang['ONE_OPEN']);
+			return;
+		}
+		clearInterval(timerIn);
+		$('#openEdit').val(1);
+		$('#post_message').show();
+		$('#form'+thisId).css('padding', '0 0 5px 5px').show();
+		shoutbox.sE('shout'+thisId,2);
+		shoutbox.sE('editButton'+thisId,2);
+		shoutbox.sE('infoButton'+thisId,2);
+		shoutbox.sE('deleteButton'+thisId,2);
+		shoutbox.sE('dtshout'+thisId,2);
+		shoutbox.sE('ddshout'+thisId,2);
+		$('#spa'+thisId).css('border', '0px none').html(bzhLang['SHOUT_EDIT']+': ');
+		$('#input'+thisId).focus();
+	};
+
+	shoutbox.editMessage = function(thisId,shoutId){
+		shoutbox.sE('dtshout'+thisId,2);
+		shoutbox.sE('ddshout'+thisId,2);
+		shoutbox.sE('form'+thisId,2);
+		shoutbox.iH('text'+thisId,bzhLang['SENDING_EDIT'],1);
+		shoutbox.closeAll();
+		var ondata = 'shout_id='+shoutId+'&sort='+config.sortShoutNb+'&chat_message='+shoutbox.encodeUtf8($('#input'+thisId).val());
+		$.ajax({
+			type: 'POST',
+			dataType: 'json',
+			url: config.editUrl,
+			data: ondata,
+			cache: false,
+			headers : headersContent,
+			success: function(response){
+				if(response.error){
+					shoutbox.message(response,true,5000,true);
+					return;
+				}
+				shoutbox.playSound(5,false);
+				$('#openEdit').val(0);
+				shoutbox.setQuery();
+				shoutbox.sE('msgbody'+response.shout_id,2);
+				shoutbox.sE('shout'+response.shout_id,2);
+				shoutbox.sE('editButton'+response.shout_id,3);
+				shoutbox.sE('infoButton'+response.shout_id,3);
+				shoutbox.sE('deleteButton'+response.shout_id,3);
+				$('#post_message').show();
+				$('#shout'+response.shout_id).html(response.texte);
+				shoutbox.message(response.message,false,800,true);
+			}
+		});
 	};
 
 	shoutbox.setTimezone = function($timeOnMsg){
@@ -1165,9 +1212,10 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				var nowTime = Math.floor(new Date().getTime() / 1000),row = 1,i = 0;
 				var okDelete = okEdit = okInfo = false;
 				
-				var listMessages = datas.messages;  /* Loop for messages from top to bottom */
-				if(!config.toBottom){  /* Loop for messages from bottom to top */
-					listMessages = listMessages.reverse();
+				if(config.toBottom){/* Loop for messages from top to bottom */
+					var listMessages = datas.messages;
+				}else{/* Loop for messages from bottom to top */
+					var listMessages = datas.messages.reverse();
 				}
 				
 				/* Loop for messages */
@@ -1192,37 +1240,15 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 						};
 					}else if(config.buttonsLeft){
 						deleteButton = shoutbox.cE('input','deleteButton'+i,'button_shout_del_no button_shout_l',false,bzhLang['NO_SHOUT_DEL'],'button',false,false);
-						deleteButton.onclick = function(){
-							alert(bzhLang['NO_SHOUT_DEL']);
-						};
+						deleteButton.onclick = function(){alert(bzhLang['NO_SHOUT_DEL'])};
 					}
 					if(okEdit){
 						editButton = shoutbox.cE('input','editButton'+i,'button_shout_edit button_shout_l',false,bzhLang['SHOUT_EDIT'],'button',false,false);
 						editButton.i = i;
-						editButton.onclick = function(){
-							if($('#openEdit').val() == 1){
-								shoutbox.playSound(2,true);
-								alert(bzhLang['ONE_OPEN']);
-								return;
-							}
-							clearInterval(timerIn);
-							$('#openEdit').val(1);
-							$('#post_message').show();
-							$('#form'+this.i).css('padding', '0 0 5px 5px').show();
-							shoutbox.sE('shout'+this.i,2);
-							shoutbox.sE('editButton'+this.i,2);
-							shoutbox.sE('infoButton'+this.i,2);
-							shoutbox.sE('deleteButton'+this.i,2);
-							shoutbox.sE('dtshout'+this.i,2);
-							shoutbox.sE('ddshout'+this.i,2);
-							$('#spa'+this.i).css('border', '0px none').html(bzhLang['SHOUT_EDIT']+': ');
-							$('#input'+this.i).focus();
-						};
+						editButton.onclick = function(){shoutbox.openEdit(this.i)};
 						var msg3 = shoutbox.cE('span','text'+i,'span-text-edit',false,false,false,false,false);
 						var editForm = shoutbox.cE('form','form'+i,false,'display:none;',false,false,false,false);
-						editForm.onsubmit = function(){
-							return false;
-						};
+						editForm.onsubmit = function(){return false};
 						var spa = shoutbox.cE('span','spa'+i,false,false,false,false,false,false);
 						var inputEdit = shoutbox.cE('input','input'+i,'input-text-edit',false,false,false,false,false);
 						inputEdit.value = shoutbox.htmlDecode(post.msgPlain);
@@ -1239,39 +1265,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 						buttonEdit.i = i;
 						buttonEdit.shoutId = post.shoutId;
 						buttonEdit.value = bzhLang['EDIT'];
-						buttonEdit.onclick = function(){
-							shoutbox.sE('dtshout'+this.i,2);
-							shoutbox.sE('ddshout'+this.i,2);
-							shoutbox.sE('form'+this.i,2);
-							shoutbox.iH('text'+this.i,bzhLang['SENDING_EDIT'],1);
-							shoutbox.closeAll();
-							var ondata = 'shout_id='+this.shoutId+'&sort='+config.sortShoutNb+'&chat_message='+encodeURIComponent($('#input'+this.i).val());
-							$.ajax({
-								type: 'POST',
-								dataType: 'json',
-								url: config.editUrl,
-								data: ondata,
-								cache: false,
-								headers : headersContent,
-								success: function(response){
-									if(response.error){
-										shoutbox.message(response,true,5000,true);
-										return;
-									}
-									shoutbox.playSound(5,false);
-									$('#openEdit').val(0);
-									shoutbox.setQuery();
-									shoutbox.sE('msgbody'+response.shout_id,2);
-									shoutbox.sE('shout'+response.shout_id,2);
-									shoutbox.sE('editButton'+response.shout_id,3);
-									shoutbox.sE('infoButton'+response.shout_id,3);
-									shoutbox.sE('deleteButton'+response.shout_id,3);
-									$('#post_message').show();
-									$('#shout'+response.shout_id).html(response.texte);
-									shoutbox.message(response.message,false,800,true);
-								}
-							});
-						};
+						buttonEdit.onclick = function(){shoutbox.editMessage(this.i,this.shoutId)};
 						var buttonCancel = shoutbox.cE('input',false,'button btnmain',false,bzhLang['CANCEL'],'button',false,false);
 						buttonCancel.i = i;
 						buttonCancel.value = bzhLang['CANCEL'];
@@ -1291,22 +1285,16 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 						};
 					}else if(config.buttonsLeft){
 						editButton = shoutbox.cE('input','editButton'+i,'button_shout_edit_no button_shout_l',false,bzhLang['NO_EDIT'],'button',false,false);
-						editButton.onclick = function(){
-							alert(bzhLang['NO_EDIT']);
-						};
+						editButton.onclick = function(){alert(bzhLang['NO_EDIT'])};
 					}
 					if(config.buttonIp){
 						if(okInfo){
 							infoButton = shoutbox.cE('input','infoButton'+i,'button_shout_ip button_shout_l',false,bzhLang['IP'],'button',false,false);
 							infoButton.ip = post.shoutIp;
-							infoButton.onclick = function(){
-								alert(bzhLang['POST_IP']+'  '+this.ip);
-							};
+							infoButton.onclick = function(){alert(bzhLang['POST_IP']+'  '+this.ip)};
 						}else if(config.buttonsLeft){
 							infoButton = shoutbox.cE('input','infoButton'+i,'button_shout_ip_no button_shout_l',false,bzhLang['NO_SHOW_IP_PERM'],'button',false,false);
-							infoButton.onclick = function(){
-								alert(bzhLang['NO_SHOW_IP_PERM']);
-							};
+							infoButton.onclick = function(){alert(bzhLang['NO_SHOW_IP_PERM'])};
 						}
 					}
 					
@@ -1314,9 +1302,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 						citeButton = shoutbox.cE('input','citeButton'+i,'button_shout_cite button_shout_l',false,bzhLang['ACTION_CITE'],'button',false,false);
 						citeButton.name = post.name;
 						citeButton.colour = post.colour
-						citeButton.onclick = function(){
-							shoutbox.citeMultiMsg(this.name, this.colour);
-						};
+						citeButton.onclick = function(){shoutbox.citeMultiMsg(this.name, this.colour)};
 					}
 					
 					if(!okInfo && !okEdit && !okDelete && !okCite && !config.buttonsLeft){
@@ -1371,21 +1357,27 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			if(config.sortShoutNb === 3 && !config.privOk){
 				return;
 			}
-			if(config.isGuest){
-				if(shoutbox.getCookie('shout') === false){
-					var soundEnabled = config.enableSound ? 'on' : 'off';
-					shoutbox.cookieShout('shout',soundEnabled,60);
-				}
-			}
-			if(shoutbox.getCookie('set-robot') === false){
-				shoutbox.cookieShout('set-robot','on',60);
-			}else{
-				$('#onBot').val(config.sortBot);
-			}
+
 			$('#shout-1').html('<i class="icon fa-commenting fa-fw" aria-hidden="false"></i><a href="'+config.titleUrl+'" onclick="window.open(this.href);return false" title="'+bzhLang['TITLE']+'">'+bzhLang['TITLE']+'</a>').removeClass('shout-left-dt').addClass('shout-'+config.direction+'-dt');
 			$('#shout-2').html(bzhLang['PRINT_VER']+'<i class="icon fa-info fa-fw" aria-hidden="false"></i>').removeClass('shout-left-dd').addClass('shout-'+config.direction+'-dd');
 			$('#sortShoutNb').val(config.sortShoutNb);
-			$('#onSound').val(config.enableSound ? 1 : 0);
+			$('#onSound').val(config.enableSound);
+
+			if(config.isGuest){
+				if(shoutbox.getCookie('shout-sound') === false){
+					shoutbox.cookieShout('shout-sound',config.enableSound,60);
+				}else{
+					$('#onSound').val(shoutbox.getCookie('shout-sound'));
+				}
+				if(shoutbox.getCookie('shout-name') !== false){
+					$('#shoutname').val(shoutbox.getCookie('shout-name'));
+				}
+			}
+			if(shoutbox.getCookie('shout-robot') === false){
+				shoutbox.cookieShout('shout-robot','1',60);
+			}else{
+				$('#onBot').val(shoutbox.getCookie('shout-robot'));
+			}
 
 			var shoutbarCss = (!config.barHaute) ? 'border-top:1px solid #00608F;' : 'border-bottom:1px solid #00608F;';
 			var postingCssText = 'display:inline-block;padding:3px 0 3px 1px;vertical-align:middle;width:100%;';
@@ -1416,7 +1408,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			
 			var buttonSound = shoutbox.cE('input','iconSound','button_shout_sound'+(config.enableSound ? '' : '_off')+' button_shout','',bzhLang['TITLESOUND'],'button',false,false);
 			buttonSound.onclick = function(){shoutbox.soundReq()};
-			var cssBot = $('#onBot').val(),botTitle = bzhLang['ROBOT_'+cssBot.toUpperCase()];
+			var cssBot = ($('#onBot').val() == '1') ? 'on' : 'off',botTitle = bzhLang['ROBOT_'+cssBot.toUpperCase()];
 			var buttonBot = shoutbox.cE('input','iconBot','button_shout_bot_'+cssBot+' shout_bot button_shout','',botTitle,'button',false,false);
 			buttonBot.onclick = function(){shoutbox.setRobot()};
 			
@@ -1488,14 +1480,14 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					shoutbox.closeAll();
 					shoutbox.iH('msg_txt','',false);
 					$('#msg_txt').html(bzhLang['SENDING']);
-					var ondata = 'user='+config.userId+'&sort='+config.sortShoutNb+'&chat_message='+encodeURIComponent($('#chat_message').val());
+					var ondata = 'user='+config.userId+'&sort='+config.sortShoutNb+'&chat_message='+shoutbox.encodeUtf8($('#chat_message').val());
 					if($('#user_cite').val() !== ''){
 						ondata += '&cite='+$('#user_cite').val();
 					}else{
 						ondata += '&cite=0';
 					}
 					if(config.isGuest){
-						ondata += '&name='+encodeURIComponent($('#shoutname').val());
+						ondata += '&name='+shoutbox.encodeUtf8($('#shoutname').val());
 					}
 					$('#chat_message').attr('disabled', 'disabled').css('background', 'white url("'+config.extensionUrl+'images/ajax_loader.gif") no-repeat 90% 50%');
 					$.ajax({
@@ -1580,7 +1572,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 							$('#char_shout1').html('');
 							$('#chars01').attr('title', bzhLang['CHARS']);
 						}else{
-							var nbCols = (!config.isCompatible) ? 25 : ((config.sortShoutNb === 1) ? 29 : 38);
+							var nbCols = (config.isMobile) ? 25 : ((config.sortShoutNb === 1) ? 29 : 38);
 							$('#shout_chars').show();
 							$('#char_shout1').html(shoutbox.specialCharShout(nbCols));
 							shoutbox.mouseChar();
