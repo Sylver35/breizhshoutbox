@@ -137,13 +137,6 @@ class main
 				$this->shoutbox->shout_display(1);
 				return $this->helper->render('shout_popup.html', $this->language->lang('SHOUT_LATERAL'));
 			}
-			else
-			{
-				$this->template->assign_vars(array(
-					'KILL_LATERAL'	=> true,
-				));
-				return false;
-			}
 		}
 		else
 		{

@@ -227,21 +227,21 @@ class shoutbox
 		}
 	}
 
-	public function manage_ajax($mode, $sort, $id)
+	public function shout_manage_ajax($mode, $sort, $id)
 	{
 		// First initialize somes variables, protect private
 		// And select the good table for the type of shoutbox
 		$val = array(
 			'is_user'		=> ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false,
-			'userid'		=> $this->user->data['user_id'],
-			'id'			=> $id,
+			'userid'		=> (int) $this->user->data['user_id'],
+			'id'			=> (int) $id,
 			'on_priv'		=> false,
 			'perm'			=> '_view',
 			'auth'			=> 'manage',
 			'priv'			=> '',
 			'privat'		=> '',
-			'sort'			=> $sort,
-			'mode'			=> $mode,
+			'sort'			=> (int) $sort,
+			'mode'			=> (string) $mode,
 			'board'			=> generate_board_url() . '/',
 			'shout_table'	=> $this->shoutbox_table,
 		);
@@ -361,35 +361,44 @@ class shoutbox
 			$private = '';
 			$shoutbox_table = $this->shoutbox_table;
 		}
-		if ((time() - 900) <= $this->config["shout_last_run{$priv}"])
-		{
-			return;
-		}
 
-		if ($this->config["shout_prune{$priv}"] == '' || $this->config["shout_prune{$priv}"] == 0 || $this->config["shout_max_posts{$priv}"] > 0)
+		if ($this->config["shout_last_run{$priv}"] == '')
 		{
-			return;
+			$this->config->set("shout_last_run{$priv}", time() - 86400, true);
 		}
-		else if (($this->config["shout_prune{$priv}"] > 0) && ($this->config["shout_max_posts{$priv}"] == 0))
+		if (($this->config["shout_last_run{$priv}"] + ($this->config["shout_prune{$priv}"] * 3600)) < time())
 		{
-			$time = time() - ($this->config["shout_prune{$priv}"] * 3600);
 
-			$sql = 'DELETE FROM ' . $shoutbox_table . " WHERE shout_time < '$time'";
-			$this->db->sql_query($sql);
-			$deleted = (int) $this->db->sql_affectedrows();
-			if ($deleted > 0)
+			if ((time() - 900) <= $this->config["shout_last_run{$priv}"])
 			{
-				$this->config->increment("shout_del_auto{$priv}", $deleted, true);
-				if ($this->config["shout_log_cron{$priv}"])
-				{
-					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, "LOG_SHOUT{$private}_PURGED", time(), array($deleted));
-				}
-				if ($this->config['shout_delete_robot'])
-				{
-					$this->post_robot_shout(0, '0.0.0.0', $sort, true, false, true, false, $deleted);
-				}
+				return;
 			}
-			$this->config->set("shout_last_run{$priv}", time(), true);
+
+			if ($this->config["shout_prune{$priv}"] == '' || $this->config["shout_prune{$priv}"] == 0 || $this->config["shout_max_posts{$priv}"] > 0)
+			{
+				return;
+			}
+			else if (($this->config["shout_prune{$priv}"] > 0) && ($this->config["shout_max_posts{$priv}"] == 0))
+			{
+				$time = time() - ($this->config["shout_prune{$priv}"] * 3600);
+
+				$sql = 'DELETE FROM ' . $shoutbox_table . " WHERE shout_time < '$time'";
+				$this->db->sql_query($sql);
+				$deleted = (int) $this->db->sql_affectedrows();
+				if ($deleted > 0)
+				{
+					$this->config->increment("shout_del_auto{$priv}", $deleted, true);
+					if ($this->config["shout_log_cron{$priv}"])
+					{
+						$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, "LOG_SHOUT{$private}_PURGED", time(), array($deleted));
+					}
+					if ($this->config['shout_delete_robot'])
+					{
+						$this->post_robot_shout(0, '0.0.0.0', $sort, true, false, true, false, $deleted);
+					}
+				}
+				$this->config->set("shout_last_run{$priv}", time(), true);
+			}
 		}
 	}
 
@@ -458,7 +467,7 @@ class shoutbox
 
 	/*
 	 * Change time of the last message to one second +
-	 * to update the shoutbox of all users
+	 * to update the shoutbox for all users
 	 */
 	public function update_shout_messages($shoutbox_table)
 	{
@@ -474,7 +483,7 @@ class shoutbox
 		$this->db->sql_query($sql);
 	}
 
-	public function get_version()
+	public function get_version($version = false)
 	{
 		if (($data = $this->cache->get('_shout_version')) === false)
 		{
@@ -489,7 +498,14 @@ class shoutbox
 			$this->cache->put('_shout_version', $data, 604800);
 		}
 
-		return $data;
+		if ($version)
+		{
+			return $data['version'];
+		}
+		else
+		{
+			return $data;
+		}
 	}
 
 	/**
@@ -670,54 +686,6 @@ class shoutbox
 		return $value;
 	}
 
-	public function shout_pagination($shout_table, $priv, $bot)
-	{
-		// If no robot messages
-		if (!$bot)
-		{
-			$sql_where = 'shout_robot = 0';
-		}
-		else
-		{
-			// Read the forums permissions
-			if ($this->auth->acl_gets('a_', 'm_'))
-			{
-				$sql_where = 'shout_forum = 0 OR (shout_forum <> 0)';
-			}
-			else
-			{
-				$sql_where = $this->auth->acl_getf_global('f_read') ? $this->db->sql_in_set('shout_forum', array_keys($this->auth->acl_getf('f_read', true)), false, true) . ' OR shout_forum = 0' : 'shout_forum = 0';
-			}
-		}
-
-		// count personal messages if needed
-		if ($this->user->data['user_id'] == ANONYMOUS || $this->user->data['is_bot'])
-		{
-			$sql_and = ' AND shout_inp = 0';
-		}
-		else
-		{
-			$sql_and = ' AND shout_inp = 0 OR (shout_inp = ' . $this->user->data['user_id'] . ' OR shout_user_id = ' . $this->user->data['user_id'] . ')';
-		}
-
-		$sql = $this->db->sql_build_query('SELECT', array(
-			'SELECT'	=> 'COUNT(shout_id) as nr',
-			'FROM'		=> array($shout_table => ''),
-			'WHERE'		=> $sql_where . $sql_and,
-		));
-		$result = $this->db->sql_query($sql);
-		$nb = (int) $this->db->sql_fetchfield('nr');
-		$this->db->sql_freeresult($result);
-		// Limit the number of messages to display
-		$max_number = (int) $this->config["shout_max_posts_on{$priv}"];
-		if ($max_number > 0)
-		{
-			$nb = ($nb > $max_number) ? $max_number : $nb;
-		}
-
-		return $nb;
-	}
-
 	/**
 	 * Delete all messages of a user
 	 */
@@ -815,41 +783,23 @@ class shoutbox
 	 */
 	public function shout_display($sort_of)
 	{
-		if (!$this->auth->acl_get('u_shout_view'))
+		// Protection for private and define sort of shoutbox
+		$is_user = ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false;
+		$in_priv = ($sort_of === 3) ? true : false;
+		$priv = ($in_priv) ? '_priv' : '';
+		$private = ($in_priv) ? '_priv' : '_view';
+
+		if (!$this->auth->acl_get("u_shout{$private}"))
 		{
 			$this->template->assign_vars(array(
 				'S_DISPLAY_SHOUTBOX'	=> false,
 			));
 			return;
 		}
-
-		$is_user = ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false;
-		// Protection for private and define sort of shoutbox
-		$in_priv = ($sort_of === 3) ? true : false;
-		$_priv = ($in_priv) ? '_priv' : '';
-
-		if ($in_priv)
+		else if ($in_priv)
 		{
-			if (!$this->auth->acl_get('u_shout_priv'))
-			{
-				$this->template->assign_vars(array(
-					'S_DISPLAY_SHOUTBOX'	=> false,
-				));
-				return;
-			}
-			else
-			{
-				// Always post enter info in the private shoutbox -> toc toc toc, it's me ;)
-				$this->post_robot_shout($this->user->data['user_id'], $this->user->ip, true, false, false, false, false);
-			}
-		}
-
-		if ($this->config['shout_enable_robot'] && $this->config['shout_cron_hour'] == date('H'))
-		{
-			// Say hello Mr Robot :-)
-			$this->hello_robot_shout();
-			// Wish birthdays Mr Robot :-)
-			$this->robot_birthday_shout();
+			// Always post enter info in the private shoutbox -> toc toc toc, it's me ;)
+			$this->post_robot_shout($this->user->data['user_id'], $this->user->ip, true, false, false, false, false);
 		}
 
 		// Define the username for anonymous here
@@ -858,15 +808,13 @@ class shoutbox
 			$this->language->add_lang('ucp');
 			$this->template->assign_vars(array(
 				'SHOUT_USERNAME_EXPLAIN'	=> $this->language->lang($this->config['allow_name_chars'] . '_EXPLAIN', $this->language->lang('CHARACTERS', (int) $this->config['min_name_chars']), $this->language->lang('CHARACTERS', (int) $this->config['max_name_chars'])),
-				'SHOUT_USERNAME'			=> $this->request->variable($this->config['cookie_name'] . '_shout-name', '', true, /** @scrutinizer ignore-type */ \phpbb\request\request_interface::COOKIE),
 			));
 			// Add form token for login box
 			add_form_key('login', '_LOGIN');
 		}
-
-		// Load the user's preferences
-		if ($is_user)
+		else if ($is_user)
 		{
+			// Load the user's preferences
 			$shout = json_decode($this->user->data['user_shout']);
 			if ($shout->index != '3')
 			{
@@ -896,7 +844,7 @@ class shoutbox
 				$panel = ($this->config['shout_panel'] && $this->config['shout_panel_all']) ? true : false;
 			}
 		}
-		$data = $this->get_version();
+		$this->shout_run_robot();
 
 		$this->template->assign_vars(array(
 			'S_DISPLAY_SHOUTBOX'	=> true,
@@ -904,8 +852,7 @@ class shoutbox
 			'IN_SHOUT_POPUP'		=> ($sort_of === 1) ? true : false,
 			'PANEL_ALL'				=> $panel,
 			'S_IN_PRIV'				=> $in_priv,
-			'TEXT_USER_TOP'			=> ($is_user && $this->auth->acl_get('u_shout_bbcode_change')) ? true : false,
-			'ACTION_USERS_TOP'		=> ($is_user && ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_'))) ? true : false,
+			'ACTION_USERS_TOP'		=> ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_')) ? true : false,
 			'INDEX_SHOUT'			=> ((bool) $this->config['shout_index']) ? true : false,
 			'INDEX_SHOUT_TOP'		=> ((int) $this->config['shout_position_index'] === 1) ? true : false,
 			'INDEX_SHOUT_AFTER'		=> ((int) $this->config['shout_position_index'] === 4) ? true : false,
@@ -917,9 +864,21 @@ class shoutbox
 			'POS_SHOUT_TOPIC_TOP'	=> ((int) $this->config['shout_position_topic'] === 1) ? true : false,
 			'POS_SHOUT_TOPIC_END'	=> ((int) $this->config['shout_position_topic'] === 2) ? true : false,
 			'SHOUT_EXT_PATH'		=> $this->ext_path_web,
-			'S_SHOUT_VERSION'		=> $data['version'],
+			'S_SHOUT_VERSION'		=> $this->get_version(true),
 		));
 
+		$this->shout_charge_posting();
+		$this->javascript_shout($sort_of);
+
+		// Do the shoutbox Prune thang
+		if ($this->config["shout_on_cron{$priv}"] && ($this->config["shout_max_posts{$priv}"] == 0))
+		{
+			$this->execute_shout_cron($in_priv);
+		}
+	}
+	
+	private function shout_charge_posting()
+	{
 		if ($this->auth->acl_get('u_shout_post') && $this->auth->acl_get('u_shout_bbcode'))
 		{
 			$this->language->add_lang('posting');
@@ -930,6 +889,7 @@ class shoutbox
 				'S_LINKS_ALLOWED'		=> true,
 				'S_BBCODE_QUOTE'		=> true,
 				'S_BBCODE_FLASH'		=> false,
+				'TEXT_USER_TOP'			=> ($this->auth->acl_get('u_shout_bbcode_change')) ? true : false,
 			));
 
 			if (!function_exists('display_custom_bbcodes'))
@@ -938,21 +898,6 @@ class shoutbox
 			}
 			// Build custom bbcodes array
 			display_custom_bbcodes();
-		}
-
-		$this->javascript_shout($sort_of);
-
-		// Do the shoutbox Prune thang
-		if ($this->config["shout_on_cron{$_priv}"] && ($this->config["shout_max_posts{$_priv}"] == 0))
-		{
-			if ($this->config["shout_last_run{$_priv}"] == '')
-			{
-				$this->config->set("shout_last_run{$_priv}", time() - 86400, true);
-			}
-			if (($this->config["shout_last_run{$_priv}"] + ($this->config["shout_prune{$_priv}"] * 3600)) < time())
-			{
-				$this->execute_shout_cron($in_priv);
-			}
 		}
 	}
 
@@ -970,43 +915,25 @@ class shoutbox
 	/**
 	 * Search compatibles browsers
 	 * To display correctly the shout
-	 * Return int
+	 * Return bool
 	 */
-	public function compatibles_browsers()
+	public function shout_is_mobile()
 	{
-		$sort = 0;
 		$browser = strtolower($this->user->browser);
 
 		if (!empty($browser))
 		{
 			if (preg_match("#ipad|tablet#i", $browser))
 			{
-				// Ipad and tablet ok
-				$sort = 3;
+				return false;
 			}
 			else if (preg_match("#mobile|android|iphone|mobi|ipod|fennec|webos|j2me|midp|cdc|cdlc|bada#i", $browser))
 			{
-				// Mobiles browsers
-				$sort = 2;
-			}
-			else if (strpos($browser, 'msie') === false)
-			{
-				// Another browsers not IE
-				$sort = 5;
-			}
-			else if (preg_match("#msie 11\.0|msie 10\.0|msie 9\.0#i", $browser))
-			{
-				// IE 9, 10 & 11
-				$sort = 4;
-			}
-			else
-			{
-				// Another old IE versions
-				$sort = 1;
+				return true;
 			}
 		}
 
-		return $sort;
+		return false;
 	}
 
 	/**
@@ -1034,7 +961,6 @@ class shoutbox
 		}
 		else
 		{
-			$data = $this->get_version();
 			$this->template->assign_vars(array(
 				'S_IN_SHOUT_POP'	=> true,
 				'S_IN_PRIV'			=> false,
@@ -1047,7 +973,7 @@ class shoutbox
 				'PANEL_WIDTH'		=> $this->config['shout_panel_width'] . 'px',
 				'PANEL_HEIGHT'		=> $this->config['shout_panel_height'] . 'px',
 				'U_SHOUT_LATERAL'	=> $this->helper->route('sylver35_breizhshoutbox_lateral'),
-				'S_SHOUT_VERSION'	=> $data['version'],
+				'S_SHOUT_VERSION'	=> $this->get_version(true),
 			));
 			return true;
 		}
@@ -1070,7 +996,7 @@ class shoutbox
 		{
 			return false;
 		}
-		else if ($this->compatibles_browsers() == 2)
+		else if ($this->shout_is_mobile())
 		{
 			// Not for mobile browsers (not ipad)
 			return false;
@@ -2444,6 +2370,17 @@ class shoutbox
 		}
 	}
 
+	private function shout_run_robot()
+	{
+		if ($this->config['shout_enable_robot'] && $this->config['shout_cron_hour'] == date('H'))
+		{
+			// Say hello Mr Robot :-)
+			$this->hello_robot_shout();
+			// Wish birthdays Mr Robot :-)
+			$this->robot_birthday_shout();
+		}
+	}
+
 	/*
 	 * Display first connection for new users
 	 */
@@ -3319,7 +3256,7 @@ class shoutbox
 			$message = 'NO_DELETE_PERM';
 			$result = false;
 		}
-		
+
 		return array(
 			'message'	=> $message,
 			'result'	=> $result,
@@ -3423,7 +3360,7 @@ class shoutbox
 			'texte'		=> $message,
 		);
 	}
-	
+
 	private function shout_check_edit($val, $shout_id)
 	{
 		// Protect by checking permissions
@@ -3464,22 +3401,22 @@ class shoutbox
 		// Flood control, not in private
 		if (!$val['on_priv'] && !$this->auth->acl_get('u_shout_ignore_flood'))
 		{
-			$current_time = time();
 			$sql = $this->db->sql_build_query('SELECT', array(
 				'SELECT'	=> 'MAX(shout_time) AS last_post_time',
 				'FROM'		=> array($val['shout_table'] => ''),
 				'WHERE'		=> (!$this->user->data['is_registered']) ? "shout_ip = '" . $this->db->sql_escape((string) $this->user->ip) . "'" : 'shout_user_id = ' . $val['userid'],
 			));
 			$result = $this->shout_sql_query($sql);
-			$this->db->sql_freeresult($result);
 			if ($row = $this->db->sql_fetchrow($result))
 			{
-				if ($row['last_post_time'] > 0 && ($current_time - $row['last_post_time']) < $this->config['shout_flood_interval'])
+				if ($row['last_post_time'] > 0 && (time() - $row['last_post_time']) < $this->config['shout_flood_interval'])
 				{
+					$this->db->sql_freeresult($result);
 					$this->shout_error('FLOOD_ERROR');
 					return false;
 				}
 			}
+			$this->db->sql_freeresult($result);
 		}
 
 		// Don't parse img if unautorised and return img url only
@@ -3538,40 +3475,15 @@ class shoutbox
 
 	public function shout_ajax_check($val, $on_bot)
 	{
-		if ($this->config['shout_enable_robot'] && $this->config['shout_cron_hour'] == date('H'))
-		{
-			// Say hello Mr Robot :-)
-			$this->hello_robot_shout();
-			// Wish birthdays Mr Robot :-)
-			$this->robot_birthday_shout();
-		}
+		$this->shout_run_robot();
 
-		// Read the forums permissions
-		$bot = ($on_bot == 'on') ? true : false;
-		if (!$bot)
-		{
-			$sql_where = 'shout_robot = 0';
-		}
-		else
-		{
-			$sql_where = ($this->auth->acl_getf_global('f_read')) ? '(' . $this->db->sql_in_set('shout_forum', array_keys($this->auth->acl_getf('f_read', true)), false, true) . ' OR shout_forum = 0)' : 'shout_forum = 0';
-		}
-
-		// count and add personal messages if needed
-		if (!$val['is_user'])
-		{
-			$sql_where .= ' AND shout_inp = 0';
-		}
-		else
-		{
-			$sql_where .= ' AND (shout_inp = 0 OR (shout_inp = ' . $val['userid'] . ' OR shout_user_id = ' . $val['userid'] . '))';
-		}
+		$sql_where = $this->shout_sql_where($val['is_user'], $val['userid'], $on_bot);
 
 		$sql = $this->db->sql_build_query('SELECT', array(
-			'SELECT'	=> 'shout_time',
-			'FROM'		=> array($val['shout_table'] => ''),
+			'SELECT'	=> 's.shout_time',
+			'FROM'		=> array($val['shout_table'] => 's'),
 			'WHERE'		=> $sql_where,
-			'ORDER_BY'	=> 'shout_time DESC',
+			'ORDER_BY'	=> 's.shout_time DESC',
 		));
 		$result = $this->shout_sql_query($sql, true, 1);
 		$time = $this->db->sql_fetchfield('shout_time');
@@ -3599,7 +3511,7 @@ class shoutbox
 		}
 
 		// Display avatars ?
-		$see_avatar = ($this->compatibles_browsers() === 2) ? false : true;
+		$see_avatar = ($this->shout_is_mobile()) ? false : true;
 
 		// Prevents some errors for the allocation of permissions
 		// If someone can edit all messages, he can edit its own messages :)
@@ -3614,26 +3526,7 @@ class shoutbox
 		$can_info_all = ($this->auth->acl_get('m_shout_info') || $this->auth->acl_get("a_shout_{$val['auth']}")) ? true : false;
 		$can_info = $can_info_all ? true : $this->auth->acl_get('u_shout_info_s');
 
-		// Read the forums permissions
-		$bot = ($on_bot == 'on') ? true : false;
-		if (!$bot)
-		{
-			$sql_where = 's.shout_robot = 0';
-		}
-		else
-		{
-			$sql_where = $this->auth->acl_getf_global('f_read') ? $this->db->sql_in_set('s.shout_forum', array_keys($this->auth->acl_getf('f_read', true)), false, true) . ' OR s.shout_forum = 0' : 's.shout_forum = 0';
-		}
-
-		// Add personal messages if needed
-		if (!$val['is_user'])
-		{
-			$sql_where .= ' AND s.shout_inp = 0';
-		}
-		else
-		{
-			$sql_where .= ' AND (s.shout_inp = 0 OR (s.shout_inp = ' . $val['userid'] . ' OR s.shout_user_id = ' . $val['userid'] . '))';
-		}
+		$sql_where = $this->shout_sql_where($val['is_user'], $val['userid'], $on_bot);
 
 		$sql = $this->db->sql_build_query('SELECT', array(
 			'SELECT'	=> 's.*, u.user_id, u.username, u.user_colour, u.user_avatar, u.user_avatar_type, u.user_avatar_width, u.user_avatar_height, u.user_type, v.user_id as x_user_id, v.username as x_username, v.user_colour as x_user_colour, v.user_avatar as x_user_avatar, v.user_avatar_type as x_user_avatar_type, v.user_avatar_width as x_user_avatar_width, v.user_avatar_height as x_user_avatar_height, v.user_type as x_user_type',
@@ -3665,16 +3558,6 @@ class shoutbox
 				'is_user'		=> (($row['shout_user_id'] > 1) && ($row['shout_user_id'] != $val['userid'])) ? true : false,
 				'name'			=> $row['username'],
 			));
-
-			// Double protect private messages to both users concerned
-			if ($row['shout_inp'])
-			{
-				if (!$val['is_user'] || ($row['shout_inp'] != $val['userid']) && ($row['shout_user_id'] != $val['userid']))
-				{
-					// No permission to see it, continue...
-					continue;
-				}
-			}
 
 			if ($see_avatar)
 			{
@@ -3756,7 +3639,7 @@ class shoutbox
 		// check just with the last 4 numbers
 		$last_time = substr($last_time, 6, 4);
 		// The number of total messages for pagination
-		$number = $this->shout_pagination($val['shout_table'], $val['priv'], $on_bot);
+		$number = $this->shout_pagination($val, $on_bot);
 
 		$content = array_merge($content, array(
 			'total'		=> $i,
@@ -3765,6 +3648,54 @@ class shoutbox
 		));
 
 		return $content;
+	}
+
+	public function shout_pagination($val, $on_bot)
+	{
+		$sql_where = $this->shout_sql_where($val['is_user'], $val['userid'], $on_bot);
+
+		$sql = $this->db->sql_build_query('SELECT', array(
+			'SELECT'	=> 'COUNT(s.shout_id) as nr',
+			'FROM'		=> array($val['shout_table'] => 's'),
+			'WHERE'		=> $sql_where,
+		));
+		$result = $this->db->sql_query($sql);
+		$nb = (int) $this->db->sql_fetchfield('nr');
+		$this->db->sql_freeresult($result);
+
+		// Limit the number of messages to display
+		$max_number = (int) $this->config["shout_max_posts_on{$val['priv']}"];
+		if ($max_number > 0)
+		{
+			$nb = ($nb > $max_number) ? $max_number : $nb;
+		}
+
+		return $nb;
+	}
+
+	private function shout_sql_where($is_user, $userid, $on_bot)
+	{
+		if (!$on_bot)
+		{
+			$sql_where = 's.shout_robot = 0';
+		}
+		else
+		{
+			// Read the forums permissions
+			$sql_where = $this->auth->acl_getf_global('f_read') ? $this->db->sql_in_set('s.shout_forum', array_keys($this->auth->acl_getf('f_read', true)), false, true) . ' OR s.shout_forum = 0' : 's.shout_forum = 0';
+		}
+
+		// Add personal messages if needed
+		if (!$is_user)
+		{
+			$sql_where .= ' AND s.shout_inp = 0';
+		}
+		else
+		{
+			$sql_where .= " AND (s.shout_inp = 0 OR (s.shout_inp = $userid OR s.shout_user_id = $userid))";
+		}
+
+		return $sql_where;
 	}
 
 	/*
@@ -4191,9 +4122,6 @@ class shoutbox
 			return;
 		}
 
-		// See compatibles browsers to change the display
-		$compatible = ($this->compatibles_browsers() == 1) ? false : true;
-
 		// Real member or not
 		$is_user = ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false;
 
@@ -4264,15 +4192,9 @@ class shoutbox
 					'edit'		=> $this->config['shout_sound_edit'],
 					'active'	=> $this->config['shout_sound_on'] ? true : false,
 				);
-				if (isset($_COOKIE[$this->config['cookie_name'] . '_shout']))
-				{
-					$cookie = $this->request->variable($this->config['cookie_name'] . '_shout', 'on', false, /** @scrutinizer ignore-type */ \phpbb\request\request_interface::COOKIE);
-					$sound['active'] = ($cookie == 'on') ? true : false;
-				}
 			}
 		}
 		$inactiv = (($inactiv > 0) && ($sort_of !== 3)) ? round($inactiv * 60 / ($refresh / 1000)) : 0;
-		$cookie_bot = $this->request->variable($this->config['cookie_name'] . '_set-robot', 'on', false, /** @scrutinizer ignore-type */ \phpbb\request\request_interface::COOKIE);
 		$dt = $this->user->create_datetime();
 		$creator = ($this->smiliecreator_exist()) ? true : false;
 		$category = ($this->smiliescategory_exist()) ? true : false;
@@ -4296,12 +4218,11 @@ class shoutbox
 			'userId'			=> $this->user->data['user_id'],
 			'isGuest'			=> $this->return_bool($this->user->data['user_id'] == ANONYMOUS),
 			'isRobot'			=> $this->return_bool($this->user->data['is_bot']),
-			'enableSound'		=> $this->return_bool($sound['active']),
 			'isPriv'			=> $this->return_bool(($sort_of === 3)),
 			'isUser'			=> $this->return_bool($is_user),
 			'rulesOk'			=> $this->return_bool($rules),
 			'rulesOpen'			=> $this->return_bool($rules_open),
-			'isCompatible'		=> $this->return_bool($compatible),
+			'isMobile'			=> $this->return_bool($this->shout_is_mobile()),
 			'refresh'			=> $this->return_bool(strpos($this->config['shout_dateformat'], '|') !== false),
 			'seeButtons'		=> $this->return_bool($this->config['shout_see_buttons']),
 			'buttonsLeft'		=> $this->return_bool($this->config['shout_see_buttons_left']),
@@ -4343,7 +4264,7 @@ class shoutbox
 			'cookieName'		=> $this->config['cookie_name'] . '_',
 			'cookieDomain'		=> '; domain=' . $this->config['cookie_domain'] . ($this->config['cookie_secure'] ? '; secure' : ''),
 			'cookiePath'		=> '; path=' . $this->config['cookie_path'],
-			'sortBot'			=> $cookie_bot,
+			'enableSound'		=> ($sound['active']) ? '1' : '0',
 			'extensionUrl'		=> $this->replace_shout_url($this->ext_path_web),
 			'userTimezone'		=> phpbb_format_timezone_offset($dt->getOffset()),
 			'dateFormat'		=> $dateformat,

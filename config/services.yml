@@ -82,16 +82,7 @@ services:
         class: sylver35\breizhshoutbox\controller\ajax
         arguments:
             - '@sylver35.breizhshoutbox.shoutbox'
-            - '@config'
-            - '@controller.helper'
             - '@dbal.conn'
             - '@request'
-            - '@template'
             - '@auth'
-            - '@user'
             - '@language'
-            - '@ext.manager'
-            - '@path_helper'
-            - '@dispatcher'
-            - '%core.root_path%'
-            - '%core.php_ext%'
