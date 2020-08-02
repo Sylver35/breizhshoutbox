@@ -878,6 +878,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		shoutbox.sE('user_shout',2);
 		shoutbox.iH('shoutMsg','&nbsp;&nbsp;'+bzhLang['MSG_ROBOT']+':',false);
 		shoutbox.iH('h3user','',false);
+		shoutbox.iH('shout_avatar','');
 		$('#user_inp').val(1);
 		$('#user_inp_sort').val(sortRobot);
 		$('#shout_user1').focus();
@@ -887,7 +888,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		shoutbox.playSound(6,true);
 		if(config.isGuest){
 			if(shoutbox.getCookie('shout-sound') == '1'){
-				var changec = '0',change = 0,soundClass = 'button_shout_sound_off',soundClassOut = 'button_shout_sound',title = bzhLang['SOUND_ON'];
+				var changec = '0',change = 0,soundClass = 'button_shout_sound_off',soundClassOut = 'button_shout_sound',title = bzhLang['SOUND'];
 			}else{
 				var changec = '1',change = 1,soundClass = 'button_shout_sound',soundClassOut = 'button_shout_sound_off',title = bzhLang['SOUND_OFF'];
 			}
@@ -957,7 +958,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.runSmileys(true,false);" style="margin:5px;" title="'+bzhLang['LESS_SMILIES_ALT']+'"><span title="">'+bzhLang['LESS_SMILIES']+'</span></a> ... ';
 				}
 				if(config.creator){
-					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.shoutPopup(config.creatorUrl,\'550\',\'570\',\'_phpbbsmiliescreate\');shoutbox.suppText(\'chat_message\');" style="margin: 5px;" title="'+bzhLang['SMILIE_CREATOR']+'"><span title="">'+bzhLang['SMILIE_CREATOR']+'</span></a> ... ';
+					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.shoutPopup(config.creatorUrl,\'550\',\'570\',\'_phpbbsmiliescreate\');shoutbox.suppText(\'chat_message\');" style="margin: 5px;" title="'+bzhLang['CREATOR']+'"><span title="">'+bzhLang['CREATOR']+'</span></a> ... ';
 				}
 				if(config.category && typeof data.categories !== 'undefined'){
 					listeSmilies += (data.title_cat !== 'undefined') ? '<h3 style="margin-top:8px;">'+data.title_cat+'</h3>' : '';
@@ -1293,8 +1294,8 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 							infoButton.ip = post.shoutIp;
 							infoButton.onclick = function(){alert(bzhLang['POST_IP']+'  '+this.ip)};
 						}else if(config.buttonsLeft){
-							infoButton = shoutbox.cE('input','infoButton'+i,'button_shout_ip_no button_shout_l',false,bzhLang['NO_SHOW_IP_PERM'],'button',false,false);
-							infoButton.onclick = function(){alert(bzhLang['NO_SHOW_IP_PERM'])};
+							infoButton = shoutbox.cE('input','infoButton'+i,'button_shout_ip_no button_shout_l',false,bzhLang['NO_IP_PERM'],'button',false,false);
+							infoButton.onclick = function(){alert(bzhLang['NO_IP_PERM'])};
 						}
 					}
 					
@@ -1405,8 +1406,9 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				}
 				spanAudio.appendChild(lecteur);
 			}
-			
-			var buttonSound = shoutbox.cE('input','iconSound','button_shout_sound'+(config.enableSound ? '' : '_off')+' button_shout','',bzhLang['TITLESOUND'],'button',false,false);
+
+			var activeSound = ($('#onSound').val() == '1') ? true : false,soundCss = activeSound ? '' : '_off',soundTitle = activeSound ? bzhLang['SOUND_OFF'] : bzhLang['SOUND'];
+			var buttonSound = shoutbox.cE('input','iconSound','button_shout_sound'+soundCss+' button_shout','',soundTitle,'button',false,false);
 			buttonSound.onclick = function(){shoutbox.soundReq()};
 			var cssBot = ($('#onBot').val() == '1') ? 'on' : 'off',botTitle = bzhLang['ROBOT_'+cssBot.toUpperCase()];
 			var buttonBot = shoutbox.cE('input','iconBot','button_shout_bot_'+cssBot+' shout_bot button_shout','',botTitle,'button',false,false);
