@@ -432,11 +432,11 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			success: function(response){
 				if(response.error){
 					shoutbox.message(response,true,5000,true);
-					return;
-				}
-				if(response.type === 1){
+				}else if(response.type === 1){
 					shoutbox.playSound(3,false);
 					shoutbox.message(bzhLang['MSG_DEL_DONE'],false,800,true);
+				}else if(response.type > 1){
+					shoutbox.message(response.message,true,2000,true);
 				}
 			},
 			error: function(){
@@ -458,18 +458,16 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			success: function(response){
 				if(response.error){
 					shoutbox.message(response,true,5000,true);
-					return;
-				}
-				if(response.type === 1){
+				}else if(response.type === 1){
 					shoutbox.setQuery();
 					shoutbox.playSound(3,false);
 					var message = (response.nr > 1) ? bzhLang['MESSAGES'] : bzhLang['MESSAGE'];
 					shoutbox.message(bzhLang['PURGE_PROCESS']+' - '+bzhLang['CITE_ON']+' '+response.nr+' '+message,false,1,false);
 					$('#'+id).removeAttr('style');
-				}else{
-					shoutbox.message(bzhLang['SERVER_ERR'],true,1,false);
+					$('#shoutLast').val(0);
+				}else if(response.type === 2){
+					shoutbox.message(response.message,true,2000,true);
 				}
-				$('#shoutLast').val(0);
 			},
 			error: function(){
 				shoutbox.message(bzhLang['SERVER_ERR'],true,1,false);
@@ -922,10 +920,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 	shoutbox.runSmileys = function(smilSort,categorie){
 		var urlSmil = smilSort ? config.smilUrl : config.smilPopUrl;
 		$('#smilies').html('<div style="text-align:center;margin:25px auto;">'+imgLoadOn+bzhLang['LOADING']+'</div>').show();
-		var dataOn = 'user='+config.userId+'&sort='+config.sortShoutNb;
-		if(categorie !== false){
-			dataOn += '&cat='+categorie;
-		}
+		var dataOn = 'user='+config.userId+'&sort='+config.sortShoutNb+((categorie !== false) ? '&cat='+categorie : '');
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
@@ -1026,8 +1021,13 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				if(response.error){
 					shoutbox.message(response,true,5000,true);
 					return;
+				}else if(response.type === 1){
+					shoutbox.message(response.message,true,2000,true);
+				}else if(response.type === 2){
+					shoutbox.playSound(5,false);
+					$('#shout'+response.shout_id).html(response.texte);
+					shoutbox.message(response.message,false,800,true);
 				}
-				shoutbox.playSound(5,false);
 				$('#openEdit').val(0);
 				shoutbox.setQuery();
 				shoutbox.sE('msgbody'+response.shout_id,2);
@@ -1036,8 +1036,72 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				shoutbox.sE('infoButton'+response.shout_id,3);
 				shoutbox.sE('deleteButton'+response.shout_id,3);
 				$('#post_message').show();
-				$('#shout'+response.shout_id).html(response.texte);
-				shoutbox.message(response.message,false,800,true);
+			}
+		});
+	};
+
+	shoutbox.sendMessage = function(){
+		if($('#chat_message').val() == bzhLang['AUTO'] || $('#chat_message').val() == ''){
+			alert(bzhLang['MESSAGE_EMPTY']);
+			return;
+		}
+		if(!config.limitPost && config.maxPost > 0){
+			if($('#chat_message').val().length > config.maxPost){
+				alert(bzhLang['TOO_BIG']+$('#chat_message').val().length+'\n'+bzhLang['TOO_BIG2']+config.maxPost);
+				return;
+			}
+		}
+		if(config.isGuest){
+			if($('#shoutname').val() == ''){
+				$('#shout_name').show();
+				alert(bzhLang['CHOICE_NAME_ERROR']);
+				return;
+			}
+			
+		}
+		shoutbox.setQuery();
+		shoutbox.closeAll();
+		shoutbox.iH('msg_txt','',false);
+		$('#msg_txt').html(bzhLang['SENDING']);
+		var ondata = 'user='+config.userId+'&sort='+config.sortShoutNb+'&chat_message='+shoutbox.encodeUtf8($('#chat_message').val());
+		ondata += ($('#user_cite').val() !== '') ? '&cite='+$('#user_cite').val() : '&cite=0';
+		if(config.isGuest){
+			ondata += '&name='+shoutbox.encodeUtf8($('#shoutname').val());
+		}
+		$('#chat_message').attr('disabled', 'disabled').css('background', 'white url("'+config.extensionUrl+'images/ajax_loader.gif") no-repeat 90% 50%');
+		$.ajax({
+			type: 'POST',
+			dataType: 'json',
+			url: config.postUrl,
+			data: ondata,
+			cache: false,
+			headers : headersContent,
+			success: function(data){
+				if(data.error){
+					shoutbox.message(data,true,5000,true);
+					return;
+				}
+				if(data.type == 2){
+					shoutbox.message(data.message,true,2000,true);
+				}else if(data.type == 1){
+					shoutbox.message(data.message,false,800,true);
+					shoutbox.playSound(4,false);
+					$('#post_message').show();
+					$('#user_cite').val('').attr('disabled');
+					$('#user_inp').val('');
+					$('#chat_message').val('');
+				}else if(data.type == 10){
+					shoutbox.message(data.message,true,1,true);
+					shoutbox.playSound(2,false);
+					$('#post_message').show();
+					$('#user_cite').val('').attr('disabled');
+					$('#user_inp').val('');
+					$('#chat_message').val('');
+				}else{
+					shoutbox.reloadAll(false);
+				}
+				onCount = 0;
+				$('#chat_message').removeAttr('disabled').focus();
 			}
 		});
 	};
@@ -1102,8 +1166,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		if(config.refresh){
 			shoutbox.refreshTime();
 		}
-		var $onShoutLast = $('#shoutLast').val();
-		var random = '?t='+Math.floor(Math.random() * 1000000);
+		var $onShoutLast = $('#shoutLast').val(),random = '?t='+Math.floor(Math.random() * 1000000);
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
@@ -1128,6 +1191,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				/* else nothing to do, continue your work... */
 			},
 			error: function(update, statut, erreur){
+				/* Just add nb errors and continue with silence */
 				shoutbox.setError($('#nBErrors').val());
 			}
 		});
@@ -1137,39 +1201,39 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		var totalPages = Math.ceil(number / config.perPage),onPage = Math.floor(onCount / config.perPage) + 1,direction = (config.direction == 'right') ? 'left' : 'right';
 		if(totalPages < 2 || number < config.perPage){
 			$('#divnr').hide();
-			return;
-		}
-		$('#divnr').show();
-		$('#linr').html('<span id="shout-pagin" class="shout-pagin"></span><span id="tempSpan" style="float:'+direction+';margin-'+direction+':5px;opacity:0.2;"></span>').show();
-		var previousOn = shoutbox.cE('span',false,(onPage === 1) ? 'pagin_red' : 'pointer',false,bzhLang['PAGE']+'1',false,'1',false);
-		if(onPage !== 1){
-			previousOn.onclick = function(){shoutbox.changePage(0);};
-			var previous = shoutbox.cE('span',false,'pointer',false,bzhLang['PREVIOUS'],false,bzhLang['PREVIOUS']+' ',false);
-			previous.onclick = function(){shoutbox.changePage((onPage - 2) * config.perPage);};
-			$(previous).appendTo($('#shout-pagin'));
-		}
-		$(previousOn).appendTo($('#shout-pagin'));
-		var startCnt = Math.min(Math.max(1, onPage - 4),totalPages - 5),endCnt = (totalPages > 5) ? Math.max(Math.min(totalPages,onPage + 4),6) : totalPages;
-		var startFor = (totalPages > 5) ? startCnt + 1 : 2,endFor = (totalPages > 5) ? endCnt - 1 : totalPages;
-		$((startCnt > 1 && totalPages > 5) ? shoutbox.cTN(' ... ') : shoutbox.cp()).appendTo($('#shout-pagin'));
-		for(var i = startFor; i < endCnt; i++){
-			var nbOn = shoutbox.cE('span',false,(i === onPage) ? 'pagin_red' : 'pointer',false,bzhLang['PAGE']+i,false,i,false);
-			if(i !== onPage){
-				nbOn.c = (i - 1) * config.perPage;
-				nbOn.onclick = function(){shoutbox.changePage(this.c);};
+		}else{
+			$('#divnr').show();
+			$('#linr').html('<span id="shout-pagin" class="shout-pagin"></span><span id="tempSpan" style="float:'+direction+';margin-'+direction+':5px;opacity:0.2;"></span>').show();
+			var previousOn = shoutbox.cE('span',false,(onPage === 1) ? 'pagin_red' : 'pointer',false,bzhLang['PAGE']+'1',false,'1',false);
+			if(onPage !== 1){
+				previousOn.onclick = function(){shoutbox.changePage(0);};
+				var previous = shoutbox.cE('span',false,'pointer',false,bzhLang['PREVIOUS'],false,bzhLang['PREVIOUS']+' ',false);
+				previous.onclick = function(){shoutbox.changePage((onPage - 2) * config.perPage);};
+				$(previous).appendTo($('#shout-pagin'));
 			}
-			$(nbOn).appendTo($('#shout-pagin'));
-			$((i < endFor) ? shoutbox.cp() : shoutbox.cTN('')).appendTo($('#shout-pagin'));
+			$(previousOn).appendTo($('#shout-pagin'));
+			var startCnt = Math.min(Math.max(1, onPage - 4),totalPages - 5),endCnt = (totalPages > 5) ? Math.max(Math.min(totalPages,onPage + 4),6) : totalPages;
+			var startFor = (totalPages > 5) ? startCnt + 1 : 2,endFor = (totalPages > 5) ? endCnt - 1 : totalPages;
+			$((startCnt > 1 && totalPages > 5) ? shoutbox.cTN(' ... ') : shoutbox.cp()).appendTo($('#shout-pagin'));
+			for(var i = startFor; i < endCnt; i++){
+				var nbOn = shoutbox.cE('span',false,(i === onPage) ? 'pagin_red' : 'pointer',false,bzhLang['PAGE']+i,false,i,false);
+				if(i !== onPage){
+					nbOn.c = (i - 1) * config.perPage;
+					nbOn.onclick = function(){shoutbox.changePage(this.c);};
+				}
+				$(nbOn).appendTo($('#shout-pagin'));
+				$((i < endFor) ? shoutbox.cp() : shoutbox.cTN('')).appendTo($('#shout-pagin'));
+			}
+			$((totalPages > 5) ? ((endCnt < totalPages) ? shoutbox.cTN(' ... ') : shoutbox.cp()) : shoutbox.cTN('')).appendTo($('#shout-pagin'));
+			var nextOn = shoutbox.cE('span',false,(onPage === totalPages) ? 'pagin_red' : 'pointer',false,bzhLang['PAGE']+totalPages,false,totalPages,false),next = shoutbox.cE('span',false,false,false,false,false,false,false);
+			if(onPage !== totalPages){
+				nextOn.onclick = function(){shoutbox.changePage((totalPages - 1) * config.perPage);};
+				next = shoutbox.cE('span',false,'pointer',false,bzhLang['NEXT'],false,' '+bzhLang['NEXT'],false);
+				next.onclick = function(){shoutbox.changePage(onPage * config.perPage);};
+			}
+			$(nextOn).appendTo($('#shout-pagin'));
+			$(next).appendTo($('#shout-pagin'));
 		}
-		$((totalPages > 5) ? ((endCnt < totalPages) ? shoutbox.cTN(' ... ') : shoutbox.cp()) : shoutbox.cTN('')).appendTo($('#shout-pagin'));
-		var nextOn = shoutbox.cE('span',false,(onPage === totalPages) ? 'pagin_red' : 'pointer',false,bzhLang['PAGE']+totalPages,false,totalPages,false),next = shoutbox.cE('span',false,false,false,false,false,false,false);
-		if(onPage !== totalPages){
-			nextOn.onclick = function(){shoutbox.changePage((totalPages - 1) * config.perPage);};
-			next = shoutbox.cE('span',false,'pointer',false,bzhLang['NEXT'],false,' '+bzhLang['NEXT'],false);
-			next.onclick = function(){shoutbox.changePage(onPage * config.perPage);};
-		}
-		$(nextOn).appendTo($('#shout-pagin'));
-		$(next).appendTo($('#shout-pagin'));
 	};
 
 	shoutbox.loadMessages = function(){
@@ -1177,6 +1241,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			clearInterval(timerIn);
 			return;
 		}
+		/* In case of auth modifications */
 		if(config.sortShoutNb === 3 && !config.privOk){
 			return;
 		}
@@ -1191,8 +1256,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				if(datas.error){
 					shoutbox.message(datas,true,'',true);
 					return;
-				}
-				if(datas.last === 1){
+				}else if(datas.last === 1){
 					shoutbox.message(datas,true,1,false);
 					shoutbox.iH('shout_messages',false);
 					return;
@@ -1212,13 +1276,15 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				$('#shoutLast').val(datas.last);
 				var nowTime = Math.floor(new Date().getTime() / 1000),row = 1,i = 0;
 				var okDelete = okEdit = okInfo = false;
-				
-				if(config.toBottom){/* Loop for messages from top to bottom */
+
+				if(config.toBottom){
+					/* Loop for messages from top to bottom */
 					var listMessages = datas.messages;
-				}else{/* Loop for messages from bottom to top */
+				}else{
+					/* Loop for messages from bottom to top */
 					var listMessages = datas.messages.reverse();
 				}
-				
+
 				/* Loop for messages */
 				for(var i = 0; i < datas.total; i++){
 					var post = listMessages[i];
@@ -1364,6 +1430,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			$('#sortShoutNb').val(config.sortShoutNb);
 			$('#onSound').val(config.enableSound);
 
+			/* Load the cookies */
 			if(config.isGuest){
 				if(shoutbox.getCookie('shout-sound') === false){
 					shoutbox.cookieShout('shout-sound',config.enableSound,60);
@@ -1380,19 +1447,19 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				$('#onBot').val(shoutbox.getCookie('shout-robot'));
 			}
 
-			var shoutbarCss = (!config.barHaute) ? 'border-top:1px solid #00608F;' : 'border-bottom:1px solid #00608F;';
+			var shoutBarCss = (!config.barHaute) ? 'border-top:1px solid #00608F;' : 'border-bottom:1px solid #00608F;';
 			var postingCssText = 'display:inline-block;padding:3px 0 3px 1px;vertical-align:middle;width:100%;';
 			var postingStyle = 'height:auto;width:100%;overflow-wrap:break-word;'+(config.sortPagin ? 'margin-top:1px;float:'+config.direction : '');
 			if(!config.postOk){
-				shoutbarCss += (!config.sortPagin) ? 'text-align:center;padding:3px;border-bottom:1px solid #00608F;' : 'text-align:center;padding:3px;border-bottom:1px solid #00608F;';
+				shoutBarCss += (!config.sortPagin) ? 'text-align:center;padding:3px;border-bottom:1px solid #00608F;' : 'text-align:center;padding:3px;border-bottom:1px solid #00608F;';
 				postingCssText = (!config.sortPagin) ? 'float:none;width:100%;' : 'padding-left:60px;float:'+config.direction+';width:100%;';
 			}
 			var base = shoutbox.cE('ul','base_ul','topiclist forums',false,false,false,false,false);
-			var li = shoutbox.cE('li','shoutbar','button_background '+config.buttonBg,shoutbarCss,false,false,false,false);
+			var li = shoutbox.cE('li','shoutbar','button_background '+config.buttonBg,shoutBarCss,false,false,false,false);
 			var dl = shoutbox.cE('dl','shoutdl',false,'width:100%;',false,false,false,false);
 			var postingForm = shoutbox.cE('dt','post_message',false,postingCssText,false,false,false,false);
 			var postingBox = shoutbox.cE('div','postingBox',false,postingStyle,false,false,false,false);
-			
+
 			var spanAudio = shoutbox.cE('span','audioShout','no_display',false,false,false,false,false);
 			var listSounds = [[1,'new',config.newSound],[2,'error',config.errorSound],[3,'del',config.delSound],[4,'add',config.addSound],[5,'edit',config.editSound],[6,'auto','discretion']];
 			for(var i = 0; i < listSounds.length; i++){
@@ -1413,7 +1480,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			var cssBot = ($('#onBot').val() == '1') ? 'on' : 'off',botTitle = bzhLang['ROBOT_'+cssBot.toUpperCase()];
 			var buttonBot = shoutbox.cE('input','iconBot','button_shout_bot_'+cssBot+' shout_bot button_shout','',botTitle,'button',false,false);
 			buttonBot.onclick = function(){shoutbox.setRobot()};
-			
+
 			if(!config.postOk){
 				var printPermTitle = config.isGuest ? bzhLang['CLICK_HERE'] : bzhLang['NO_POST_PERM'];
 				var printPerm = shoutbox.cE('a','printPerm','pointer',false,printPermTitle,false,printPermTitle,false);
@@ -1438,8 +1505,8 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				base.appendChild(li);
 				postingBox.appendChild(printPerm);
 			}else{
-				// Create the posting bar
-				var inputPost = shoutbox.cE('input','chat_message','inputbox','margin-'+config.direction+':6px;color:#9a9a9a;border-radius:3px;width:'+config.widthPost,false,false,false,false);
+				// Create the posting bar now
+				var inputPost = shoutbox.cE('input','chat_message','inputbox','margin-'+config.direction+':6px;color:#9a9a9a;border-radius:3px;max-width:45%;width:'+config.widthPost,false,false,false,false);
 				inputPost.name = 'chat_message';
 				inputPost.disabled = false;
 				inputPost.spellcheck = true;
@@ -1459,73 +1526,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				postingBox.appendChild(inputPost);
 				var postUser = shoutbox.cE('input','postUser','button btnmain','margin-'+config.direction+':6px;border-radius:4px;line-height:1.3;',bzhLang['POST_MESSAGE_ALT'],'button',false,false);
 				postUser.value = bzhLang['POST_MESSAGE'];
-				postUser.onclick = function(){
-					if($('#chat_message').val() == bzhLang['AUTO'] || $('#chat_message').val() == ''){
-						alert(bzhLang['MESSAGE_EMPTY']);
-						return;
-					}
-					if(!config.limitPost && config.maxPost > 0){
-						if($('#chat_message').val().length > config.maxPost){
-							alert(bzhLang['TOO_BIG']+$('#chat_message').val().length+'\n'+bzhLang['TOO_BIG2']+config.maxPost);
-							return;
-						}
-					}
-					if(config.isGuest){
-						if($('#shoutname').val() == ''){
-							$('#shout_name').show();
-							alert(bzhLang['CHOICE_NAME_ERROR']);
-							return;
-						}
-						
-					}
-					shoutbox.setQuery();
-					shoutbox.closeAll();
-					shoutbox.iH('msg_txt','',false);
-					$('#msg_txt').html(bzhLang['SENDING']);
-					var ondata = 'user='+config.userId+'&sort='+config.sortShoutNb+'&chat_message='+shoutbox.encodeUtf8($('#chat_message').val());
-					if($('#user_cite').val() !== ''){
-						ondata += '&cite='+$('#user_cite').val();
-					}else{
-						ondata += '&cite=0';
-					}
-					if(config.isGuest){
-						ondata += '&name='+shoutbox.encodeUtf8($('#shoutname').val());
-					}
-					$('#chat_message').attr('disabled', 'disabled').css('background', 'white url("'+config.extensionUrl+'images/ajax_loader.gif") no-repeat 90% 50%');
-					$.ajax({
-						type: 'POST',
-						dataType: 'json',
-						url: config.postUrl,
-						data: ondata,
-						cache: false,
-						headers : headersContent,
-						success: function(data){
-							onCount = 0;
-							if(data.error){
-								shoutbox.message(data,true,5000,true);
-								return;
-							}
-							if(data.type == 1){
-								shoutbox.message(data.message,false,800,true);
-								shoutbox.playSound(4,false);
-								$('#post_message').show();
-								$('#user_cite').val('').attr('disabled');
-								$('#user_inp').val('');
-								$('#chat_message').val('');
-							}else if(data.type == 10){
-								shoutbox.message(data.message,true,1,true);
-								shoutbox.playSound(2,false);
-								$('#post_message').show();
-								$('#user_cite').val('').attr('disabled');
-								$('#user_inp').val('');
-								$('#chat_message').val('');
-							}else{
-								shoutbox.reloadAll(false);
-							}
-							$('#chat_message').removeAttr('disabled').focus();
-						}
-					});
-				};
+				postUser.onclick = function(){shoutbox.sendMessage()};
 				postingBox.appendChild(postUser);
 				if(config.smiliesOk){
 					var smiliesInput = shoutbox.cE('input','iconSmilies','button_shout_smile button_shout','margin-'+config.direction+':4px;',bzhLang['SMILIES'],'button',false,false);
@@ -1538,6 +1539,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 						}else{
 							$('#iconSmilies').attr('title', bzhLang['SMILIES_CLOSE']);
 							$('#smilies_ul').show();
+							shoutbox.suppText('chat_message');
 							shoutbox.runSmileys(true,false);
 						}
 					};
@@ -1552,12 +1554,12 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					colored.onclick = function(){
 						if($('#colour_shoutbox').is(':visible')){
 							$('#colour_shoutbox').hide();
-							shoutbox.addText('chat_message');
 							$('#color_shout1').attr('title', bzhLang['COLOR']);
+							shoutbox.addText('chat_message');
 						}else{
 							$('#colour_shoutbox').show();
-							shoutbox.suppText('chat_message');
 							$('#color_shout1').attr('title', bzhLang['COLOR_CLOSE']);
+							shoutbox.suppText('chat_message');
 						}
 					};
 					postingBox.appendChild(colored);
@@ -1674,7 +1676,6 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					};
 					postingBox.appendChild(button_online);
 				}
-				
 				if(config.isGuest){
 					var buttonConnect = shoutbox.cE('input','iconConnect','button_shout_connect button_shout','',bzhLang['CLICK_HERE'],'button',false,false);
 					buttonConnect.onclick = function(){
@@ -1701,7 +1702,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					postingBox.appendChild(button_name);
 				}
 				// End of create posting bar
-				
+
 				if(config.barHaute){
 					postingForm.appendChild(postingBox);
 					dl.appendChild(postingForm);
@@ -1721,10 +1722,10 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			postingBox.appendChild(spanAudio);
 			var msg_txt = shoutbox.cE('div','msg_txt',false,'text-align:center;',false,false,false,false);
 			base.appendChild(msg_txt);
-			
+
 			var divPosts = shoutbox.cE('div','shout_messages',false,'display:block;width:100%;overflow-x:hidden;overflow-y:scroll;position:relative;height:'+config.shoutHeight+'px;',false,false,'<div style="text-align:center;margin:50px auto;">'+imgChargeOn+bzhLang['LOADING']+'</div>',false);
 			base.appendChild(divPosts);
-			
+
 			if(!config.barHaute && config.postOk){
 				postingForm.appendChild(postingBox);
 				dl.appendChild(postingForm);
@@ -1744,6 +1745,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				base.appendChild(pagindiv);
 			}
 			$(base).appendTo($('#shoutbox'));
+			/* Load the rules if wanted now but not in the popup */
 			if(config.rulesOpen && config.sortShoutNb !== 1){
 				shoutbox.shoutRules();
 			}
@@ -1773,6 +1775,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			$('#audioShout audio').each(function(){
 				$(this).attr('volume', 0.4);
 			});
+			/* Load the messages into the shoutbox now */
 			shoutbox.loadMessages();
 		}catch(e){
 			shoutbox.handle(e);
