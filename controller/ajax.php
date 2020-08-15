@@ -19,7 +19,7 @@ class ajax
 	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
 
-	/** @var \phpbb\db\driver\driver_interface */
+	/** @var \phpbb\db\driver\driver_interface as db */
 	protected $db;
 
 	/** @var \phpbb\request\request */

@@ -23,6 +23,7 @@ class breizhshoutbox_1_6_0 extends migration
 		return array(
 			// Version of extension
 			array('config.update', array('shout_version', '1.6.0')),
+
 			// Config
 			array('config.add', array('shout_see_cite', 1)),
 

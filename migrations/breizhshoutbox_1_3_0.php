@@ -23,6 +23,7 @@ class breizhshoutbox_1_3_0 extends migration
 		return array(
 			// Version of extension
 			array('config.update', array('shout_version', '1.3.0')),
+
 			// Config
 			array('config.add', array('shout_panel_float', 1)),
 		);

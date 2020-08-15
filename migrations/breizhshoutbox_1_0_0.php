@@ -28,6 +28,7 @@ class breizhshoutbox_1_0_0 extends migration
 		return array(
 			// Version of extension
 			array('config.add', array('shout_version', '1.0.0')),
+
 			// Config
 			array('config.add', array('shout_avatar', 1)),
 			array('config.add', array('shout_avatar_height', 20)),
@@ -157,7 +158,7 @@ class breizhshoutbox_1_0_0 extends migration
 			// Add admin permissions
 			array('permission.add', array('a_shout_manage', true)),
 			array('permission.add', array('a_shout_priv', true)),
-			
+
 			// Add moderator permissions
 			array('permission.add', array('m_shout_delete', true)),
 			array('permission.add', array('m_shout_edit_mod', true)),
@@ -165,7 +166,7 @@ class breizhshoutbox_1_0_0 extends migration
 			array('permission.add', array('m_shout_personal', true)),
 			array('permission.add', array('m_shout_purge', true)),
 			array('permission.add', array('m_shout_robot', true)),
-			
+
 			// Add user permissions
 			array('permission.add', array('u_shout_bbcode', true)),
 			array('permission.add', array('u_shout_bbcode_change', true)),
@@ -190,7 +191,7 @@ class breizhshoutbox_1_0_0 extends migration
 			// Set permissions administration
 			array('permission.permission_set', array('ADMINISTRATORS', 'a_shout_manage', 'group')),
 			array('permission.permission_set', array('ADMINISTRATORS', 'a_shout_priv', 'group')),
-			
+
 			// Set permissions moderation
 			array('permission.permission_set', array('ADMINISTRATORS', 'm_shout_delete', 'group')),
 			array('permission.permission_set', array('ADMINISTRATORS', 'm_shout_edit_mod', 'group')),
@@ -220,7 +221,7 @@ class breizhshoutbox_1_0_0 extends migration
 			array('permission.permission_set', array('REGISTERED', 'u_shout_post_inp', 'group')),
 			array('permission.permission_set', array('REGISTERED', 'u_shout_smilies', 'group')),
 			array('permission.permission_set', array('REGISTERED', 'u_shout_view', 'group')),
-			
+
 			array('permission.permission_set', array('ADMINISTRATORS', 'u_shout_delete_s', 'group')),
 			array('permission.permission_set', array('ADMINISTRATORS', 'u_shout_inactiv', 'group')),
 			array('permission.permission_set', array('ADMINISTRATORS', 'u_shout_limit_post', 'group')),
@@ -240,7 +241,7 @@ class breizhshoutbox_1_0_0 extends migration
 			array('permission.permission_set', array('ADMINISTRATORS', 'u_shout_smilies', 'group')),
 			array('permission.permission_set', array('ADMINISTRATORS', 'u_shout_view', 'group')),
 			array('permission.permission_set', array('ADMINISTRATORS', 'u_shout_priv', 'group')),
-			
+
 			array('permission.permission_set', array('GLOBAL_MODERATORS', 'u_shout_delete_s', 'group')),
 			array('permission.permission_set', array('GLOBAL_MODERATORS', 'u_shout_inactiv', 'group')),
 			array('permission.permission_set', array('GLOBAL_MODERATORS', 'u_shout_limit_post', 'group')),
@@ -259,7 +260,7 @@ class breizhshoutbox_1_0_0 extends migration
 			array('permission.permission_set', array('GLOBAL_MODERATORS', 'u_shout_post_inp', 'group')),
 			array('permission.permission_set', array('GLOBAL_MODERATORS', 'u_shout_smilies', 'group')),
 			array('permission.permission_set', array('GLOBAL_MODERATORS', 'u_shout_view', 'group')),
-			
+
 			array('permission.permission_set', array('NEWLY_REGISTERED', 'u_shout_view', 'group')),
 			array('permission.permission_set', array('NEWLY_REGISTERED', 'u_shout_lateral', 'group')),
 			array('permission.permission_set', array('NEWLY_REGISTERED', 'u_shout_post', 'group')),
@@ -271,67 +272,24 @@ class breizhshoutbox_1_0_0 extends migration
 			array('permission.permission_set', array('BOTS', 'u_shout_view', 'group')),
 
 			// Add ACP extension category
-			array(
-				'module.add',
-				array(
-					'acp',
-					'',
-					array(
-						'module_langname'	=> 'ACP_SHOUTBOX',
-					),
-				)
-			),
-			array(
-				'module.add',
-				array(
-					'acp',
-					'ACP_SHOUTBOX',
-					array(
-						'module_langname'	=> 'ACP_SHOUT_GENERAL_CAT',
-					),
-				)
-			),
-			array(
-				'module.add',
-				array(
-					'acp',
-					'ACP_SHOUTBOX',
-					array(
-						'module_langname'	=> 'ACP_SHOUT_PRIVATE_CAT',
-					),
-				)
-			),
-			array(
-				'module.add',
-				array(
-					'acp',
-					'ACP_SHOUTBOX',
-					array(
-						'module_langname'	=> 'ACP_SHOUT_POPUP_CAT',
-					),
-				)
-			),
-			array(
-				'module.add',
-				array(
-					'acp',
-					'ACP_SHOUTBOX',
-					array(
-						'module_langname'	=> 'ACP_SHOUT_SMILIES_CAT',
-					),
-				)
-			),
-			array(
-				'module.add',
-				array(
-					'acp',
-					'ACP_SHOUTBOX',
-					array(
-						'module_langname'	=> 'ACP_SHOUT_ROBOT_CAT',
-					),
-				)
-			),
-
+			array('module.add', array('acp', '', array(
+				'module_langname'	=> 'ACP_SHOUTBOX',
+			))),
+			array('module.add', array('acp', 'ACP_SHOUTBOX', array(
+				'module_langname'	=> 'ACP_SHOUT_GENERAL_CAT',
+			))),
+			array('module.add', array('acp', 'ACP_SHOUTBOX', array(
+				'module_langname'	=> 'ACP_SHOUT_PRIVATE_CAT',
+			))),
+			array('module.add', array('acp', 'ACP_SHOUTBOX', array(
+				'module_langname'	=> 'ACP_SHOUT_POPUP_CAT',
+			))),
+			array('module.add', array('acp', 'ACP_SHOUTBOX', array(
+				'module_langname'	=> 'ACP_SHOUT_SMILIES_CAT',
+			))),
+			array('module.add', array('acp', 'ACP_SHOUTBOX', array(
+				'module_langname'	=> 'ACP_SHOUT_ROBOT_CAT'
+			))),
 			array('module.add', array('acp', 'ACP_SHOUT_GENERAL_CAT', array(
 				'module_basename'	=> '\sylver35\breizhshoutbox\acp\main_module',
 				'module_langname'	=> 'ACP_SHOUT_CONFIGS',
@@ -356,7 +314,6 @@ class breizhshoutbox_1_0_0 extends migration
 				'module_mode'		=> 'rules',
 				'module_auth'		=> 'ext_sylver35/breizhshoutbox && acl_a_shout_manage',
 			))),
-			
 			array('module.add', array('acp', 'ACP_SHOUT_PRIVATE_CAT', array(
 				'module_basename'	=> '\sylver35\breizhshoutbox\acp\main_module',
 				'module_langname'	=> 'ACP_SHOUT_CONFIG_PRIV',
@@ -369,7 +326,6 @@ class breizhshoutbox_1_0_0 extends migration
 				'module_mode'		=> 'private',
 				'module_auth'		=> 'ext_sylver35/breizhshoutbox && acl_a_shout_priv',
 			))),
-			
 			array('module.add', array('acp', 'ACP_SHOUT_POPUP_CAT', array(
 				'module_basename'	=> '\sylver35\breizhshoutbox\acp\main_module',
 				'module_langname'	=> 'ACP_SHOUT_POPUP',
@@ -382,21 +338,20 @@ class breizhshoutbox_1_0_0 extends migration
 				'module_mode'		=> 'panel',
 				'module_auth'		=> 'ext_sylver35/breizhshoutbox && acl_a_shout_manage',
 			))),
-			
 			array('module.add', array('acp', 'ACP_SHOUT_SMILIES_CAT', array(
 				'module_basename'	=> '\sylver35\breizhshoutbox\acp\main_module',
 				'module_langname'	=> 'ACP_SHOUT_SMILIES',
 				'module_mode'		=> 'smilies',
 				'module_auth'		=> 'ext_sylver35/breizhshoutbox && acl_a_shout_manage',
 			))),
-			
 			array('module.add', array('acp', 'ACP_SHOUT_ROBOT_CAT', array(
 				'module_basename'	=> '\sylver35\breizhshoutbox\acp\main_module',
 				'module_langname'	=> 'ACP_SHOUT_ROBOT',
 				'module_mode'		=> 'robot',
 				'module_auth'		=> 'ext_sylver35/breizhshoutbox && acl_a_shout_manage',
 			))),
-			
+
+			// Custon function for first message
 			array('custom', array(
 				array(&$this, 'add_first_messages')
 			)),
@@ -408,7 +363,7 @@ class breizhshoutbox_1_0_0 extends migration
 		return array(
 			'add_tables' => array(
 				$this->table_prefix . 'shoutbox' => array(
-					'COLUMNS'		=> array(
+					'COLUMNS'	=> array(
 						'shout_id'					=> array('UINT', null, 'auto_increment'),
 						'shout_time'				=> array('UINT:11', 0),
 						'shout_user_id'				=> array('UINT', 0),
@@ -427,9 +382,9 @@ class breizhshoutbox_1_0_0 extends migration
 					),
 					'PRIMARY_KEY'	=> 'shout_id',
 				),
-				
+
 				$this->table_prefix . 'shoutbox_priv' => array(
-					'COLUMNS'		=> array(
+					'COLUMNS'	=> array(
 						'shout_id'					=> array('UINT', null, 'auto_increment'),
 						'shout_time'				=> array('UINT:11', 0),
 						'shout_user_id'				=> array('UINT', 0),
@@ -448,9 +403,9 @@ class breizhshoutbox_1_0_0 extends migration
 					),
 					'PRIMARY_KEY'	=> 'shout_id',
 				),
-				
+
 				$this->table_prefix . 'shoutbox_rules' => array(
-					'COLUMNS'		=> array(
+					'COLUMNS'	=> array(
 						'id'						=> array('UINT', null, 'auto_increment'),
 						'rules_lang'				=> array('VCHAR:30', ''),
 						'rules_text'				=> array('MTEXT_UNI', ''),
@@ -465,7 +420,7 @@ class breizhshoutbox_1_0_0 extends migration
 					'PRIMARY_KEY'	=> 'id',
 				),
 			),
-			
+
 			'add_columns' => array(
 				$this->table_prefix . 'smilies' => array(
 					'display_on_shout'	=> array('TINT:1', 1),
@@ -499,7 +454,7 @@ class breizhshoutbox_1_0_0 extends migration
 			),
 		);
 	}
-	
+
 	public function add_first_messages()
 	{
 		if ($this->db_tools->sql_table_exists($this->table_prefix . 'shoutbox') && $this->db_tools->sql_table_exists($this->table_prefix . 'shoutbox_priv'))
@@ -517,10 +472,10 @@ class breizhshoutbox_1_0_0 extends migration
 				'shout_forum'				=> 0,
 				'shout_info'				=> 99,
 			);
-			
+
 			$sql = 'INSERT INTO ' . $this->table_prefix . 'shoutbox ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);
-			
+
 			$sql = 'INSERT INTO ' . $this->table_prefix . 'shoutbox_priv ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);
 		}

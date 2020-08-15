@@ -23,10 +23,11 @@ class breizhshoutbox_1_5_0 extends migration
 		return array(
 			// Version of extension
 			array('config.update', array('shout_version', '1.5.0')),
+
 			// Config
 			array('config.add', array('shout_name_robot', 'Robot')),
 			array('config.add', array('shout_rules_open_priv', 0)),
-			array('config.add', array('shout_see_button_ip', 1)),
+			array('config.add', array('shout_see_button_ip', 0)),
 		);
 	}
 }

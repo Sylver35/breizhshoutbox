@@ -23,6 +23,7 @@ class breizhshoutbox_1_4_0 extends migration
 		return array(
 			// Version of extension
 			array('config.update', array('shout_version', '1.4.0')),
+
 			// Config
 			array('config.add', array('shout_video_new', 1)),
 		);

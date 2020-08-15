@@ -131,28 +131,6 @@ class shoutbox
 	}
 
 	/**
-	 * Prints a sql error.
-	 * @param string $sql Sql query
-	 * @param int $line Line number
-	 * @param string $file Filename
-	 * @return void
-	 */
-	private function shout_sql_error($sql, $line, $file)
-	{
-		$response = new json_response();
-		$err = $this->db->sql_error();
-
-		$response->send(array(
-			'message'	=> $err['message'],
-			'line'		=> $line,
-			'file'		=> $file,
-			'content'	=> $sql,
-			'error'		=> true,
-			't'			=> 1,
-		), true);
-	}
-
-	/**
 	 * Return error.
 	 * @param string $message Error
 	 * @return void
@@ -223,6 +201,28 @@ class shoutbox
 			$this->shout_sql_error($sql, __LINE__, __FILE__);
 			return false;
 		}
+	}
+
+	/**
+	 * Prints a sql error.
+	 * @param string $sql Sql query
+	 * @param int $line Line number
+	 * @param string $file Filename
+	 * @return void
+	 */
+	private function shout_sql_error($sql, $line, $file)
+	{
+		$response = new json_response();
+		$err = $this->db->sql_error();
+
+		$response->send(array(
+			'message'	=> $err['message'],
+			'line'		=> $line,
+			'file'		=> $file,
+			'content'	=> $sql,
+			'error'		=> true,
+			't'			=> 1,
+		), true);
 	}
 
 	public function shout_manage_ajax($mode, $sort, $id)
@@ -402,7 +402,6 @@ class shoutbox
 
 	/**
 	 * Delete posts when the maximum reaches
-	 * Work in normal and private shoutbox
 	 */
 	private function delete_shout_posts($val)
 	{
@@ -526,7 +525,7 @@ class shoutbox
 				}
 			}
 		}
-		return false;
+		return '';
 	}
 
 	/**
@@ -586,7 +585,7 @@ class shoutbox
 			'texte'	=> '',
 		);
 		$iso = $this->check_shout_rules($sort);
-		if ($iso)
+		if ($iso !== '')
 		{
 			$rules = $this->get_shout_rules();
 			$text = $rules[$iso];
@@ -4167,6 +4166,20 @@ class shoutbox
 		}
 
 		// Construct the user's preferences
+		$result = $this->create_user_preferences($data);
+		$data = $result['data'];
+		$sound = $result['sound'];
+
+		$this->template->assign_vars(array(
+			'LIST_SETTINGS_AUTH'		=> $this->settings_auth_to_javascript($data),
+			'LIST_SETTINGS_STRING'		=> $this->settings_to_javascript($data, $sound),
+			'LIST_SETTINGS_LANG'		=> $this->lang_to_javascript($data),
+			'ON_SHOUT_DISPLAY'			=> true,
+		));
+	}
+
+	private function create_user_preferences($data)
+	{
 		if ($data['is_user'])
 		{
 			$shout = json_decode($this->user->data['user_shout']);
@@ -4239,19 +4252,17 @@ class shoutbox
 		}
 		$data['inactiv'] = (($data['inactiv'] > 0) && ($data['sort_of'] !== 3)) ? round($data['inactiv'] * 60 / ($data['refresh'] / 1000)) : 0;
 
-		$this->template->assign_vars(array(
-			'LIST_SETTINGS_AUTH'		=> $this->settings_auth_to_javascript($data),
-			'LIST_SETTINGS_STRING'		=> $this->settings_to_javascript($data, $sound),
-			'LIST_SETTINGS_LANG'		=> $this->lang_to_javascript($data),
-			'ON_SHOUT_DISPLAY'			=> true,
-		));
+		return array(
+			'data'	=> $data,
+			'sound'	=> $sound,
+		);
 	}
 
 	private function settings_auth_to_javascript($data)
 	{
 		// Display the rules if wanted
 		$rules = $rules_open = false;
-		if ($this->check_shout_rules($data['sort']))
+		if ($this->check_shout_rules($data['sort']) !== '')
 		{
 			$rules = true;
 			// Display the rules opened by default if wanted
@@ -4454,7 +4465,7 @@ class shoutbox
 			'LESS_SMILIES_ALT'		=> $this->language->lang('SHOUT_LESS_SMILIES_ALT'),
 			'TOO_BIG'				=> $this->language->lang('SHOUT_TOO_BIG'),
 			'TOO_BIG2'				=> $this->language->lang('SHOUT_TOO_BIG2'),
-			'ACTION_CITE'			=> $this->language->lang('SHOUT_ACTION_CITE'),
+			'ACTION_CITE'			=> $this->language->lang('SHOUT_ACTION_CITE_M'),
 			'CITE_ON'				=> $this->language->lang('SHOUT_ACTION_CITE_ON'),
 			'SHOUT_CLOSE'			=> $this->language->lang('SHOUT_CLOSE'),
 			'BBCODES'				=> $this->language->lang('SHOUT_BBCODES'),

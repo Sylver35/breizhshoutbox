@@ -23,6 +23,7 @@ class breizhshoutbox_1_2_0 extends migration
 		return array(
 			// Version of extension
 			array('config.update', array('shout_version', '1.2.0')),
+
 			// Config
 			array('config.add', array('shout_last_run_birthday', '', true)),
 			array('config.add', array('shout_arcade_new', 0)),
