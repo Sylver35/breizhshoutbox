@@ -4166,7 +4166,7 @@ class shoutbox
 		}
 
 		// Construct the user's preferences
-		$result = $this->create_user_preferences($data);
+		$result = $this->create_user_preferences($data, $sort_of);
 		$data = $result['data'];
 		$sound = $result['sound'];
 
@@ -4178,7 +4178,7 @@ class shoutbox
 		));
 	}
 
-	private function create_user_preferences($data)
+	private function create_user_preferences($data, $sort_of)
 	{
 		if ($data['is_user'])
 		{
