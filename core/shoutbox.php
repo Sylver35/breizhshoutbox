@@ -452,7 +452,7 @@ class shoutbox
 			$this->config->set("shout_del_auto{$val['priv']}", $deleted, true);
 			if ($this->config['shout_delete_robot'])
 			{
-				$this->post_robot_shout(0, '0.0.0.0', $sort, true, false, true, true, $deleted);
+				$this->post_robot_shout(0, '0.0.0.0', $val['on_priv'], true, false, true, true, $deleted);
 			}
 		}
 	}
@@ -2827,6 +2827,7 @@ class shoutbox
 
 	public function shout_ajax_action_sound($on_sound)
 	{
+		$content = array();
 		$shout = json_decode($this->user->data['user_shout']);
 		$on_sound = ($shout->user == 2) ? $on_sound : $shout->user;
 		switch ($on_sound)
@@ -2952,9 +2953,6 @@ class shoutbox
 		{
 			$info = 65;
 			$robot = false;
-			$data = array(
-				'type'	=> 3,
-			);
 
 			if (!$val['id'])
 			{

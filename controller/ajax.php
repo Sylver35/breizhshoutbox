@@ -49,6 +49,7 @@ class ajax
 	{
 		$val = $this->shoutbox->shout_manage_ajax($mode, $this->request->variable('sort', 2), $this->request->variable('user', 0));
 		$response = new \phpbb\json_response;
+		$data = array();
 
 		// We have our own error handling
 		$this->db->sql_return_on_error(true);
