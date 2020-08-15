@@ -85,4 +85,3 @@ services:
             - '@dbal.conn'
             - '@request'
             - '@auth'
-            - '@language'
