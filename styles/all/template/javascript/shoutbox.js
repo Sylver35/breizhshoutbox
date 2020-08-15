@@ -518,7 +518,6 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		}
 		if($('#shout_chars').length && $('#shout_chars').is(':visible')){
 			shoutbox.sE('shout_chars',2);
-			shoutbox.iH('char_shout1','',2);
 			$('#chars01').attr('title', bzhLang['CHARS']);
 		}
 		if($('#shoutbox_posting').length && $('#shoutbox_posting').is(':visible')){
@@ -563,31 +562,30 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					shoutbox.message(response,true,5000,true);
 					return;
 				}
-				$('#shoutCheckSpan').html(response.message)
+				var colorCheck = 'green';
 				switch(response.type){
 					case 1:
 						$('#shout_text1').val('');
 						$('#shout_text2').val('');
 						$('#shoutexemple').html(response.text);
-						$('#shoutCheckSpan').css('color','green');
 					break;
 					case 2:
-						$('#shoutCheckSpan').css('color','red');
+						colorCheck = 'red';
 					break;
 					case 3:
 						$('#shout_text1').html(response.before);
 						$('#shout_text2').html(response.after);
 						$('#shoutexemple').html(response.text);
-						$('#shoutCheckSpan').css('color','green');
 					break;
 					case 4:
+						colorCheck = 'blue';
 						$('#shoutexemple').html(response.text);
-						$('#shoutCheckSpan').css('color','blue');
 					break;
 					case 5:
-						$('#shoutCheckSpan').css('color','red');
+						colorCheck = 'red';
 					break;
 				}
+				$('#shoutCheckSpan').html(response.message).css('color',colorCheck);
 			},
 			error: function(){
 				$('#shoutcheck').html('');
@@ -1002,6 +1000,21 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		$('#spa'+thisId).css('border', '0px none').html(bzhLang['SHOUT_EDIT']+': ');
 		$('#input'+thisId).focus();
 	};
+	
+	shoutbox.cancelMessage = function(thisId){
+		$('#openEdit').val(0);
+		$('#post_message').show();
+		shoutbox.iH('spa'+thisId,'',false);
+		shoutbox.sE('form'+thisId,2);
+		shoutbox.sE('shout'+thisId,3);
+		shoutbox.sE('editButton'+thisId,3);
+		shoutbox.sE('dtshout'+thisId,3);
+		shoutbox.sE('ddshout'+thisId,3);
+		shoutbox.sE('infoButton'+thisId,3);
+		shoutbox.sE('deleteButton'+thisId,3);
+		shoutbox.closeAll();
+		shoutbox.reloadAll(true);
+	};
 
 	shoutbox.editMessage = function(thisId,shoutId){
 		shoutbox.sE('dtshout'+thisId,2);
@@ -1288,10 +1301,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				/* Loop for messages */
 				for(var i = 0; i < datas.total; i++){
 					var post = listMessages[i];
-					var okDelete = post.deletemsg;
-					var okEdit = post.edit;
-					var okInfo = post.showIp;
-					var okCite = (post.isUser && config.postOk && config.isUser && config.buttonCite) ? true : false;
+					var okDelete = post.deletemsg,okEdit = post.edit,okInfo = post.showIp,okCite = (post.isUser && config.postOk && config.isUser && config.buttonCite) ? true : false;
 					var li = shoutbox.cE('li','lishout'+i,'row row'+row+' bg'+row,false,false,false,false,false);
 					var dl = shoutbox.cE('dl','dlshout'+i,false,false,false,false,false,false);
 					row = (row === 1) ? 2 : 1;
@@ -1315,6 +1325,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 						editButton.onclick = function(){shoutbox.openEdit(this.i)};
 						var msg3 = shoutbox.cE('span','text'+i,'span-text-edit',false,false,false,false,false);
 						var editForm = shoutbox.cE('form','form'+i,false,'display:none;',false,false,false,false);
+						editForm.spellcheck = true;
 						editForm.onsubmit = function(){return false};
 						var spa = shoutbox.cE('span','spa'+i,false,false,false,false,false,false);
 						var inputEdit = shoutbox.cE('input','input'+i,'input-text-edit',false,false,false,false,false);
@@ -1336,20 +1347,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 						var buttonCancel = shoutbox.cE('input',false,'button btnmain',false,bzhLang['CANCEL'],'button',false,false);
 						buttonCancel.i = i;
 						buttonCancel.value = bzhLang['CANCEL'];
-						buttonCancel.onclick = function(){
-							$('#openEdit').val(0);
-							$('#post_message').show();
-							shoutbox.iH('spa'+this.i,'',false);
-							shoutbox.sE('form'+this.i,2);
-							shoutbox.sE('shout'+this.i,3);
-							shoutbox.sE('editButton'+this.i,3);
-							shoutbox.sE('dtshout'+this.i,3);
-							shoutbox.sE('ddshout'+this.i,3);
-							shoutbox.sE('infoButton'+this.i,3);
-							shoutbox.sE('deleteButton'+this.i,3);
-							shoutbox.closeAll();
-							shoutbox.reloadAll(true);
-						};
+						buttonCancel.onclick = function(){shoutbox.cancelMessage(this.i)};
 					}else if(config.buttonsLeft){
 						editButton = shoutbox.cE('input','editButton'+i,'button_shout_edit_no button_shout_l',false,bzhLang['NO_EDIT'],'button',false,false);
 						editButton.onclick = function(){alert(bzhLang['NO_EDIT'])};
@@ -1364,14 +1362,12 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 							infoButton.onclick = function(){alert(bzhLang['NO_IP_PERM'])};
 						}
 					}
-					
 					if(okCite){
 						citeButton = shoutbox.cE('input','citeButton'+i,'button_shout_cite button_shout_l',false,bzhLang['ACTION_CITE'],'button',false,false);
 						citeButton.name = post.name;
 						citeButton.colour = post.colour
 						citeButton.onclick = function(){shoutbox.citeMultiMsg(this.name, this.colour)};
 					}
-					
 					if(!okInfo && !okEdit && !okDelete && !okCite && !config.buttonsLeft){
 						var dtt = shoutbox.cE('dt',false,false,'padding:0;display:inline;float:'+config.direction,false,false,false,false);
 					}else{
@@ -1382,14 +1378,13 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					dtt.appendChild(infoButton);
 					dtt.appendChild(citeButton);
 					dl.appendChild(dtt);
-					
+
 					var spanNow = (post.timeMsg > (nowTime - 3700)) ? '<span name="time-shout" time="'+post.timeMsg+'">'+post.shoutTime+'</span>' : '<span name="no-time-shout">'+post.shoutTime+'</span>';
 					var onAvatar = (post.avatar && post.avatar.length > 1) ? bzhLang['SHOUT_SEP']+'<span class="avatar-shout">'+post.avatar+'</span>' : '';
 					var ddd = shoutbox.cE('dd','ddshout'+i,false,'width:auto',false,false,spanNow+onAvatar+bzhLang['SHOUT_SEP']+post.username+':',false);
 					var dd = shoutbox.cE('dd','msgbody'+i,'msgbody'+config.direction,false,false,false,false,false);
-					var msg2 = shoutbox.cE('span','shout'+i,'msg_shout',false,false,false,post.shoutText,false);
-					
-					dd.appendChild(msg2);
+
+					dd.appendChild(shoutbox.cE('span','shout'+i,'msg_shout',false,false,false,post.shoutText,false));
 					if(okEdit){
 						editForm.appendChild(spa);
 						editForm.appendChild(inputEdit);
@@ -1403,7 +1398,6 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					li.appendChild(dl);
 					$('#shout_messages').append(li);
 				}
-				
 				if(config.toBottom){
 					$('#shout_messages').scrollTop(0);
 				}else{
