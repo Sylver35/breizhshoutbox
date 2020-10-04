@@ -8,7 +8,6 @@
 */
 
 namespace sylver35\breizhshoutbox\core;
-
 use phpbb\json_response;
 use phpbb\exception\http_exception;
 use phpbb\cache\driver\driver_interface as cache;
@@ -65,7 +64,7 @@ class shoutbox
 	/** @var \phpbb\log\log */
 	protected $log;
 
-	/** @var Container */
+	/** @var \Symfony\Component\DependencyInjection\Container */
 	protected $phpbb_container;
 
 	/** @var \phpbb\extension\manager */
@@ -388,7 +387,7 @@ class shoutbox
 					$this->config->increment("shout_del_auto{$priv}", $deleted, true);
 					if ($this->config["shout_log_cron{$priv}"])
 					{
-						$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, "LOG_SHOUT{$private}_PURGED", time(), array($deleted));
+						$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT' . $private . '_PURGED', time(), array($deleted));
 					}
 					if ($this->config['shout_delete_robot'])
 					{
@@ -446,7 +445,7 @@ class shoutbox
 
 			if ($this->config["shout_log_cron{$val['priv']}"])
 			{
-				$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, "LOG_SHOUT{$val['priv']}_REMOVED", time(), array($deleted));
+				$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT' . $val['priv'] . '_REMOVED', time(), array($deleted));
 			}
 			$this->config->set("shout_del_auto{$val['priv']}", $deleted, true);
 			if ($this->config['shout_delete_robot'])
@@ -584,6 +583,7 @@ class shoutbox
 			'sort'	=> 0,
 			'texte'	=> '',
 		);
+
 		$iso = $this->check_shout_rules($sort);
 		if ($iso !== '')
 		{
@@ -591,7 +591,7 @@ class shoutbox
 			$text = $rules[$iso];
 			if ($text["rules_text{$sort}"])
 			{
-				if (!function_exists('gen_sort_selects'))
+				if (!function_exists('generate_text_for_display'))
 				{
 					include($this->root_path . 'includes/functions_content.' . $this->php_ext);
 				}
@@ -682,6 +682,7 @@ class shoutbox
 	 */
 	public function delete_user_messages($user_id)
 	{
+		$user_id = (int) $user_id;
 		// Phase 1 delete messages in shoutbox table
 		$sql = 'DELETE FROM ' . $this->shoutbox_table . "
 			WHERE shout_user_id = $user_id
@@ -714,6 +715,7 @@ class shoutbox
 	 */
 	public function shout_delete_topic($topic_id)
 	{
+		$topic_id = (int) $topic_id;
 		// Phase 1 delete messages in shoutbox table
 		$sql = 'DELETE FROM ' . $this->shoutbox_table . "
 			WHERE shout_forum <> 0
@@ -744,6 +746,7 @@ class shoutbox
 	 */
 	public function shout_delete_post($post_id)
 	{
+		$post_id = (int) $post_id;
 		// Phase 1 delete messages in shoutbox table
 		$sql = 'DELETE FROM ' . $this->shoutbox_table . "
 			WHERE shout_forum <> 0
@@ -867,7 +870,7 @@ class shoutbox
 		}
 		$this->shout_run_robot(true);
 	}
-	
+
 	private function shout_charge_posting()
 	{
 		if ($this->auth->acl_get('u_shout_post') && $this->auth->acl_get('u_shout_bbcode'))
@@ -1147,7 +1150,7 @@ class shoutbox
 		{
 			$sql = 'SELECT shout_bbcode
 				FROM ' . USERS_TABLE . '
-					WHERE user_id = ' . $other;
+					WHERE user_id = ' . (int) $other;
 			$result = $this->db->sql_query($sql);
 			$shout_bbcode = $this->db->sql_fetchfield('shout_bbcode');
 			$this->db->sql_freeresult($result);
@@ -1555,7 +1558,7 @@ class shoutbox
 			'colorbot'	=> '[color=#' . $this->config['shout_color_message'] . '][i]' . $content1 . '[/i][/color]',
 			'personal'	=> 'onclick="shoutbox.personalMsg();" title="' . $this->language->lang('SHOUT_ACTION_MSG') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_MSG'),
 			'citemsg'	=> 'onclick="shoutbox.citeMsg();" title="' . $this->language->lang('SHOUT_ACTION_CITE_EXPLAIN') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_CITE'),
-			'citemulti'	=> 'onclick="shoutbox.citeMultiMsg(\'' . $content1 . '\', \'' . $content2 . '\');" title="' . $this->language->lang('SHOUT_ACTION_CITE_M_EXPLAIN') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_CITE_M'),
+			'citemulti'	=> 'onclick="shoutbox.citeMultiMsg(\'' . $content1 . '\', \'' . $content2 . '\', true);" title="' . $this->language->lang('SHOUT_ACTION_CITE_M_EXPLAIN') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_CITE_M'),
 			'perso'		=> 'onclick="shoutbox.changePerso(' . $content1 . ');" title="' . $this->language->lang('SHOUT_ACTION_PERSO') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_PERSO'),
 			'robot'		=> 'onclick="shoutbox.robotMsg(' . $content1 . ');" title="' . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->config['shout_name_robot']) . '"><span title="">' . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->construct_action_shout(0)),
 			'delreqto'	=> 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DEL_TO_EXPLAIN') . '\'))shoutbox.delReqTo(' . $content1 . ');" title="' . $this->language->lang('SHOUT_ACTION_DEL_TO') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_DEL_TO'),
@@ -2618,10 +2621,7 @@ class shoutbox
 		 * @var	int		cat				The id of smilies category if needed
 		 * @since 1.7.0
 		 */
-		$vars = array(
-			'content',
-			'cat',
-		);
+		$vars = array('content', 'cat');
 		extract($this->phpbb_dispatcher->trigger_event('breizhshoutbox.smilies_popup', compact($vars)));
 
 		return $content;
@@ -2629,73 +2629,68 @@ class shoutbox
 
 	public function shout_ajax_display_smilies($smiley, $display)
 	{
-		if ($smiley && $display !== 3)
+		$var_set = ($display === 1) ? 0 : 1;
+		$sql = 'UPDATE ' . SMILIES_TABLE . " SET display_on_shout = $var_set WHERE smiley_id = $smiley";
+		$this->db->sql_query($sql);
+		$content = array(
+			'type'	=> ($display === 1) ? 1 : 2,
+		);
+
+		$i = $j = 0;
+		$smilies = $smilies_pop = [];
+		$sql = $this->db->sql_build_query('SELECT', array(
+			'SELECT'	=> 'smiley_url, MIN(smiley_id) AS smiley_id, MIN(code) AS code, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
+			'FROM'		=> array(SMILIES_TABLE => ''),
+			'WHERE'		=> 'display_on_shout = 1',
+			'GROUP_BY'	=> 'smiley_url',
+			'ORDER_BY'	=> 'min_smiley_order ASC',
+		));
+		$result = $this->shout_sql_query($sql);
+		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$var_set = ($display === 1) ? 0 : 1;
-			$sql = 'UPDATE ' . SMILIES_TABLE . " SET display_on_shout = $var_set WHERE smiley_id = $smiley";
-			$this->db->sql_query($sql);
-			$content = array('type'	=> ($display === 1) ? 1 : 2);
-
-			$i = $j = 0;
-			$smilies = $smilies_pop = [];
-			$sql = $this->db->sql_build_query('SELECT', array(
-				'SELECT'	=> 'smiley_url, MIN(smiley_id) AS smiley_id, MIN(code) AS code, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
-				'FROM'		=> array(SMILIES_TABLE => ''),
-				'WHERE'		=> 'display_on_shout = 1',
-				'GROUP_BY'	=> 'smiley_url',
-				'ORDER_BY'	=> 'min_smiley_order ASC',
-			));
-			$result = $this->shout_sql_query($sql);
-			while ($row = $this->db->sql_fetchrow($result))
-			{
-				$smilies[$i] = array(
-					'nb'		=> $i,
-					'id'		=> (int) $row['smiley_id'],
-					'code'		=> (string) $row['code'],
-					'emotion'	=> (string) $row['emotion'],
-					'width'		=> (int) $row['smiley_width'],
-					'height'	=> (int) $row['smiley_height'],
-					'image'		=> (string) $row['smiley_url'],
-				);
-				$i++;
-			}
-			$this->db->sql_freeresult($result);
-
-			$sql = $this->db->sql_build_query('SELECT', array(
-				'SELECT'	=> 'smiley_url, MIN(smiley_id) AS smiley_id, MIN(code) AS code, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
-				'FROM'		=> array(SMILIES_TABLE => ''),
-				'WHERE'		=> 'display_on_shout = 0',
-				'GROUP_BY'	=> 'smiley_url',
-				'ORDER_BY'	=> 'min_smiley_order',
-			));
-			$result_pop = $this->shout_sql_query($sql);
-			while ($row = $this->db->sql_fetchrow($result_pop))
-			{
-				$smilies_pop[$j] = array(
-					'nb'		=> $j,
-					'id'		=> (int) $row['smiley_id'],
-					'code'		=> (string) $row['code'],
-					'emotion'	=> (string) $row['emotion'],
-					'width'		=> (int) $row['smiley_width'],
-					'height'	=> (int) $row['smiley_height'],
-					'image'		=> (string) $row['smiley_url'],
-				);
-				$j++;
-			}
-			$this->db->sql_freeresult($result_pop);
-
-			$content = array_merge($content, array(
-				'smilies'		=> $smilies,
-				'smiliesPop'	=> $smilies_pop,
-				'total'			=> $i,
-				'totalPop'		=> $j,
-				'url'			=> $this->root_path_web . $this->config['smilies_path'] . '/',
-			));
+			$smilies[$i] = array(
+				'nb'		=> $i,
+				'id'		=> (int) $row['smiley_id'],
+				'code'		=> (string) $row['code'],
+				'emotion'	=> (string) $row['emotion'],
+				'width'		=> (int) $row['smiley_width'],
+				'height'	=> (int) $row['smiley_height'],
+				'image'		=> (string) $row['smiley_url'],
+			);
+			$i++;
 		}
-		else
+		$this->db->sql_freeresult($result);
+
+		$sql = $this->db->sql_build_query('SELECT', array(
+			'SELECT'	=> 'smiley_url, MIN(smiley_id) AS smiley_id, MIN(code) AS code, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
+			'FROM'		=> array(SMILIES_TABLE => ''),
+			'WHERE'		=> 'display_on_shout = 0',
+			'GROUP_BY'	=> 'smiley_url',
+			'ORDER_BY'	=> 'min_smiley_order',
+		));
+		$result_pop = $this->shout_sql_query($sql);
+		while ($row = $this->db->sql_fetchrow($result_pop))
 		{
-			$content = array('type' => 3);
+			$smilies_pop[$j] = array(
+				'nb'		=> $j,
+				'id'		=> (int) $row['smiley_id'],
+				'code'		=> (string) $row['code'],
+				'emotion'	=> (string) $row['emotion'],
+				'width'		=> (int) $row['smiley_width'],
+				'height'	=> (int) $row['smiley_height'],
+				'image'		=> (string) $row['smiley_url'],
+			);
+			$j++;
 		}
+		$this->db->sql_freeresult($result_pop);
+
+		$content = array_merge($content, array(
+			'smilies'		=> $smilies,
+			'smiliesPop'	=> $smilies_pop,
+			'total'			=> $i,
+			'totalPop'		=> $j,
+			'url'			=> $this->root_path_web . $this->config['smilies_path'] . '/',
+		));
 
 		return $content;
 	}
@@ -2703,7 +2698,7 @@ class shoutbox
 	public function shout_ajax_user_bbcode($open, $close, $other)
 	{
 		$text = $message = '';
-		$on_user = $other ? $other : $this->user->data['user_id'];
+		$on_user = (int) $other ? $other : $this->user->data['user_id'];
 
 		// Parse bbcodes
 		$data = $this->parse_shout_bbcodes($open, $close, $other);
@@ -2771,7 +2766,7 @@ class shoutbox
 		$sql = $this->db->sql_build_query('SELECT', array(
 			'SELECT'	=> 'user_id, user_type, username, user_colour, shout_bbcode',
 			'FROM'		=> array(USERS_TABLE => ''),
-			'WHERE'		=> 'user_id = ' . $id,
+			'WHERE'		=> 'user_id = ' . (int) $id,
 		));
 		$result = $this->shout_sql_query($sql, true, 1);
 		$row = $this->db->sql_fetchrow($result);
@@ -4142,11 +4137,11 @@ class shoutbox
 		$version = $this->get_version();
 		$data = array(
 			'sort'		=> '',
-			'sort_of'	=> $sort_of,
-			'creator'	=> ($this->smiliecreator_exist()) ? true : false,
+			'sort_of'	=> (int) $sort_of,
+			'creator'	=> $this->smiliecreator_exist(),
 			'is_user'	=> ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false,
-			'version'	=> $version['version'],
-			'homepage'	=> $version['homepage'],
+			'version'	=> (string) $version['version'],
+			'homepage'	=> (string) $version['homepage'],
 		);
 
 		switch ($sort_of)
@@ -4266,7 +4261,7 @@ class shoutbox
 		{
 			$rules = true;
 			// Display the rules opened by default if wanted
-			$rules_open = ($this->config["shout_rules_open{$data['sort']}"]) ? true : false;
+			$rules_open = ($this->config["shout_rules_open{$data['sort']}"] && $this->auth->acl_get('u_shout_post')) ? true : false;
 		}
 
 		$settings_auth = array(
