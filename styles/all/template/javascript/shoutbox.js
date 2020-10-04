@@ -512,7 +512,9 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 	};
 
 	shoutbox.closeAction = function(){
-		shoutbox.permutUser(false);
+		if($('#span-post').length){
+			shoutbox.permutUser(false);
+		}
 		shoutbox.iH('h3user','',false);
 		shoutbox.iH('shout_url','',false);
 		shoutbox.iH('shout_avatar','',false)
@@ -858,11 +860,14 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		});
 	};
 
-	shoutbox.citeMultiMsg = function(multiName,multiColor){
+	shoutbox.citeMultiMsg = function(multiName,multiColor,closePanel){
 		if(multiColor != ''){
 			shoutbox.shoutInsertText('[b][color=#'+multiColor+']'+multiName+'[/color][/b]',true);
 		}else{
 			shoutbox.shoutInsertText('[b]'+multiName+'[/b]',true);
+		}
+		if(closePanel){
+			shoutbox.closeAction();
 		}
 	};
 
@@ -1375,7 +1380,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 						citeButton = shoutbox.cE('input','citeButton'+i,'button_shout_cite button_shout_l',false,bzhLang['ACTION_CITE'],'button',false,false);
 						citeButton.name = post.name;
 						citeButton.colour = post.colour ? post.colour : '';
-						citeButton.onclick = function(){shoutbox.citeMultiMsg(this.name,this.colour)};
+						citeButton.onclick = function(){shoutbox.citeMultiMsg(this.name,this.colour,false)};
 					}
 					if(!okInfo && !okEdit && !okDelete && !okCite && !config.buttonsLeft){
 						var dtt = shoutbox.cE('dt',false,false,'padding:0;display:inline;float:'+config.direction,false,false,false,false);
