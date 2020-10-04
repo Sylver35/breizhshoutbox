@@ -141,11 +141,11 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 	shoutbox.createInput = function(sort){
 		var css = sort ? 'shout-text-user' : 'inputbox',inputPost = shoutbox.cE('input','chat_message',css,'margin-'+config.direction+':6px;color:#9a9a9a;border-radius:3px;max-width:45%;width:'+config.widthPost,false,false,false,false);
 		inputPost.name = 'chat_message';
-		inputPost.spellcheck = true;
 		inputPost.value = bzhLang['AUTO'];
-		inputPost.onclick = function(){shoutbox.suppText('chat_message')};
-		inputPost.onfocus = function(){shoutbox.suppText('chat_message')};
-		inputPost.onblur = function(){shoutbox.addText('chat_message')};
+		inputPost.spellcheck = true;
+		inputPost.onclick = function(){shoutbox.suppText()};
+		inputPost.onfocus = function(){shoutbox.suppText()};
+		inputPost.onblur = function(){shoutbox.addText()};
 		if(sort === false){
 			inputPost.onkeypress = function(event){
 				if(event.keyCode === 13){
@@ -486,29 +486,28 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		});
 	};
 
-	shoutbox.suppText = function(sort){
-		if($('#'+sort).val() == bzhLang['AUTO']){
-			$('#'+sort).val('');
+	shoutbox.suppText = function(){
+		if($('#chat_message').val() == bzhLang['AUTO']){
+			$('#chat_message').val('');
 		}else{
-			var onTextShout = $('#'+sort).val();
+			var onTextShout = $('#chat_message').val();
 			onTextShout = onTextShout.replace(bzhLang['AUTO'],'');
-			$('#'+sort).val(onTextShout);
+			$('#chat_message').val(onTextShout);
 		}
-		$('#'+sort).css('color','black');
+		$('#chat_message').css('color','black');
 	};
 
-	shoutbox.addText = function(sort){
-		if($('#'+sort).val() == ''){
-			$('#'+sort).val(bzhLang['AUTO']);
-		}else if($('#'+sort).val() != bzhLang['AUTO']){
-			var onTextShout = $('#'+sort).val();
-			onTextShout = onTextShout.replace(bzhLang['AUTO'],'');
-			$('#'+sort).val(onTextShout);
+	shoutbox.addText = function(){
+		if($('#chat_message').val() == ''){
+			$('#chat_message').val(bzhLang['AUTO']);
+		}else if($('#chat_message').val() != bzhLang['AUTO']){
+			var onTextShout = $('#chat_message').val().replace(bzhLang['AUTO'],'');
+			$('#chat_message').val(onTextShout);
 		}
-		if($('#'+sort).val() == bzhLang['AUTO']){
-			$('#'+sort).css('color','#9A9A9A');
+		if($('#chat_message').val() == bzhLang['AUTO']){
+			$('#chat_message').css('color','#9A9A9A');
 		}else{
-			$('#'+sort).css('color','black');
+			$('#chat_message').css('color','black');
 		}
 	};
 
@@ -860,12 +859,11 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 	};
 
 	shoutbox.citeMultiMsg = function(multiName,multiColor){
-		if(multiColor){
+		if(multiColor != ''){
 			shoutbox.shoutInsertText('[b][color=#'+multiColor+']'+multiName+'[/color][/b]',true);
 		}else{
 			shoutbox.shoutInsertText('[b]'+multiName+'[/b]',true);
 		}
-		shoutbox.closeAction();
 	};
 
 	shoutbox.personalMsg = function(){
@@ -962,7 +960,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.runSmileys(true,false);" style="margin:5px;" title="'+bzhLang['LESS_SMILIES_ALT']+'"><span title="">'+bzhLang['LESS_SMILIES']+'</span></a> ... ';
 				}
 				if(config.creator){
-					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.shoutPopup(config.creatorUrl,\'550\',\'570\',\'_phpbbsmiliescreate\');shoutbox.suppText(\'chat_message\');" style="margin: 5px;" title="'+bzhLang['CREATOR']+'"><span title="">'+bzhLang['CREATOR']+'</span></a> ... ';
+					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.shoutPopup(config.creatorUrl,\'550\',\'570\',\'_phpbbsmiliescreate\');shoutbox.suppText();" style="margin: 5px;" title="'+bzhLang['CREATOR']+'"><span title="">'+bzhLang['CREATOR']+'</span></a> ... ';
 				}
 				if(config.category && typeof data.categories !== 'undefined'){
 					listeSmilies += (data.title_cat !== 'undefined') ? '<h3 style="margin-top:8px;">'+data.title_cat+'</h3>' : '';
@@ -1376,8 +1374,8 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					if(okCite){
 						citeButton = shoutbox.cE('input','citeButton'+i,'button_shout_cite button_shout_l',false,bzhLang['ACTION_CITE'],'button',false,false);
 						citeButton.name = post.name;
-						citeButton.colour = post.colour
-						citeButton.onclick = function(){shoutbox.citeMultiMsg(this.name, this.colour)};
+						citeButton.colour = post.colour ? post.colour : '';
+						citeButton.onclick = function(){shoutbox.citeMultiMsg(this.name,this.colour)};
 					}
 					if(!okInfo && !okEdit && !okDelete && !okCite && !config.buttonsLeft){
 						var dtt = shoutbox.cE('dt',false,false,'padding:0;display:inline;float:'+config.direction,false,false,false,false);
@@ -1525,11 +1523,11 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 							$('#smilies_ul').hide();
 							$('#smilies').html('').hide();
 							$('#iconSmilies').attr('title', bzhLang['SMILIES']);
-							shoutbox.addText('chat_message');
+							shoutbox.addText();
 						}else{
 							$('#iconSmilies').attr('title', bzhLang['SMILIES_CLOSE']);
 							$('#smilies_ul').show();
-							shoutbox.suppText('chat_message');
+							shoutbox.suppText();
 							shoutbox.runSmileys(true,false);
 						}
 					};
@@ -1545,11 +1543,11 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 						if($('#colour_shoutbox').is(':visible')){
 							$('#colour_shoutbox').hide();
 							$('#color_shout1').attr('title', bzhLang['COLOR']);
-							shoutbox.addText('chat_message');
+							shoutbox.addText();
 						}else{
 							$('#colour_shoutbox').show();
 							$('#color_shout1').attr('title', bzhLang['COLOR_CLOSE']);
-							shoutbox.suppText('chat_message');
+							shoutbox.suppText();
 						}
 					};
 					postingBox.appendChild(colored);
