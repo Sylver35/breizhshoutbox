@@ -35,8 +35,8 @@
 				<div id="online_shout"></div>
 			</li>
 		</ul>
-		{% INCLUDE '@sylver35_breizhshoutbox/user_action.html' %}
 		<form id="chat_form" name="postform">
+			{% INCLUDE '@sylver35_breizhshoutbox/user_action.html' %}
 			{% if SHOUT_POSTING %}
 			<ul id="shoutbox_posting" class="topiclist forums ul_rules" style="display:none;">
 				{% INCLUDE 'posting_buttons.html' %}

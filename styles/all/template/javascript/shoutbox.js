@@ -13,13 +13,6 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 (function($){  // Avoid conflicts with other libraries
 	'use strict';
 
-	if($('#shout_user1').length){
-		if($('#shout_user1').attr('disabled') == false){
-			form_name = 'formuser';
-			text_name = 'shout_user1';
-		}
-	}
-
 	shoutbox.onProgress = function(event){
 		if(event.lengthComputable){
 			shoutbox.iH('msg_txt','Progress: '+((event.loaded / event.total)*100)+'%',false);
@@ -53,19 +46,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 	};
 
 	shoutbox.shoutInsertText = function(text,spaces){
-		var cible = document.getElementById('shout_user1'),textarea;
-		if(cible == null){
-			var form_name = 'postform';
-			var text_name = 'chat_message';
-		}else{
-			if(cible.disabled == false){
-				var form_name = 'formuser';
-				var text_name = 'shout_user1';
-			}else{
-				var form_name = 'postform';
-				var text_name = 'chat_message';
-			}
-		}
+		var textarea,form_name = 'postform',text_name = 'chat_message';
 		textarea = document.forms[form_name].elements[text_name];
 		if(spaces){
 			text = ' '+text+' ';
@@ -150,11 +131,43 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 	};
 
 	shoutbox.goNameRed = function(){
-		$('#shoutnameyes').html(bzhLang['USERNAME_EXPLAIN']).css({'color':'red', 'font-weight':'bold'});
+		$('#shoutnameyes').html(bzhLang['USERNAME_EXPLAIN']).css({'color':'red','font-weight':'bold'});
 	};
 
 	shoutbox.goNameGreen = function(){
-		$('#shoutnameyes').html(bzhLang['CHOICE_YES']).css({'color':'green', 'font-weight':'normal'});
+		$('#shoutnameyes').html(bzhLang['CHOICE_YES']).css({'color':'green','font-weight':'normal'});
+	};
+
+	shoutbox.createInput = function(sort){
+		var css = sort ? 'shout-text-user' : 'inputbox',inputPost = shoutbox.cE('input','chat_message',css,'margin-'+config.direction+':6px;color:#9a9a9a;border-radius:3px;max-width:45%;width:'+config.widthPost,false,false,false,false);
+		inputPost.name = 'chat_message';
+		inputPost.spellcheck = true;
+		inputPost.value = bzhLang['AUTO'];
+		inputPost.onclick = function(){shoutbox.suppText('chat_message')};
+		inputPost.onfocus = function(){shoutbox.suppText('chat_message')};
+		inputPost.onblur = function(){shoutbox.addText('chat_message')};
+		if(sort === false){
+			inputPost.onkeypress = function(event){
+				if(event.keyCode === 13){
+					$('#postUser').click();
+					event.returnValue = false;
+					this.returnValue = false;
+					return false;
+				}
+				return true;
+			};
+		}else{
+			inputPost.onkeypress = function(event){
+				if(event.keyCode === 13){
+					$('#postAction').click();
+					event.returnValue = false;
+					this.returnValue = false;
+					return false;
+				}
+				return true;
+			};
+		}
+		return inputPost;
 	};
 
 	shoutbox.setRobot = function(){
@@ -169,21 +182,20 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 	};
 
 	shoutbox.permutUser = function(sort){
+		var inputPost = shoutbox.createInput(sort);
+		$('#chat_message').remove();
+		$('#span-post').remove();
 		if(sort){
-			var form_name = 'formuser',text_name = 'shout_user1';
-			$('#chat_message').css('background-color','#CCCCCC').prop('disabled',true).attr('disabled','disabled');
-			$('#shout_user1').val('').prop('disabled',false).attr({'autocomplete':'off','spellcheck':'true'});
+			var span = shoutbox.cE('span','span-post',false,'margin-'+config.direction+':6px;max-width:45%;display:inline-block;width:'+config.widthPost,false,false,false,false);
+			$(inputPost).insertBefore('#postAction');
+			$(span).insertBefore('#postUser');
 		}else{
-			var form_name = 'postform',text_name = 'chat_message';
-			$('#chat_message').css('background-color','white').prop('disabled',false).attr('autocomplete', 'off');
-			$('#shout_user1').val('').prop('disabled',true).attr('disabled','disabled');
+			$(inputPost).insertBefore('#postUser');
 		}
 	};
 
 	shoutbox.message = function(msg, red, clearOn, reload){
-		var colorMsg = red ? 'red' : 'green';
-		var tempsMsg = red ? 5000 : 3000;
-		var align = 'center',msgDisplay = '',span = '<span style="color:black;font-weight:bold;">',endSpan = ' : </span>',bR = '<br />';
+		var colorMsg = red ? 'red' : 'green',tempsMsg = red ? 5000 : 3000,align = 'center',msgDisplay = '',span = '<span style="color:black;font-weight:bold;">',endSpan = ' : </span>',bR = '<br />';
 		if(typeof msg === 'object'){
 			msgDisplay = span+bzhLang['ERROR']+endSpan+msg['message'];
 			msgDisplay += msg['line'] ? bR+span+bzhLang['LINE']+endSpan+msg['line'] : '';
@@ -338,8 +350,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				goSound = true;
 			}
 		}
-		if(goSound){
-			// 1 : New message, 2 : Error (default), 3 : Delete, 4 : Add message, 5 : Edit message, 6 : special auto sound
+		if(goSound !== false){
 			if($('#shoutAudio-'+sort).attr('title') !== 'off'){
 				if($('#shoutAudio-'+sort).prop('paused')){
 					$('#shoutAudio-'+sort).trigger('play');
@@ -691,12 +702,12 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 	};
 
 	shoutbox.sendUserAction = function(){
-		if($('#shout_user1').val() == '' || $('#shout_user1').val() == bzhLang['AUTO']){
+		if($('#chat_message').val() == '' || $('#chat_message').val() == bzhLang['AUTO']){
 			alert(bzhLang['MESSAGE_EMPTY']);
 			return;
 		}else{
 			$('#msg_txt').html(bzhLang['SENDING']);
-			var ondata = 'user='+$('#user_inp').val()+'&pr='+$('#user_inp_sort').val()+'&sort='+config.sortShoutNb+'&message='+shoutbox.encodeUtf8($('#shout_user1').val());
+			var ondata = 'user='+$('#user_inp').val()+'&pr='+$('#user_inp_sort').val()+'&sort='+config.sortShoutNb+'&message='+shoutbox.encodeUtf8($('#chat_message').val());
 			shoutbox.permutUser(false);
 			shoutbox.sE('msg_user_shout',2);
 			shoutbox.sE('user_action',2);
@@ -718,7 +729,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 						shoutbox.message(response,true,'',true);
 						shoutbox.permutUser(false);
 					}else{
-						$('#shout_user1').val('');
+						$('#chat_message').val('');
 						$('#user_inp').val('');
 						if(response.type == 1){
 							onCount = 0;
@@ -864,7 +875,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		$('#user_cite').val('');
 		$('#shout_url').html('');
 		$('#shoutMsg').html('&nbsp;&nbsp;'+bzhLang['ACTION_MSG']+':');
-		$('#shout_user1').focus();
+		$('#chat_message').focus();
 	};
 
 	shoutbox.robotMsg = function(sortRobot){
@@ -877,7 +888,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		shoutbox.iH('shout_avatar','');
 		$('#user_inp').val(1);
 		$('#user_inp_sort').val(sortRobot);
-		$('#shout_user1').focus();
+		$('#chat_message').focus();
 	};
 
 	shoutbox.soundReq = function(){
@@ -936,7 +947,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				if(typeof data.title !== 'undefined' && data.title){
 					listeSmilies += '<h3 style="margin-top:2px;">'+data.title+'</h3>';
 				}
-				if(typeof data.emptyRow !== 'undefined' && data.emptyRow !== false){
+				if(typeof data.emptyRow !== 'undefined' && data.emptyRow !== ''){
 					listeSmilies += '<span style="color:red;font-weight:bold;">'+data.emptyRow+'</span>';
 				}
 				for(var i = 0; i < data.total; i++){
@@ -1250,7 +1261,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 	};
 
 	shoutbox.loadMessages = function(){
-		if($('#openEdit').val() === 1){
+		if($('#openEdit').val() == 1){
 			clearInterval(timerIn);
 			return;
 		}
@@ -1455,6 +1466,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 			var postingBox = shoutbox.cE('div','postingBox',false,postingStyle,false,false,false,false);
 
 			var spanAudio = shoutbox.cE('span','audioShout','no_display',false,false,false,false,false);
+			// 1 : New message, 2 : Error (default), 3 : Delete, 4 : Add message, 5 : Edit message, 6 : special auto sound
 			var listSounds = [[1,'new',config.newSound],[2,'error',config.errorSound],[3,'del',config.delSound],[4,'add',config.addSound],[5,'edit',config.editSound],[6,'auto','discretion']];
 			for(var i = 0; i < listSounds.length; i++){
 				var sound = listSounds[i];
@@ -1468,10 +1480,10 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				spanAudio.appendChild(lecteur);
 			}
 
-			var activeSound = ($('#onSound').val() == '1') ? true : false,soundCss = activeSound ? '' : '_off',soundTitle = activeSound ? bzhLang['SOUND_OFF'] : bzhLang['SOUND'];
+			var activeSound = ($('#onSound').val() == 1) ? true : false,soundCss = activeSound ? '' : '_off',soundTitle = activeSound ? bzhLang['SOUND_OFF'] : bzhLang['SOUND'];
 			var buttonSound = shoutbox.cE('input','iconSound','button_shout_sound'+soundCss+' button_shout','',soundTitle,'button',false,false);
 			buttonSound.onclick = function(){shoutbox.soundReq()};
-			var cssBot = ($('#onBot').val() == '1') ? 'on' : 'off',botTitle = bzhLang['ROBOT_'+cssBot.toUpperCase()];
+			var cssBot = ($('#onBot').val() == 1) ? 'on' : 'off',botTitle = bzhLang['ROBOT_'+cssBot.toUpperCase()];
 			var buttonBot = shoutbox.cE('input','iconBot','button_shout_bot_'+cssBot+' shout_bot button_shout','',botTitle,'button',false,false);
 			buttonBot.onclick = function(){shoutbox.setRobot()};
 
@@ -1500,23 +1512,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				postingBox.appendChild(printPerm);
 			}else{
 				// Create the posting bar now
-				var inputPost = shoutbox.cE('input','chat_message','inputbox','margin-'+config.direction+':6px;color:#9a9a9a;border-radius:3px;max-width:45%;width:'+config.widthPost,false,false,false,false);
-				inputPost.name = 'chat_message';
-				inputPost.disabled = false;
-				inputPost.spellcheck = true;
-				inputPost.value = bzhLang['AUTO'];
-				inputPost.onclick = function(){shoutbox.suppText('chat_message')};
-				inputPost.onfocus = function(){shoutbox.suppText('chat_message')};
-				inputPost.onblur = function(){shoutbox.addText('chat_message')};
-				inputPost.onkeypress = function(event){
-					if(event.keyCode === 13){
-						$('#postUser').click();
-						event.returnValue = false;
-						this.returnValue = false;
-						return false;
-					}
-					return true;
-				};
+				var inputPost = shoutbox.createInput(false);
 				postingBox.appendChild(inputPost);
 				var postUser = shoutbox.cE('input','postUser','button btnmain','margin-'+config.direction+':6px;border-radius:4px;line-height:1.3;',bzhLang['POST_MESSAGE_ALT'],'button',false,false);
 				postUser.value = bzhLang['POST_MESSAGE'];
