@@ -25,6 +25,10 @@ div.div-smilies {
 	display: inline-block;
 }
 
+#main #abbc3_buttons{
+	margin-left: 20px;
+}
+
 th.th-centered, td.th-centered, td.td-centered {
 	text-align: center;
 }
@@ -32,21 +36,27 @@ th.th-centered, td.th-centered, td.td-centered {
 th.th3 {
 	width: 3%;
 }
+
 th.th4 {
 	width: 4%;
 }
+
 th.th5 {
 	width: 5%;
 }
+
 th.th6 {
 	width: 6%;
 }
+
 th.th11 {
 	width: 11%;
 }
+
 th.th12 {
 	width: 12%;
 }
+
 th.th13 {
 	width: 13%;
 }
@@ -105,11 +115,13 @@ a.smilies-red {
 	display: table;
 	margin: 2px;
 }
+
 div.row-chars {
 	display: table-row;
 	padding: 0;
 	margin: 0;
 }
+
 span.cell-chars {
 	display: table-cell;
 	text-align: center;
@@ -117,6 +129,7 @@ span.cell-chars {
 	width: 22px;
 	height: 22px;
 }
+
 span.cell-colors {
 	display: table-cell;
 	cursor: pointer;
@@ -125,12 +138,14 @@ span.cell-colors {
 	padding: 0;
 	margin: 0;
 }
+
 div.row-separate {
 	height: 1px;
 	background: white;
 	padding: 0;
 	margin: 0;
 }
+
 span.cell-separate {
 	display: table-cell;
 	width: 1px;
@@ -139,26 +154,33 @@ span.cell-separate {
 	padding: 0;
 	margin: 0;
 }
+
 span.pointer {
 	cursor: pointer;
 	padding: 1px 2px;
 }
+
 span.shout-italic {
 	font-style: italic;
 }
+
 span.shout-bold {
 	font-weight: bold;
 }
+
 p.shout-copyright {
 	text-align: center;
 	font-size: 1em;
 }
+
 fieldset.centered {
 	text-align: center;
 }
+
 legend.left {
 	text-align: left;
 }
+
 div.cite {
 	background-image: url("./../images/shout-icon-left.webp");
 	background-position: -68px 0;
@@ -166,6 +188,7 @@ div.cite {
 	height: 20px;
 	display: inline-block;
 }
+
 div.button-ip {
 	background-image: url("./../images/shout-icon-left.webp");
 	background-position: -43px 0;
@@ -173,6 +196,7 @@ div.button-ip {
 	height: 20px;
 	display: inline-block;
 }
+
 div.buttons-left {
 	background-image: url("./../images/shout-icon-left.webp");
 	background-position: 0 0;
@@ -180,6 +204,7 @@ div.buttons-left {
 	height: 20px;
 	display: inline-block;
 }
+
 span.separation:after {
 	content: "- - - - - - - - - - - -";
 	color: #4daa2c;

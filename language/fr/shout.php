@@ -40,7 +40,7 @@ if (empty($lang) || !is_array($lang))
 
 $lang = array_merge($lang, array(
 	'SHOUT_SEP'				=> ' ¦ ',
-	'SHOUT_PROTECT'			=> '’',
+	'SHOUT_PROTECT'			=> '’', // Don't traduct this
 	'SHOUT_START'			=> 'Shoutbox',
 	'SHOUT_LOADING'			=> 'Chargement…',
 	'SHOUT_MESSAGE'			=> 'Message',
@@ -167,7 +167,6 @@ $lang = array_merge($lang, array(
 	'NO_DELETE_PERM_S'		=> 'Vous n’êtes pas autorisé à supprimer vos propres messages…',
 	'NO_DELETE_PERM_T'		=> 'Vous n’êtes pas autorisé à supprimer les messages des autres utilisateurs…',
 	'NO_POST_PERM'			=> 'Vous n’êtes pas autorisé à poster des messages…',
-	'NO_POST_PERM_GUEST'	=> '…Vous devez être enregistré pour poster des messages, se connecter ici…',
 	'NO_PURGE_PERM'			=> 'Vous n’êtes pas autorisé à purger la shoutbox…',
 	'NO_PURGE_ROBOT_PERM'	=> 'Vous n’êtes pas autorisé à purger les infos de la shoutbox…',
 	'NO_SHOUT_BBCODE'		=> 'Vous n’êtes pas autorisé à utiliser les BBcodes…',
@@ -218,7 +217,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_BBCODE_ERROR'		=> 'Vous devez renseigner les deux champs',
 	'SHOUT_BBCODE_ERROR_COUNT'	=> 'Vous devez avoir autant de bbcodes ouvrants que de bbcodes fermants',
 	'SHOUT_BBCODE_ERROR_SHAME'	=> 'Aucune modification effectuée',
-	'SHOUT_BBCODE_ERROR_SLASH'	=> 'Erreur, le bbcode de fermeture “%2$s” ne comporte pas de slash de fermeture “/”',
+	'SHOUT_BBCODE_ERROR_SLASH'	=> 'Erreur, le bbcode de fermeture “%s” ne comporte pas de slash de fermeture “/”',
 	'SHOUT_BBCODE_ERROR_SLASHS'	=> 'Erreur, les %1$s bbcodes de fermeture “%2$s” ne comportent pas de slash de fermeture “/”',
 	'SHOUT_BBCODE_ERROR_IMB'	=> 'Erreur, le bbcode de fermeture “%2$s” est mal imbriqué',
 	'SHOUT_BBCODE_ERROR_IMBS'	=> 'Erreur, les %1$s bbcodes de fermeture “%2$s” sont mal imbriqués',
@@ -226,8 +225,9 @@ $lang = array_merge($lang, array(
 	'SHOUT_DIV_BBCODE_EXPLAIN'	=> 'Vous pouvez personnaliser la mise en forme de vos messages dans la shoutbox.<br />Entrez des bbcodes simples, les ouvertures dans la première zone, les fermetures dans la seconde.<br />Attention : respectez bien l’imbrication des bbcodes et n’oubliez pas de bien tous les fermer.<br />Exemple : <em>[b][i] et [/i][/b]</em>',
 
 // User actions panel
-	'SHOUT_ACTION_TITLE'			=> 'Actions pour l’utilisateur ',
-	'SHOUT_ACTION_PROFIL'			=> 'Voir le profil',
+	'SHOUT_ACTION_TITLE'			=> 'Actions pour l’utilisateur',
+	'SHOUT_ACTION_TITLE_TO'			=> 'Actions pour l’utilisateur %s',
+	'SHOUT_ACTION_PROFIL'			=> 'Voir le profil de %s',
 	'SHOUT_ACTION_CITE'				=> 'Citer l’utilisateur',
 	'SHOUT_ACTION_CITE_M'			=> 'Multi citer l’utilisateur',
 	'SHOUT_ACTION_CITE_ON'			=> 'Pour ',

@@ -4139,6 +4139,7 @@ class shoutbox
 			'sort'		=> '',
 			'sort_of'	=> (int) $sort_of,
 			'creator'	=> $this->smiliecreator_exist(),
+			'category'	=> $this->smiliescategory_exist(),
 			'is_user'	=> ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false,
 			'version'	=> (string) $version['version'],
 			'homepage'	=> (string) $version['homepage'],
@@ -4273,10 +4274,10 @@ class shoutbox
 			'minName'			=> $this->config['min_name_chars'],
 			'maxName'			=> $this->config['max_name_chars'],
 			'userId'			=> $this->user->data['user_id'],
+			'isUser'			=> $this->return_bool($data['is_user']),
 			'isGuest'			=> $this->return_bool($this->user->data['user_id'] == ANONYMOUS),
 			'isRobot'			=> $this->return_bool($this->user->data['is_bot']),
 			'isPriv'			=> $this->return_bool(($data['sort_of'] === 3)),
-			'isUser'			=> $this->return_bool($data['is_user']),
 			'rulesOk'			=> $this->return_bool($rules),
 			'rulesOpen'			=> $this->return_bool($rules_open),
 			'isMobile'			=> $this->return_bool($this->shout_is_mobile()),
@@ -4301,7 +4302,7 @@ class shoutbox
 			'formatOk'			=> $this->return_bool($this->auth->acl_get('u_shout_bbcode_change') && $data['is_user']),
 			'privOk'			=> $this->return_bool($this->auth->acl_get('u_shout_priv') && $data['is_user']),
 			'creator'			=> $this->return_bool($data['creator']),
-			'category'			=> $this->return_bool($this->smiliescategory_exist()),
+			'category'			=> $this->return_bool($data['category']),
 		);
 
 		$i = 0;

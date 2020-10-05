@@ -2,9 +2,9 @@
 	<fieldset>
 		<legend>{{ lang('SMILIES_OVERVIEW') }}</legend>
 		<div id="smil">
-		{% for smiley_shout in smilies_shout %}
-			<a onclick="shoutbox.displaySmiley('{{ smiley_shout.ID }}','1');" class="smilies-none">
-				<img src="{{ smiley_shout.SRC }}" alt="{{ smiley_shout.CODE }}" title="{{ smiley_shout.EMOTION }}" width="{{ smiley_shout.WIDTH }}" height="{{ smiley_shout.HEIGHT }}" />
+		{% for smiley in smilies %}
+			<a onclick="shoutbox.displaySmiley('{{ smiley.ID }}',1);" class="smilies-none">
+				<img src="{{ SMILIES_URL }}{{ smiley.SRC }}" alt="{{ smiley.CODE }}" title="{{ smiley.EMOTION }}" width="{{ smiley.WIDTH }}" height="{{ smiley.HEIGHT }}" />
 			</a> 
 		{% endfor %}
 		</div>
@@ -13,9 +13,9 @@
 		<legend>{{ lang('SMILIES_POPUP') }}</legend>
 		<div id="smil_pop">
 		{% for smiley_popup in smilies_popup %}
-			<a onclick="shoutbox.displaySmiley('{{ smiley_popup.ID }}','0');" class="smilies-none">
-				<img src="{{ smiley_popup.SRC }}" alt="{{ smiley_popup.CODE }}" title="{{ smiley_popup.EMOTION }}" width="{{ smiley_popup.WIDTH }}" height="{{ smiley_popup.HEIGHT }}" />
-			</a> 
+			<a onclick="shoutbox.displaySmiley('{{ smiley_popup.ID }}',0);" class="smilies-none">
+				<img src="{{ SMILIES_URL }}{{ smiley_popup.SRC }}" alt="{{ smiley_popup.CODE }}" title="{{ smiley_popup.EMOTION }}" width="{{ smiley_popup.WIDTH }}" height="{{ smiley_popup.HEIGHT }}" />
+			</a>
 		{% endfor %}
 		</div>
 	</fieldset>

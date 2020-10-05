@@ -40,7 +40,7 @@ if (empty($lang) || !is_array($lang))
 //
 
 $lang = array_merge($lang, array(
-	'SHOUT_SEP'				=> ' ¦ ', // Don't change this
+	'SHOUT_SEP'				=> ' ¦ ',
 	'SHOUT_PROTECT'			=> '’', // Don't change this
 	'SHOUT_START'			=> 'Shoutbox',
 	'SHOUT_LOADING'			=> 'Loading…',
@@ -160,7 +160,6 @@ $lang = array_merge($lang, array(
 	'NO_DELETE_PERM_S'		=> 'You are not allowed to delete your own messages…',
 	'NO_DELETE_PERM_T'		=> 'You are not allowed to delete messages from other users…',
 	'NO_POST_PERM'			=> 'You are not allowed to post messages…',
-	'NO_POST_PERM_GUEST'	=> '…You must be registered to post messages, Log in here…',
 	'NO_PURGE_PERM'			=> 'You are not allowed to purge the shoutbox…',
 	'NO_PURGE_ROBOT_PERM'	=> 'You are not allowed to purge the shoutbox infos…',
 	'NO_SHOUT_BBCODE'		=> 'You are not allowed to use BBCode…',
@@ -211,7 +210,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_BBCODE_ERROR'		=> 'You must fill in the two fields',
 	'SHOUT_BBCODE_ERROR_COUNT'	=> 'You need to have as many openings bbcodes as closing bbcodes',
 	'SHOUT_BBCODE_ERROR_SHAME'	=> 'No changes made',
-	'SHOUT_BBCODE_ERROR_SLASH'	=> 'Error, the closing bbcodes “%2$s” does not have a closing slash “/”',
+	'SHOUT_BBCODE_ERROR_SLASH'	=> 'Error, the closing bbcode “%s” does not contain a closing slash “/”',
 	'SHOUT_BBCODE_ERROR_SLASHS'	=> 'Error, the %1$s closing bbcodes “%2$s” do not have a closing slash “/”',
 	'SHOUT_BBCODE_ERROR_IMB'	=> 'Error, the closing bbcode “%2$s” is poorly nested',
 	'SHOUT_BBCODE_ERROR_IMBS'	=> 'Error, the %1$s closing bbcodes “%2$s” are poorly nested',
@@ -219,15 +218,16 @@ $lang = array_merge($lang, array(
 	'SHOUT_DIV_BBCODE_EXPLAIN'	=> 'You can customize the formatting of your messages in the shoutbox.<br />Enter bbcodes simple, openings in the first zone, closings in the second.<br />Caution: Observe the nesting bbcodes well and remember to close all.<br />Exemple: <em>[b][i] and [/i][/b]</em>',
 
 	// User actions panel
-	'SHOUT_ACTION_TITLE'			=> 'Actions for the user ',
-	'SHOUT_ACTION_PROFIL'			=> 'See profile',
+	'SHOUT_ACTION_TITLE'			=> 'Actions for the user',
+	'SHOUT_ACTION_TITLE_TO'			=> 'Actions for the user %s',
+	'SHOUT_ACTION_PROFIL'			=> 'See profile of %s',
 	'SHOUT_ACTION_CITE'				=> 'Quote the user',
 	'SHOUT_ACTION_CITE_M'			=> 'Multi quote the user',
 	'SHOUT_ACTION_CITE_ON'			=> 'For ',
 	'SHOUT_ACTION_CITE_EXPLAIN'		=> 'Quote the user in a message of shoutbox',
 	'SHOUT_ACTION_CITE_M_EXPLAIN'	=> 'Multi quote the user in a message of shoutbox',
 	'SHOUT_ACTION_MSG'				=> 'Send a personal message in the shoutbox',
-	'SHOUT_ACTION_MSG_ROBOT'		=> 'Send a message as Robot',
+	'SHOUT_ACTION_MSG_ROBOT'		=> 'Send a message as %s',
 	'SHOUT_ACTION_DELETE'			=> 'Remove my personal messages',
 	'SHOUT_ACTION_DELETE_EXPLAIN'	=> 'Are you sure you want to delete all your personal messages?',
 	'SHOUT_ACTION_DEL_TO'			=> 'Delete personal messages sent to me',

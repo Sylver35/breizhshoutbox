@@ -24,6 +24,7 @@ class main_info
 					'auth'	=> 'ext_sylver35/breizhshoutbox && acl_a_shout_manage',
 					'cat'	=> array('ACP_SHOUT_GENERAL_CAT')
 				),
+				// Rules settings
 				'rules'			=> array(
 					'title'	=> 'ACP_SHOUT_RULES',
 					'auth'	=> 'ext_sylver35/breizhshoutbox && acl_a_shout_manage',

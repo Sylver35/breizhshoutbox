@@ -4,17 +4,17 @@
 	/** Change image after select **/
 	shoutbox.updateColor = function(newcolor,id){
 		$('#'+id).attr('title', newcolor);
-		$('#color_image').attr({'src': config.color_path+newcolor+'.webp','alt': newcolor,'title': newcolor});
+		$('#color_image').attr({'src': config.colorPath+newcolor+'.webp','alt': newcolor,'title': newcolor});
 	}
 	/** Change image for panel **/
 	shoutbox.updatePanel = function(newImg,newTitle,id){
 		$('#shout_'+id).attr('title',newTitle);
-		$('#'+id).attr('src',config.panel_path+newImg);
+		$('#'+id).attr('src',config.panelPath+newImg);
 	}
 	/** Play sounds **/
 	shoutbox.playSound = function(file){
 		if(file != 0){
-			$('#shout_sound').attr('src',config.sounds_path+file+'.mp3');
+			$('#shout_sound').attr('src',config.soundsPath+file+'.mp3');
 			if($('#shout_sound').prop('paused')){
 				$('#shout_sound').trigger('play');
 			}else{
@@ -24,8 +24,8 @@
 	}
 	/** Move rules from top to selected box **/
 	shoutbox.MoveRules = function(id,ancre){
-		clearInterval(config.timer_in);
-		config.timer_in = false;
+		clearInterval(config.timerIn);
+		config.timerIn = false;
 		$('#'+id).val($('#in_rules').val());
 		$('#in_rules').val('');
 		$('#rules_target').html('');
@@ -41,8 +41,8 @@
 	}
 	/** Start the preview **/
 	shoutbox.previewRules = function(texte){
-		if(config.timer_in == false){
-			config.timer_in = setInterval(shoutbox.previewRulesAjax, 5000);
+		if(config.timerIn == false){
+			config.timerIn = setInterval(shoutbox.previewRulesAjax, 5000);
 		}
 	}
 	/** Refresh the preview  **/
@@ -50,8 +50,8 @@
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.preview_ajax,
-			data: 'content='+encodeURIComponent($('#in_rules').val())+'&timer='+config.timer_in,
+			url: config.previewAjax,
+			data: 'content='+encodeURIComponent($('#in_rules').val())+'&timer='+config.timerIn,
 			async: true,
 			cache: false,
 			success: function(update){
@@ -61,13 +61,13 @@
 	}
 	/** Update the date format  **/
 	shoutbox.changeDateFormat = function(value){
-		$('#shout_dateformat2').css('background', 'white url('+config.img_path+'"ajax_loader.gif") no-repeat 90% 50%');
-		$('#shout_dateformat3').html('<img src="'+config.img_path+'ajax_loader_2.gif" alt="loader" />');
+		$('#shout_dateformat2').css('background', 'white url('+config.imgPath+'"ajax_loader.gif") no-repeat 90% 50%');
+		$('#shout_dateformat3').html('<img src="'+config.imgPath+'ajax_loader_2.gif" alt="loader" />');
 		$('#shout_dateformat4').html('');
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.date_format,
+			url: config.dateFormat,
 			data: 'date='+value+'&sort=2',
 			async: true,
 			cache: false,
@@ -83,26 +83,24 @@
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.display_ajax,
+			url: config.displayAjax,
 			data: 'smiley='+smiley+'&display='+sort,
 			async: true,
 			cache: false,
 			success: function(update){
-				if(update.type < 3){
-					var listeSmilies = '',listeSmiliesPop = '';
-					for(var i = 0; i < update.total; i++){
-						var smilie = update.smilies[i];
-						listeSmilies += '<a onclick="shoutbox.displaySmiley('+smilie.id+',\'1\');return false;" class="smilies-none" title="'+smilie.emotion+'">';
-						listeSmilies += '<img src="'+update.url+smilie.image+'" alt="'+smilie.code+'" title="'+smilie.emotion+'" class="smilies" width="'+smilie.width+'" height="'+smilie.height+'"></a> ';
-					}
-					for(var j = 0; j < update.totalPop; j++){
-						var smilie = update.smiliesPop[j];
-						listeSmiliesPop += '<a onclick="shoutbox.displaySmiley('+smilie.id+',\'0\');return false;" class="smilies-none" title="'+smilie.emotion+'">';
-						listeSmiliesPop += '<img src="'+update.url+smilie.image+'" alt="'+smilie.code+'" title="'+smilie.emotion+'" class="smilies" width="'+smilie.width+'" height="'+smilie.height+'"></a> ';
-					}
-					$('#smil').html(listeSmilies);
-					$('#smil_pop').html(listeSmiliesPop);
+				var listeSmilies = '',listeSmiliesPop = '';
+				for(var i = 0; i < update.total; i++){
+					var smilie = update.smilies[i];
+					listeSmilies += '<a onclick="shoutbox.displaySmiley('+smilie.id+',1);return false;" class="smilies-none" title="'+smilie.emotion+'">';
+					listeSmilies += '<img src="'+update.url+smilie.image+'" alt="'+smilie.code+'" title="'+smilie.emotion+'" class="smilies" width="'+smilie.width+'" height="'+smilie.height+'"></a> ';
 				}
+				for(var j = 0; j < update.totalPop; j++){
+					var smilie = update.smiliesPop[j];
+					listeSmiliesPop += '<a onclick="shoutbox.displaySmiley('+smilie.id+',0);return false;" class="smilies-none" title="'+smilie.emotion+'">';
+					listeSmiliesPop += '<img src="'+update.url+smilie.image+'" alt="'+smilie.code+'" title="'+smilie.emotion+'" class="smilies" width="'+smilie.width+'" height="'+smilie.height+'"></a> ';
+				}
+				$('#smil').html(listeSmilies);
+				$('#smil_pop').html(listeSmiliesPop);
 			}
 		});
 	}
@@ -127,7 +125,9 @@
 			returnColor += '</div>';
 			$('#shoutcolor_'+target).html(returnColor).show();
 			$('#shoutcolor_'+target+' span.cell-colors').each(function(){
-				$(this).on('click', function(){shoutbox.insertColor($(this).attr('title'),$(this).attr('name'))});
+				$(this).on('click', function(){
+					shoutbox.insertColor($(this).attr('title'),$(this).attr('name'));
+				});
 			});
 		}else{
 			$('#shoutcolor_'+target).html('').hide();
