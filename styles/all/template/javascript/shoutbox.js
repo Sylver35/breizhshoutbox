@@ -521,6 +521,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 		shoutbox.sE('user_action',2);
 		$('#user_cite').val('');
 		$('#user_inp').val('');
+		$('#user_inp_sort').val('');
 	};
 
 	shoutbox.closeAll = function(){
@@ -732,6 +733,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					}else{
 						$('#chat_message').val('');
 						$('#user_inp').val('');
+						$('#user_inp_sort').val('');
 						if(response.type == 1){
 							onCount = 0;
 							shoutbox.playSound(4,false);
@@ -930,13 +932,15 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 	};
 
 	shoutbox.runSmileys = function(smilSort,categorie){
-		var urlSmil = smilSort ? config.smilUrl : config.smilPopUrl;
 		$('#smilies').html('<div style="text-align:center;margin:25px auto;">'+imgLoadOn+bzhLang['LOADING']+'</div>').show();
-		var dataOn = 'user='+config.userId+'&sort='+config.sortShoutNb+((categorie !== false) ? '&cat='+categorie : '');
+		var dataOn = 'user='+config.userId+'&sort='+config.sortShoutNb;
+		if(categorie !== false){
+			dataOn += '&cat='+categorie;
+		}
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: urlSmil,
+			url: smilSort ? config.smilUrl : config.smilPopUrl,
 			data: dataOn,
 			success: function(data){
 				if(data.error){
@@ -951,7 +955,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 					listeSmilies += '<h3 style="margin-top:2px;">'+data.title+'</h3>';
 				}
 				if(typeof data.emptyRow !== 'undefined' && data.emptyRow !== ''){
-					listeSmilies += '<span style="color:red;font-weight:bold;">'+data.emptyRow+'</span>';
+					listeSmilies += '<span class="pagin_red">'+data.emptyRow+'</span>';
 				}
 				for(var i = 0; i < data.total; i++){
 					var smilie = data.smilies[i];
@@ -970,8 +974,7 @@ var timerIn,timerOnline,onCount = 0,$queryNb = 0,first = true,form_name = 'postf
 				if(config.category && typeof data.categories !== 'undefined'){
 					listeSmilies += (data.title_cat !== 'undefined') ? '<h3 style="margin-top:8px;">'+data.title_cat+'</h3>' : '';
 					for(var i = 0; i < data.categories.length; i++){
-						var category = data.categories[i];
-						var activeCat = (data.cat == category.cat_id) ? ' pagin_red' : '';
+						var category = data.categories[i],activeCat = (data.cat == category.cat_id) ? ' pagin_red' : '';
 						listeSmilies += (i !== 0) ? ' - ' : '';
 						listeSmilies += '<a class="pointer tooltip'+activeCat+'" onclick="shoutbox.runSmileys(false,'+category.cat_id+');" style="margin:5px;" title="'+category.cat_name+'"><span title="">'+category.cat_name+'</span></a>('+category.cat_nb+')';
 					}
