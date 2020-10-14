@@ -1137,13 +1137,13 @@ class admin_controller
 		$result = $this->db->sql_query($sql);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$this->template->assign_block_vars('smilies_shout', array(
-				'SRC'			=> $this->root_path . $this->config['smilies_path'] . '/' . $row['smiley_url'],
-				'ID'			=> $row['smiley_id'],
-				'CODE'			=> $row['code'],
-				'EMOTION'		=> $row['emotion'],
-				'WIDTH'			=> $row['smiley_width'],
-				'HEIGHT'		=> $row['smiley_height'],
+			$this->template->assign_block_vars('smilies', array(
+				'SRC'		=> $row['smiley_url'],
+				'ID'		=> $row['smiley_id'],
+				'CODE'		=> $row['code'],
+				'EMOTION'	=> $row['emotion'],
+				'WIDTH'		=> $row['smiley_width'],
+				'HEIGHT'	=> $row['smiley_height'],
 			));
 		}
 		$this->db->sql_freeresult($result);
@@ -1159,18 +1159,19 @@ class admin_controller
 		while ($row = $this->db->sql_fetchrow($result))
 		{
 			$this->template->assign_block_vars('smilies_popup', array(
-				'SRC'			=> $this->root_path . $this->config['smilies_path'] . '/' . $row['smiley_url'],
-				'ID'			=> $row['smiley_id'],
-				'CODE'			=> $row['code'],
-				'EMOTION'		=> $row['emotion'],
-				'WIDTH'			=> $row['smiley_width'],
-				'HEIGHT'		=> $row['smiley_height'],
+				'SRC'		=> $row['smiley_url'],
+				'ID'		=> $row['smiley_id'],
+				'CODE'		=> $row['code'],
+				'EMOTION'	=> $row['emotion'],
+				'WIDTH'		=> $row['smiley_width'],
+				'HEIGHT'	=> $row['smiley_height'],
 			));
 		}
 		$this->db->sql_freeresult($result);
 
 		$this->template->assign_vars(array(
 			'S_SMILIES'				=> true,
+			'SMILIES_URL'			=> $this->root_path . $this->config['smilies_path'] . '/',
 			'U_DISPLAY_AJAX'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'display_smilies')),
 			'SHOUT_IMG_PATH'		=> $this->ext_path . 'images/',
 		));

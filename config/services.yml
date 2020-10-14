@@ -82,6 +82,4 @@ services:
         class: sylver35\breizhshoutbox\controller\ajax
         arguments:
             - '@sylver35.breizhshoutbox.shoutbox'
-            - '@dbal.conn'
             - '@request'
-            - '@auth'

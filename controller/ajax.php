@@ -10,33 +10,23 @@
 namespace sylver35\breizhshoutbox\controller;
 
 use sylver35\breizhshoutbox\core\shoutbox;
-use phpbb\db\driver\driver_interface as db;
 use phpbb\request\request;
-use phpbb\auth\auth;
 
 class ajax
 {
 	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
 
-	/** @var \phpbb\db\driver\driver_interface as db */
-	protected $db;
-
 	/** @var \phpbb\request\request */
 	protected $request;
-
-	/** @var \phpbb\auth\auth */
-	protected $auth;
 
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, db $db, request $request, auth $auth)
+	public function __construct(shoutbox $shoutbox, request $request)
 	{
 		$this->shoutbox = $shoutbox;
-		$this->db = $db;
 		$this->request = $request;
-		$this->auth = $auth;
 	}
 
 	/**
@@ -44,22 +34,12 @@ class ajax
 	 *
 	 * @param string $mode Mode to switch
 	 * @return void
+	 * @access public
 	 */
 	public function construct_ajax($mode)
 	{
-		$val = $this->shoutbox->shout_manage_ajax($mode, $this->request->variable('sort', 2), $this->request->variable('user', 0));
-		$response = new \phpbb\json_response;
 		$data = array();
-
-		// We have our own error handling
-		$this->db->sql_return_on_error(true);
-
-		// Permissions verification
-		if (!$this->auth->acl_get("u_shout{$val['perm']}"))
-		{
-			$this->shoutbox->shout_error("NO_VIEW{$val['privat']}_PERM");
-			return;
-		}
+		$val = $this->shoutbox->shout_manage_ajax($mode, (int) $this->request->variable('sort', 2), (int) $this->request->variable('user', 0));
 
 		switch ($mode)
 		{
@@ -68,15 +48,15 @@ class ajax
 			break;
 
 			case 'smilies_popup':
-				$data = $this->shoutbox->shout_ajax_smilies_popup($this->request->variable('cat', -1));
+				$data = $this->shoutbox->shout_ajax_smilies_popup((int) $this->request->variable('cat', -1));
 			break;
 
 			case 'display_smilies':
-				$data = $this->shoutbox->shout_ajax_display_smilies($this->request->variable('smiley', 0), $this->request->variable('display', 3));
+				$data = $this->shoutbox->shout_ajax_display_smilies((int) $this->request->variable('smiley', 0), (int) $this->request->variable('display', 3));
 			break;
 
 			case 'user_bbcode':
-				$data = $this->shoutbox->shout_ajax_user_bbcode($this->request->variable('open', ''), $this->request->variable('close', ''), $this->request->variable('other', 0));
+				$data = $this->shoutbox->shout_ajax_user_bbcode((string) $this->request->variable('open', ''), (string) $this->request->variable('close', ''), (int) $this->request->variable('other', 0));
 			break;
 
 			case 'charge_bbcode':
@@ -92,15 +72,15 @@ class ajax
 			break;
 
 			case 'preview_rules':
-				$data = $this->shoutbox->shout_ajax_preview_rules($this->request->variable('content', '', true));
+				$data = $this->shoutbox->shout_ajax_preview_rules((string) $this->request->variable('content', '', true));
 			break;
 
 			case 'date_format':
-				$data = $this->shoutbox->shout_ajax_date_format($this->request->variable('date', '', true));
+				$data = $this->shoutbox->shout_ajax_date_format((string) $this->request->variable('date', '', true));
 			break;
 
 			case 'action_sound':
-				$data = $this->shoutbox->shout_ajax_action_sound($this->request->variable('sound', 1));
+				$data = $this->shoutbox->shout_ajax_action_sound((int) $this->request->variable('sound', 1));
 			break;
 
 			case 'cite':
@@ -112,7 +92,7 @@ class ajax
 			break;
 
 			case 'action_post':
-				$data = $this->shoutbox->shout_ajax_action_post($val, $this->request->variable('message', '', true));
+				$data = $this->shoutbox->shout_ajax_action_post($val, (string) $this->request->variable('message', '', true));
 			break;
 
 			case 'action_del':
@@ -128,7 +108,7 @@ class ajax
 			break;
 
 			case 'delete':
-				$data = $this->shoutbox->shout_ajax_delete($val, $this->request->variable('post', 0));
+				$data = $this->shoutbox->shout_ajax_delete($val, (int) $this->request->variable('post', 0));
 			break;
 
 			case 'purge':
@@ -140,27 +120,28 @@ class ajax
 			break;
 
 			case 'edit':
-				$data = $this->shoutbox->shout_ajax_edit($val, $this->request->variable('shout_id', 0), $this->request->variable('chat_message', '', true));
+				$data = $this->shoutbox->shout_ajax_edit($val, (int) $this->request->variable('shout_id', 0), (string) $this->request->variable('chat_message', '', true));
 			break;
 
 			case 'post':
-				$data = $this->shoutbox->shout_ajax_post($val, $this->request->variable('chat_message', '', true), $this->request->variable('name', '', true), $this->request->variable('cite', 0));
+				$data = $this->shoutbox->shout_ajax_post($val, (string) $this->request->variable('chat_message', '', true), (string) $this->request->variable('name', '', true), (int) $this->request->variable('cite', 0));
 			break;
 
 			case 'check':
 			case 'check_pop':
 			case 'check_priv':
-				$data = $this->shoutbox->shout_ajax_check($val, $this->request->variable('on_bot', true));
+				$data = $this->shoutbox->shout_ajax_check($val, (bool) $this->request->variable('on_bot', true));
 			break;
 
 			case 'view':
 			case 'view_pop':
 			case 'view_priv':
-				$data = $this->shoutbox->shout_ajax_view($val, $this->request->variable('on_bot', true), $this->request->variable('start', 0));
+				$data = $this->shoutbox->shout_ajax_view($val, (bool) $this->request->variable('on_bot', true), (int) $this->request->variable('start', 0));
 			break;
 		}
 
 		// Send the response to the browser now
-		$response->send($data, true);
+		$json_response = new \phpbb\json_response;
+		$json_response->send($data, true);
 	}
 }
