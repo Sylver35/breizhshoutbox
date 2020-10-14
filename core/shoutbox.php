@@ -224,11 +224,6 @@ class shoutbox
 		), true);
 	}
 
-	/**
-	 * Decode string json format
-	 * @param string $data
-	 * @return string
-	 */
 	private function shout_decode($data)
 	{
 		return json_decode($data);
