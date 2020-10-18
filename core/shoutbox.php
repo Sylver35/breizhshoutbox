@@ -4232,6 +4232,7 @@ class shoutbox
 	{
 		$this->language->add_lang('ucp');
 		$other = false;
+		$username = '';
 		if ($user_id === $this->user->data['user_id'])
 		{
 			$user_shout = $this->shout_decode($this->user->data['user_shout']);
