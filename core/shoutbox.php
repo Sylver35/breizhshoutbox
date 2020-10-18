@@ -229,6 +229,11 @@ class shoutbox
 		return json_decode($data);
 	}
 
+	private function shout_encode($data)
+	{
+		return json_encode($data);
+	}
+
 	public function shout_manage_ajax($mode, $sort, $id)
 	{
 		// First initialize somes variables, protect private
@@ -477,16 +482,10 @@ class shoutbox
 	 */
 	public function update_shout_messages($shoutbox_table)
 	{
-		$sql = 'SELECT MAX(shout_id) AS shout_end
-			FROM ' . $shoutbox_table;
-		$result = $this->db->sql_query($sql);
-		$max = (int) $this->db->sql_fetchfield('shout_end', $result);
-		$this->db->sql_freeresult($result);
-
 		$sql = 'UPDATE ' . $shoutbox_table . '
 			SET shout_time = shout_time + 1
-				WHERE shout_id = ' . $max;
-		$this->db->sql_query($sql);
+			ORDER BY shout_id DESC';
+		$this->db->sql_query_limit($sql, 1);
 	}
 
 	public function get_version($version = false)
@@ -825,15 +824,15 @@ class shoutbox
 		else if ($is_user)
 		{
 			// Load the user's preferences
-			$shout = $this->shout_decode($this->user->data['user_shout']);
-			if ($shout->index != '3')
+			$user_shout = $this->shout_decode($this->user->data['user_shout']);
+			if ($user_shout->index != '3')
 			{
-				$this->config['shout_index'] = $shout->index;
-				$this->config['shout_forum'] = $shout->forum;
-				$this->config['shout_topic'] = $shout->topic;
-				$this->config['shout_position_index'] = $shout->index;
-				$this->config['shout_position_forum'] = $shout->forum;
-				$this->config['shout_position_topic'] = $shout->topic;
+				$this->config['shout_index'] = $user_shout->index;
+				$this->config['shout_forum'] = $user_shout->forum;
+				$this->config['shout_topic'] = $user_shout->topic;
+				$this->config['shout_position_index'] = $user_shout->index;
+				$this->config['shout_position_forum'] = $user_shout->forum;
+				$this->config['shout_position_topic'] = $user_shout->topic;
 			}
 		}
 
@@ -948,7 +947,6 @@ class shoutbox
 
 	/**
 	 * Displays the retractable lateral panel
-	 * Return true or false
 	 */
 	public function shout_panel()
 	{
@@ -957,7 +955,7 @@ class shoutbox
 			$this->template->assign_vars(array(
 				'KILL_LATERAL'	=> true,
 				'ACTIVE_PANEL'	=> false,
-				'S_IS_BOT'		=> ($this->user->data['is_bot']) ? true : false,
+				'S_IS_BOT'		=> $this->user->data['is_bot'],
 			));
 			return false;
 		}
@@ -971,6 +969,11 @@ class shoutbox
 		}
 		else
 		{
+			if ($this->user->data['is_registered'])
+			{
+				$user_shoutbox = $this->shout_decode($this->user->data['user_shoutbox']);
+				$this->config['shout_panel_float'] = $this->set_user_option($user_shoutbox->panel_float, 'shout_panel_float', 3);
+			}
 			$this->template->assign_vars(array(
 				'S_IN_SHOUT_POP'	=> true,
 				'S_IN_PRIV'			=> false,
@@ -1015,14 +1018,14 @@ class shoutbox
 		else if ($this->user->data['is_registered'])
 		{
 			$set_option = false;
-			$shout2 = $this->shout_decode($this->user->data['user_shoutbox']);
-			if ($shout2->panel != 'N')
+			$user_shoutbox = $this->shout_decode($this->user->data['user_shoutbox']);
+			if ($user_shoutbox->panel !== 'N')
 			{
-				if (!$shout2->panel)
+				if (!$user_shoutbox->panel)
 				{
 					return false;
 				}
-				else if ($shout2->panel)
+				else if ($user_shoutbox->panel)
 				{
 					$set_option = true;
 				}
@@ -1577,11 +1580,13 @@ class shoutbox
 			'citemulti'	=> 'onclick="shoutbox.citeMultiMsg(\'' . $content1 . '\', \'' . $content2 . '\', true);" title="' . $this->language->lang('SHOUT_ACTION_CITE_M_EXPLAIN') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_CITE_M'),
 			'perso'		=> 'onclick="shoutbox.changePerso(' . $content1 . ');" title="' . $this->language->lang('SHOUT_ACTION_PERSO') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_PERSO'),
 			'robot'		=> 'onclick="shoutbox.robotMsg(' . $content1 . ');" title="' . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->config['shout_name_robot']) . '"><span title="">' . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->construct_action_shout(0)),
+			'auth'		=> 'onclick="shoutbox.runAuth(' . $content1 . ', \'' . $content2 . '\');" title="' . $this->language->lang('SHOUT_ACTION_AUTH') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_AUTH'),
+			'prefs'		=> 'onclick="shoutbox.shoutPopup(\'' . $content1 . '\', \'850\', \'500\', \'_popup\');" title="' . $this->language->lang('SHOUT_CONFIG_OPEN_TO') . '"><span title="">' . $this->language->lang('SHOUT_CONFIG_OPEN_TO'),
 			'delreqto'	=> 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DEL_TO_EXPLAIN') . '\'))shoutbox.delReqTo(' . $content1 . ');" title="' . $this->language->lang('SHOUT_ACTION_DEL_TO') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_DEL_TO'),
 			'delreq'	=> 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DELETE_EXPLAIN') . '\'))shoutbox.delReq(' . $content1 . ');" title="' . $this->language->lang('SHOUT_ACTION_DELETE') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_DELETE'),
 			'remove'	=> 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_REMOVE_EXPLAIN') . '\'))shoutbox.removeMsg(' . $content1 . ');" title="' . $this->language->lang('SHOUT_ACTION_REMOVE') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_REMOVE'),
 			'profile'	=> $content1 . '" title="' . $this->language->lang('SHOUT_ACTION_PROFIL', $content2) . '"><span title="">' . $this->language->lang('SHOUT_ACTION_PROFIL', $content2),
-			'admin'		=> $content1 . '" title="' . $this->language->lang('SHOUT_USER_ADMIN') . '"><span title="">' . $this->language->lang('SHOUT_USER_ADMIN'),
+			'admin'		=> $content1 . '" title="' . $this->language->lang('SHOUT_ACTION_ADMIN') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_ADMIN'),
 			'modo'		=> $content1 . '" title="' . $this->language->lang('SHOUT_ACTION_MCP') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_MCP'),
 			'ban'		=> $content1 . '" title="' . $this->language->lang('SHOUT_ACTION_BAN') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_BAN'),
 		);
@@ -1591,7 +1596,7 @@ class shoutbox
 
 	private function action_user($row, $userid, $sort)
 	{
-		// Founders protections
+		// Founders protection
 		$go_founder = ($row['user_type'] != USER_FOUNDER || $this->user->data['user_type'] == USER_FOUNDER) ? true : false;
 
 		return array(
@@ -1608,12 +1613,14 @@ class shoutbox
 			'url_del'		=> $this->tpl('delreq', $userid),
 			'url_cite'		=> $this->tpl('citemsg'),
 			'url_cite_m'	=> $this->tpl('citemulti', $row['username'], $row['user_colour']),
+			'url_auth'		=> ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_personal')) ? $this->tpl('auth', $row['user_id'], $row['username']) : '',
+			'url_prefs'		=> ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_personal')) ? $this->tpl('prefs', $this->helper->route('sylver35_breizhshoutbox_configshout', array('id' => $row['user_id']))) : '',
 			'retour'		=> ($this->auth->acl_get('a_user') || $this->auth->acl_get('m_') || ($this->auth->acl_get('m_ban') && $go_founder)) ? true : false,
-			'url_admin'		=> ($this->auth->acl_get('a_user')) ? $this->tpl('admin', append_sid("{$this->adm_path()}index.{$this->php_ext}", "i=users&amp;mode=overview&amp;u={$row['user_id']}", true, $this->user->session_id)) : false,
-			'url_modo'		=> ($this->auth->acl_get('m_')) ? $this->tpl('modo', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", "i=notes&amp;mode=user_notes&amp;u={$row['user_id']}", true, $this->user->session_id)) : false,
-			'url_ban'		=> ($this->auth->acl_get('m_ban') && $go_founder) ? $this->tpl('ban', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", "i=ban&amp;mode=user&amp;u={$row['user_id']}", true, $this->user->session_id)) : false,
-			'url_remove'	=> (($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_delete')) && $go_founder) ? $this->tpl('remove', $row['user_id']) : false,
-			'url_perso'		=> (($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_personal')) && $go_founder) ? $this->tpl('perso', $row['user_id']) : false,
+			'url_admin'		=> ($this->auth->acl_get('a_user')) ? $this->tpl('admin', append_sid("{$this->adm_path()}index.{$this->php_ext}", "i=users&amp;mode=overview&amp;u={$row['user_id']}", true, $this->user->session_id)) : '',
+			'url_modo'		=> ($this->auth->acl_get('m_')) ? $this->tpl('modo', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", "i=notes&amp;mode=user_notes&amp;u={$row['user_id']}", true, $this->user->session_id)) : '',
+			'url_ban'		=> ($this->auth->acl_get('m_ban') && $go_founder) ? $this->tpl('ban', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", "i=ban&amp;mode=user&amp;u={$row['user_id']}", true, $this->user->session_id)) : '',
+			'url_remove'	=> (($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_delete')) && $go_founder) ? $this->tpl('remove', $row['user_id']) : '',
+			'url_perso'		=> (($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_personal')) && $go_founder) ? $this->tpl('perso', $row['user_id']) : '',
 			'url_robot'		=> ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_robot')) ? $this->tpl('robot', $sort) : '',
 		);
 	}
@@ -2542,6 +2549,72 @@ class shoutbox
 		return $select;
 	}
 
+	private function list_auth_options()
+	{
+		return array(
+			'a_shout_manage',
+			'a_shout_priv',
+			'm_shout_delete',
+			'm_shout_edit_mod',
+			'm_shout_info',
+			'm_shout_personal',
+			'm_shout_purge',
+			'm_shout_robot',
+			'u_shout_bbcode',
+			'u_shout_bbcode_change',
+			'u_shout_chars',
+			'u_shout_color',
+			'u_shout_delete_s',
+			'u_shout_edit',
+			'u_shout_hide',
+			'u_shout_ignore_flood',
+			'u_shout_image',
+			'u_shout_inactiv',
+			'u_shout_info_s',
+			'u_shout_lateral',
+			'u_shout_limit_post',
+			'u_shout_popup',
+			'u_shout_post',
+			'u_shout_post_inp',
+			'u_shout_priv',
+			'u_shout_smilies',
+			'u_shout_view',
+		);
+	}
+
+	public function shout_ajax_auth($user_id, $username)
+	{
+		$this->language->add_lang('acp/common');
+		$this->language->add_lang('permissions_shoutbox', 'sylver35/breizhshoutbox');
+		$list = $this->list_auth_options();
+		$first = '';
+		$title = $data = array();
+		$sort = array(
+			'a'	=> 'ACP_VIEW_ADMIN_PERMISSIONS',
+			'm'	=> 'ACP_VIEW_GLOBAL_MOD_PERMISSIONS',
+			'u'	=> 'ACP_VIEW_USER_PERMISSIONS',
+		);
+
+		for ($i = 0, $nb = sizeof($list); $i < $nb; $i++)
+		{
+			$second = substr($list[$i], 0, 1);
+			$active = $this->auth->acl_get_list($user_id, $list[$i]);
+			$title_auth = $this->language->lang($sort[$second]);
+			$lang_auth = $this->language->lang('ACL_' . strtoupper($list[$i]));
+			$class = ($active) ? 'auth_yes' : 'auth_no';
+			$title[$i] = ($second !== $first) ? $title_auth : '';
+			$data[$i] = $this->language->lang('SHOUT_OPTION_' . ($active ? 'YES' : 'NO'), $lang_auth, $class);
+			$first = $second;
+		}
+
+		return array(
+			'nb'		=> $i,
+			'title'		=> $title,
+			'data'		=> $data,
+			'username'	=> $this->language->lang('SHOUT_OPTION_USER', $username),
+		);
+	}
+
 	public function shout_ajax_smilies()
 	{
 		$i = 0;
@@ -2711,6 +2784,18 @@ class shoutbox
 		return $content;
 	}
 
+	public function shout_ajax_question()
+	{
+		$guest_can_post = $this->auth->acl_get_list(ANONYMOUS, 'u_shout_post');
+		return array(
+			'title'	=> $this->language->lang('SHOUT_COOKIES'),
+			'info'	=> $this->language->lang('SHOUT_COOKIES_INFO', ($guest_can_post ? 3 : 2)),
+			'robot'	=> $this->language->lang('SHOUT_COOKIES_ROBOT'),
+			'sound'	=> $this->language->lang('SHOUT_COOKIES_SOUND'),
+			'name'	=> ($guest_can_post) ? $this->language->lang('SHOUT_COOKIES_NAME') : '',
+		);
+	}
+
 	public function shout_ajax_user_bbcode($open, $close, $other)
 	{
 		$text = $message = '';
@@ -2838,8 +2923,8 @@ class shoutbox
 	public function shout_ajax_action_sound($on_sound)
 	{
 		$content = array();
-		$shout = $this->shout_decode($this->user->data['user_shout']);
-		$on_sound = ($shout->user == 2) ? $on_sound : $shout->user;
+		$user_shout = $this->shout_decode($this->user->data['user_shout']);
+		$on_sound = ($user_shout->user == 2) ? $on_sound : $user_shout->user;
 		switch ($on_sound)
 		{
 			// Turn on the sounds
@@ -2862,21 +2947,21 @@ class shoutbox
 			break;
 		}
 
-		$user_shout = array(
+		$user_shout = $this->shout_encode(array(
 			'user'		=> $content['type'],
-			'new'		=> $shout->new,
-			'new_priv'	=> $shout->new_priv,
-			'error'		=> $shout->error,
-			'del'		=> $shout->del,
-			'add'		=> $shout->add,
-			'edit'		=> $shout->edit,
-			'index'		=> $shout->index,
-			'forum'		=> $shout->forum,
-			'topic'		=> $shout->topic,
-		);
+			'new'		=> $user_shout->new,
+			'new_priv'	=> $user_shout->new_priv,
+			'error'		=> $user_shout->error,
+			'del'		=> $user_shout->del,
+			'add'		=> $user_shout->add,
+			'edit'		=> $user_shout->edit,
+			'index'		=> $user_shout->index,
+			'forum'		=> $user_shout->forum,
+			'topic'		=> $user_shout->topic,
+		));
 
 		$sql = 'UPDATE ' . USERS_TABLE . "
-			SET user_shout = '" . $this->db->sql_escape(json_encode($user_shout)) . "'
+			SET user_shout = '" . $this->db->sql_escape($user_shout) . "'
 				WHERE user_id = " . $this->user->data['user_id'];
 		$this->db->sql_query($sql);
 
@@ -4000,176 +4085,243 @@ class shoutbox
 		return $options;
 	}
 
-	private function return_bool($data)
+	private function return_bool($option)
 	{
-		return ($data) ? 'true' : 'false';
+		return ($option) ? 'true' : 'false';
 	}
 
-	public function active_config_shoutbox()
+	public function active_config_shoutbox($user_id)
 	{
 		if (!$this->user->data['is_registered'] || $this->user->data['is_bot'] || !$this->auth->acl_get('u_shout_post'))
 		{
 			throw new http_exception(403, 'NOT_AUTHORISED');
 		}
 
-		$this_user = (int) $this->user->data['user_id'];
 		if ($this->request->is_set_post('submit'))
 		{
-			$shout_value = array(
-				'user'		=> $this->request->variable('user_sound', 1),
-				'new'		=> $this->request->variable('shout_sound_new', '', true),
-				'new_priv'	=> $this->request->variable('shout_sound_new_priv', '', true),
-				'error'		=> $this->request->variable('shout_sound_error', '', true),
-				'del'		=> $this->request->variable('shout_sound_del', '', true),
-				'add'		=> $this->request->variable('shout_sound_add', '', true),
-				'edit'		=> $this->request->variable('shout_sound_edit', '', true),
-				'index'		=> $this->request->variable('position_index', 1),
-				'forum'		=> $this->request->variable('position_forum', 1),
-				'topic'		=> $this->request->variable('position_topic', 1),
-			);
-			$shout_value2 = array(
-				'bar'		=> $this->request->variable('shout_bar', 0),
-				'bar_pop'	=> $this->request->variable('shout_bar_pop', 0),
-				'bar_priv'	=> $this->request->variable('shout_bar_priv', 0),
-				'pagin'		=> $this->request->variable('shout_pagin', 0),
-				'pagin_pop'	=> $this->request->variable('shout_pagin_pop', 0),
-				'pagin_priv'=> $this->request->variable('shout_pagin_priv', 0),
-				'defil'		=> $this->request->variable('shout_defil', 0),
-				'panel'		=> $this->request->variable('shout_panel', 0),
-				'dateformat'=> $this->request->variable('dateformat', '', true),
-			);
+			$user_shout = $this->shout_encode(array(
+				'user'			=> $this->request->variable('user_sound', 1),
+				'new'			=> $this->request->variable('shout_sound_new', 'N', true),
+				'new_priv'		=> $this->request->variable('shout_sound_new_priv', 'N', true),
+				'error'			=> $this->request->variable('shout_sound_error', 'N', true),
+				'del'			=> $this->request->variable('shout_sound_del', 'N', true),
+				'add'			=> $this->request->variable('shout_sound_add', 'N', true),
+				'edit'			=> $this->request->variable('shout_sound_edit', 'N', true),
+				'index'			=> $this->request->variable('position_index', 1),
+				'forum'			=> $this->request->variable('position_forum', 1),
+				'topic'			=> $this->request->variable('position_topic', 1),
+			));
+			$user_shoutbox = $this->shout_encode(array(
+				'bar'			=> $this->request->variable('shout_bar', 1),
+				'bar_pop'		=> $this->request->variable('shout_bar_pop', 1),
+				'bar_priv'		=> $this->request->variable('shout_bar_priv', 1),
+				'defil'			=> $this->request->variable('shout_defil', 1),
+				'defil_pop'		=> $this->request->variable('shout_defil_pop', 1),
+				'defil_priv'	=> $this->request->variable('shout_defil_priv', 1),
+				'panel'			=> $this->request->variable('shout_panel', 1),
+				'panel_float'	=> $this->request->variable('shout_panel_float', 1),
+				'dateformat'	=> $this->request->variable('dateformat', '', true),
+			));
 
 			$sql = 'UPDATE ' . USERS_TABLE . "
-				SET user_shout = '" . $this->db->sql_escape(json_encode($shout_value)) . "'
-					WHERE user_id = $this_user";
+				SET user_shout = '" . $this->db->sql_escape($user_shout) . "', user_shoutbox = '" . $this->db->sql_escape($user_shoutbox) . "'
+					WHERE user_id = $user_id";
 			$this->db->sql_query($sql);
 
-			$sql = 'UPDATE ' . USERS_TABLE . "
-				SET user_shoutbox = '" . $this->db->sql_escape(json_encode($shout_value2)) . "'
-					WHERE user_id = $this_user";
-			$this->db->sql_query($sql);
-
-			redirect($this->helper->route('sylver35_breizhshoutbox_configshout'));
+			redirect($this->helper->route('sylver35_breizhshoutbox_configshout', array('id' => $user_id)));
 		}
 		else if ($this->request->is_set_post('retour'))
 		{
-			$shout_value = array(
-				'user'		=> 2,
-				'new'		=> 0,
-				'new_priv'	=> 0,
-				'error'		=> 0,
-				'del'		=> 0,
-				'add'		=> 0,
-				'edit'		=> 0,
-				'index'		=> 3,
-				'forum'		=> 3,
-				'topic'		=> 3,
-			);
-			$shout_value2 = array(
-				'bar'		=> 'N',
-				'bar_pop'	=> 'N',
-				'bar_priv'	=> 'N',
-				'pagin'		=> 'N',
-				'pagin_pop'	=> 'N',
-				'pagin_priv'=> 'N',
-				'defil'		=> 'N',
-				'panel'		=> 'N',
-				'dateformat'=> '',
-			);
+			$user_shout = $this->shout_encode(array(
+				'user'			=> 2,
+				'new'			=> 0,
+				'new_priv'		=> 0,
+				'error'			=> 0,
+				'del'			=> 0,
+				'add'			=> 0,
+				'edit'			=> 0,
+				'index'			=> 3,
+				'forum'			=> 3,
+				'topic'			=> 3,
+			));
+			$user_shoutbox = $this->shout_encode(array(
+				'bar'			=> 'N',
+				'bar_pop'		=> 'N',
+				'bar_priv'		=> 'N',
+				'defil'			=> 'N',
+				'defil_pop'		=> 'N',
+				'defil_priv'	=> 'N',
+				'panel'			=> 'N',
+				'panel_float'	=> 'N',
+				'dateformat'	=> '',
+			));
 
 			$sql = 'UPDATE ' . USERS_TABLE . "
-				SET user_shout = '" . $this->db->sql_escape(json_encode($shout_value)) . "'
-					WHERE user_id = $this_user";
+				SET user_shout = '" . $this->db->sql_escape($user_shout) . "', user_shoutbox = '" . $this->db->sql_escape($user_shoutbox) . "'
+					WHERE user_id = $user_id";
 			$this->db->sql_query($sql);
 
-			$sql = 'UPDATE ' . USERS_TABLE . "
-				SET user_shoutbox = '" . $this->db->sql_escape(json_encode($shout_value2)) . "'
-					WHERE user_id = $this_user";
-			$this->db->sql_query($sql);
-
-			redirect($this->helper->route('sylver35_breizhshoutbox_configshout'));
+			redirect($this->helper->route('sylver35_breizhshoutbox_configshout', array('id' => $user_id)));
 		}
 		else
 		{
-			$this->data_config_shout();
+			$this->data_config_shoutbox($user_id);
 		}
 	}
 
-	private function data_config_shout_()
+	private function set_user_option($option, $config, $sort)
+	{
+		$value = '';
+		switch ($sort)
+		{
+			case 1:
+				if ($option === 0)
+				{
+					$value = (string) $this->config[$config];
+				}
+				else
+				{
+					$value = (string) $option;
+				}
+			break;
+			case 2:
+				if ($option === 3)
+				{
+					$value = (int) $this->config[$config];
+				}
+				else
+				{
+					$value = (int) $option;
+				}
+			break;
+			case 3:
+				if ($option === 'N')
+				{
+					$value = (bool) $this->config[$config];
+				}
+				else
+				{
+					$value = (bool) $option;
+				}
+			break;
+			case 4:
+				if ($option === 2)
+				{
+					$value = (int) $this->config[$config];
+				}
+				else
+				{
+					$value = (int) $option;
+				}
+			break;
+			case 5:
+				if ($option === '')
+				{
+					$value = (string) $this->config[$config];
+				}
+				else
+				{
+					$value = (string) $option;
+				}
+			break;
+		}
+		return $value;
+	}
+
+	private function data_config_shoutbox($user_id)
 	{
 		$this->language->add_lang('ucp');
-		$shout = $this->shout_decode($this->user->data['user_shout']);
-		$shout2 = $this->shout_decode($this->user->data['user_shoutbox']);
+		$other = false;
+		if ($user_id === $this->user->data['user_id'])
+		{
+			$user_shout = $this->shout_decode($this->user->data['user_shout']);
+			$user_shoutbox = $this->shout_decode($this->user->data['user_shoutbox']);
+			$auth_pop = $this->auth->acl_get('u_shout_popup');
+			$auth_priv = $this->auth->acl_get('u_shout_priv');
+		}
+		else
+		{
+			$other = true;
+			$sql = 'SELECT username, user_shout, user_shoutbox
+				FROM ' . USERS_TABLE . '
+					WHERE user_id = ' . $user_id;
+			$result = $this->db->sql_query($sql);
+			$row = $this->db->sql_fetchrow($result);
+			$username = $row['username'];
+			$user_shout = $this->shout_decode($row['user_shout']);
+			$user_shoutbox = $this->shout_decode($row['user_shoutbox']);
+			$this->db->sql_freeresult($result);
+			$auth_pop = $this->auth->acl_get_list($user_id, 'u_shout_popup');
+			$auth_priv = $this->auth->acl_get_list($user_id, 'u_shout_priv');
+		}
 
-		$shout->user = ($shout->user != 2) ? $shout->user : $this->config['shout_sound_on'];
-		$shout->new = ($shout->new != '0') ? $shout->new : $this->config['shout_sound_new'];
-		$shout->new_priv = ($shout->new_priv != '0') ? $shout->new_priv : $this->config['shout_sound_new_priv'];
-		$shout->error = ($shout->error != '0') ? $shout->error : $this->config['shout_sound_error'];
-		$shout->del = ($shout->del != '0') ? $shout->del : $this->config['shout_sound_del'];
-		$shout->add = ($shout->add != '0') ? $shout->add : $this->config['shout_sound_add'];
-		$shout->edit = ($shout->edit != '0') ? $shout->edit : $this->config['shout_sound_edit'];
-		$select_index = $this->build_select_position(($shout->index == '3') ? $this->config['shout_position_index'] : $shout->index, true);
-		$select_forum = $this->build_select_position(($shout->forum == '3') ? $this->config['shout_position_forum'] : $shout->forum);
-		$select_topic = $this->build_select_position(($shout->topic == '3') ? $this->config['shout_position_topic'] : $shout->topic);
-		$shout2->bar = ($shout2->bar === 'N') ? $this->config['shout_bar_option'] : (bool) $shout2->bar;
-		$shout2->bar_pop = ($shout2->bar_pop === 'N') ? $this->config['shout_bar_option_pop'] : (bool) $shout2->bar_pop;
-		$shout2->bar_priv = ($shout2->bar_priv === 'N') ? $this->config['shout_bar_option_priv'] : (bool) $shout2->bar_priv;
-		$shout2->pagin = ($shout2->pagin === 'N') ? $this->config['shout_pagin_option'] : (bool) $shout2->pagin;
-		$shout2->pagin_pop = ($shout2->pagin_pop === 'N') ? $this->config['shout_pagin_option_pop'] : (bool) $shout2->pagin_pop;
-		$shout2->pagin_priv = ($shout2->pagin_priv === 'N') ? $this->config['shout_pagin_option_priv'] : (bool) $shout2->pagin_priv;
-		$shout2->defil = ($shout2->defil === 'N') ? $this->config['shout_defil'] : (bool) $shout2->defil;
-		$shout2->panel = ($shout2->panel === 'N') ? $this->config['shout_panel'] : (bool) $shout2->panel;
-		$shout2->dateformat = ($shout2->dateformat === '') ? $this->config['shout_dateformat'] : $shout2->dateformat;
+		$user_shout->user = $this->set_user_option($user_shout->user, 'shout_sound_on', 4);
+		$user_shout->new = $this->set_user_option($user_shout->new, 'shout_sound_new', 1);
+		$user_shout->new_priv = $this->set_user_option($user_shout->new_priv, 'shout_sound_new_priv', 1);
+		$user_shout->error = $this->set_user_option($user_shout->error, 'shout_sound_error', 1);
+		$user_shout->del = $this->set_user_option($user_shout->del, 'shout_sound_del', 1);
+		$user_shout->add = $this->set_user_option($user_shout->add, 'shout_sound_add', 1);
+		$user_shout->edit = $this->set_user_option($user_shout->edit, 'shout_sound_edit', 1);
+		$user_shoutbox->bar = $this->set_user_option($user_shoutbox->bar, 'shout_bar_option', 3);
+		$user_shoutbox->bar_pop = $this->set_user_option($user_shoutbox->bar_pop, 'shout_bar_option_pop', 3);
+		$user_shoutbox->bar_priv = $this->set_user_option($user_shoutbox->bar_priv, 'shout_bar_option_priv', 3);
+		$user_shoutbox->defil = $this->set_user_option($user_shoutbox->defil, 'shout_defil', 3);
+		$user_shoutbox->defil_pop = $this->set_user_option($user_shoutbox->defil_pop, 'shout_defil_pop', 3);
+		$user_shoutbox->defil_priv = $this->set_user_option($user_shoutbox->defil_priv, 'shout_defil_priv', 3);
+		$user_shoutbox->panel = $this->set_user_option($user_shoutbox->panel, 'shout_panel', 3);
+		$user_shoutbox->panel_float = $this->set_user_option($user_shoutbox->panel_float, 'shout_panel_float', 3);
+		$user_shoutbox->dateformat = $this->set_user_option($user_shoutbox->dateformat, 'shout_dateformat', 5);
+		$select_index = $this->build_select_position($this->set_user_option($user_shout->index, 'shout_position_index', 2), true);
+		$select_forum = $this->build_select_position($this->set_user_option($user_shout->forum, 'shout_position_forum', 2));
+		$select_topic = $this->build_select_position($this->set_user_option($user_shout->topic, 'shout_position_topic', 2));
 		$version = $this->get_version();
 
 		$this->template->assign_vars(array(
 			'IN_SHOUT_CONFIG'		=> true,
-			'S_PRIVATE'				=> $this->auth->acl_get('u_shout_priv') ? true : false,
-			'S_POP'					=> $this->auth->acl_get('u_shout_popup') ? true : false,
-			'SOUND_NEW_DISP'		=> ($shout->user && $shout->new != '1') ? true : false,
-			'SOUND_NEW_PRIV_DISP'	=> ($shout->user && $shout->new_priv != '1') ? true : false,
-			'SOUND_DEL_DISP'		=> ($shout->user && $shout->del != '1') ? true : false,
-			'SOUND_ERROR_DISP'		=> ($shout->error != '1') ? true : false,
-			'SOUND_ADD_DISP'		=> ($shout->user && $shout->add != '1') ? true : false,
-			'SOUND_EDIT_DISP'		=> ($shout->user && $shout->edit != '1') ? true : false,
-			'NO_SOUND_DEL'			=> $shout->del ? false : true,
-			'NO_SOUND_ERROR'		=> $shout->error ? false : true,
-			'NO_SOUND_ADD'			=> $shout->add ? false : true,
-			'NO_SOUND_EDIT'			=> $shout->edit ? false : true,
-			'NEW_SOUND'				=> $this->build_sound_select($shout->new, 'new'),
-			'NEW_SOUND_PRIV'		=> $this->build_sound_select($shout->new_priv, 'new_priv'),
-			'ERROR_SOUND'			=> $this->build_sound_select($shout->error, 'error'),
-			'DEL_SOUND'				=> $this->build_sound_select($shout->del, 'del'),
-			'ADD_SOUND'				=> $this->build_sound_select($shout->add, 'add'),
-			'EDIT_SOUND'			=> $this->build_sound_select($shout->edit, 'edit'),
-			'USER_SOUND_YES'		=> $shout->user ? true : false,
-			'USER_SOUND_INFO'		=> $shout->new,
-			'USER_SOUND_INFO_PRIV'	=> $shout->new_priv,
-			'USER_SOUND_INFO_E'		=> $shout->error,
-			'USER_SOUND_INFO_D'		=> $shout->del,
-			'USER_SOUND_INFO_A'		=> $shout->add,
-			'USER_SOUND_INFO_ED'	=> $shout->edit,
-			'SHOUT_BAR'				=> $shout2->bar ? true : false,
-			'SHOUT_BAR_POP'			=> $shout2->bar_pop ? true : false,
-			'SHOUT_BAR_PRIV'		=> $shout2->bar_priv ? true : false,
-			'SHOUT_PAGIN'			=> $shout2->pagin ? true : false,
-			'SHOUT_PAGIN_POP'		=> $shout2->pagin_pop ? true : false,
-			'SHOUT_PAGIN_PRIV'		=> $shout2->pagin_priv ? true : false,
-			'SHOUT_DEFIL'			=> $shout2->defil ? true : false,
-			'SHOUT_PANEL'			=> $shout2->panel ? true : false,
+			'USERNAME'				=> $other,
+			'TITLE_PANEL'			=> ($other) ? $this->language->lang('SHOUT_PANEL_TO_USER', $username) : $this->language->lang('SHOUT_PANEL_USER'),
+			'S_POP'					=> $auth_pop,
+			'S_PRIVATE'				=> $auth_priv,
+			'SOUND_NEW_DISP'		=> $user_shout->user && $user_shout->new !== 1,
+			'SOUND_NEW_PRIV_DISP'	=> $user_shout->user && $user_shout->new_priv !== 1,
+			'SOUND_DEL_DISP'		=> $user_shout->user && $user_shout->del !== 1,
+			'SOUND_ERROR_DISP'		=> $user_shout->error !== 1,
+			'SOUND_ADD_DISP'		=> $user_shout->user && $user_shout->add !== 1,
+			'SOUND_EDIT_DISP'		=> $user_shout->user && $user_shout->edit !== 1,
+			'NEW_SOUND'				=> $this->build_sound_select($user_shout->new, 'new'),
+			'NEW_SOUND_PRIV'		=> $this->build_sound_select($user_shout->new_priv, 'new_priv'),
+			'ERROR_SOUND'			=> $this->build_sound_select($user_shout->error, 'error'),
+			'DEL_SOUND'				=> $this->build_sound_select($user_shout->del, 'del'),
+			'ADD_SOUND'				=> $this->build_sound_select($user_shout->add, 'add'),
+			'EDIT_SOUND'			=> $this->build_sound_select($user_shout->edit, 'edit'),
+			'USER_SOUND_YES'		=> $user_shout->user,
+			'USER_SOUND_INFO'		=> $user_shout->new,
+			'USER_SOUND_INFO_PRIV'	=> $user_shout->new_priv,
+			'USER_SOUND_INFO_E'		=> $user_shout->error,
+			'USER_SOUND_INFO_D'		=> $user_shout->del,
+			'USER_SOUND_INFO_A'		=> $user_shout->add,
+			'USER_SOUND_INFO_ED'	=> $user_shout->edit,
+			'SHOUT_BAR'				=> $user_shoutbox->bar,
+			'SHOUT_BAR_POP'			=> $user_shoutbox->bar_pop,
+			'SHOUT_BAR_PRIV'		=> $user_shoutbox->bar_priv,
+			'SHOUT_DEFIL'			=> $user_shoutbox->defil,
+			'SHOUT_DEFIL_POP'		=> $user_shoutbox->defil_pop,
+			'SHOUT_DEFIL_PRIV'		=> $user_shoutbox->defil_priv,
+			'SHOUT_PANEL'			=> $user_shoutbox->panel,
+			'SHOUT_PANEL_FLOAT'		=> $user_shoutbox->panel_float,
 			'SELECT_ON_INDEX'		=> $select_index['data'],
 			'SELECT_ON_FORUM'		=> $select_forum['data'],
 			'SELECT_ON_TOPIC'		=> $select_topic['data'],
 			'TITLE_ON_INDEX'		=> $select_index['title'],
 			'TITLE_ON_FORUM'		=> $select_forum['title'],
 			'TITLE_ON_TOPIC'		=> $select_topic['title'],
-			'DATE_FORMAT'			=> $shout2->dateformat,
-			'DATE_FORMAT_EX'		=> $this->user->format_date(time() - 60 * 61, $shout2->dateformat),
-			'DATE_FORMAT_EX2'		=> $this->user->format_date(time() - 60 * 60 * 60, $shout2->dateformat),
-			'S_DATEFORMAT_OPTIONS'	=> $this->build_dateformat_option($shout2->dateformat),
 			'SHOUT_EXT_PATH'		=> $this->ext_path_web,
+			'DATE_FORMAT'			=> $user_shoutbox->dateformat,
+			'DATE_FORMAT_EX'		=> $this->user->format_date(time() - 60 * 61, $user_shoutbox->dateformat),
+			'DATE_FORMAT_EX2'		=> $this->user->format_date(time() - 60 * 60 * 60, $user_shoutbox->dateformat),
+			'S_DATEFORMAT_OPTIONS'	=> $this->build_dateformat_option($user_shoutbox->dateformat),
+			'U_SHOUT_ACTION'		=> $this->helper->route('sylver35_breizhshoutbox_configshout', array('id' => $user_id)),
 			'U_DATE_URL' 			=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'date_format')),
-			'U_SHOUT_ACTION'		=> $this->helper->route('sylver35_breizhshoutbox_configshout'),
 			'SHOUTBOX_VERSION'		=> $this->language->lang('SHOUTBOX_VERSION_ACP_COPY', $version['homepage'], $version['version']),
 		));
 	}
@@ -4179,10 +4331,13 @@ class shoutbox
 		$version = $this->get_version();
 		$data = array(
 			'sort'		=> '',
-			'sort_of'	=> (int) $sort_of,
+			'sort_of'	=> $sort_of,
+			'private'	=> $sort_of === 3,
 			'creator'	=> $this->smiliecreator_exist(),
 			'category'	=> $this->smiliescategory_exist(),
-			'is_user'	=> ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false,
+			'is_mobile'	=> $this->shout_is_mobile(),
+			'user_id'	=> $this->user->data['user_id'],
+			'is_user'	=> (bool) $this->user->data['is_registered'] && !$this->user->data['is_bot'],
 			'version'	=> (string) $version['version'],
 			'homepage'	=> (string) $version['homepage'],
 		);
@@ -4220,31 +4375,30 @@ class shoutbox
 	{
 		if ($data['is_user'])
 		{
-			$shout = $this->shout_decode($this->user->data['user_shout']);
-			$shout2 = $this->shout_decode($this->user->data['user_shoutbox']);
-			$shout->user = ($shout->user == '2') ? $this->config['shout_sound_on'] : $shout->user;
+			$user_shout = $this->shout_decode($this->user->data['user_shout']);
+			$user_shoutbox = $this->shout_decode($this->user->data['user_shoutbox']);
+			$user_shout->user = $this->set_user_option($user_shout->user, 'shout_sound_on', 4);
 
 			$sound = array(
-				'new'		=> ($shout->new == '0') ? $this->config['shout_sound_new'] : $shout->new,
-				'new_priv'	=> ($shout->new_priv == '0') ? $this->config['shout_sound_new_priv'] : $shout->new_priv,
-				'error'		=> ($shout->error == '0') ? $this->config['shout_sound_error'] : $shout->error,
-				'del'		=> ($shout->del == '0') ? $this->config['shout_sound_del'] : $shout->del,
-				'add'		=> ($shout->add == '0') ? $this->config['shout_sound_add'] : $shout->add,
-				'edit'		=> ($shout->edit == '0') ? $this->config['shout_sound_edit'] : $shout->edit,
-				'active'	=> ($shout->user == '1') ? true : false,
+				'new'		=> $this->set_user_option($user_shout->new, 'shout_sound_new', 1),
+				'new_priv'	=> $this->set_user_option($user_shout->new_priv, 'shout_sound_new_priv', 1),
+				'error'		=> $this->set_user_option($user_shout->error, 'shout_sound_error', 1),
+				'del'		=> $this->set_user_option($user_shout->del, 'shout_sound_del', 1),
+				'add'		=> $this->set_user_option($user_shout->add, 'shout_sound_add', 1),
+				'edit'		=> $this->set_user_option($user_shout->edit, 'shout_sound_edit', 1),
+				'active'	=> $user_shout->user === 1,
 			);
 
 			$data = array_merge($data, array(
 				'refresh'					=> $this->config['shout_temp_users'] * 1000,
-				'inactiv'					=> ($this->auth->acl_get('u_shout_inactiv') || ($sort_of == 3)) ? 0 : $this->config['shout_inactiv_member'],
-				'dateformat'				=> ($shout2->dateformat !== '') ? $shout2->dateformat : $this->config['shout_dateformat'],
-				'shout_bar_option'			=> ($shout2->bar !== 'N') ? (bool) $shout2->bar : $this->config['shout_bar_option'],
-				'shout_bar_option_pop'		=> ($shout2->bar_pop !== 'N') ? (bool) $shout2->bar_pop : $this->config['shout_bar_option_pop'],
-				'shout_bar_option_priv'		=> ($shout2->bar_priv !== 'N') ? (bool) $shout2->bar_priv : $this->config['shout_bar_option_priv'],
-				'shout_pagin_option'		=> ($shout2->pagin !== 'N') ? (bool) $shout2->pagin : $this->config['shout_pagin_option'],
-				'shout_pagin_option_pop'	=> ($shout2->pagin_pop !== 'N') ? (bool) $shout2->pagin_pop : $this->config['shout_pagin_option_pop'],
-				'shout_pagin_option_priv'	=> ($shout2->pagin_priv !== 'N') ? (bool) $shout2->pagin_priv : $this->config['shout_pagin_option_priv'],
-				'shout_defil'				=> ($shout2->defil !== 'N') ? (bool) $shout2->defil : $this->config['shout_defil'],
+				'inactiv'					=> ($this->auth->acl_get('u_shout_inactiv') || $data['private']) ? 0 : $this->config['shout_inactiv_member'],
+				'dateformat'				=> $this->set_user_option($user_shoutbox->dateformat, 'shout_dateformat', 5),
+				'shout_bar_option'			=> $this->set_user_option($user_shoutbox->bar, 'shout_bar_option', 3),
+				'shout_bar_option_pop'		=> $this->set_user_option($user_shoutbox->bar_pop, 'shout_bar_option_pop', 3),
+				'shout_bar_option_priv'		=> $this->set_user_option($user_shoutbox->bar_priv, 'shout_bar_option_priv', 3),
+				'shout_defil'				=> $this->set_user_option($user_shoutbox->defil, 'shout_defil', 3),
+				'shout_defil_pop'			=> $this->set_user_option($user_shoutbox->defil_pop, 'shout_defil_pop', 3),
+				'shout_defil_priv'			=> $this->set_user_option($user_shoutbox->defil_priv, 'shout_defil_priv', 3),
 			));
 		}
 		else
@@ -4256,10 +4410,9 @@ class shoutbox
 				'shout_bar_option'			=> $this->config['shout_bar_option'],
 				'shout_bar_option_pop'		=> $this->config['shout_bar_option_pop'],
 				'shout_bar_option_priv'		=> $this->config['shout_bar_option_priv'],
-				'shout_pagin_option'		=> $this->config['shout_pagin_option'],
-				'shout_pagin_option_pop'	=> $this->config['shout_pagin_option_pop'],
-				'shout_pagin_option_priv'	=> $this->config['shout_pagin_option_priv'],
 				'shout_defil'				=> $this->config['shout_defil'],
+				'shout_defil_pop'			=> $this->config['shout_defil_pop'],
+				'shout_defil_priv'			=> $this->config['shout_defil_priv'],
 			));
 			if ($this->user->data['is_bot'])
 			{
@@ -4288,7 +4441,7 @@ class shoutbox
 				);
 			}
 		}
-		$data['inactiv'] = (($data['inactiv'] > 0) && ($data['sort_of'] !== 3)) ? round($data['inactiv'] * 60 / ($data['refresh'] / 1000)) : 0;
+		$data['inactiv'] = (($data['inactiv'] > 0) && !$data['private']) ? round($data['inactiv'] * 60 / ($data['refresh'] / 1000)) : 0;
 
 		return array(
 			'data'	=> $data,
@@ -4311,24 +4464,23 @@ class shoutbox
 			'inactivity'		=> $data['inactiv'],
 			'requestOn'			=> $data['refresh'],
 			'sortShoutNb'		=> $data['sort_of'],
+			'userId'			=> $data['user_id'],
 			'perPage'			=> $this->config["shout_non_ie_nr{$data['sort_p']}"],
 			'maxPost'			=> $this->config['shout_max_post_chars'],
 			'minName'			=> $this->config['min_name_chars'],
 			'maxName'			=> $this->config['max_name_chars'],
-			'userId'			=> $this->user->data['user_id'],
 			'isUser'			=> $this->return_bool($data['is_user']),
-			'isGuest'			=> $this->return_bool($this->user->data['user_id'] == ANONYMOUS),
+			'isGuest'			=> $this->return_bool($data['user_id'] == ANONYMOUS),
 			'isRobot'			=> $this->return_bool($this->user->data['is_bot']),
-			'isPriv'			=> $this->return_bool(($data['sort_of'] === 3)),
+			'isPriv'			=> $this->return_bool($data['private']),
 			'rulesOk'			=> $this->return_bool($rules),
 			'rulesOpen'			=> $this->return_bool($rules_open),
-			'isMobile'			=> $this->return_bool($this->shout_is_mobile()),
+			'isMobile'			=> $this->return_bool($data['is_mobile']),
 			'refresh'			=> $this->return_bool(strpos($this->config['shout_dateformat'], '|') !== false),
 			'seeButtons'		=> $this->return_bool($this->config['shout_see_buttons']),
 			'buttonsLeft'		=> $this->return_bool($this->config['shout_see_buttons_left']),
 			'barHaute'			=> $this->return_bool($data["shout_bar_option{$data['sort_p']}"]),
-			'sortPagin'			=> $this->return_bool($data["shout_pagin_option{$data['sort_p']}"]),
-			'toBottom'			=> $this->return_bool($data['shout_defil']),
+			'toBottom'			=> $this->return_bool($data["shout_defil{$data['sort_p']}"]),
 			'buttonIp'			=> $this->return_bool($this->config['shout_see_button_ip']),
 			'buttonCite'		=> $this->return_bool($this->config['shout_see_cite']),
 			'purgeOn'			=> $this->return_bool($this->auth->acl_gets('m_shout_purge', 'a_shout_manage')),
@@ -4382,13 +4534,13 @@ class shoutbox
 			'titleUrl'			=> $data['homepage'],
 			'direction'			=> ($this->language->lang('DIRECTION') == 'ltr') ? 'left' : 'right',
 			'buttonBg'			=> 'button_background_' . $this->config["shout_color_background{$data['sort_p']}"],
-			'shoutHeight'		=> ($data['sort_of'] == 2) ? $this->config['shout_height'] : $this->config["shout_non_ie_height{$data['sort_p']}"],
+			'shoutHeight'		=> ($data['sort_of'] === 2) ? $this->config['shout_height'] : $this->config["shout_non_ie_height{$data['sort_p']}"],
 			'widthPost'			=> $this->config["shout_width_post{$data['sort_p']}"] . 'px',
 			'popupWidth'		=> $this->config['shout_popup_width'],
 			'popupHeight'		=> $this->config['shout_popup_height'],
 			'endClassBg'		=> $this->config["shout_button_background{$data['sort_p']}"] ? ' button_background_' . $this->config["shout_color_background{$data['sort_p']}"] : '',
 			'popupUrl'			=> $this->helper->route('sylver35_breizhshoutbox_popup'),
-			'configUrl'			=> $this->helper->route('sylver35_breizhshoutbox_configshout'),
+			'configUrl'			=> $this->helper->route('sylver35_breizhshoutbox_configshout', array('id' => $data['user_id'])),
 			'checkUrl'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => "check{$data['sort_p']}")),
 			'viewUrl'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => "view{$data['sort_p']}")),
 			'postUrl'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'post')),
@@ -4398,6 +4550,7 @@ class shoutbox
 			'soundUrl'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'action_sound')),
 			'rulesUrl'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'rules')),
 			'postingUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'posting')),
+			'questionUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'question')),
 			'creatorUrl'		=> ($data['creator']) ? $this->helper->route('sylver35_smilecreator_controller') : '',
 		);
 		if ($data['is_user'])
@@ -4417,6 +4570,7 @@ class shoutbox
 				'deleteUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'delete')),
 				'editUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'edit')),
 				'dateUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'date_format')),
+				'authUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'auth')),
 			));
 		}
 
@@ -4516,6 +4670,7 @@ class shoutbox
 			'DATETIME_3'			=> $this->language->lang(['datetime', 'TODAY']),
 			'ROBOT_ON'				=> $this->language->lang('SHOUT_ROBOT_ON'),
 			'ROBOT_OFF'				=> $this->language->lang('SHOUT_ROBOT_OFF'),
+			'SHOUT_COOKIES'			=> $this->language->lang('SHOUT_COOKIES'),
 			'CREATOR'				=> ($data['creator']) ? $this->language->lang('SMILIE_CREATOR') : '',
 		);
 		if (!$this->user->data['is_registered'])
@@ -4559,7 +4714,7 @@ class shoutbox
 		$settings = "var bzhLang = {\n		";
 		foreach ($lang_shout as $key => $value)
 		{
-			$settings .= "'" . $key . "':" . json_encode($value) . ', ';
+			$settings .= "'" . $key . "':" . $this->shout_encode($value) . ', ';
 			if ($i > 7)
 			{
 				$settings .= "\n		";

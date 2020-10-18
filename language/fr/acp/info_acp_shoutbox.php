@@ -317,11 +317,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_SERVER_HOURS'			=> 'L’heure actuelle du serveur est: %s heures %s',
 	'SHOUT_BAR'						=> 'Position de la barre de post',
 	'SHOUT_BAR_EXPLAIN'				=> 'Choisissez si vous souhaitez afficher la barre de post en haut ou en bas de la shoutbox.',
-	'SHOUT_PAGIN'					=> 'Position de la pagination',
-	'SHOUT_PAGIN_EXPLAIN'			=> 'Choisissez si vous souhaitez afficher la pagination à droite, dans la barre de post ou en bas de la shoutbox.',
 
-	'SHOUT_PAGIN_IN'				=> 'À droite, dans la barre',
-	'SHOUT_PAGIN_BOTTOM'			=> 'En bas de la shoutbox',
 	'SHOUT_SOUND_NEW'				=> 'Son des nouveaux messages',
 	'SHOUT_SOUND_NEW_EXPLAIN'		=> 'Choisissez le son qui sera activé par defaut pour l’arrivée des nouveaux messages.',
 	'SHOUT_SOUND_ERROR'				=> 'Son des erreurs',

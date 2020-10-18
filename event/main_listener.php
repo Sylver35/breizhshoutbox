@@ -87,6 +87,7 @@ class main_listener implements EventSubscriberInterface
 			'arcade.submit_new_record'					=> 'submit_new_record',
 			'arcade.page_arcade_games'					=> 'charge_shout_display',
 			'arcade.page_arcade_list'					=> 'charge_shout_display',
+			'portal.handle'								=> 'charge_shout_display',
 		);
 	}
 
@@ -109,18 +110,21 @@ class main_listener implements EventSubscriberInterface
 	public function add_page_header()
 	{
 		$data = $this->shoutbox->get_version();
+		$this->shoutbox->shout_panel();
 		$this->template->assign_vars(array(
 			'SHOUT_POPUP_H'			=> $this->config['shout_popup_width'],
 			'SHOUT_POPUP_W'			=> $this->config['shout_popup_height'],
 			'U_SHOUT_PRIV_PAGE'		=> $this->auth->acl_get('u_shout_priv') ? $this->helper->route('sylver35_breizhshoutbox_private') : '',
 			'U_SHOUT_POPUP'			=> $this->auth->acl_get('u_shout_popup') ? $this->helper->route('sylver35_breizhshoutbox_popup') : '',
-			'U_SHOUT_CONFIG'		=> $this->auth->acl_get('u_shout_post') ? $this->helper->route('sylver35_breizhshoutbox_configshout') : '',
+			'U_SHOUT_CONFIG'		=> $this->auth->acl_get('u_shout_post') ? $this->helper->route('sylver35_breizhshoutbox_configshout', array('id' => $this->user->data['user_id'])) : '',
 			'U_SHOUT_AJAX'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'display_smilies')),
 			'SHOUT_COPYRIGHT'		=> $this->language->lang('SHOUTBOX_VER', $data['version']),
 		));
-		$this->shoutbox->shout_panel();
 	}
 
+	/**
+	 * Load the shoutbox
+	 */
 	public function charge_shout_display()
 	{
 		$this->shoutbox->shout_display(2);
@@ -216,6 +220,7 @@ class main_listener implements EventSubscriberInterface
 				$s_hide_robot = false;
 			}
 		}
+
 		if ($this->auth->acl_get('u_shout_hide') && $s_hide_robot)
 		{
 			if ($event['mode'] == 'edit')

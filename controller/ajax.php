@@ -67,6 +67,14 @@ class ajax
 				$data = $this->shoutbox->shout_ajax_online();
 			break;
 
+			case 'question':
+				$data = $this->shoutbox->shout_ajax_question();
+			break;
+
+			case 'auth':
+				$data = $this->shoutbox->shout_ajax_auth($val['id'], (string) $this->request->variable('name', '', true));
+			break;
+
 			case 'rules':
 				$data = $this->shoutbox->shout_ajax_rules($val['priv']);
 			break;

@@ -316,10 +316,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_SERVER_HOURS'			=> 'The current server hour is: %s hours %s',
 	'SHOUT_BAR'						=> 'Position of the post box',
 	'SHOUT_BAR_EXPLAIN'				=> 'Choose whether you want the post box at the top or bottom of the shoutbox.',
-	'SHOUT_PAGIN'					=> 'Position of the paging',
-	'SHOUT_PAGIN_EXPLAIN'			=> 'Choose whether you want the paging on right in post box or bottom of the shoutbox.',
-	'SHOUT_PAGIN_IN'				=> 'At right in the bar',
-	'SHOUT_PAGIN_BOTTOM'			=> 'At the bottom of the shoutbox',
+
 	'SHOUT_SOUND_NEW'				=> 'Sound of new posts',
 	'SHOUT_SOUND_NEW_EXPLAIN'		=> 'Choose the sound to be activated by default for the arrival of new messages.',
 	'SHOUT_SOUND_ERROR'				=> 'Sound of errors',

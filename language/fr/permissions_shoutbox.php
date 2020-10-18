@@ -43,7 +43,7 @@ $lang = array_merge($lang, array(
 	'ACL_CAT_SHOUT'					=> 'Breizh Shoutbox',
 
 	'ACL_A_SHOUT_MANAGE'			=> 'Peut administrer et modifier les paramètres de la shoutbox',
-	'ACL_A_SHOUT_PRIV'				=> 'Peut administrer et modifier les paramètres de la shoutbox <strong>privée</strong>',
+	'ACL_A_SHOUT_PRIV'				=> 'Peut administrer et modifier les paramètres de la <strong>shoutbox privée</strong>',
 
 	'ACL_M_SHOUT_DELETE'			=> 'Peut supprimer les messages de tous les utilisateurs',
 	'ACL_M_SHOUT_EDIT_MOD'			=> 'Peut éditer les messages de tous les utilisateurs',

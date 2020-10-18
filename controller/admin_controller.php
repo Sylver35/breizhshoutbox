@@ -126,7 +126,6 @@ class admin_controller
 			$this->config->set('shout_temp_anonymous', $this->request->variable('shout_temp_anonymous', 10));
 			$this->config->set('shout_inactiv_anony', $this->request->variable('shout_inactiv_anony', 15));
 			$this->config->set('shout_inactiv_member', $this->request->variable('shout_inactiv_member', 30));
-			$this->config->set('shout_defil', $this->request->variable('shout_defil', 1));
 			$this->config->set('shout_dateformat', $this->request->variable('shout_dateformat2', '', true));
 			$this->config->set('shout_bbcode', $this->request->variable('shout_bbcode', ''));
 			$this->config->set('shout_bbcode_user', $this->request->variable('shout_bbcode_user', ''));
@@ -170,7 +169,6 @@ class admin_controller
 				'SHOUT_TEMP_ANONYMOUS'		=> (int) $this->config['shout_temp_anonymous'],
 				'SHOUT_INACTIV_ANONY'		=> (int) $this->config['shout_inactiv_anony'],
 				'SHOUT_INACTIV_MEMBER'		=> (int) $this->config['shout_inactiv_member'],
-				'SHOUT_DEFIL'				=> $this->shoutbox->construct_radio('shout_defil', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
 				'SHOUT_DATEFORMAT'			=> $this->shoutbox->build_dateformat_option((string) $this->config['shout_dateformat'], true),
 				'DATEFORMAT_VALUE'			=> (string) $this->config['shout_dateformat'],
 				'SHOUT_BBCODE'				=> (string) $this->config['shout_bbcode'],
@@ -237,7 +235,7 @@ class admin_controller
 			$this->config->set('shout_color_background', $this->request->variable('shout_color_background', 'blue'));
 			$this->config->set('shout_button_background', $this->request->variable('shout_button_background', 1));
 			$this->config->set('shout_bar_option', $this->request->variable('shout_bar_option', 1));
-			$this->config->set('shout_pagin_option', $this->request->variable('shout_pagin_option', 0));
+			$this->config->set('shout_defil', $this->request->variable('shout_defil', 1));
 
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
@@ -258,7 +256,7 @@ class admin_controller
 				'COLOR_IMAGE'			=> (string) $this->config['shout_color_background'] . '.webp',
 				'SHOUT_BUTTON'			=> $this->shoutbox->construct_radio('shout_button_background', 1),
 				'SHOUT_BAR_OPTION'		=> (bool) $this->config['shout_bar_option'],
-				'SHOUT_PAGIN_OPTION'	=> (bool) $this->config['shout_pagin_option'],
+				'SHOUT_DEFIL'			=> $this->shoutbox->construct_radio('shout_defil', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
 				'COLOR_OPTION'			=> $this->shoutbox->build_select_img($this->ext_path, $color_path, 'shout_color_background', false, 'webp'),
 				'COLOR_PATH'			=> $this->ext_path . $color_path,
 			));
@@ -996,9 +994,9 @@ class admin_controller
 			$this->config->set('shout_non_ie_height_priv', $this->request->variable('shout_non_ie_height_priv', 460));
 			$this->config->set('shout_non_ie_nr_priv', $this->request->variable('shout_non_ie_nr_priv', 25));
 			$this->config->set('shout_color_background_priv', $this->request->variable('shout_color_background_priv', ''));
-			$this->config->set('shout_button_background_priv', $this->request->variable('shout_button_background_priv', 1));
+			$this->config->set('shout_on_cron_priv', $this->request->variable('shout_on_cron_priv', 1));
 			$this->config->set('shout_bar_option_priv', $this->request->variable('shout_bar_option_priv', 1));
-			$this->config->set('shout_pagin_option_priv', $this->request->variable('shout_pagin_option_priv', 0));
+			$this->config->set('shout_defil_priv', $this->request->variable('shout_defil_priv', 1));
 			$this->config->set('shout_sound_new_priv', $this->request->variable('shout_sound_new_priv', ''));
 
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
@@ -1014,6 +1012,7 @@ class admin_controller
 				'SHOUT_ON_CRON_PRIV'		=> $this->shoutbox->construct_radio('shout_on_cron_priv', 2),
 				'SHOUT_LOG_CRON_PRIV'		=> $this->shoutbox->construct_radio('shout_log_cron_priv', 2),
 				'SHOUT_BUTTON'				=> $this->shoutbox->construct_radio('shout_button_background_priv', 1),
+				'SHOUT_DEFIL'				=> $this->shoutbox->construct_radio('shout_defil_priv', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
 				'NEW_SOUND_PRIV'			=> $this->shoutbox->build_adm_sound_select('new_priv'),
 				'SHOUT_MAX_POSTS'			=> (int) $this->config['shout_max_posts_priv'],
 				'SHOUT_MAX_POSTS_ON'		=> (int) $this->config['shout_max_posts_on_priv'],
@@ -1021,7 +1020,6 @@ class admin_controller
 				'SHOUT_NON_IE_NR_PRIV'		=> (int) $this->config['shout_non_ie_nr_priv'],
 				'COLOR_IMAGE'				=> (string) $this->config['shout_color_background_priv'] . '.webp',
 				'SHOUT_BAR_TOP'				=> (bool) $this->config['shout_bar_option_priv'],
-				'SHOUT_PAGIN_OPTION'		=> (bool) $this->config['shout_pagin_option_priv'],
 				'SHOUT_SOUNDS_PATH'			=> $this->ext_path . 'sounds/',
 				'OPTION_IMAGE'				=> $this->shoutbox->build_select_img($this->ext_path, $color_path, 'shout_color_background_priv', false, 'webp'),
 				'COLOR_PATH'				=> $this->ext_path . $color_path,
@@ -1050,7 +1048,7 @@ class admin_controller
 			$this->config->set('shout_color_background_pop', $this->request->variable('shout_color_background_pop', 'blue'));
 			$this->config->set('shout_button_background_pop', $this->request->variable('shout_button_background_pop', 1));
 			$this->config->set('shout_bar_option_pop', $this->request->variable('shout_bar_option_pop', 1));
-			$this->config->set('shout_pagin_option_pop', $this->request->variable('shout_pagin_option_pop', 0));
+			$this->config->set('shout_defil_pop', $this->request->variable('shout_defil_pop', 1));
 
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
@@ -1065,10 +1063,10 @@ class admin_controller
 				'SHOUT_HEIGHT_POP'			=> (int) $this->config['shout_popup_height'],
 				'SHOUT_WIDTH_POP'			=> (int) $this->config['shout_popup_width'],
 				'SHOUT_BAR_OPTION'			=> (bool) $this->config['shout_bar_option_pop'],
-				'SHOUT_PAGIN_OPTION'		=> (bool) $this->config['shout_pagin_option_pop'],
 				'COLOR_IMAGE'				=> (string) $this->config['shout_color_background_pop'] . '.webp',
 				'COLOR_SELECT'				=> $this->shoutbox->build_select_img($this->ext_path, $color_path, 'shout_color_background_pop', false, 'webp'),
 				'SHOUT_BUTTON'				=> $this->shoutbox->construct_radio('shout_button_background_pop', 1),
+				'SHOUT_DEFIL'				=> $this->shoutbox->construct_radio('shout_defil_pop', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
 				'COLOR_PATH'				=> $this->ext_path . $color_path,
 				'S_POPUP'					=> true,
 			));

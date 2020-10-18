@@ -43,13 +43,8 @@
 				</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_pagin_option_pop">{{ lang('SHOUT_PAGIN') }}:</label><br />{{ lang('SHOUT_PAGIN_EXPLAIN') }}</dt>
-				<dd>
-					<select id="shout_pagin_option_pop" name="shout_pagin_option_pop">
-						<option title="{{ lang('SHOUT_PAGIN_IN') }}" value="1"{% if SHOUT_PAGIN_OPTION %} selected="selected"{% endif %}>{{ lang('SHOUT_PAGIN_IN') }}</option>
-						<option title="{{ lang('SHOUT_PAGIN_BOTTOM') }}" value="0"{% if not SHOUT_PAGIN_OPTION %} selected="selected"{% endif %}>{{ lang('SHOUT_PAGIN_BOTTOM') }}</option>
-					</select>
-				</dd>
+				<dt><label for="shout_defil">{{ lang('SHOUT_DEFIL') }}:</label><br />{{ lang('SHOUT_DEFIL_EXPLAIN') }}<br />{{ lang('SHOUT_DEFIL_MEMBERS') }}</dt>
+				<dd>{{ SHOUT_DEFIL }}</dd>
 			</dl>
 		</fieldset>
 

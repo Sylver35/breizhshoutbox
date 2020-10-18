@@ -150,9 +150,10 @@ class main
 
 	public function handle_config_shout()
 	{
+		$id = $this->request->variable('id', $this->user->data['user_id']);
 		if ($this->auth->acl_get('u_shout_post'))
 		{
-			$this->shoutbox->active_config_shoutbox();
+			$this->shoutbox->active_config_shoutbox($id);
 			return $this->helper->render('shout_config.html', $this->language->lang('SHOUT_PANEL_USER'));
 		}
 		else

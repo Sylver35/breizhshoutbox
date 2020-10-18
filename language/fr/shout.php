@@ -145,7 +145,9 @@ $lang = array_merge($lang, array(
 	'SHOUT_SOUND_NO'		=> 'Désactivation du son',
 	'SHOUT_SOUND_ECOUTE'	=> 'Écouter le son',
 	'SHOUT_CONFIG_OPEN'		=> 'Ouvrir le panneau des préférences de la shoutbox',
-	'SHOUT_PANEL_USER'		=> 'panneau des réglages utilisateur',
+	'SHOUT_CONFIG_OPEN_TO'	=> 'Modifier les préférences de la shoutbox',
+	'SHOUT_PANEL_USER'		=> 'Panneau des réglages utilisateur',
+	'SHOUT_PANEL_TO_USER'	=> 'Panneau des réglages pour l’utilisateur %1$s',
 	'SHOUT_PREF_UPDATED'	=> 'Vos préférences pour la shoutbox sont sauvegardées',
 	'RETURN_SHOUT_PREF'		=> '%s« Retourner au panneau des préférences%s',
 	'SHOUT_DEF_VAL'			=> 'Valeurs par défaut',
@@ -155,8 +157,8 @@ $lang = array_merge($lang, array(
 	'CHOOSE_DELETE_NO'		=> 'Aucun son ne sera diffusé lors des suppressions de messages',
 	'CHOOSE_ADD_NO'			=> 'Aucun son ne sera diffusé lors des ajouts de messages',
 	'CHOOSE_EDIT_NO'		=> 'Aucun son ne sera diffusé lors des éditions de messages',
-	'SHOUT_USER_CONFIG'		=> 'Permet de choisir la position haut/bas de la barre de post.',
-	'SHOUT_USER_PAGIN'		=> 'Permet de choisir la position de la pagination, soit en bas de la shoutbox, soit à droite de la barre de post.',
+	'SHOUT_FLOAT_RIGHT'		=> 'à droite',
+	'SHOUT_FLOAT_LEFT'		=> 'à gauche',
 
 // No permission errors
 	'NO_POST_GUEST'			=> 'Les invités peuvent poster.',
@@ -243,15 +245,28 @@ $lang = array_merge($lang, array(
 	'SHOUT_ACTION_DEL_NO'			=> 'Aucun message personnel supprimé',
 	'SHOUT_ACTION_MCP'				=> 'Fiche de suivi',
 	'SHOUT_ACTION_BAN'				=> 'Bannir du forum',
+	'SHOUT_ACTION_AUTH'				=> 'Permissions shoutbox',
 	'SHOUT_ACTION_REMOVE'			=> 'Supprimer tous les messages shoutbox de l’utilisateur',
 	'SHOUT_ACTION_REMOVE_EXPLAIN'	=> 'Êtes vous sûr de vouloir supprimer tous les messages shoutbox et infos Robot de cet utilisateur ?',
 	'SHOUT_ACTION_REMOVE_REP'		=> 'Tous les messages shoutbox de cet utilisateur ont bien été supprimés :',
 	'SHOUT_ACTION_REMOVE_NO'		=> 'Aucun message supprimé',
-	'SHOUT_USER_ADMIN'				=> 'Administrer l’utilisateur',
+	'SHOUT_ACTION_ADMIN'			=> 'Administrer l’utilisateur',
 	'SHOUT_ACTION_PERSO'			=> 'Modifier la mise en forme des messages de l’utilisateur',
 	'SHOUT_USER_POST'				=> '@MP_', // Before a private message
 	'SHOUT_USER_IGNORE'				=> 'Vous avez défini ce membre en ignoré',
 	'SHOUT_USER_NONE'				=> 'Aucune action possible pour ce membre',
+
+// Infos cookies
+	'SHOUT_COOKIES'					=> 'Informations concernant les cookies de la shoutbox',
+	'SHOUT_COOKIES_INFO'			=> 'Cette shoutbox utilise %s cookies pour pouvoir bien fonctionner',
+	'SHOUT_COOKIES_ROBOT'			=> 'Permet de faire afficher ou non les infos robot',
+	'SHOUT_COOKIES_NAME'			=> 'Permet de conserver le nom d’utilisateur en invité',
+	'SHOUT_COOKIES_SOUND'			=> 'Permet de choisir l’activation ou la désactivation du son en invité',
+
+// Permissions panel
+	'SHOUT_OPTION_YES'				=> 'Active : <span class="%2$s">“%1$s”</span>',
+	'SHOUT_OPTION_NO'				=> 'Inactive : <span class="%2$s">“%1$s”</span>',
+	'SHOUT_OPTION_USER'				=> 'Traçage des permissions shoutbox de %1$s',
 
 // Members connected panel
 	'SHOUT_ONLINE_TITLE'		=> 'Membres connectés en temps réel',

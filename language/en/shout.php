@@ -141,6 +141,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_SOUND_ECOUTE'	=> 'Play sound',
 	'SHOUT_CONFIG_OPEN'		=> 'Open the shoutbox preferences panel',
 	'SHOUT_PANEL_USER'		=> 'User Settings panel',
+	'SHOUT_PANEL_TO_USER'	=> 'Settings panel for user %1$s',
 	'SHOUT_PREF_UPDATED'	=> 'Your shoutbox preferences are saved',
 	'RETURN_SHOUT_PREF'		=> '%s« Back to the preferences panel%s',
 	'SHOUT_DEF_VAL'			=> 'Defaut values',
@@ -148,8 +149,8 @@ $lang = array_merge($lang, array(
 	'SHOUT_ANY'				=> 'No sound',
 	'CHOOSE_ERROR_NO'		=> 'No sound will be played at errors',
 	'CHOOSE_DELETE_NO'		=> 'No sound will be played when deleting messages',
-	'SHOUT_USER_CONFIG'		=> 'Selects the position top/bottom for the bar post.',
-	'SHOUT_USER_PAGIN'		=> 'Selects the position of the paging: at the bottom of the shoutbox, or right of the bar post.',
+	'SHOUT_FLOAT_RIGHT'		=> 'On right',
+	'SHOUT_FLOAT_LEFT'		=> 'On left',
 
 	// No permission errors
 	'NO_POST_GUEST'			=> 'Guests can post.',
@@ -240,25 +241,37 @@ $lang = array_merge($lang, array(
 	'SHOUT_ACTION_REMOVE_EXPLAIN'	=> 'Are you sure you want to delete all shoutbox messages and infos Robot of this user?',
 	'SHOUT_ACTION_REMOVE_REP'		=> 'All shoutbox messages of this user have been deleted:',
 	'SHOUT_ACTION_REMOVE_NO'		=> 'Any deleted message',
-	'SHOUT_USER_ADMIN'				=> 'Administer the user',
+	'SHOUT_ACTION_ADMIN'			=> 'Administer the user',
 	'SHOUT_ACTION_PERSO'			=> 'Change the formatting of user’s messages',
 	'SHOUT_USER_POST'				=> '@PM_', // Before a personnal message
 	'SHOUT_USER_IGNORE'				=> 'You have set this member to foe',
 	'SHOUT_USER_NONE'				=> 'No action possible for this member',
 
-	// Members connected panel
+// Infos cookies
+	'SHOUT_COOKIES'					=> 'Information about shoutbox cookies',
+	'SHOUT_COOKIES_INFO'			=> 'This shoutbox uses 3 cookies to be able to function properly',
+	'SHOUT_COOKIES_ROBOT'			=> 'Allows to display or not the robot info',
+	'SHOUT_COOKIES_NAME'			=> 'Allows you to keep the username as a guest',
+	'SHOUT_COOKIES_SOUND'			=> 'Allows you to choose the activation or deactivation of sound as a guest',
+
+// Permissions panel
+	'SHOUT_OPTION_YES'				=> 'Active : <span class="%2$s">“%1$s”</span>',
+	'SHOUT_OPTION_NO'				=> 'Inactive : <span class="%2$s">“%1$s”</span>',
+	'SHOUT_OPTION_USER'				=> 'Tracing shoutbox permissions for %1$s',
+
+// Members connected panel
 	'SHOUT_ONLINE_TITLE'		=> 'Members connected in real time',
 	'SHOUT_ONLINE'				=> 'Open the panel of connected members',
 	'SHOUT_ONLINE_CLOSE'		=> 'Close the panel of connected members',
 	
-	// Post infos Robot
+// Post infos Robot
 	'SHOUT_ROBOT_ON'			=> 'Disable Robot infos',
 	'SHOUT_ROBOT_OFF'			=> 'Show Robot infos',
 	'SHOUT_SELECT_ROBOT'		=> 'Disable the publication by the shoutbox’s robot',
 	'SHOUT_ROBOT_START'			=> 'Info:', // At the beginning of infos robot
 	'SHOUT_ROBOT_DATE'			=> 'l F j, Y', // Form of the info date
 	
-	// Robot info messages
+// Robot info messages
 	'SHOUT_GLOBAL_ROBOT'		=> '%1$s %2$s just create a global announcement: %3$s',
 	'SHOUT_ANNOU_ROBOT'			=> '%1$s %2$s just create an announcement: %3$s',
 	'SHOUT_POST_ROBOT'			=> '%1$s %2$s just create a new topic: %3$s',
