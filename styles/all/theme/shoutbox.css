@@ -182,6 +182,7 @@ input#chat_message, input#shout_user1, input#shout_text1, input#shout_text2 {
 }
 #divnr {
 	height: 22px;
+	border-top: 1px solid #6095AE;
 }
 #linr {
 	margin: 0;
@@ -192,6 +193,25 @@ input#chat_message, input#shout_user1, input#shout_text1, input#shout_text2 {
 }
 #shout_online > li {
 	padding: 3px;
+}
+#i-question {
+	font-size: 18px;
+	vertical-align: bottom;
+}
+#i-question.fa-question::before {
+	color: red;
+}
+#i-question.fa-question-circle::before {
+	color: green;
+}
+#questionCookies {
+	vertical-align: bottom;
+}
+div.message-text {
+	border-bottom: 1px solid rgb(0, 96, 143);
+}
+div.message-text-bottom {
+	border-top: 1px solid rgb(0, 96, 143);
 }
 li.header dl.row-item dt.shout-left-dt {
 	display: inline-block;
@@ -239,6 +259,9 @@ span.pagin_red, a.pagin_red {
 	width: 18px;
 	height: 18px;
 }
+.action-bar #postUser.button {
+	float: none;
+}
 a.action-user, a.action-user:hover {
 	border-bottom-style: dotted;
 	border-bottom-width: 1px;
@@ -251,14 +274,14 @@ a.action-user:hover {
 a.pointer {
 	cursor: pointer;
 }
-span.pointer {
+.pointer {
 	cursor: pointer;
 	padding: 1px 2px;
 }
-span.shout-italic {
+.shout-italic {
 	font-style: italic;
 }
-span.shout-bold {
+.shout-bold, ul.ul-auth .auth-bold {
 	font-weight: bold;
 }
 span.span-text-edit {
@@ -274,6 +297,16 @@ input.input-text-edit {
 }
 h3.h3_online {
 	margin: 4px 0 8px;
+}
+ul.ul-auth {
+	margin: 3px;
+}
+h3.auth {
+	display: inline-block;
+	margin-left: 40px;
+}
+ul.ul-auth .li-auth {
+	margin-left: 10px;
 }
 .colour-palette {
 	border-collapse: separate;
@@ -990,5 +1023,11 @@ input.off-screen {
 	overflow: hidden;
 	opacity: 0;
 	filter: alpha(opacity=0);
+}
+.auth_yes {
+	color: green;
+}
+.auth_no {
+	color: red;
 }
 

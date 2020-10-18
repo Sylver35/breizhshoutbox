@@ -4,13 +4,11 @@
 <audio id="shout_sound" class="no_display"></audio>
 <div class="panel" id="all_shout">
 	<div class="inner">
-		
 		<ul id="select_sound" class="topiclist forums ul_rules displayblock">
 			<li>
 				<form id="config_shout" method="post" action="{{ U_SHOUT_ACTION }}">
 				<div id="div_config_shout" class="div_config_shout">
-					<h3><img src="{{ SHOUT_EXT_PATH }}images/reglages.webp" width="35px" alt="{{ lang('SHOUT_PANEL_USER') }}" title="{{ lang('SHOUT_PANEL_USER') }}" /> {{ lang('SHOUT_PANEL_USER') }}</h3>
-
+					<h3{% if USERNAME %} style="color: red;"{% endif %}><img src="{{ SHOUT_EXT_PATH }}images/reglages.webp" width="35px" alt="{{ lang('SHOUT_PANEL_USER') }}" title="{{ lang('SHOUT_PANEL_USER') }}" /> {{ TITLE_PANEL }}</h3>
 					<div id="info_new" name="info" class="centered {% if SOUND_NEW_DISP %}displayblock{% else %}no_display{% endif %}">
 						<span class="shout_display_green">{{ lang('CHOOSE_NEW_YES') }} {{ lang('SHOUT_PRINCIPAL') }}: </span><strong>&ldquo;<span id="sound_new">{{ USER_SOUND_INFO }}</span>&rdquo;</strong>
 					</div>
@@ -55,7 +53,6 @@
 						<span class="shout_display_red">{{ lang('CHOOSE_EDIT_NO') }}</span>
 					</div>
 					<hr class="shout_hr" /><br />
-					
 					<dl class="shout_dl_bloc">
 						<dt><label>{{ lang('CHOOSE_NEW_SOUND') }}</label><br />{{ lang('DISPLAY_SOUND_CHOICE') }}</dt>
 						<dd class="ddconfig_shout">
@@ -74,38 +71,23 @@
 							<label>{{ lang('SHOUT_PRIVATE') }}:</label>
 							{% endif %}
 						</dd>
-						
 					</dl>
-
 					<dl class="shout_dl_bloc">
 						<dt><label>{{ lang('CHOOSE_ERROR_SOUND') }}</label></dt>
 						<dd class="ddconfig_shout">{{ ERROR_SOUND }}</dd>
 					</dl>
-					
 					<dl class="shout_dl_bloc">
 						<dt><label>{{ lang('CHOOSE_DEL_SOUND') }}</label></dt>
 						<dd class="ddconfig_shout">{{ DEL_SOUND }}</dd>
 					</dl>
-					
 					<dl class="shout_dl_bloc">
 						<dt><label>{{ lang('CHOOSE_ADD_SOUND') }}</label></dt>
 						<dd class="ddconfig_shout">{{ ADD_SOUND }}</dd>
 					</dl>
-					
 					<dl class="shout_dl_bloc">
 						<dt><label>{{ lang('CHOOSE_EDIT_SOUND') }}</label></dt>
 						<dd class="ddconfig_shout">{{ EDIT_SOUND }}</dd>
 					</dl>
-					
-					<div class="shout_bloc_div">
-						<h3>{{ lang('SHOUT_DEFIL') }}</h3><br />
-						<dl class="shout_dl_bloc">
-							<dt><label for="shout_defil">{{ lang('SHOUT_DEFIL') }}</label><br />{{ lang('SHOUT_DEFIL_EXPLAIN') }}</dt>
-							<dd class="ddconfig_shout"><label><input type="radio" name="shout_defil" value="0"{% if not SHOUT_DEFIL %} checked="checked" id="shout_defil"{% endif %} /> {{ lang('SHOUT_DEFIL_BOTTOM') }}</label></dd>
-							<dd class="ddconfig_shout ddsecond_shout"><label><input type="radio" name="shout_defil" value="1"{% if SHOUT_DEFIL %} checked="checked" id="shout_defil"{% endif %} /> {{ lang('SHOUT_DEFIL_TOP') }}</label></dd>
-						</dl>
-					</div>
-
 					<div class="shout_bloc_div">
 						<h3>{{ lang('ACP_SHOUT_CONFIGS_T') }}</h3><br />
 						
@@ -118,30 +100,29 @@
 								<br /><span id="datexemple">{{ DATE_FORMAT_EX }}</span><br /><span id="datexemple2">{{ DATE_FORMAT_EX2 }}</span>
 							</dd>
 						</dl>
-						
 						<dl class="shout_dl_bloc">
-							<dt><label>{{ lang('SHOUT_BAR') }}</label><br />{{ lang('SHOUT_USER_CONFIG') }}</dt>
+							<dt><label>{{ lang('SHOUT_BAR') }}</label><br />{{ lang('SHOUT_BAR_EXPLAIN') }}</dt>
 							<dd class="ddconfig_shout"><label><input type="radio" name="shout_bar" value="0"{% if not SHOUT_BAR %} checked="checked"{% endif %} /> {{ lang('SHOUT_BAR_BOTTOM') }}</label></dd>
 							<dd class="ddconfig_shout ddsecond_shout"><label><input type="radio" name="shout_bar" value="1"{% if SHOUT_BAR %} checked="checked"{% endif %} /> {{ lang('SHOUT_BAR_TOP') }}</label></dd>
 						</dl>
 						<dl class="shout_dl_bloc">
-							<dt><label>{{ lang('SHOUT_PAGIN') }}</label><br />{{ lang('SHOUT_USER_PAGIN') }}</dt>
-							<dd class="ddconfig_shout"><label><input type="radio" name="shout_pagin" value="1"{% if SHOUT_PAGIN %} checked="checked"{% endif %} /> {{ lang('SHOUT_PAGIN_IN') }}</label></dd>
-							<dd class="no_border"><label><input type="radio" name="shout_pagin" value="0"{% if not SHOUT_PAGIN %} checked="checked"{% endif %} /> {{ lang('SHOUT_BAR_BOTTOM') }}</label></dd>
+							<dt><label for="shout_defil">{{ lang('SHOUT_DEFIL') }}</label><br />{{ lang('SHOUT_DEFIL_EXPLAIN') }}</dt>
+							<dd class="ddconfig_shout"><label><input type="radio" name="shout_defil" value="0"{% if not SHOUT_DEFIL %} checked="checked"{% endif %} /> {{ lang('SHOUT_DEFIL_BOTTOM') }}</label></dd>
+							<dd class="ddconfig_shout ddsecond_shout"><label><input type="radio" name="shout_defil" value="1"{% if SHOUT_DEFIL %} checked="checked"{% endif %} /> {{ lang('SHOUT_DEFIL_TOP') }}</label></dd>
 						</dl>
 					</div>
 				{% if S_POP %}
 					<div class="shout_bloc_div">
 						<h3>{{ lang('ACP_SHOUT_POPUP') }}</h3><br />
 						<dl class="shout_dl_bloc">
-							<dt><label>{{ lang('SHOUT_BAR') }}</label><br />{{ lang('SHOUT_USER_CONFIG') }}</dt>
-							<dd class="no_border margin_15"><label><input type="radio" name="shout_bar_pop" value="0"{% if not SHOUT_BAR_POP %} checked="checked"{% endif %} /> {{ lang('SHOUT_BAR_BOTTOM') }}</label></dd>
+							<dt><label>{{ lang('SHOUT_BAR') }}</label><br />{{ lang('SHOUT_BAR_EXPLAIN') }}</dt>
+							<dd class="no_border"><label><input type="radio" name="shout_bar_pop" value="0"{% if not SHOUT_BAR_POP %} checked="checked"{% endif %} /> {{ lang('SHOUT_BAR_BOTTOM') }}</label></dd>
 							<dd class="no_border"><label><input type="radio" name="shout_bar_pop" value="1"{% if SHOUT_BAR_POP %} checked="checked"{% endif %} /> {{ lang('SHOUT_BAR_TOP') }}</label></dd>
 						</dl>
 						<dl class="shout_dl_bloc">
-							<dt><label>{{ lang('SHOUT_PAGIN') }}</label><br />{{ lang('SHOUT_USER_PAGIN') }}</dt>
-							<dd class="no_border margin_15"><label><input type="radio" name="shout_pagin_pop" value="1"{% if SHOUT_PAGIN_POP %} checked="checked"{% endif %} /> {{ lang('SHOUT_PAGIN_IN') }}</label></dd>
-							<dd class="no_border"><label><input type="radio" name="shout_pagin_pop" value="0"{% if not SHOUT_PAGIN_POP %} checked="checked"{% endif %} /> {{ lang('SHOUT_BAR_BOTTOM') }}</label></dd>
+							<dt><label for="shout_defil_pop">{{ lang('SHOUT_DEFIL') }}</label><br />{{ lang('SHOUT_DEFIL_EXPLAIN') }}</dt>
+							<dd class="ddconfig_shout"><label><input type="radio" name="shout_defil_pop" value="0"{% if not SHOUT_DEFIL_POP %} checked="checked"{% endif %} /> {{ lang('SHOUT_DEFIL_BOTTOM') }}</label></dd>
+							<dd class="ddconfig_shout ddsecond_shout"><label><input type="radio" name="shout_defil_pop" value="1"{% if SHOUT_DEFIL_POP %} checked="checked"{% endif %} /> {{ lang('SHOUT_DEFIL_TOP') }}</label></dd>
 						</dl>
 					</div>
 				{% endif %}
@@ -149,14 +130,14 @@
 					<div class="shout_bloc_div">
 						<h3>{{ lang('ACP_SHOUT_CONFIG_PRIV') }}</h3><br />
 						<dl class="shout_dl_bloc">
-							<dt><label>{{ lang('SHOUT_BAR') }}</label><br />{{ lang('SHOUT_USER_CONFIG') }}</dt>
-							<dd class="no_border margin_15"><label><input type="radio" name="shout_bar_priv" value="0"{% if not SHOUT_BAR_PRIV %} checked="checked"{% endif %} /> {{ lang('SHOUT_BAR_BOTTOM') }}</label></dd>
+							<dt><label>{{ lang('SHOUT_BAR') }}</label><br />{{ lang('SHOUT_BAR_EXPLAIN') }}</dt>
+							<dd class="no_border"><label><input type="radio" name="shout_bar_priv" value="0"{% if not SHOUT_BAR_PRIV %} checked="checked"{% endif %} /> {{ lang('SHOUT_BAR_BOTTOM') }}</label></dd>
 							<dd class="no_border"><label><input type="radio" name="shout_bar_priv" value="1"{% if SHOUT_BAR_PRIV %} checked="checked"{% endif %} /> {{ lang('SHOUT_BAR_TOP') }}</label></dd>
 						</dl>
 						<dl class="shout_dl_bloc">
-							<dt><label>{{ lang('SHOUT_PAGIN') }}</label><br />{{ lang('SHOUT_USER_PAGIN') }}</dt>
-							<dd class="no_border margin_15"><label><input type="radio" name="shout_pagin_priv" value="1"{% if SHOUT_PAGIN_PRIV %} checked="checked"{% endif %} /> {{ lang('SHOUT_PAGIN_IN') }}</label></dd>
-							<dd class="no_border"><label><input type="radio" name="shout_pagin_priv" value="0"{% if not SHOUT_PAGIN_PRIV %} checked="checked"{% endif %} /> {{ lang('SHOUT_BAR_BOTTOM') }}</label></dd>
+							<dt><label for="shout_defil_priv">{{ lang('SHOUT_DEFIL') }}</label><br />{{ lang('SHOUT_DEFIL_EXPLAIN') }}</dt>
+							<dd class="ddconfig_shout"><label><input type="radio" name="shout_defil_priv" value="0"{% if not SHOUT_DEFIL_PRIV %} checked="checked"{% endif %} /> {{ lang('SHOUT_DEFIL_BOTTOM') }}</label></dd>
+							<dd class="ddconfig_shout ddsecond_shout"><label><input type="radio" name="shout_defil_priv" value="1"{% if SHOUT_DEFIL_PRIV %} checked="checked"{% endif %} /> {{ lang('SHOUT_DEFIL_TOP') }}</label></dd>
 						</dl>
 					</div>
 				{% endif %}
@@ -190,9 +171,14 @@
 					<div class="shout_bloc_div">
 						<h3>{{ lang('SHOUT_PANEL') }}</h3><br />
 						<dl class="shout_dl_bloc">
-							<dt><label>{{ lang('SHOUT_PANEL') }}</label><br />{{ lang('SHOUT_PANEL_CHOICE') }}</dt>
-							<dd class="no_border margin_15 large"><label><input type="radio" name="shout_panel" value="0"{% if not SHOUT_PANEL %} checked="checked"{% endif %} /> {{ lang('NO') }}</label></dd>
-							<dd class="no_border margin_15 large"><label><input type="radio" name="shout_panel" value="1"{% if SHOUT_PANEL %} checked="checked"{% endif %} /> {{ lang('YES') }}</label></dd>
+							<dt><label for="shout_panel">{{ lang('SHOUT_PANEL') }}</label><br />{{ lang('SHOUT_PANEL_CHOICE') }}</dt>
+							<dd class="ddconfig_shout no_border large"><label><input type="radio" name="shout_panel" value="0"{% if not SHOUT_PANEL %} checked="checked"{% endif %} /> {{ lang('NO') }}</label></dd>
+							<dd class="ddconfig_shoutno_border large ddsecond_shout"><label><input type="radio" name="shout_panel" value="1"{% if SHOUT_PANEL %} checked="checked"{% endif %} /> {{ lang('YES') }}</label></dd>
+						</dl>
+						<dl class="shout_dl_bloc">
+							<dt><label for="shout_panel_float">{{ lang('SHOUT_PANEL_FLOAT') }}:</label><br />{{ lang('SHOUT_PANEL_FLOAT_EXPLAIN') }}</dt>
+							<dd class="ddconfig_shout no_border large"><label><input type="radio" name="shout_panel_float" value="0"{% if not SHOUT_PANEL_FLOAT %} checked="checked"{% endif %} /> {{ lang('SHOUT_FLOAT_RIGHT') }}</label></dd>
+							<dd class="ddconfig_shout no_border large ddsecond_shout"><label><input type="radio" name="shout_panel_float" value="1"{% if SHOUT_PANEL_FLOAT %} checked="checked"{% endif %} /> {{ lang('SHOUT_FLOAT_LEFT') }}</label></dd>
 						</dl>
 					</div>
 					<hr />
@@ -208,12 +194,14 @@
 				</form>
 			</li>
 		</ul>
-		
+
 	</div>
 </div>
+{% if not USERNAME %}
 <script>
 	window.onunload = function(){
 		setTimeout(window.opener.location.reload(true), 2000);
 	}
 </script>
+{% endif %}
 {% INCLUDE 'simple_footer.html' %}
