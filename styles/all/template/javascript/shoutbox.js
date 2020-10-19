@@ -139,8 +139,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 	};
 
 	shoutbox.createInput = function(sort){
-		var css = sort ? 'shout-text-user' : 'inputbox',inputPost = shoutbox.cE('input','chat_message',css,'margin-'+config.direction+':6px;color:#9a9a9a;border-radius:3px;max-width:45%;width:'+config.widthPost,false,false,false,false,'chat_message');
-		//inputPost.name = 'chat_message';
+		var css = sort ? 'shout-text-user' : 'inputbox',inputPost = shoutbox.cE('input','chat_message',css,'margin-'+config.direction+':6px;color:#9a9a9a;border-radius:3px;max-width:43%;width:'+config.widthPost,false,false,false,false,'chat_message');
 		inputPost.value = bzhLang['AUTO'];
 		inputPost.spellcheck = true;
 		inputPost.onclick = function(){shoutbox.suppText()};
@@ -1522,11 +1521,11 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				$('#onBot').val(shoutbox.getCookie('shout-robot'));
 			}
 
-			var shoutBarCss = config.barHaute ? 'border-bottom:1px solid #6095AE;' : 'border-top:1px solid #6095AE;';
-			var postingCssText = 'display:inline-block;padding:3px 0 3px 1px;vertical-align:middle;width:100%;';
+			var shoutBarCss = (!config.postOk) ? 'text-align:center;padding:3px;' : '';
+			shoutBarCss += (!config.barHaute) ? 'border-bottom:none;' : '';
+			var postingCssText = 'display:block;padding:3px 0 3px 1px;width:100%;';
 			var postingStyle = 'height:auto;width:100%;overflow-wrap:break-word;';
 			if(!config.postOk){
-				shoutBarCss += 'text-align:center;padding:3px;';
 				postingCssText = 'float:none;width:100%;';
 			}
 			var base = shoutbox.cE('ul','base_ul','topiclist forums',false,false,false,false,false,false);

@@ -9,6 +9,11 @@
 				</dl>
 			</li>
 		</ul>
+		<ul id="shout_rules" class="topiclist forums">
+			<li>
+				<div id="rules_on" class="shout_rules"></div>
+			</li>
+		</ul>
 	{% if not S_USER_LOGGED_IN %}
 		{% INCLUDE '@sylver35_breizhshoutbox/shout_connect.html' %}
 	{% endif %}
@@ -19,17 +24,12 @@
 	{% if TEXT_USER_TOP %}
 		{% INCLUDE '@sylver35_breizhshoutbox/shout_bbcode.html' %}
 	{% endif %}
-		<ul id="shout_rules" class="topiclist forums ul_rules">
-			<li>
-				<div id="rules_on" class="shout_rules"></div>
-			</li>
-		</ul>
 		<ul id="smilies_ul" class="topiclist forums">
 			<li>
 				<div id="smilies"></div>
 			</li>
 		</ul>
-		<ul id="shout_online" class="topiclist forums ul_rules">
+		<ul id="shout_online" class="topiclist forums">
 			<li>
 				<h3 class="h3_online">{{ lang('SHOUT_ONLINE_TITLE') }}</h3>
 				<div id="online_shout"></div>
@@ -38,7 +38,7 @@
 		<form id="chat_form" name="postform">
 			{% INCLUDE '@sylver35_breizhshoutbox/user_action.html' %}
 			{% if SHOUT_POSTING %}
-			<ul id="shoutbox_posting" class="topiclist forums ul_rules" style="display:none;">
+			<ul id="shoutbox_posting" class="topiclist forums" style="display:none;">
 				{% INCLUDE 'posting_buttons.html' %}
 			</ul>
 			{% endif %}
