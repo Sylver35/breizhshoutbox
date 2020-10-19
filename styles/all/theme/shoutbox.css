@@ -20,6 +20,10 @@
 span.avatar-shout > img {
 	vertical-align: middle;
 }
+span.avatar-shout > img.popup-avatar {
+	max-height: 22px;
+	width: auto;
+}
 #shout_messages > li > dl{
 	vertical-align: middle;
 	width: 100%;
@@ -100,6 +104,10 @@ span.avatar-shout > img {
 }
 #shout {
 	width: 100%;
+}
+#shoutbar {
+	border-top: 1px solid darkgray;
+	border-bottom: 1px solid darkgray;
 }
 #shout_div_bbcode {
 	margin-bottom: 15px;
@@ -182,7 +190,7 @@ input#chat_message, input#shout_user1, input#shout_text1, input#shout_text2 {
 }
 #divnr {
 	height: 22px;
-	border-top: 1px solid #6095AE;
+	border-top: 1px solid darkgray;
 }
 #linr {
 	margin: 0;
@@ -208,10 +216,10 @@ input#chat_message, input#shout_user1, input#shout_text1, input#shout_text2 {
 	vertical-align: bottom;
 }
 div.message-text {
-	border-bottom: 1px solid rgb(0, 96, 143);
+	border-bottom: 1px solid darkgray;
 }
 div.message-text-bottom {
-	border-top: 1px solid rgb(0, 96, 143);
+	border-top: 1px solid darkgray;
 }
 li.header dl.row-item dt.shout-left-dt {
 	display: inline-block;
@@ -853,7 +861,7 @@ hr.dashed {
 	border-bottom: dashed #CCCCCC 1px;
 }
 ul#shoutbox_posting > div#abbc3_buttons > div.abbc3_buttons_row {
-	width: 99%;
+	width: 99.3%;
 }
 a:hover span, a:focus span{
 	opacity:1.5;
