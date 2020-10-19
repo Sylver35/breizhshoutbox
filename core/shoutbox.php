@@ -240,15 +240,15 @@ class shoutbox
 		// And select the good table for the type of shoutbox
 		$val = array(
 			'is_user'		=> $this->user->data['is_registered'] && !$this->user->data['is_bot'],
-			'userid'		=> (int) $this->user->data['user_id'],
-			'id'			=> (int) $id,
+			'userid'		=> $this->user->data['user_id'],
+			'id'			=> $id,
 			'on_priv'		=> false,
 			'perm'			=> '_view',
 			'auth'			=> 'manage',
 			'priv'			=> '',
 			'privat'		=> '',
-			'sort'			=> (int) $sort,
-			'mode'			=> (string) $mode,
+			'sort'			=> $sort,
+			'mode'			=> $mode,
 			'board'			=> generate_board_url() . '/',
 			'shout_table'	=> $this->shoutbox_table,
 			'viewonline'	=> $this->auth->acl_get('u_viewonline'),
@@ -3653,34 +3653,17 @@ class shoutbox
 				'delete'		=> false,
 				'edit'			=> false,
 				'show_ip'		=> false,
-				'avatar_img'	=> false,
-				'msg_plain'		=> false,
 				'on_ip'			=> false,
+				'avatar_img'	=> '',
+				'msg_plain'		=> '',
 				'is_user'		=> (($row['shout_user_id'] > 1) && ($row['shout_user_id'] != $val['userid'])) ? true : false,
 				'real_user'		=> (($row['shout_user_id'] > 1) || ($row['shout_robot_user'] != 0)) ? true : false,
 				'name'			=> $row['username'],
-				'is_online'		=> false,
 			));
 
 			if (!$is_mobile)
 			{
-				if (!$row['shout_user_id'] && $row['shout_robot_user'])
-				{
-					$row_avatar = array(
-						'user_id'				=> $row['x_user_id'],
-						'username'				=> $row['x_username'],
-						'user_type'				=> $row['x_user_type'],
-						'user_avatar'			=> $row['x_user_avatar'],
-						'user_avatar_type'		=> $row['x_user_avatar_type'],
-						'user_avatar_width'		=> $row['x_user_avatar_width'],
-						'user_avatar_height'	=> $row['x_user_avatar_height'],
-					);
-					$row['avatar_img'] = $this->shout_user_avatar($row_avatar, $this->config['shout_avatar_height']);
-				}
-				else
-				{
-					$row['avatar_img'] = $this->shout_user_avatar($row, $this->config['shout_avatar_height']);
-				}
+				$row['avatar_img'] = $this->get_avatar_row($row, $val['sort']);
 			}
 
 			// Message made by anonymous
@@ -3689,27 +3672,12 @@ class shoutbox
 			$row['on_time'] = $this->user->format_date($row['shout_time'], $dateformat);
 
 			// Checks permissions for delete, edit and show_ip
-			if ($val['is_user'])
-			{
-				if ($perm['delete_all'] || ($row['shout_user_id'] == $val['userid']) && $perm['delete'])
-				{
-					$row['delete'] = true;
-				}
-				if ($perm['edit_all'] || ($row['shout_user_id'] == $val['userid']) && $perm['edit'])
-				{
-					$row['edit'] = true;
-					$row['msg_plain'] = $row['shout_text'];
-					decode_message($row['msg_plain'], $row['shout_bbcode_uid']);
-				}
-				if ($perm['info_all'] || ($row['shout_user_id'] == $val['userid']) && $perm['info'])
-				{
-					$row['show_ip'] = true;
-					$row['on_ip'] = $row['shout_ip'];
-				}
-			}
+			$row = $this->get_permissions_row($row, $perm, $val);
 
+			// The message now
 			$row['shout_text'] = $this->shout_text_for_display($row, $val['sort'], false);
 
+			// Construct the content of loop
 			$content['messages'][$i] = array(
 				'shoutId'		=> $row['shout_id'],
 				'shoutTime'		=> $row['on_time'],
@@ -3742,6 +3710,59 @@ class shoutbox
 		));
 
 		return $content;
+	}
+
+	private function get_avatar_row($row, $sort)
+	{
+		if (!$this->config['shout_avatar'] || !$this->config['allow_avatar'])
+		{
+			return false;
+		}
+		$avatar = '';
+		$popup = ($sort === 1) ? true : false;
+		if (!$row['shout_user_id'] && $row['shout_robot_user'])
+		{
+			$row_avatar = array(
+				'user_id'				=> $row['x_user_id'],
+				'username'				=> $row['x_username'],
+				'user_type'				=> $row['x_user_type'],
+				'user_avatar'			=> $row['x_user_avatar'],
+				'user_avatar_type'		=> $row['x_user_avatar_type'],
+				'user_avatar_width'		=> $row['x_user_avatar_width'],
+				'user_avatar_height'	=> $row['x_user_avatar_height'],
+			);
+			$avatar = $this->shout_user_avatar($row_avatar, $this->config['shout_avatar_height'], false, $popup);
+		}
+		else
+		{
+			$avatar = $this->shout_user_avatar($row, $this->config['shout_avatar_height'], false, $popup);
+		}
+
+		return $avatar;
+	}
+
+	private function get_permissions_row($row, $perm, $val)
+	{
+		if ($val['is_user'])
+		{
+			if ($perm['delete_all'] || ($row['shout_user_id'] == $val['userid']) && $perm['delete'])
+			{
+				$row['delete'] = true;
+			}
+			if ($perm['edit_all'] || ($row['shout_user_id'] == $val['userid']) && $perm['edit'])
+			{
+				$row['edit'] = true;
+				$row['msg_plain'] = $row['shout_text'];
+				decode_message($row['msg_plain'], $row['shout_bbcode_uid']);
+			}
+			if ($perm['info_all'] || ($row['shout_user_id'] == $val['userid']) && $perm['info'])
+			{
+				$row['show_ip'] = true;
+				$row['on_ip'] = $row['shout_ip'];
+			}
+		}
+
+		return $row;
 	}
 
 	private function get_shout_time($sql_where, $table)
@@ -3862,7 +3883,7 @@ class shoutbox
 	 * Add title with username
 	 * Return string or false
 	 */
-	public function shout_user_avatar($row, $height, $force = false)
+	public function shout_user_avatar($row, $height, $force = false, $popup = false)
 	{
 		if (!$force)
 		{
@@ -3893,6 +3914,10 @@ class shoutbox
 			$row['user_avatar_height'] = $avatar_height;
 			$avatar = $this->replace_shout_url(phpbb_get_user_avatar($row, $this->language->lang('SHOUT_AVATAR_TITLE', $row['username'])));
 			$avatar = str_replace('alt="', 'title="' . $this->language->lang('SHOUT_AVATAR_TITLE', $row['username']) . '" alt="', $avatar);
+			if ($popup)
+			{
+				$avatar = str_replace('class="avatar', 'class="avatar popup-avatar', $avatar);
+			}
 
 			return $avatar;
 		}
@@ -3909,6 +3934,10 @@ class shoutbox
 		);
 		$avatar = phpbb_get_user_avatar($row, $val_alt);
 		$avatar = str_replace(array('./download/file.php?avatar=', 'alt="'), array('', 'title="' . $val_alt . '" alt="'), $avatar);
+		if ($popup)
+		{
+			$avatar = str_replace('class="avatar', 'class="avatar popup-avatar', $avatar);
+		}
 
 		return $this->replace_shout_url($avatar);
 	}
@@ -4361,13 +4390,11 @@ class shoutbox
 
 		// Construct the user's preferences
 		$result = $this->create_user_preferences($data, $sort_of);
-		$data = $result['data'];
-		$sound = $result['sound'];
 
 		$this->template->assign_vars(array(
-			'LIST_SETTINGS_AUTH'		=> $this->settings_auth_to_javascript($data),
-			'LIST_SETTINGS_STRING'		=> $this->settings_to_javascript($data, $sound),
-			'LIST_SETTINGS_LANG'		=> $this->lang_to_javascript($data),
+			'LIST_SETTINGS_AUTH'		=> $this->settings_auth_to_javascript($result['data']),
+			'LIST_SETTINGS_STRING'		=> $this->settings_to_javascript($result['data'], $result['sound']),
+			'LIST_SETTINGS_LANG'		=> $this->lang_to_javascript($result['data']),
 			'ON_SHOUT_DISPLAY'			=> true,
 		));
 	}
@@ -4477,7 +4504,7 @@ class shoutbox
 			'rulesOk'			=> $this->return_bool($rules),
 			'rulesOpen'			=> $this->return_bool($rules_open),
 			'isMobile'			=> $this->return_bool($data['is_mobile']),
-			'refresh'			=> $this->return_bool(strpos($this->config['shout_dateformat'], '|') !== false),
+			'refresh'			=> $this->return_bool(strpos($data['dateformat'], '|') !== false),
 			'seeButtons'		=> $this->return_bool($this->config['shout_see_buttons']),
 			'buttonsLeft'		=> $this->return_bool($this->config['shout_see_buttons_left']),
 			'barHaute'			=> $this->return_bool($data["shout_bar_option{$data['sort_p']}"]),
@@ -4533,7 +4560,7 @@ class shoutbox
 			'addSound'			=> $sound['add'],
 			'editSound'			=> $sound['edit'],
 			'titleUrl'			=> $data['homepage'],
-			'direction'			=> ($this->language->lang('DIRECTION') == 'ltr') ? 'left' : 'right',
+			'direction'			=> ($this->language->lang('DIRECTION') === 'ltr') ? 'left' : 'right',
 			'buttonBg'			=> 'button_background_' . $this->config["shout_color_background{$data['sort_p']}"],
 			'shoutHeight'		=> ($data['sort_of'] === 2) ? $this->config['shout_height'] : $this->config["shout_non_ie_height{$data['sort_p']}"],
 			'widthPost'			=> $this->config["shout_width_post{$data['sort_p']}"] . 'px',
