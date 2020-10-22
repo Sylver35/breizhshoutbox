@@ -10,6 +10,9 @@ var config = {
 	dateFormat: '{{ U_DATE_FORMAT }}',
 	displayAjax: '{{ U_DISPLAY_AJAX }}',
 	timerIn: false,
+{% if SHOUT_USER_ID %}
+	userId: {{ SHOUT_USER_ID }},
+{% endif %}
 };
 function change_palette(){
 	if($('#color_palette_placeholder').is(':hidden')){

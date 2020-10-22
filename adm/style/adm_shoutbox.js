@@ -51,7 +51,7 @@
 			type: 'POST',
 			dataType: 'json',
 			url: config.previewAjax,
-			data: 'content='+encodeURIComponent($('#in_rules').val())+'&timer='+config.timerIn,
+			data: 'user='+config.userId+'&sort=2'+'&content='+encodeURIComponent($('#in_rules').val())+'&timer='+config.timerIn,
 			async: true,
 			cache: false,
 			success: function(update){
@@ -68,7 +68,7 @@
 			type: 'POST',
 			dataType: 'json',
 			url: config.dateFormat,
-			data: 'date='+value+'&sort=2',
+			data: 'user='+config.userId+'&sort=2'+'&date='+value,
 			async: true,
 			cache: false,
 			success: function(response){
@@ -84,7 +84,7 @@
 			type: 'POST',
 			dataType: 'json',
 			url: config.displayAjax,
-			data: 'smiley='+smiley+'&display='+sort,
+			data: 'user='+config.userId+'&sort=2'+'&smiley='+smiley+'&display='+sort,
 			async: true,
 			cache: false,
 			success: function(update){

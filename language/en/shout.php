@@ -42,6 +42,7 @@ if (empty($lang) || !is_array($lang))
 $lang = array_merge($lang, array(
 	'SHOUT_SEP'				=> ' ¦ ',
 	'SHOUT_PROTECT'			=> '’', // Don't change this
+	'SHOUT_DIRECTION'		=> 'left', // lang direction left or right
 	'SHOUT_START'			=> 'Shoutbox',
 	'SHOUT_LOADING'			=> 'Loading…',
 	'SHOUT_MESSAGE'			=> 'Message',

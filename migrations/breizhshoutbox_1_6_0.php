@@ -13,6 +13,11 @@ use phpbb\db\migration\migration;
 
 class breizhshoutbox_1_6_0 extends migration
 {
+	public function effectively_installed()
+	{
+		return phpbb_version_compare($this->config['shout_version'], '1.6.0', '>=');
+	}
+
 	static public function depends_on()
 	{
 		return array('\sylver35\breizhshoutbox\migrations\breizhshoutbox_1_5_0');

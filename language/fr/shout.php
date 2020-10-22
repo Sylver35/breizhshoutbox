@@ -40,7 +40,8 @@ if (empty($lang) || !is_array($lang))
 
 $lang = array_merge($lang, array(
 	'SHOUT_SEP'				=> ' ¦ ',
-	'SHOUT_PROTECT'			=> '’', // Don't traduct this
+	'SHOUT_PROTECT'			=> '’', // Don't change this
+	'SHOUT_DIRECTION'		=> 'left', // lang direction left (ltr) or right (rtl)
 	'SHOUT_START'			=> 'Shoutbox',
 	'SHOUT_LOADING'			=> 'Chargement…',
 	'SHOUT_MESSAGE'			=> 'Message',

@@ -39,7 +39,7 @@ class ajax
 	public function construct_ajax($mode)
 	{
 		$data = array();
-		$val = $this->shoutbox->shout_manage_ajax($mode, (int) $this->request->variable('sort', 2), (int) $this->request->variable('user', 0));
+		$val = $this->shoutbox->shout_manage_ajax($mode, (int) $this->request->variable('sort', 2), (int) $this->request->variable('user', 0), (int) $this->request->variable('other', 0));
 
 		switch ($mode)
 		{
@@ -56,11 +56,11 @@ class ajax
 			break;
 
 			case 'user_bbcode':
-				$data = $this->shoutbox->shout_ajax_user_bbcode((string) $this->request->variable('open', ''), (string) $this->request->variable('close', ''), (int) $this->request->variable('other', 0));
+				$data = $this->shoutbox->shout_ajax_user_bbcode($val, (string) $this->request->variable('open', ''), (string) $this->request->variable('close', ''));
 			break;
 
 			case 'charge_bbcode':
-				$data = $this->shoutbox->shout_ajax_charge_bbcode($val['id']);
+				$data = $this->shoutbox->shout_ajax_charge_bbcode($val['other']);
 			break;
 
 			case 'online':
@@ -72,7 +72,7 @@ class ajax
 			break;
 
 			case 'auth':
-				$data = $this->shoutbox->shout_ajax_auth($val['id'], (string) $this->request->variable('name', '', true));
+				$data = $this->shoutbox->shout_ajax_auth($val['other'], (string) $this->request->variable('name', '', true));
 			break;
 
 			case 'rules':
@@ -92,7 +92,7 @@ class ajax
 			break;
 
 			case 'cite':
-				$data = $this->shoutbox->shout_ajax_cite($val['id']);
+				$data = $this->shoutbox->shout_ajax_cite($val['other']);
 			break;
 
 			case 'action_user':
@@ -128,11 +128,11 @@ class ajax
 			break;
 
 			case 'edit':
-				$data = $this->shoutbox->shout_ajax_edit($val, (int) $this->request->variable('shout_id', 0), (string) $this->request->variable('chat_message', '', true));
+				$data = $this->shoutbox->shout_ajax_edit($val, (int) $this->request->variable('shout_id', 0), (string) $this->request->variable('message', '', true));
 			break;
 
 			case 'post':
-				$data = $this->shoutbox->shout_ajax_post($val, (string) $this->request->variable('chat_message', '', true), (string) $this->request->variable('name', '', true), (int) $this->request->variable('cite', 0));
+				$data = $this->shoutbox->shout_ajax_post($val, (string) $this->request->variable('message', '', true), (string) $this->request->variable('name', '', true), (int) $this->request->variable('cite', 0));
 			break;
 
 			case 'check':

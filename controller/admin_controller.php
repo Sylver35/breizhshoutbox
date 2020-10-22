@@ -207,7 +207,8 @@ class admin_controller
 			));
 		}
 		$this->template->assign_vars(array(
-			'S_CONFIGS'	=> true
+			'S_CONFIGS'		=> true,
+			'SHOUT_USER_ID'	=> $this->user->data['user_id'],
 		));
 	}
 
@@ -230,7 +231,7 @@ class admin_controller
 			$this->config->set('shout_max_posts', $this->request->variable('shout_max_posts', 300));
 			$this->config->set('shout_on_cron', $this->request->variable('shout_on_cron', 1));
 			$this->config->set('shout_log_cron', $this->request->variable('shout_log_cron', 0));
-			$this->config->set('shout_non_ie_nr', $this->request->variable('shout_non_ie_nr', 25));
+			$this->config->set('shout_num', $this->request->variable('shout_num', 25));
 			$this->config->set('shout_height', $this->request->variable('shout_height', 160));
 			$this->config->set('shout_color_background', $this->request->variable('shout_color_background', 'blue'));
 			$this->config->set('shout_button_background', $this->request->variable('shout_button_background', 1));
@@ -249,7 +250,7 @@ class admin_controller
 				'SHOUT_PRUNE'			=> (int) $this->config['shout_prune'],
 				'SHOUT_MAX_POSTS'		=> (int) $this->config['shout_max_posts'],
 				'SHOUT_MAX_POSTS_ON'	=> (int) $this->config['shout_max_posts_on'],
-				'SHOUT_NON_IE_NR'		=> (int) $this->config['shout_non_ie_nr'],
+				'SHOUT_NUM'				=> (int) $this->config['shout_num'],
 				'SHOUT_HEIGHT'			=> (int) $this->config['shout_height'],
 				'SHOUT_ON_CRON'			=> $this->shoutbox->construct_radio('shout_on_cron', 2),
 				'SHOUT_LOG_CRON'		=> $this->shoutbox->construct_radio('shout_log_cron', 2),
@@ -450,6 +451,7 @@ class admin_controller
 				'SHOUT_RULES_OPEN_PRIV'	=> $this->shoutbox->construct_radio('shout_rules_open_priv', 1),
 				'U_SHOUT_SMILIES'		=> $this->helper->route('sylver35_breizhshoutbox_smilies_pop'),
 				'U_PREVIEW_AJAX'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'preview_rules')),
+				'SHOUT_USER_ID'			=> $this->user->data['user_id'],
 				'S_RULES'				=> true,
 			));
 		}
@@ -989,14 +991,15 @@ class admin_controller
 			$this->config->set('shout_prune_priv', $this->request->variable('shout_prune_priv', 0));
 			$this->config->set('shout_on_cron_priv', $this->request->variable('shout_on_cron_priv', 1));
 			$this->config->set('shout_log_cron_priv', $this->request->variable('shout_log_cron_priv', 0));
+			$this->config->set('shout_button_background_priv', $this->request->variable('shout_button_background_priv', 0));
+			$this->config->set('shout_defil_priv', $this->request->variable('shout_defil_priv', 1));
 			$this->config->set('shout_max_posts_priv', $this->request->variable('shout_max_posts_priv', 400));
 			$this->config->set('shout_max_posts_on_priv', $this->request->variable('shout_max_posts_on_priv', 300));
-			$this->config->set('shout_non_ie_height_priv', $this->request->variable('shout_non_ie_height_priv', 460));
-			$this->config->set('shout_non_ie_nr_priv', $this->request->variable('shout_non_ie_nr_priv', 25));
+			$this->config->set('shout_height_priv', $this->request->variable('shout_height_priv', 460));
+			$this->config->set('shout_num_priv', $this->request->variable('shout_num_priv', 25));
 			$this->config->set('shout_color_background_priv', $this->request->variable('shout_color_background_priv', ''));
 			$this->config->set('shout_on_cron_priv', $this->request->variable('shout_on_cron_priv', 1));
 			$this->config->set('shout_bar_option_priv', $this->request->variable('shout_bar_option_priv', 1));
-			$this->config->set('shout_defil_priv', $this->request->variable('shout_defil_priv', 1));
 			$this->config->set('shout_sound_new_priv', $this->request->variable('shout_sound_new_priv', ''));
 
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
@@ -1016,8 +1019,8 @@ class admin_controller
 				'NEW_SOUND_PRIV'			=> $this->shoutbox->build_adm_sound_select('new_priv'),
 				'SHOUT_MAX_POSTS'			=> (int) $this->config['shout_max_posts_priv'],
 				'SHOUT_MAX_POSTS_ON'		=> (int) $this->config['shout_max_posts_on_priv'],
-				'SHOUT_NON_IE_HEIGHT_PRIV' 	=> (int) $this->config['shout_non_ie_height_priv'],
-				'SHOUT_NON_IE_NR_PRIV'		=> (int) $this->config['shout_non_ie_nr_priv'],
+				'SHOUT_HEIGHT_PRIV' 		=> (int) $this->config['shout_height_priv'],
+				'SHOUT_NUM_PRIV'			=> (int) $this->config['shout_num_priv'],
 				'COLOR_IMAGE'				=> (string) $this->config['shout_color_background_priv'] . '.webp',
 				'SHOUT_BAR_TOP'				=> (bool) $this->config['shout_bar_option_priv'],
 				'SHOUT_SOUNDS_PATH'			=> $this->ext_path . 'sounds/',
@@ -1041,8 +1044,8 @@ class admin_controller
 			}
 
 			$this->config->set('shout_width_post_pop', $this->request->variable('shout_width_post_pop', 325));
-			$this->config->set('shout_non_ie_height_pop', $this->request->variable('shout_non_ie_height_pop', 460));
-			$this->config->set('shout_non_ie_nr_pop', $this->request->variable('shout_non_ie_nr_pop', 25));
+			$this->config->set('shout_height_pop', $this->request->variable('shout_height_pop', 460));
+			$this->config->set('shout_num_pop', $this->request->variable('shout_num_pop', 25));
 			$this->config->set('shout_popup_height', $this->request->variable('shout_popup_height', 580));
 			$this->config->set('shout_popup_width', $this->request->variable('shout_popup_width', 1100));
 			$this->config->set('shout_color_background_pop', $this->request->variable('shout_color_background_pop', 'blue'));
@@ -1057,18 +1060,18 @@ class admin_controller
 		{
 			$color_path = 'styles/all/theme/images/fond/';
 			$this->template->assign_vars(array(
-				'SHOUT_WIDTH_POST'			=> (int) $this->config['shout_width_post_pop'],
-				'SHOUT_NON_IE_HEIGHT_POP'	=> (int) $this->config['shout_non_ie_height_pop'],
-				'SHOUT_NON_IE_NR_POP'		=> (int) $this->config['shout_non_ie_nr_pop'],
-				'SHOUT_HEIGHT_POP'			=> (int) $this->config['shout_popup_height'],
-				'SHOUT_WIDTH_POP'			=> (int) $this->config['shout_popup_width'],
-				'SHOUT_BAR_OPTION'			=> (bool) $this->config['shout_bar_option_pop'],
-				'COLOR_IMAGE'				=> (string) $this->config['shout_color_background_pop'] . '.webp',
-				'COLOR_SELECT'				=> $this->shoutbox->build_select_img($this->ext_path, $color_path, 'shout_color_background_pop', false, 'webp'),
-				'SHOUT_BUTTON'				=> $this->shoutbox->construct_radio('shout_button_background_pop', 1),
-				'SHOUT_DEFIL'				=> $this->shoutbox->construct_radio('shout_defil_pop', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
-				'COLOR_PATH'				=> $this->ext_path . $color_path,
-				'S_POPUP'					=> true,
+				'SHOUT_WIDTH_POST'		=> (int) $this->config['shout_width_post_pop'],
+				'SHOUT_HEIGHT_POP'		=> (int) $this->config['shout_height_pop'],
+				'SHOUT_NUM_POP'			=> (int) $this->config['shout_num_pop'],
+				'SHOUT_HEIGHT_POP'		=> (int) $this->config['shout_popup_height'],
+				'SHOUT_WIDTH_POP'		=> (int) $this->config['shout_popup_width'],
+				'SHOUT_BAR_OPTION'		=> (bool) $this->config['shout_bar_option_pop'],
+				'COLOR_IMAGE'			=> (string) $this->config['shout_color_background_pop'] . '.webp',
+				'COLOR_SELECT'			=> $this->shoutbox->build_select_img($this->ext_path, $color_path, 'shout_color_background_pop', false, 'webp'),
+				'SHOUT_BUTTON'			=> $this->shoutbox->construct_radio('shout_button_background_pop', 1),
+				'SHOUT_DEFIL'			=> $this->shoutbox->construct_radio('shout_defil_pop', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
+				'COLOR_PATH'			=> $this->ext_path . $color_path,
+				'S_POPUP'				=> true,
 			));
 		}
 	}
@@ -1169,6 +1172,7 @@ class admin_controller
 
 		$this->template->assign_vars(array(
 			'S_SMILIES'				=> true,
+			'SHOUT_USER_ID'			=> $this->user->data['user_id'],
 			'SMILIES_URL'			=> $this->root_path . $this->config['smilies_path'] . '/',
 			'U_DISPLAY_AJAX'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'display_smilies')),
 			'SHOUT_IMG_PATH'		=> $this->ext_path . 'images/',

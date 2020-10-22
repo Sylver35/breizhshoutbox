@@ -49,7 +49,6 @@ $lang = array_merge($lang, array(
 	'ACL_M_SHOUT_EDIT_MOD'			=> 'Can edit messages of all users',
 	'ACL_M_SHOUT_INFO'				=> 'Can see the IPs of all users',
 	'ACL_M_SHOUT_PERSONAL'			=> 'Can change the personalization messages of user',
-	'ACL_M_SHOUT_PURGE'				=> 'Can purge the shoutbox in front',
 	'ACL_M_SHOUT_ROBOT'				=> 'Can create robot messages',
 
 	'ACL_U_SHOUT_BBCODE'			=> 'Can use bbcode in messages',

@@ -244,7 +244,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_NR_ACP_EXPLAIN'			=> 'Choose the number of messages per page in the acp, tab overview.',
 	'SHOUT_MAX_POST_CHARS'			=> 'Maximum number of characters',
 	'SHOUT_MAX_POST_CHARS_EXPLAIN'	=> 'Choose the maximum number of characters it is possible to post in a message.<br />Note that there is a permission to bypass this limit',
-	'SHOUT_NON_IE_NR'				=> 'Number of messages per page',
+	'SHOUT_NUM'						=> 'Number of messages per page',
 
 	'SHOUT_HEIGHT'					=> 'Height of the div messages',
 	'SHOUT_HEIGHT_EXPLAIN'			=> 'For browsers other than IE &lt; 9, find here the height of the div messages in the shoutbox.',
