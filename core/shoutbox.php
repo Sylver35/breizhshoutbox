@@ -2810,7 +2810,7 @@ class shoutbox
 	public function shout_ajax_user_bbcode($val, $open, $close)
 	{
 		$text = $message = '';
-		$on_user = $val['other'] ? $val['other'] :  $val['userid'];
+		$on_user = ($val['other'] > 0) ? $val['other'] : $val['userid'];
 
 		// Parse bbcodes
 		$data = $this->parse_shout_bbcodes($open, $close, $on_user);
