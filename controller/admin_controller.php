@@ -286,17 +286,24 @@ class admin_controller
 			$this->config->set('shout_rules_open', $this->request->variable('shout_rules_open', 0));
 			$this->config->set('shout_rules_open_priv', $this->request->variable('shout_rules_open_priv', 0));
 
-			$sql = 'SELECT lang_iso
-				FROM ' . LANG_TABLE . '
-				ORDER BY lang_id';
-			$result = $this->db->sql_query($sql);
+			$sql = array(
+				'SELECT'	=> 'l.lang_iso, r.rules_lang',
+				'FROM'		=> array(LANG_TABLE => 'l'),
+				'LEFT_JOIN'	=> array(
+					array(
+						'FROM'	=> array($this->shoutbox_rules_table => 'r'),
+						'ON'	=> 'r.rules_lang = l.lang_iso',
+					),
+				),
+			);
+			$result = $this->db->sql_query($this->db->sql_build_query('SELECT', $sql));
 			while ($row = $this->db->sql_fetchrow($result))
 			{
 				$iso = $row['lang_iso'];
 				$rules_flags = $rules_flags_priv = 0;
 				$rules_uid = $rules_bitfield = $rules_uid_priv = $rules_bitfield_priv = '';
-				$rules_text = $this->request->variable("rules_text_$iso", '', true);
-				$rules_text_priv = $this->request->variable("rules_text_priv_$iso", '', true);
+				$rules_text = $this->request->variable("rules_text_{$iso}", '', true);
+				$rules_text_priv = $this->request->variable("rules_text_priv_{$iso}", '', true);
 				generate_text_for_storage($rules_text, $rules_uid, $rules_bitfield, $rules_flags, true, true, true);
 				generate_text_for_storage($rules_text_priv, $rules_uid_priv, $rules_bitfield_priv, $rules_flags_priv, true, true, true);
 
@@ -312,20 +319,11 @@ class admin_controller
 					'rules_flags_priv'		=> $rules_flags_priv,
 				);
 
-				$sql_ary = $this->db->sql_build_query('SELECT', array(
-					'SELECT'	=> 'rules_lang',
-					'FROM'		=> array($this->shoutbox_rules_table => ''),
-					'WHERE'		=> "rules_lang = '" . $this->db->sql_escape($iso) . "'",
-				));
-				$result_ary = $this->db->sql_query($sql_ary);
-				$on_rules = $this->db->sql_fetchfield('rules_lang', $result_ary);
-				$this->db->sql_freeresult($result_ary);
-				
-				if ($on_rules)
+				if (isset($row['rules_lang']) && $row['rules_lang'])
 				{
 					$sql = 'UPDATE ' . $this->shoutbox_rules_table . '
 						SET ' . $this->db->sql_build_array('UPDATE', $data) . "
-							WHERE rules_lang = '" . $this->db->sql_escape($iso) . "'";
+							WHERE rules_lang = '$iso'";
 					$this->db->sql_query($sql);
 				}
 				else
@@ -334,31 +332,8 @@ class admin_controller
 					$this->db->sql_query($sql);
 				}
 
-				if (!$this->config->offsetExists("shout_rules_{$iso}"))
-				{
-					$this->config->set_atomic("shout_rules_{$iso}", 0, '');
-				}
-				if ($data['rules_text'] != '')
-				{
-					$this->config->set("shout_rules_{$iso}", 1);
-				}
-				else
-				{
-					$this->config->set("shout_rules_{$iso}", 0);
-				}
-
-				if (!$this->config->offsetExists("shout_rules_priv_{$iso}"))
-				{
-					$this->config->set_atomic("shout_rules_priv_{$iso}", 0, '');
-				}
-				if ($data['rules_text_priv'] != '')
-				{
-					$this->config->set("shout_rules_priv_{$iso}", 1, false);
-				}
-				else
-				{
-					$this->config->set("shout_rules_priv_{$iso}", 0, false);
-				}
+				$this->config->set("shout_rules_{$iso}", (($data['rules_text'] !== '') ? 1 : 0));
+				$this->config->set("shout_rules_priv_{$iso}", (($data['rules_text_priv'] !== '') ? 1 : 0));
 			}
 			$this->db->sql_freeresult($result);
 			$this->cache->destroy('_shout_rules');
@@ -382,35 +357,18 @@ class admin_controller
 			$result = $this->db->sql_query($sql);
 			while ($row = $this->db->sql_fetchrow($result))
 			{
-				$text = isset($row['rules_text']) ? $row['rules_text'] : '';
-				$uid = isset($row['rules_uid']) ? $row['rules_uid'] : '';
-				$bitfield = isset($row['rules_bitfield']) ? $row['rules_bitfield'] : '';
-				$flags = isset($row['rules_flags']) ? $row['rules_flags'] : '';
-				$text_priv = isset($row['rules_text_priv']) ? $row['rules_text_priv'] : '';
-				$uid_priv = isset($row['rules_uid_priv']) ? $row['rules_uid_priv'] : '';
-				$bitfield_priv = isset($row['rules_bitfield_priv']) ? $row['rules_bitfield_priv'] : '';
-				$flags_priv = isset($row['rules_flags_priv']) ? $row['rules_flags_priv'] : '';
-
 				$decoded_text = $decoded_text_priv = $text_display = $text_display_priv = '';
-				if ($text)
-				{
-					$decoded_text = censor_text($text);
-					decode_message($decoded_text, $uid);
-					$text_display = generate_text_for_display($text, $uid, $bitfield, $flags);
-				}
-				if ($text_priv)
-				{
-					$decoded_text_priv = censor_text($text_priv);
-					decode_message($decoded_text_priv, $uid_priv);
-					$text_display_priv = generate_text_for_display($text_priv, $uid_priv, $bitfield_priv, $flags_priv);
-				}
+				$decoded_text = censor_text($row['rules_text']);
+				decode_message($decoded_text, $row['rules_uid']);
+				$decoded_text_priv = censor_text($row['rules_text_priv']);
+				decode_message($decoded_text_priv, $row['rules_uid_priv']);
 
 				$this->template->assign_block_vars('rules', array(
 					'RULES_NR'					=> $i,
 					'RULES_TEXT'				=> $decoded_text,
 					'RULES_TEXT_PRIV'			=> $decoded_text_priv,
-					'RULES_TEXT_DISPLAY'		=> $text_display,
-					'RULES_TEXT_DISPLAY_PRIV'	=> $text_display_priv,
+					'RULES_TEXT_DISPLAY'		=> generate_text_for_display($row['rules_text'], $row['rules_uid'], $row['rules_bitfield'], $row['rules_flags']),
+					'RULES_TEXT_DISPLAY_PRIV'	=> generate_text_for_display($row['rules_text_priv'], $row['rules_uid_priv'], $row['rules_bitfield_priv'], $row['rules_flags_priv']),
 					'RULES_LANG'				=> $row['lang_local_name'],
 					'RULES_ISO'					=> $row['lang_iso'],
 					'RULES_ON'					=> $this->language->lang('SHOUT_RULES_ON', $row['lang_iso'], $row['lang_local_name']),
@@ -587,31 +545,22 @@ class admin_controller
 				{
 					trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 				}
-				switch ($action)
+				if ($action === 'purge')
 				{
-					case 'purge':
-						$sql = 'DELETE FROM ' . $this->shoutbox_table;
-						$this->db->sql_query($sql);
-						$deleted = $this->db->sql_affectedrows();
-						
-						$this->config->increment('shout_del_purge', $deleted, true);
-						$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_PURGE_SHOUTBOX', time());
-						$this->shoutbox->post_robot_shout(0, $this->user->ip, false, true, false);
-					break;
-					case 'purge_1':
-					case 'purge_2':
-					case 'purge_3':
-					case 'purge_4':
-					case 'purge_5':
-					case 'purge_6':
-					case 'purge_7':
-					case 'purge_8':
-						$retour = $this->shoutbox->purge_shout_admin($action, false);
-						if ($retour)
-						{
-							adm_back_link($this->u_action);
-						}
-					break;
+					$sql = 'DELETE FROM ' . $this->shoutbox_table;
+					$this->db->sql_query($sql);
+					$deleted = $this->db->sql_affectedrows();
+					$this->config->increment('shout_del_purge', $deleted, true);
+					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_PURGE_SHOUTBOX', time());
+					$this->shoutbox->post_robot_shout(0, $this->user->ip, false, true, false);
+				}
+				else
+				{
+					$retour = $this->shoutbox->purge_shout_admin($action, false);
+					if ($retour)
+					{
+						adm_back_link($this->u_action);
+					}
 				}
 			}
 		}
@@ -844,31 +793,22 @@ class admin_controller
 				{
 					trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 				}
-				switch ($action)
+				if ($action === 'purge')
 				{
-					case 'purge':
-						$sql = 'DELETE FROM ' . $this->shoutbox_priv_table;
-						$this->db->sql_query($sql);
-						$deleted = $this->db->sql_affectedrows();
-						
-						$this->config->increment('shout_del_purge_priv', $deleted, true);
-						$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_PURGE_SHOUTBOX_PRIV', time());
-						$this->shoutbox->post_robot_shout(0, $this->user->ip, true, true, false);
-					break;
-					case 'purge_1':
-					case 'purge_2':
-					case 'purge_3':
-					case 'purge_4':
-					case 'purge_5':
-					case 'purge_6':
-					case 'purge_7':
-					case 'purge_8':
-						$retour = $this->shoutbox->purge_shout_admin($action, true);
-						if ($retour)
-						{
-							adm_back_link($this->u_action);
-						}
-					break;
+					$sql = 'DELETE FROM ' . $this->shoutbox_table;
+					$this->db->sql_query($sql);
+					$deleted = $this->db->sql_affectedrows();
+					$this->config->increment('shout_del_purge', $deleted, true);
+					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_PURGE_SHOUTBOX', time());
+					$this->shoutbox->post_robot_shout(0, $this->user->ip, false, true, false);
+				}
+				else
+				{
+					$retour = $this->shoutbox->purge_shout_admin($action, false);
+					if ($retour)
+					{
+						adm_back_link($this->u_action);
+					}
 				}
 			}
 		}
@@ -1109,12 +1049,12 @@ class admin_controller
 				'SHOUT_PANEL'				=> $this->shoutbox->construct_radio('shout_panel', 2),
 				'SHOUT_PANEL_ALL'			=> $this->shoutbox->construct_radio('shout_panel_all', 2),
 				'SHOUT_PANEL_AUTO'			=> $this->shoutbox->construct_radio('shout_panel_auto', 2),
-				'SHOUT_PAGE_EXCLUDE'		=> str_replace('||', "\n", $this->config['shout_page_exclude']),
 				'SHOUT_PANEL_FLOAT'			=> $this->shoutbox->construct_radio('shout_panel_float', 3, false, 'SHOUT_PANEL_FLOAT_LEFT', 'SHOUT_PANEL_FLOAT_RIGHT'),
 				'SHOUT_PANEL_WIDTH'			=> $this->config['shout_panel_width'],
 				'SHOUT_PANEL_HEIGHT'		=> $this->config['shout_panel_height'],
 				'PANEL_OPEN_IMAGE'			=> $this->config['shout_panel_img'],
 				'PANEL_EXIT_IMAGE'			=> $this->config['shout_panel_exit_img'],
+				'SHOUT_PAGE_EXCLUDE'		=> str_replace('||', "\n", $this->config['shout_page_exclude']),
 				'OPTION_OPEN_TITLE'			=> substr($this->config['shout_panel_img'], 0, strrpos($this->config['shout_panel_img'], '.')),
 				'OPTION_EXIT_TITLE'			=> substr($this->config['shout_panel_exit_img'], 0, strrpos($this->config['shout_panel_exit_img'], '.')),
 				'PANEL_OPEN_OPTION'			=> $this->shoutbox->build_select_img($this->ext_path, $panel_path, 'shout_panel_img', true),

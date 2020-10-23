@@ -26,14 +26,25 @@
 	shoutbox.MoveRules = function(id,ancre){
 		clearInterval(config.timerIn);
 		config.timerIn = false;
+		var cible = id.replace('rules_text','rules_view');
 		$('#'+id).val($('#in_rules').val());
+		$('#'+cible).html($('#rules_preview').html());
 		$('#in_rules').val('');
 		$('#rules_target').html('');
 		$('#rules_preview').html('');
 		$('html, body').animate({scrollTop: parseInt($('#'+ancre).offset().top)},'slow');
+		$('input[name="button_lang"]').each(function(){
+			$(this).show();
+		});
 	}
 	/** Move rules from selected box to top  **/
 	shoutbox.EditRules = function(id,title){
+		var button = id.replace('rules_text','button');
+		$('input[name="button_lang"]').each(function(){
+			if($(this).attr('id') != button){
+				$(this).hide();
+			}
+		});
 		$('#in_rules').val($('#'+id).val()).focus();
 		$('#'+id).html('');
 		$('#rules_target').html(title);

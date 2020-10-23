@@ -226,9 +226,9 @@ class shoutbox
 
 	/**
 	 * Initialize somes variables
-	 * @param string $mode mode of url
+	 * @param string $mode mode to switch
 	 * @param int $sort sort of shoutbox
-	 * @param int $id id of curent user
+	 * @param int $id id of javascript user
 	 * @param int $other id of other user
 	 * @return array
 	 */
@@ -273,14 +273,14 @@ class shoutbox
 		}
 
 		// Permissions and security verifications
-		if ($val['userid'] !== $val['id'])
-		{
-			$this->shout_error('SERVER_ERR');
-			return;
-		}
 		if (!$this->auth->acl_get("u_shout{$val['perm']}"))
 		{
 			$this->shout_error("NO_VIEW{$val['privat']}_PERM");
+			return;
+		}
+		if ($val['userid'] !== $val['id'])
+		{
+			$this->shout_error('SERVER_ERR');
 			return;
 		}
 
@@ -290,11 +290,21 @@ class shoutbox
 		return $val;
 	}
 
+	/**
+	 * Decode json data
+	 * @param string $data
+	 * @return string
+	 */
 	private function shout_decode($data)
 	{
 		return json_decode($data);
 	}
 
+	/**
+	 * Encode json data
+	 * @param string $data
+	 * @return string
+	 */
 	private function shout_encode($data)
 	{
 		return json_encode($data);
@@ -838,15 +848,20 @@ class shoutbox
 		{
 			// Load the user's preferences
 			$user_shout = $this->shout_decode($this->user->data['user_shout']);
-			if ($user_shout->index != '3')
+			if ($user_shout->index != 3)
 			{
-				$this->config['shout_index'] = $user_shout->index;
-				$this->config['shout_forum'] = $user_shout->forum;
-				$this->config['shout_topic'] = $user_shout->topic;
-				$this->config['shout_position_index'] = $user_shout->index;
-				$this->config['shout_position_forum'] = $user_shout->forum;
-				$this->config['shout_position_topic'] = $user_shout->topic;
+				$this->config['shout_index'] = ($user_shout->index != 0) ? true : false;
+				$this->config['shout_forum'] = ($user_shout->forum != 0) ? true : false;
+				$this->config['shout_topic'] = ($user_shout->topic != 0) ? true : false;
+				$this->config['shout_position_index'] = (int) $user_shout->index;
+				$this->config['shout_position_forum'] = (int) $user_shout->forum;
+				$this->config['shout_position_topic'] = (int) $user_shout->topic;
 			}
+		}
+
+		if (!$this->stop_shout_display($this->config['shout_index'], $this->config['shout_forum'], $this->config['shout_topic']))
+		{
+			return;
 		}
 
 		// Active lateral panel or not
@@ -874,14 +889,14 @@ class shoutbox
 			'PANEL_ALL'				=> $panel,
 			'S_IN_PRIV'				=> $in_priv,
 			'ACTION_USERS_TOP'		=> ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_')) ? true : false,
-			'INDEX_SHOUT'			=> ((bool) $this->config['shout_index']) ? true : false,
+			'INDEX_SHOUT'			=> $this->config['shout_index'],
+			'FORUM_SHOUT'			=> $this->config['shout_forum'],
+			'TOPIC_SHOUT'			=> $this->config['shout_topic'],
 			'INDEX_SHOUT_TOP'		=> ((int) $this->config['shout_position_index'] === 1) ? true : false,
 			'INDEX_SHOUT_AFTER'		=> ((int) $this->config['shout_position_index'] === 4) ? true : false,
 			'INDEX_SHOUT_END'		=> ((int) $this->config['shout_position_index'] === 2) ? true : false,
-			'FORUM_SHOUT'			=> ((bool) $this->config['shout_forum']) ? true : false,
 			'POS_SHOUT_FORUM_TOP'	=> ((int) $this->config['shout_position_forum'] === 1) ? true : false,
 			'POS_SHOUT_FORUM_END'	=> ((int) $this->config['shout_position_forum'] === 2) ? true : false,
-			'TOPIC_SHOUT'			=> ((bool) $this->config['shout_topic']) ? true : false,
 			'POS_SHOUT_TOPIC_TOP'	=> ((int) $this->config['shout_position_topic'] === 1) ? true : false,
 			'POS_SHOUT_TOPIC_END'	=> ((int) $this->config['shout_position_topic'] === 2) ? true : false,
 			'SHOUT_EXT_PATH'		=> $this->ext_path_web,
@@ -897,6 +912,27 @@ class shoutbox
 			$this->execute_shout_cron($in_priv);
 		}
 		$this->shout_run_robot(true);
+	}
+
+	private function stop_shout_display($index, $forum, $topic)
+	{
+		$stop = true;
+		$page = str_replace('.' . $this->php_ext, '', $this->user->page['page_name']);
+
+		if ($page === 'index')
+		{
+			$stop = $index;
+		}
+		else if ($page === 'viewforum')
+		{
+			$stop = $forum;
+		}
+		else if ($page === 'viewtopic')
+		{
+			$stop = $topic;
+		}
+
+		return $stop;
 	}
 
 	private function shout_charge_posting()
@@ -4319,6 +4355,7 @@ class shoutbox
 
 		$this->template->assign_vars(array(
 			'IN_SHOUT_CONFIG'		=> true,
+			'USER_ID'				=> $this->user->data['user_id'],
 			'USERNAME'				=> $other,
 			'TITLE_PANEL'			=> ($other) ? $this->language->lang('SHOUT_PANEL_TO_USER', $username) : $this->language->lang('SHOUT_PANEL_USER'),
 			'S_POP'					=> $auth_pop,
