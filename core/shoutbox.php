@@ -291,26 +291,6 @@ class shoutbox
 	}
 
 	/**
-	 * Decode json data
-	 * @param string $data
-	 * @return string
-	 */
-	private function shout_decode($data)
-	{
-		return json_decode($data);
-	}
-
-	/**
-	 * Encode json data
-	 * @param string $data
-	 * @return string
-	 */
-	private function shout_encode($data)
-	{
-		return json_encode($data);
-	}
-
-	/**
 	 * Get the adm path
 	 * @return string
 	 */
@@ -847,12 +827,12 @@ class shoutbox
 		else if ($is_user)
 		{
 			// Load the user's preferences
-			$user_shout = $this->shout_decode($this->user->data['user_shout']);
+			$user_shout = json_decode($this->user->data['user_shout']);
 			if ($user_shout->index != 3)
 			{
-				$this->config['shout_index'] = ($user_shout->index != 0) ? true : false;
-				$this->config['shout_forum'] = ($user_shout->forum != 0) ? true : false;
-				$this->config['shout_topic'] = ($user_shout->topic != 0) ? true : false;
+				$this->config['shout_index'] = ($user_shout->index != '0') ? true : false;
+				$this->config['shout_forum'] = ($user_shout->forum != '0') ? true : false;
+				$this->config['shout_topic'] = ($user_shout->topic != '0') ? true : false;
 				$this->config['shout_position_index'] = (int) $user_shout->index;
 				$this->config['shout_position_forum'] = (int) $user_shout->forum;
 				$this->config['shout_position_topic'] = (int) $user_shout->topic;
@@ -1020,8 +1000,8 @@ class shoutbox
 		{
 			if ($this->user->data['is_registered'])
 			{
-				$user_shoutbox = $this->shout_decode($this->user->data['user_shoutbox']);
-				$this->config['shout_panel_float'] = $this->set_user_option($user_shoutbox->panel_float, 'shout_panel_float', 3);
+				$user_shoutbox = json_decode($this->user->data['user_shoutbox']);
+				$this->config['shout_panel_float'] = $this->set_user_option((bool) $user_shoutbox->panel_float, 'shout_panel_float', 3);
 			}
 			$this->template->assign_vars(array(
 				'S_IN_SHOUT_POP'	=> true,
@@ -1067,14 +1047,14 @@ class shoutbox
 		else if ($this->user->data['is_registered'])
 		{
 			$set_option = false;
-			$user_shoutbox = $this->shout_decode($this->user->data['user_shoutbox']);
-			if ($user_shoutbox->panel !== 'N')
+			$user_shoutbox = json_decode($this->user->data['user_shoutbox']);
+			if ($user_shoutbox->panel != 3)
 			{
-				if (!$user_shoutbox->panel)
+				if ((int) $user_shoutbox->panel === 0)
 				{
 					return false;
 				}
-				else if ($user_shoutbox->panel)
+				else
 				{
 					$set_option = true;
 				}
@@ -2970,8 +2950,8 @@ class shoutbox
 	public function shout_ajax_action_sound($on_sound)
 	{
 		$content = array();
-		$user_shout = $this->shout_decode($this->user->data['user_shout']);
-		$on_sound = ($user_shout->user === 2) ? $on_sound : $user_shout->user;
+		$user_shout = json_decode($this->user->data['user_shout']);
+		$on_sound = ($user_shout->user == 2) ? $on_sound : $user_shout->user;
 		switch ($on_sound)
 		{
 			// Turn on the sounds
@@ -2994,7 +2974,7 @@ class shoutbox
 			break;
 		}
 
-		$user_shout = $this->shout_encode(array(
+		$user_shout = json_encode(array(
 			'user'		=> $content['type'],
 			'new'		=> $user_shout->new,
 			'new_priv'	=> $user_shout->new_priv,
@@ -3828,7 +3808,7 @@ class shoutbox
 		$dateformat = $this->config['shout_dateformat'];
 		if ($is_user)
 		{
-			$data = $this->shout_decode($this->user->data['user_shoutbox']);
+			$data = json_decode($this->user->data['user_shoutbox']);
 			$dateformat = ($data->dateformat !== '') ? $data->dateformat : $dateformat;
 		}
 
@@ -4175,7 +4155,7 @@ class shoutbox
 
 		if ($this->request->is_set_post('submit'))
 		{
-			$user_shout = $this->shout_encode(array(
+			$user_shout = json_encode(array(
 				'user'			=> $this->request->variable('user_sound', 2),
 				'new'			=> $this->request->variable('shout_sound_new', 'N', true),
 				'new_priv'		=> $this->request->variable('shout_sound_new_priv', 'N', true),
@@ -4187,7 +4167,7 @@ class shoutbox
 				'forum'			=> $this->request->variable('position_forum', 3),
 				'topic'			=> $this->request->variable('position_topic', 3),
 			));
-			$user_shoutbox = $this->shout_encode(array(
+			$user_shoutbox = json_encode(array(
 				'bar'			=> $this->request->variable('shout_bar', 2),
 				'bar_pop'		=> $this->request->variable('shout_bar_pop', 2),
 				'bar_priv'		=> $this->request->variable('shout_bar_priv', 2),
@@ -4208,7 +4188,7 @@ class shoutbox
 		}
 		else if ($this->request->is_set_post('retour'))
 		{
-			$user_shout = $this->shout_encode(array(
+			$user_shout = json_encode(array(
 				'user'			=> 2,
 				'new'			=> 'N',
 				'new_priv'		=> 'N',
@@ -4220,7 +4200,7 @@ class shoutbox
 				'forum'			=> 3,
 				'topic'			=> 3,
 			));
-			$user_shoutbox = $this->shout_encode(array(
+			$user_shoutbox = json_encode(array(
 				'bar'			=> 2,
 				'bar_pop'		=> 2,
 				'bar_priv'		=> 2,
@@ -4311,8 +4291,8 @@ class shoutbox
 		$username = '';
 		if ($user_id === $this->user->data['user_id'])
 		{
-			$user_shout = $this->shout_decode($this->user->data['user_shout']);
-			$user_shoutbox = $this->shout_decode($this->user->data['user_shoutbox']);
+			$user_shout = json_decode($this->user->data['user_shout']);
+			$user_shoutbox = json_decode($this->user->data['user_shoutbox']);
 			$auth_pop = $this->auth->acl_get('u_shout_popup');
 			$auth_priv = $this->auth->acl_get('u_shout_priv');
 		}
@@ -4326,8 +4306,8 @@ class shoutbox
 			$row = $this->db->sql_fetchrow($result);
 			$this->db->sql_freeresult($result);
 			$username = $row['username'];
-			$user_shout = $this->shout_decode($row['user_shout']);
-			$user_shoutbox = $this->shout_decode($row['user_shoutbox']);
+			$user_shout = json_decode($row['user_shout']);
+			$user_shoutbox = json_decode($row['user_shoutbox']);
 			$auth_pop = $this->auth->acl_get_list($user_id, 'u_shout_popup');
 			$auth_priv = $this->auth->acl_get_list($user_id, 'u_shout_priv');
 		}
@@ -4453,8 +4433,8 @@ class shoutbox
 	{
 		if ($data['is_user'])
 		{
-			$user_shout = $this->shout_decode($this->user->data['user_shout']);
-			$user_shoutbox = $this->shout_decode($this->user->data['user_shoutbox']);
+			$user_shout = json_decode($this->user->data['user_shout']);
+			$user_shoutbox = json_decode($this->user->data['user_shoutbox']);
 			$user_shout->user = $this->set_user_option($user_shout->user, 'shout_sound_on', 4);
 
 			$sound = array(
@@ -4792,7 +4772,7 @@ class shoutbox
 		$settings = "var bzhLang = {\n		";
 		foreach ($lang_shout as $key => $value)
 		{
-			$settings .= "'" . $key . "':" . $this->shout_encode($value) . ', ';
+			$settings .= "'" . $key . "':" . json_encode($value) . ', ';
 			if ($i > 7)
 			{
 				$settings .= "\n		";
