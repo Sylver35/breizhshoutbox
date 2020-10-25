@@ -134,9 +134,8 @@ class shoutbox
 	 * @param string $message Error
 	 * @return void
 	 */
-	public function shout_error($message, $on1 = false, $on2 = false, $on3 = false)
+	private function shout_error($message, $on1 = false, $on2 = false, $on3 = false)
 	{
-		$response = new json_response();
 		if ($this->language->is_set($message))
 		{
 			$message = $this->language->lang($message);
@@ -157,6 +156,7 @@ class shoutbox
 			}
 		}
 
+		$response = new json_response();
 		$response->send(array(
 			'type'		=> 10,
 			'error'		=> true,
@@ -278,11 +278,12 @@ class shoutbox
 			$this->shout_error("NO_VIEW{$val['privat']}_PERM");
 			return;
 		}
+		/*
 		if ($val['userid'] !== $val['id'])
 		{
 			$this->shout_error('SERVER_ERR');
 			return;
-		}
+		}*/
 
 		// We have our own error handling
 		$this->db->sql_return_on_error(true);
@@ -641,30 +642,30 @@ class shoutbox
 
 		if ($list_online == $this->language->lang('NO_ONLINE_USERS'))
 		{
-			$content['liste'] = $list_online;
+			$content['list'] = $list_online;
 		}
-		else if (strpos($list_online, 'avatar') !== false)
+		/*else if (strpos($list_online, 'avatar') !== false)
 		{
-			$content['liste'] = $list_online;
-		}
+			$content['list'] = $this->replace_shout_url($list_online);
+		}*/
 		else
 		{
 			$i = 0;
-			$content['liste'] = $this->language->lang('REGISTERED_USERS') . ' ';
-			$userlist = explode(', ', str_replace($content['liste'], '', $list_online));
+			$content['list'] = $this->language->lang('REGISTERED_USERS') . ' ';
+			$userlist = explode(', ', str_replace($content['list'], '', $list_online));
 			foreach ($userlist as $user)
 			{
-				$content['liste'] .= ($i > 0) ? ', ' : '';
+				$content['list'] .= ($i > 0) ? ', ' : '';
 				$id = $this->find_string($user, '&amp;u=', '" ');
 				if (!$id || $id == $this->user->data['user_id'])
 				{
-					$content['liste'] .= $this->replace_shout_url($user);
+					$content['list'] .= $this->replace_shout_url($user);
 				}
 				else
 				{
 					$username = $this->find_string($user, '">', '</a>');
 					$colour = $this->find_string($user, 'color: #', ';"');
-					$content['liste'] .= $this->construct_action_shout($id, $username, $colour);
+					$content['list'] .= $this->construct_action_shout($id, $username, $colour);
 				}
 				$i++;
 			}
@@ -1700,37 +1701,26 @@ class shoutbox
 		switch ($row['shout_info'])
 		{
 			case 1:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$message = $this->language->lang('SHOUT_SESSION_ROBOT', $username);
+				$message = $this->language->lang('SHOUT_SESSION_ROBOT', $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp));
 			break;
 			case 2:
-				$username = get_username_string('no_profile', $row['x_user_id'], $row['x_username'], $row['x_user_colour']);
-				$message = $this->language->lang('SHOUT_SESSION_ROBOT_BOT', $start, $username);
+				$message = $this->language->lang('SHOUT_SESSION_ROBOT_BOT', $start, get_username_string('no_profile', $row['x_user_id'], $row['x_username'], $row['x_user_colour']));
 			break;
 			case 3:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$message = $this->language->lang('SHOUT_ENTER_PRIV', $start, $username);
+				$message = $this->language->lang('SHOUT_ENTER_PRIV', $start, $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp));
 			break;
 			case 4:
-				$message = $this->language->lang('SHOUT_PURGE_ROBOT', $start);
-			break;
 			case 5:
-				$message = $this->language->lang('SHOUT_PURGE_PRIV', $start);
-			break;
 			case 6:
-				$message = $this->language->lang('SHOUT_PURGE_SHOUT', $start);
+				$message = $this->language->lang('SHOUT_PURGE_' . $row['shout_info'], $start);
 			break;
 			case 7:
-				$message = $this->language->lang('SHOUT_PURGE_AUTO', $start, $row['shout_text']);
-			break;
 			case 8:
-				$message = $this->language->lang('SHOUT_PURGE_PRIV_AUTO', $start, $row['shout_text']);
+				$message = $this->language->lang('SHOUT_PURGE_' . $row['shout_info'], $start, $row['shout_text']);
 			break;
 			case 9:
-				$message = $this->language->lang('SHOUT_DELETE_AUTO', $start, $row['shout_text']);
-			break;
 			case 10:
-				$message = $this->language->lang('SHOUT_DELETE_PRIV_AUTO', $start, $row['shout_text']);
+				$message = $this->language->lang('SHOUT_DELETE_AUTO_' . $row['shout_info'], $start, $row['shout_text']);
 			break;
 			case 11:
 				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
@@ -1749,48 +1739,18 @@ class shoutbox
 				$message = $this->language->lang('SHOUT_HELLO_ROBOT', $this->tpl('close'), $this->tpl('bold') . $this->user->format_date($row['shout_time'], $this->language->lang('SHOUT_ROBOT_DATE'), true));
 			break;
 			case 13:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$message = $this->language->lang('SHOUT_NEWEST_ROBOT', $username, $this->config['sitename']);
+				$message = $this->language->lang('SHOUT_NEWEST_ROBOT', $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp), $this->config['sitename']);
 			break;
 			case 14:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_GLOBAL_ROBOT', $start, $username, $url);
-			break;
 			case 15:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_ANNOU_ROBOT', $start, $username, $url);
-			break;
 			case 16:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_POST_ROBOT', $start, $username, $url);
-			break;
 			case 17:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_EDIT_ROBOT', $start, $username, $url);
-			break;
 			case 18:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_TOPIC_ROBOT', $start, $username, $url);
-			break;
 			case 19:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_LAST_ROBOT', $start, $username, $url);
-			break;
 			case 20:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_QUOTE_ROBOT', $start, $username, $url);
-			break;
 			case 21:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
 				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_REPLY_ROBOT', $start, $username, $url);
+				$message = $this->language->lang('SHOUT_POST_ROBOT_' . $row['shout_info'], $start, $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp), $url);
 			break;
 			case 35:
 				$title = (strlen($row['shout_text']) > 45) ? substr($row['shout_text'], 0, 42) . '...' : $row['shout_text'];
@@ -1799,84 +1759,32 @@ class shoutbox
 				$message = $this->language->lang('SHOUT_NEW_VIDEO', $url, $cat_url);
 			break;
 			case 36:
-				$url = $this->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_games', array('gid' => $row['shout_info_nb'])), $row['shout_text']);
-				$cat_url = ($row['shout_robot_user'] && $row['shout_text2']) ? $this->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_list', array('cid' => $row['shout_robot_user'])), $row['shout_text2']) : false;
-				$message = $this->language->lang('SHOUT_NEW_SCORE_RA_TXT', $row['shout_robot'], $url);
-				$message .= ($cat_url) ? ' ' . $this->language->lang('IN') . ' ' . $cat_url : '';
-			break;
 			case 37:
-				$url = $this->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_games', array('gid' => $row['shout_info_nb'])), $row['shout_text']);
-				$cat_url = ($row['shout_robot_user'] && $row['shout_text2']) ? $this->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_list', array('cid' => $row['shout_robot_user'])), $row['shout_text2']) : false;
-				$message = $this->language->lang('SHOUT_NEW_URECORD_RA_TXT', $row['shout_robot'], $url);
-				$message .= ($cat_url) ? ' ' . $this->language->lang('IN') . ' ' . $cat_url : '';
-			break;
 			case 38:
 				$url = $this->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_games', array('gid' => $row['shout_info_nb'])), $row['shout_text']);
 				$cat_url = ($row['shout_robot_user'] && $row['shout_text2']) ? $this->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_list', array('cid' => $row['shout_robot_user'])), $row['shout_text2']) : false;
-				$message = $this->language->lang('SHOUT_NEW_RECORD_RA_TXT', $row['shout_robot'], $url);
+				$message = $this->language->lang('SHOUT_NEW_SCORE_' . $row['shout_info'], $row['shout_robot'], $url);
 				$message .= ($cat_url) ? ' ' . $this->language->lang('IN') . ' ' . $cat_url : '';
 			break;
-			case 60:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_PREZ_ROBOT', $start, $username, $url);
-			break;
 			case 65:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$message = generate_text_for_display($row['shout_text'], $row['shout_bbcode_uid'], $row['shout_bbcode_bitfield'], $row['shout_bbcode_flags']);
-				$message = $this->tpl('cite', $this->language->lang('SHOUT_USER_POST'), $username, $message);
-				$italic = false;
-			break;
 			case 66:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$message = generate_text_for_display($row['shout_text'], $row['shout_bbcode_uid'], $row['shout_bbcode_bitfield'], $row['shout_bbcode_flags']);
-				$message = $this->tpl('cite', $this->language->lang('SHOUT_ACTION_CITE_ON'), $username, $message);
+				$lang_on = ($row['shout_info'] == 65) ? 'SHOUT_USER_POST' : 'SHOUT_ACTION_CITE_ON';
+				$data = generate_text_for_display($row['shout_text'], $row['shout_bbcode_uid'], $row['shout_bbcode_bitfield'], $row['shout_bbcode_flags']);
+				$message = $this->tpl('cite', $this->language->lang($lang_on), $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp), $data);
 				$italic = false;
 			break;
+			case 60:
 			case 70:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_PREZ_E_ROBOT', $start, $username, $url);
-			break;
 			case 71:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_PREZ_ES_ROBOT', $start, $username, $url);
-			break;
 			case 72:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_PREZ_F_ROBOT', $start, $username, $url);
-			break;
 			case 73:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_PREZ_FS_ROBOT', $start, $username, $url);
-			break;
 			case 74:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_PREZ_L_ROBOT', $start, $username, $url);
-			break;
 			case 75:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_PREZ_LS_ROBOT', $start, $username, $url);
-			break;
 			case 76:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_PREZ_R_ROBOT', $start, $username, $url);
-			break;
 			case 77:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
-				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_PREZ_RS_ROBOT', $start, $username, $url);
-			break;
 			case 80:
-				$username = $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp);
 				$url = $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']);
-				$message = $this->language->lang('SHOUT_PREZ_Q_ROBOT', $start, $username, $url);
+				$message = $this->language->lang('SHOUT_PREZ_ROBOT_' . $row['shout_info'], $start, $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp), $url);
 			break;
 			case 99:
 				$message = $this->language->lang('SHOUT_WELCOME');
@@ -1980,33 +1888,24 @@ class shoutbox
 	 */
 	public function post_session_shout($event)
 	{
-		if ($event['session_user_id'] == ANONYMOUS || !$this->config['shout_enable_robot'])
+		if ($event['session_user_id'] == ANONYMOUS || !$event['session_viewonline'] || !$this->config['shout_enable_robot'] || !$this->config['shout_sessions'] && !$this->config['shout_sessions_priv'])
 		{
 			return;
 		}
-		else if (!$this->config['shout_sessions'] && !$this->config['shout_sessions_priv'])
-		{
-			return;
-		}
-		else if (!$event['session_viewonline'])
-		{
-			return;
-		}
-		
+
 		$bot = $this->user->data['is_bot'] ? true : false;
-		if ($bot)
+		if ($bot && (!$this->config['shout_sessions_bots'] && !$this->config['shout_sessions_bots_priv']))
 		{
-			if (!$this->config['shout_sessions_bots'] && !$this->config['shout_sessions_bots_priv'])
-			{
-				return;
-			}
+			return;
 		}
 
 		$userid = (int) $event['session_user_id'];
 		$interval = (int) $this->config['shout_sessions_time'] * 60;
 		$is_posted = $is_posted_priv = false;
+		$go_post = ($bot && $this->config['shout_sessions_bots'] || !$bot && $this->config['shout_sessions']) ? true : false;
+		$go_post_priv = ($bot && $this->config['shout_sessions_bots_priv'] || !$bot && $this->config['shout_sessions_priv']) ? true : false;
 
-		if (($bot && $this->config['shout_sessions_bots']) || (!$bot && $this->config['shout_sessions']))
+		if ($go_post)
 		{
 			$sql = $this->db->sql_build_query('SELECT', array(
 				'SELECT'	=> 'shout_time',
@@ -2017,7 +1916,7 @@ class shoutbox
 			$is_posted = $this->db->sql_fetchfield('shout_time');
 			$this->db->sql_freeresult($result);
 		}
-		if (($bot && $this->config['shout_sessions_bots_priv']) || (!$bot && $this->config['shout_sessions_priv']))
+		if ($go_post_priv)
 		{
 			$sql = $this->db->sql_build_query('SELECT', array(
 				'SELECT'	=> 'shout_time',
@@ -2029,50 +1928,42 @@ class shoutbox
 			$this->db->sql_freeresult($result);
 		}
 
-		$shout_info = ($bot) ? 2 : 1;
-		$message = ($event['session_viewonline']) ? 'view' : 'hide';
-
 		$sql_data = array(
 			'shout_time'				=> time(),
 			'shout_user_id'				=> 0,
 			'shout_ip'					=> (string) $this->user->ip,
-			'shout_text'				=> (string) $message,
+			'shout_text'				=> (string) ($event['session_viewonline']) ? 'view' : 'hide',
 			'shout_bbcode_uid'			=> '',
 			'shout_bbcode_bitfield'		=> '',
 			'shout_bbcode_flags'		=> 0,
 			'shout_robot'				=> 1,
 			'shout_robot_user'			=> $userid,
 			'shout_forum'				=> 0,
-			'shout_info'				=> $shout_info,
+			'shout_info'				=> ($bot) ? 2 : 1,
 		);
 
-		if (!$is_posted)
+		if ($go_post && !$is_posted)
 		{
-			if (($bot && $this->config['shout_sessions_bots']) || (!$bot && $this->config['shout_sessions']))
-			{
-				$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-				$this->db->sql_query($sql);
-				$this->config->increment('shout_nr', 1, true);
-			}
+			$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
+			$this->db->sql_query($sql);
+			$this->config->increment('shout_nr', 1, true);
 		}
-		if (!$is_posted_priv)
+
+		if ($go_post_priv && !$is_posted_priv)
 		{
-			if (($bot && $this->config['shout_sessions_bots_priv']) || (!$bot && $this->config['shout_sessions_priv']))
-			{
-				$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-				$this->db->sql_query($sql);
-				$this->config->increment('shout_nr_priv', 1, true);
-			}
+			$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
+			$this->db->sql_query($sql);
+			$this->config->increment('shout_nr_priv', 1, true);
 		}
 	}
 
-	private function sort_info($post_mode, $is_prez_form, $prez_poster)
+	private function sort_info($mode, $prez_form, $prez_poster)
 	{
-		$ok_shout = $this->config['shout_post_robot'] ? true : false;
-		$ok_shout_priv = $this->config['shout_post_robot_priv'] ? true : false;
-		$sort_info = $info = 0;
+		$ok_shout = 'post';
+		$info = 0;
+		$sort_info = 3;
 
-		switch ($post_mode)
+		switch ($mode)
 		{
 			case 'global':
 				$sort_info = 2;
@@ -2084,62 +1975,56 @@ class shoutbox
 			break;
 			case 'post':
 				$sort_info = 2;
-				$info = (!$is_prez_form) ? 16 : 60;
+				$info = ($prez_form) ? 60 : 16;
 			break;
 			case 'edit':
-				$sort_info = 3;
 				$info = 17;
-				if ($is_prez_form)
+				if ($prez_form)
 				{
-					$info = (!$prez_poster) ? 70 : 71;
+					$info = ($prez_poster) ? 71 : 70;
 				}
-				$ok_shout = ($this->config['shout_edit_robot']) ? true : false;
-				$ok_shout_priv = ($this->config['shout_edit_robot_priv']) ? true : false;
 			break;
 			case 'edit_topic':
 			case 'edit_first_post':
-				$sort_info = 3;
 				$info = 18;
-				if ($is_prez_form)
+				if ($prez_form)
 				{
-					$info = (!$prez_poster) ? 72 : 73;
+					$info = ($prez_poster) ? 73 : 72;
 				}
-				$ok_shout = ($this->config['shout_edit_robot']) ? true : false;
-				$ok_shout_priv = ($this->config['shout_edit_robot_priv']) ? true : false;
 			break;
 			case 'edit_last_post':
-				$sort_info = 3;
 				$info = 19;
-				if ($is_prez_form)
+				if ($prez_form)
 				{
-					$info = (!$prez_poster) ? 74 : 75;
+					$info = ($prez_poster) ? 75 : 74;
 				}
-				$ok_shout = ($this->config['shout_edit_robot']) ? true : false;
-				$ok_shout_priv = ($this->config['shout_edit_robot_priv']) ? true : false;
 			break;
 			case 'quote':
-				$sort_info = 3;
-				$ok_shout = ($this->config['shout_rep_robot']) ? true : false;
-				$ok_shout_priv = ($this->config['shout_rep_robot_priv']) ? true : false;
-				$info = (!$is_prez_form) ? 20 : 80;
+				$info = ($prez_form) ? 80 : 20;
 			break;
 			case 'reply':
-				$sort_info = 3;
 				$info = 21;
-				if ($is_prez_form)
+				if ($prez_form)
 				{
-					$info = (!$prez_poster) ? 76 : 77;
+					$info = ($prez_poster) ? 77 : 76;
 				}
-				$ok_shout = ($this->config['shout_rep_robot']) ? true : false;
-				$ok_shout_priv = ($this->config['shout_rep_robot_priv']) ? true : false;
 			break;
 		}
 
+		if (strpos($mode, 'edit') !== false)
+		{
+			$ok_shout = 'edit';
+		}
+		else if (strpos($mode, 'quote') !== false || strpos($mode, 'reply') !== false)
+		{
+			$ok_shout = 'rep';
+		}
+
 		return array(
-			'info'			=> (int) $info,
-			'sort_info'		=> (int) $sort_info,
-			'ok_shout'		=> (bool) $ok_shout,
-			'ok_shout_priv'	=> (bool) $ok_shout_priv,
+			'info'			=> $info,
+			'sort_info'		=> $sort_info,
+			'ok_shout'		=> $this->config["shout_{$ok_shout}_robot"],
+			'ok_shout_priv'	=> $this->config["shout_{$ok_shout}_robot_priv"],
 		);
 	}
 
@@ -2148,18 +2033,16 @@ class shoutbox
 	 */
 	public function advert_post_shoutbox($event)
 	{
-		$ok_shout = $this->config['shout_post_robot'] ? true : false;
-		$ok_shout_priv = $this->config['shout_post_robot_priv'] ? true : false;
 		$hide_robot = (isset($event['data']['hide_robot'])) ? $event['data']['hide_robot'] : false;
-		if ((!$ok_shout && !$ok_shout_priv) || $hide_robot != false || !$this->config['shout_enable_robot'])
+		if ((!$this->config['shout_post_robot'] && !$this->config['shout_post_robot_priv']) || $hide_robot != false || !$this->config['shout_enable_robot'])
 		{
 			return;
 		}
 
+		$prez_form = false;
 		$userid = (int) $this->user->data['user_id'];
 		$topic_id = (int) $event['data']['topic_id'];
 		$forum_id = (int) $event['data']['forum_id'];
-		$is_prez_form = ($forum_id === (int) $this->config['shout_prez_form']) ? true : false;
 
 		if ($this->config['shout_exclude_forums'])
 		{
@@ -2174,7 +2057,7 @@ class shoutbox
 		$subject = str_replace(array('http://www.', 'http://', 'https://www.', 'https://', 'www.', 'Re: ', "'"), array('', '', '', '', '', '', $this->language->lang('SHOUT_PROTECT')), (string) $event['subject']);
 
 		$prez_poster = false;
-		if ($is_prez_form)
+		if ($forum_id == $this->config['shout_prez_form'])
 		{
 			$sql = 'SELECT topic_poster
 				FROM ' . TOPICS_TABLE . '
@@ -2183,17 +2066,14 @@ class shoutbox
 			$topic_poster = (int) $this->db->sql_fetchfield('topic_poster');
 			$this->db->sql_freeresult($result);
 			$prez_poster = ($topic_poster === $userid) ? true : false;
+			$prez_form = true;
 		}
 
-		if ($event['topic_type'] == 3 && $event['mode'] == 'post')
+		if ($event['mode'] == 'post' && $event['topic_type'] > 1)
 		{
-			$event['mode'] = 'global';
+			$event['mode'] = ($event['topic_type'] == 3) ? 'global' : 'annoucement';
 		}
-		else if ($event['topic_type'] == 2 && $event['mode'] == 'post')
-		{
-			$event['mode'] = 'annoucement';
-		}
-		$on_info = $this->sort_info($event['mode'], $is_prez_form, $prez_poster);
+		$on_info = $this->sort_info($event['mode'], $prez_form, $prez_poster);
 
 		$sql_data = array(
 			'shout_time'				=> (string) time(),
@@ -2362,6 +2242,10 @@ class shoutbox
 		}
 
 		$is_posted = false;
+		if ($sleep)
+		{
+			usleep(500000);
+		}
 		if ($this->config['shout_hello'])
 		{
 			$sql = $this->db->sql_build_query('SELECT', array(
@@ -2400,10 +2284,6 @@ class shoutbox
 				'shout_info'			=> 12,
 			);
 
-			if ($sleep)
-			{
-				usleep(500000);
-			}
 			if ($this->config['shout_hello'])
 			{
 				$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
@@ -2531,8 +2411,7 @@ class shoutbox
 	 */
 	public function construct_radio($name, $sort = 1, $outline = false, $on1 = '', $on2 = '')
 	{
-		$title1 = $this->language->lang('YES');
-		$title2 = $this->language->lang('NO');
+		$title1 = $title2 = '';
 		switch ($sort)
 		{
 			case 1:
@@ -4015,35 +3894,6 @@ class shoutbox
 		return $text;
 	}
 
-	public function purge_shout_admin($sort, $priv)
-	{
-		$sort = str_replace('purge_', '', $sort);
-		$shoutbox_table = $this->shoutbox_table;
-		$val_priv = $val_priv_on = '';
-		if ($priv)
-		{
-			$shoutbox_table = $this->shoutbox_priv_table;
-			$val_priv = '_priv';
-			$val_priv_on = '_PRIV';
-		}
-
-		$sql = 'DELETE FROM ' . $shoutbox_table . " WHERE shout_robot = $sort";
-		$this->db->sql_query($sql);
-		$deleted = $this->db->sql_affectedrows();
-
-		if ($deleted)
-		{
-			$this->config->increment("shout_del_purge{$val_priv}", $deleted, true);
-			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, "LOG_PURGE_SHOUTBOX{$val_priv_on}_ROBOT", time(), array($deleted));
-			$this->post_robot_shout(0, $this->user->ip, $priv, true, true);
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
-
 	public function filelist_all($rootdir, $dir = '', $type = '', $sort_values = true)
 	{
 		if (!function_exists('filelist'))
@@ -4144,6 +3994,87 @@ class shoutbox
 	private function return_bool($option)
 	{
 		return ($option) ? 'true' : 'false';
+	}
+
+	public function purge_all_shout_admin($priv)
+	{
+		if ($priv)
+		{
+			$val_priv = '_priv';
+			$val_priv_on = '_PRIV';
+			$shoutbox_table = $this->shoutbox_priv_table;
+		}
+		else
+		{
+			$val_priv = $val_priv_on = '';
+			$shoutbox_table = $this->shoutbox_table;
+		}
+
+		$sql = 'SELECT COUNT(shout_id) as total
+			FROM ' . $shoutbox_table;
+		$result = $this->shout_sql_query($sql);
+		$deleted = $this->db->sql_fetchfield('total', $result);
+		$this->db->sql_freeresult($result);
+		
+		$sql = 'TRUNCATE ' . $shoutbox_table;
+		$this->db->sql_query($sql);
+
+		$this->config->increment("shout_del_purge{$val_priv}", $deleted, true);
+		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_PURGE_SHOUTBOX' . $val_priv_on, time());
+		$this->post_robot_shout(0, $this->user->ip, false, true, false);
+	}
+
+	public function purge_shout_admin($sort, $priv)
+	{
+		$shout_info = array();
+		$sort = (int) str_replace('purge_', '', $sort);
+		if ($priv)
+		{
+			$val_priv = '_priv';
+			$val_priv_on = '_PRIV';
+			$shoutbox_table = $this->shoutbox_priv_table;
+		}
+		else
+		{
+			$val_priv = $val_priv_on = '';
+			$shoutbox_table = $this->shoutbox_table;
+		}
+
+		switch ($sort)
+		{
+			case 1:
+				$shout_info = array(1, 2, 3);
+			break;
+			case 2:
+				$shout_info = array(14, 15, 16, 60);
+			break;
+			case 3:
+				$shout_info = array(17, 18, 19, 20, 21, 70, 71, 72, 73, 74, 75, 76, 77, 80);
+			break;
+			case 4:
+				$shout_info = array(12);
+			break;
+			case 5:
+				$shout_info = array(11);
+			break;
+			case 6:
+				$shout_info = array(13);
+			break;
+		}
+
+		$sql = 'DELETE FROM ' . $shoutbox_table . '
+			WHERE ' . $this->db->sql_in_set('shout_info', $shout_info, false, true);
+		$this->db->sql_query($sql);
+		$deleted = $this->db->sql_affectedrows();
+
+		if ($deleted)
+		{
+			$this->config->increment("shout_del_purge{$val_priv}", $deleted, true);
+			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, "LOG_PURGE_SHOUTBOX{$val_priv_on}_ROBOT", time(), array($deleted));
+			$this->post_robot_shout(0, $this->user->ip, $priv, true, true);
+		}
+
+		return $deleted;
 	}
 
 	public function active_config_shoutbox($user_id)
