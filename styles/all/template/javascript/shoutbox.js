@@ -139,7 +139,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 	};
 
 	shoutbox.createInput = function(sort){
-		var css = sort ? 'shout-text-user' : 'inputbox',inputPost = shoutbox.cE('input','chat_message',css,'margin-'+config.direction+':6px;color:#9a9a9a;border-radius:3px;max-width:43%;width:'+config.widthPost+'px;',false,false,false,false,'chat_message');
+		var css = sort ? 'shout-text-user' : 'inputbox',inputPost = shoutbox.cE('input','chat_message',css,'margin-'+config.direction+':6px;color:#9a9a9a;border-radius:3px;max-width:41%;width:'+config.widthPost+'px;',false,false,false,false,'chat_message');
 		inputPost.value = bzhLang['AUTO'];
 		inputPost.spellcheck = true;
 		inputPost.onclick = function(){shoutbox.suppText()};
@@ -665,7 +665,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			success: function(response){
 				$('#online_shout').html('<div id="online_shout1"></div><hr /><div id="online_shout2"></div>').css('text-align',config.direction);
 				$('#online_shout1').html(response.title);
-				$('#online_shout2').html(response.liste);
+				$('#online_shout2').html(response.list);
 			},
 			error: function(){
 				clearTimeout(timerOnline);
@@ -1268,11 +1268,11 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			success: function(update){
 				if(update.error){
 					shoutbox.message(update,true,5000,false);
-				}else if(update.t == 1){
+				}else if(update.t === 1){
 					shoutbox.message(update,true,4000,false);
 					shoutbox.reloadAll(true,false);
-				}else if(update.t != $onShoutLast){
-					if($onShoutLast != 0){
+				}else if(update.t !== $onShoutLast){
+					if($onShoutLast !== 0){
 						/* A new message... */
 						shoutbox.playSound(1,false);
 					}
@@ -1281,7 +1281,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				}
 				/* else nothing to do, continue your work... */
 			},
-			error: function(update, statut, erreur){
+			error: function(update,statut,erreur){
 				/* Just add nb errors and continue with silence */
 				shoutbox.setError($('#nBErrors').val());
 			}
