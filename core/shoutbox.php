@@ -2040,9 +2040,10 @@ class shoutbox
 		}
 
 		$prez_form = false;
-		$userid = (int) $this->user->data['user_id'];
+		$mode = $event['mode'];
 		$topic_id = (int) $event['data']['topic_id'];
 		$forum_id = (int) $event['data']['forum_id'];
+		$post_id = isset($event['data']['post_id']) ? (int) $event['data']['post_id'] : 0;
 
 		if ($this->config['shout_exclude_forums'])
 		{
@@ -2056,24 +2057,13 @@ class shoutbox
 		// Parse web adress in subject to prevent bug
 		$subject = str_replace(array('http://www.', 'http://', 'https://www.', 'https://', 'www.', 'Re: ', "'"), array('', '', '', '', '', '', $this->language->lang('SHOUT_PROTECT')), (string) $event['subject']);
 
-		$prez_poster = false;
-		if ($forum_id == $this->config['shout_prez_form'])
-		{
-			$sql = 'SELECT topic_poster
-				FROM ' . TOPICS_TABLE . '
-				WHERE topic_id = ' . $topic_id;
-			$result = $this->db->sql_query_limit($sql, 1);
-			$topic_poster = (int) $this->db->sql_fetchfield('topic_poster');
-			$this->db->sql_freeresult($result);
-			$prez_poster = ($topic_poster === $userid) ? true : false;
-			$prez_form = true;
-		}
+		$data = $this->get_topic_data($mode, $topic_id, $forum_id, $post_id);
 
-		if ($event['mode'] == 'post' && $event['topic_type'] > 1)
+		if ($data['mode'] == 'post' && $event['topic_type'] > 1)
 		{
-			$event['mode'] = ($event['topic_type'] == 3) ? 'global' : 'annoucement';
+			$data['mode'] = ($event['topic_type'] == 3) ? 'global' : 'annoucement';
 		}
-		$on_info = $this->sort_info($event['mode'], $prez_form, $prez_poster);
+		$info = $this->sort_info($data['mode'], $data['prez_form'], $data['prez_poster']);
 
 		$sql_data = array(
 			'shout_time'				=> (string) time(),
@@ -2084,25 +2074,65 @@ class shoutbox
 			'shout_bbcode_uid'			=> '',
 			'shout_bbcode_bitfield'		=> '',
 			'shout_bbcode_flags'		=> 0,
-			'shout_robot'				=> (int) $on_info['sort_info'],
-			'shout_robot_user'			=> (int) $userid,
+			'shout_robot'				=> (int) $info['sort_info'],
+			'shout_robot_user'			=> (int) $this->user->data['user_id'],
 			'shout_forum'				=> (int) $forum_id,
 			'shout_info_nb'				=> (int) $forum_id,
-			'shout_info'				=> (int) $on_info['info'],
+			'shout_info'				=> (int) $info['info'],
 		);
 
-		if ($on_info['ok_shout'])
+		if ($info['ok_shout'])
 		{
 			$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);
 			$this->config->increment('shout_nr', 1, true);
 		}
-		if ($on_info['ok_shout_priv'])
+		if ($info['ok_shout_priv'])
 		{
 			$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);
 			$this->config->increment('shout_nr_priv', 1, true);
 		}
+	}
+
+	private function get_topic_data($mode, $topic_id, $forum_id, $post_id)
+	{
+		$data = array(
+			'prez_form'		=> false,
+			'prez_poster'	=> false,
+			'mode'			=> $mode,
+		);
+
+		if (strpos($mode, 'edit') !== false)
+		{
+			$sql = $this->db->sql_build_query('SELECT', array(
+				'SELECT'	=> 'topic_poster, topic_first_post_id, topic_last_post_id',
+				'FROM'		=> array(TOPICS_TABLE => ''),
+				'WHERE'		=> 'topic_id = ' . $topic_id,
+			));
+			$result = $this->db->sql_query($sql);
+			$row = $this->db->sql_fetchrow($result);
+
+			if ((int) $row['topic_first_post_id'] === $post_id)
+			{
+				$mode = 'edit_first_post';
+			}
+			else if ((int) $row['topic_last_post_id'] === $post_id)
+			{
+				$mode = 'edit_last_post';
+			}
+			if ((int) $this->config['shout_prez_form'] === $forum_id)
+			{
+				$data['prez_form'] = true;
+			}
+
+			$data = array(
+				'prez_poster'	=> ($data['prez_form'] && ($row['topic_poster'] == $this->user->data['user_id'])) ? true : false,
+				'mode'			=> $mode,
+			);
+		}
+
+		return $data;
 	}
 
 	/*
@@ -3285,7 +3315,7 @@ class shoutbox
 
 	public function shout_ajax_purge($val)
 	{
-		if (!$this->auth->acl_get("a_shout_manage{$val['auth']}"))
+		if (!$this->auth->acl_get("a_shout{$val['auth']}"))
 		{
 			return array(
 				'type'		=> 2,
