@@ -2039,8 +2039,6 @@ class shoutbox
 			return;
 		}
 
-		$prez_form = false;
-		$mode = $event['mode'];
 		$topic_id = (int) $event['data']['topic_id'];
 		$forum_id = (int) $event['data']['forum_id'];
 		$post_id = isset($event['data']['post_id']) ? (int) $event['data']['post_id'] : 0;
@@ -2057,7 +2055,7 @@ class shoutbox
 		// Parse web adress in subject to prevent bug
 		$subject = str_replace(array('http://www.', 'http://', 'https://www.', 'https://', 'www.', 'Re: ', "'"), array('', '', '', '', '', '', $this->language->lang('SHOUT_PROTECT')), (string) $event['subject']);
 
-		$data = $this->get_topic_data($mode, $topic_id, $forum_id, $post_id);
+		$data = $this->get_topic_data($event['mode'], $topic_id, $forum_id, $post_id);
 
 		if ($data['mode'] == 'post' && $event['topic_type'] > 1)
 		{
