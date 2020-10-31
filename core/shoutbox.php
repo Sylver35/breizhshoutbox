@@ -638,37 +638,32 @@ class shoutbox
 
 		$content = array(
 			'title'	=> $online_strings['l_online_users'] . '<br />(' . $this->language->lang('VIEW_ONLINE_TIMES', (int) $this->config['load_online_time']) . ')',
+			'list'	=> $this->language->lang('REGISTERED_USERS') . ' ',
 		);
 
 		if ($list_online == $this->language->lang('NO_ONLINE_USERS'))
 		{
 			$content['list'] = $list_online;
 		}
-		/*else if (strpos($list_online, 'avatar') !== false)
-		{
-			$content['list'] = $this->replace_shout_url($list_online);
-		}*/
 		else
 		{
-			$i = 0;
-			$content['list'] = $this->language->lang('REGISTERED_USERS') . ' ';
+			$robots = $users = '';
 			$userlist = explode(', ', str_replace($content['list'], '', $list_online));
 			foreach ($userlist as $user)
 			{
-				$content['list'] .= ($i > 0) ? ', ' : '';
 				$id = $this->find_string($user, '&amp;u=', '" ');
-				if (!$id || $id == $this->user->data['user_id'])
+				if (!$id)
 				{
-					$content['list'] .= $this->replace_shout_url($user);
+					$robots .= ($robots ? ', ' : '') . $user;
 				}
 				else
 				{
 					$username = $this->find_string($user, '">', '</a>');
 					$colour = $this->find_string($user, 'color: #', ';"');
-					$content['list'] .= $this->construct_action_shout($id, $username, $colour);
+					$users .= ($users ? ', ' : '') . $this->construct_action_shout($id, $username, $colour);
 				}
-				$i++;
 			}
+			$content['list'] .= $users . (($users && $robots) ? ', ' : '') . $robots;
 		}
 
 		return $content;
@@ -831,9 +826,9 @@ class shoutbox
 			$user_shout = json_decode($this->user->data['user_shout']);
 			if ($user_shout->index != 3)
 			{
-				$this->config['shout_index'] = ($user_shout->index != '0') ? true : false;
-				$this->config['shout_forum'] = ($user_shout->forum != '0') ? true : false;
-				$this->config['shout_topic'] = ($user_shout->topic != '0') ? true : false;
+				$this->config['shout_index'] = $this->set_user_option($user_shout->index, 'shout_index', 2);
+				$this->config['shout_forum'] = $this->set_user_option($user_shout->forum, 'shout_forum', 2);
+				$this->config['shout_topic'] = $this->set_user_option($user_shout->topic, 'shout_topic', 2);
 				$this->config['shout_position_index'] = (int) $user_shout->index;
 				$this->config['shout_position_forum'] = (int) $user_shout->forum;
 				$this->config['shout_position_topic'] = (int) $user_shout->topic;
@@ -873,13 +868,9 @@ class shoutbox
 			'INDEX_SHOUT'			=> $this->config['shout_index'],
 			'FORUM_SHOUT'			=> $this->config['shout_forum'],
 			'TOPIC_SHOUT'			=> $this->config['shout_topic'],
-			'INDEX_SHOUT_TOP'		=> ((int) $this->config['shout_position_index'] === 1) ? true : false,
-			'INDEX_SHOUT_AFTER'		=> ((int) $this->config['shout_position_index'] === 4) ? true : false,
-			'INDEX_SHOUT_END'		=> ((int) $this->config['shout_position_index'] === 2) ? true : false,
-			'POS_SHOUT_FORUM_TOP'	=> ((int) $this->config['shout_position_forum'] === 1) ? true : false,
-			'POS_SHOUT_FORUM_END'	=> ((int) $this->config['shout_position_forum'] === 2) ? true : false,
-			'POS_SHOUT_TOPIC_TOP'	=> ((int) $this->config['shout_position_topic'] === 1) ? true : false,
-			'POS_SHOUT_TOPIC_END'	=> ((int) $this->config['shout_position_topic'] === 2) ? true : false,
+			'INDEX_SHOUT_POS'		=> $this->config['shout_position_index'],
+			'SHOUT_FORUM_POS'		=> $this->config['shout_position_forum'],
+			'SHOUT_TOPIC_POS'		=> $this->config['shout_position_topic'],
 			'SHOUT_EXT_PATH'		=> $this->ext_path_web,
 			'S_SHOUT_VERSION'		=> $this->get_version(true),
 		));
@@ -2055,7 +2046,7 @@ class shoutbox
 		// Parse web adress in subject to prevent bug
 		$subject = str_replace(array('http://www.', 'http://', 'https://www.', 'https://', 'www.', 'Re: ', "'"), array('', '', '', '', '', '', $this->language->lang('SHOUT_PROTECT')), (string) $event['subject']);
 
-		$data = $this->get_topic_data($event['mode'], $topic_id, $forum_id, $post_id);
+		$data = $this->get_topic_data($event['mode'], $forum_id, $topic_id, $post_id);
 
 		if ($data['mode'] == 'post' && $event['topic_type'] > 1)
 		{
@@ -2093,13 +2084,10 @@ class shoutbox
 		}
 	}
 
-	private function get_topic_data($mode, $topic_id, $forum_id, $post_id)
+	private function get_topic_data($mode, $forum_id, $topic_id, $post_id)
 	{
-		$data = array(
-			'prez_form'		=> false,
-			'prez_poster'	=> false,
-			'mode'			=> $mode,
-		);
+		$prez_poster = false;
+		$prez_form = ((int) $this->config['shout_prez_form'] === $forum_id) ? true : false;
 
 		if (strpos($mode, 'edit') !== false)
 		{
@@ -2119,18 +2107,14 @@ class shoutbox
 			{
 				$mode = 'edit_last_post';
 			}
-			if ((int) $this->config['shout_prez_form'] === $forum_id)
-			{
-				$data['prez_form'] = true;
-			}
-
-			$data = array(
-				'prez_poster'	=> ($data['prez_form'] && ($row['topic_poster'] == $this->user->data['user_id'])) ? true : false,
-				'mode'			=> $mode,
-			);
+			$prez_poster = ($prez_form && ($row['topic_poster'] == $this->user->data['user_id'])) ? true : false;
 		}
 
-		return $data;
+		return array(
+			'prez_form'		=> $prez_form,
+			'prez_poster'	=> $prez_poster,
+			'mode'			=> $mode,
+		);
 	}
 
 	/*
@@ -2147,35 +2131,74 @@ class shoutbox
 			return;
 		}
 
-		$is_posted = false;
-		if ($this->config['shout_birthday'])
-		{
-			$sql = $this->db->sql_build_query('SELECT', array(
-				'SELECT'	=> 'shout_id',
-				'FROM'		=> array($this->shoutbox_table => ''),
-				'WHERE'		=> 'shout_robot = 5 AND shout_info = 11 AND shout_time BETWEEN ' . (time() - 60 * 60) . ' AND ' . time(),
-			));
-			$result = $this->db->sql_query($sql);
-			$is_posted = $this->db->sql_fetchfield('shout_id') ? true : false;
-			$this->db->sql_freeresult($result);
-		}
-		else if ($this->config['shout_birthday_priv'])
-		{
-			$sql = $this->db->sql_build_query('SELECT', array(
-				'SELECT'	=> 'shout_id',
-				'FROM'		=> array($this->shoutbox_priv_table => ''),
-				'WHERE'		=> 'shout_robot = 5 AND shout_info = 11 AND shout_time BETWEEN ' . (time() - 60 * 60) . ' AND ' . time(),
-			));
-			$result = $this->db->sql_query($sql);
-			$is_posted = $this->db->sql_fetchfield('shout_id') ? true : false;
-			$this->db->sql_freeresult($result);
-		}
+		$table = ($this->config['shout_birthday']) ? $this->shoutbox_table : $this->shoutbox_priv_table;
+		$sql = $this->db->sql_build_query('SELECT', array(
+			'SELECT'	=> 'shout_id',
+			'FROM'		=> array($table => ''),
+			'WHERE'		=> 'shout_robot = 5 AND shout_info = 11 AND shout_time BETWEEN ' . (time() - 60 * 60) . ' AND ' . time(),
+		));
+		$result = $this->db->sql_query($sql);
+		$is_posted = $this->db->sql_fetchfield('shout_id') ? true : false;
+		$this->db->sql_freeresult($result);
 
 		if (!$is_posted)
 		{
 			$time = $this->user->create_datetime();
 			$now = phpbb_gmgetdate($time->getTimestamp() + $time->getOffset());
 
+			$rows = $this->extract_birthdays($time, $now, $sleep);
+			if (!empty($rows))
+			{
+				foreach ($rows as $row)
+				{
+					$exclude_group = explode(', ', $this->config['shout_birthday_exclude']);
+					if (in_array($row['group_id'], $exclude_group))
+					{
+						continue;
+					}
+					$birthday_year = (int) substr($row['user_birthday'], -4);
+
+					$sql_data = array(
+						'shout_time'			=> time(),
+						'shout_user_id'			=> 0,
+						'shout_ip'				=> $this->user->ip,
+						'shout_text'			=> 'SHOUT_BIRTHDAY_ROBOT',
+						'shout_bbcode_uid'		=> '',
+						'shout_bbcode_bitfield'	=> '',
+						'shout_bbcode_flags'	=> 0,
+						'shout_robot'			=> 5,
+						'shout_robot_user'		=> (int) $row['user_id'],
+						'shout_forum'			=> 0,
+						'shout_info_nb'			=> ($birthday_year) ? max(0, $now['year'] - $birthday_year) : 0,
+						'shout_info'			=> 11,
+					);
+
+					if ($this->config['shout_birthday'])
+					{
+						$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
+						$this->db->sql_query($sql);
+						$this->config->increment('shout_nr', 1, true);
+					}
+					if ($this->config['shout_birthday_priv'])
+					{
+						$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
+						$this->db->sql_query($sql);
+						$this->config->increment('shout_nr_priv', 1, true);
+					}
+				}
+			}
+			$this->config->set('shout_last_run_birthday', date('d-m-Y'), true);
+		}
+	}
+
+	private function extract_birthdays($time, $now, $sleep)
+	{
+		if ($sleep)
+		{
+			usleep(500000);
+		}
+		if (($rows = $this->cache->get('_shoutbox_birthdays')) === false)
+		{
 			// Display birthdays of 29th february on 28th february in non-leap-years
 			$leap_year_birthdays = '';
 			if ($now['mday'] == 28 && $now['mon'] == 2 && !$time->format('L'))
@@ -2204,55 +2227,11 @@ class shoutbox
 			$rows = $this->db->sql_fetchrowset($result);
 			$this->db->sql_freeresult($result);
 
-			if (!empty($rows))
-			{
-				if ($sleep)
-				{
-					usleep(500000);
-				}
-				foreach ($rows as $row)
-				{
-					$exclude_group = explode(', ', $this->config['shout_birthday_exclude']);
-					if (in_array($row['group_id'], $exclude_group))
-					{
-						continue;
-					}
-
-					$birthday_year = (int) substr($row['user_birthday'], -4);
-					$birthday_age = ($birthday_year) ? max(0, $now['year'] - $birthday_year) : 0;
-					$message = 'SHOUT_BIRTHDAY_ROBOT';
-
-					$sql_data = array(
-						'shout_time'			=> time(),
-						'shout_user_id'			=> 0,
-						'shout_ip'				=> (string) $this->user->ip,
-						'shout_text'			=> (string) $message,
-						'shout_bbcode_uid'		=> '',
-						'shout_bbcode_bitfield'	=> '',
-						'shout_bbcode_flags'	=> 0,
-						'shout_robot'			=> 5,
-						'shout_robot_user'		=> (int) $row['user_id'],
-						'shout_forum'			=> 0,
-						'shout_info_nb'			=> (int) $birthday_age,
-						'shout_info'			=> 11,
-					);
-
-					if ($this->config['shout_birthday'])
-					{
-						$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-						$this->db->sql_query($sql);
-						$this->config->increment('shout_nr', 1, true);
-					}
-					if ($this->config['shout_birthday_priv'])
-					{
-						$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-						$this->db->sql_query($sql);
-						$this->config->increment('shout_nr_priv', 1, true);
-					}
-				}
-			}
-			$this->config->set('shout_last_run_birthday', date('d-m-Y'), true);
+			// cache for 1 hour
+			$this->cache->put('_shoutbox_birthdays', $rows, 3600);
 		}
+
+		return $rows;
 	}
 
 	/*

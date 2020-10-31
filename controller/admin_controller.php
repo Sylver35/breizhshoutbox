@@ -122,38 +122,40 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			$this->config->set('shout_temp_users', $this->request->variable('shout_temp_users', 5));
-			$this->config->set('shout_temp_anonymous', $this->request->variable('shout_temp_anonymous', 10));
-			$this->config->set('shout_inactiv_anony', $this->request->variable('shout_inactiv_anony', 15));
-			$this->config->set('shout_inactiv_member', $this->request->variable('shout_inactiv_member', 30));
-			$this->config->set('shout_dateformat', $this->request->variable('shout_dateformat2', '', true));
-			$this->config->set('shout_bbcode', $this->request->variable('shout_bbcode', ''));
-			$this->config->set('shout_bbcode_user', $this->request->variable('shout_bbcode_user', ''));
-			$this->config->set('shout_bbcode_size', $this->request->variable('shout_bbcode_size', ''));
-			$this->config->set('shout_see_buttons', $this->request->variable('shout_see_buttons', 1));
-			$this->config->set('shout_see_buttons_left', $this->request->variable('shout_see_buttons_left', 1));
-			$this->config->set('shout_see_button_ip', $this->request->variable('shout_see_button_ip', 1));
-			$this->config->set('shout_see_cite', $this->request->variable('shout_see_cite', 1));
-			$this->config->set('shout_avatar', $this->request->variable('shout_avatar', 1));
-			$this->config->set('shout_avatar_height', $this->request->variable('shout_avatar_height', 20));
-			$this->config->set('shout_avatar_robot', $this->request->variable('shout_avatar_robot', 1));
-			$this->config->set('shout_avatar_user', $this->request->variable('shout_avatar_user', 1));
-			$this->config->set('shout_avatar_img', $this->request->variable('shout_avatar_img', 'no_avatar.webp'));
-			$this->config->set('shout_avatar_img_robot', $this->request->variable('shout_avatar_img_robot', 'avatar_robot.webp'));
-			$this->config->set('shout_sound_on', $this->request->variable('shout_sound_on', 1));
-			$this->config->set('shout_sound_new', $this->request->variable('shout_sound_new', ''));
-			$this->config->set('shout_sound_error', $this->request->variable('shout_sound_error', ''));
-			$this->config->set('shout_sound_del', $this->request->variable('shout_sound_del', ''));
-			$this->config->set('shout_sound_add', $this->request->variable('shout_sound_add', ''));
-			$this->config->set('shout_sound_edit', $this->request->variable('shout_sound_edit', ''));
-			$this->config->set('shout_nr_acp', $this->request->variable('shout_nr_acp', 20));
-			$this->config->set('shout_max_post_chars', $this->request->variable('shout_max_post_chars', 300));
-			$this->config->set('shout_index', $this->request->variable('shout_index', 1));
-			$this->config->set('shout_position_index', $this->request->variable('shout_position_index', 0));
-			$this->config->set('shout_forum', $this->request->variable('shout_forum', 1));
-			$this->config->set('shout_position_forum', $this->request->variable('shout_position_forum', 0));
-			$this->config->set('shout_topic', $this->request->variable('shout_topic', 1));
-			$this->config->set('shout_position_topic', $this->request->variable('shout_position_topic', 0));
+			$this->update_config(array(
+				'shout_temp_users'			=> $this->request->variable('shout_temp_users', 5),
+				'shout_temp_anonymous'		=> $this->request->variable('shout_temp_anonymous', 10),
+				'shout_inactiv_anony'		=> $this->request->variable('shout_inactiv_anony', 15),
+				'shout_inactiv_member'		=> $this->request->variable('shout_inactiv_member', 30),
+				'shout_dateformat'			=> $this->request->variable('shout_dateformat2', '', true),
+				'shout_bbcode'				=> $this->request->variable('shout_bbcode', ''),
+				'shout_bbcode_user'			=> $this->request->variable('shout_bbcode_user', ''),
+				'shout_bbcode_size'			=> $this->request->variable('shout_bbcode_size', ''),
+				'shout_see_buttons'			=> $this->request->variable('shout_see_buttons', 1),
+				'shout_see_buttons_left'	=> $this->request->variable('shout_see_buttons_left', 1),
+				'shout_see_button_ip'		=> $this->request->variable('shout_see_button_ip', 1),
+				'shout_see_cite'			=> $this->request->variable('shout_see_cite', 1),
+				'shout_avatar'				=> $this->request->variable('shout_avatar', 1),
+				'shout_avatar_height'		=> $this->request->variable('shout_avatar_height', 20),
+				'shout_avatar_robot'		=> $this->request->variable('shout_avatar_robot', 1),
+				'shout_avatar_user'			=> $this->request->variable('shout_avatar_user', 1),
+				'shout_avatar_img'			=> $this->request->variable('shout_avatar_img', 'no_avatar.webp'),
+				'shout_avatar_img_robot'	=> $this->request->variable('shout_avatar_img_robot', 'avatar_robot.webp'),
+				'shout_sound_on'			=> $this->request->variable('shout_sound_on', 1),
+				'shout_sound_new'			=> $this->request->variable('shout_sound_new', ''),
+				'shout_sound_error'			=> $this->request->variable('shout_sound_error', ''),
+				'shout_sound_del'			=> $this->request->variable('shout_sound_del', ''),
+				'shout_sound_add'			=> $this->request->variable('shout_sound_add', ''),
+				'shout_sound_edit'			=> $this->request->variable('shout_sound_edit', ''),
+				'shout_nr_acp'				=> $this->request->variable('shout_nr_acp', 20),
+				'shout_max_post_chars'		=> $this->request->variable('shout_max_post_chars', 300),
+				'shout_index'				=> $this->request->variable('shout_index', 1),
+				'shout_position_index'		=> $this->request->variable('shout_position_index', 0),
+				'shout_forum'				=> $this->request->variable('shout_forum', 1),
+				'shout_position_forum'		=> $this->request->variable('shout_position_forum', 0),
+				'shout_topic'				=> $this->request->variable('shout_topic', 1),
+				'shout_position_topic'		=> $this->request->variable('shout_position_topic', 0),
+			));
 
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode));
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
@@ -224,19 +226,21 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			$this->config->set('shout_title', str_replace("'", $this->language->lang('SHOUT_PROTECT'), $this->request->variable('shout_title', 'shoutbox', true)));
-			$this->config->set('shout_width_post', $this->request->variable('shout_width_post', 325));
-			$this->config->set('shout_prune', $this->request->variable('shout_prune', 0));
-			$this->config->set('shout_max_posts_on', $this->request->variable('shout_max_posts_on', 100));
-			$this->config->set('shout_max_posts', $this->request->variable('shout_max_posts', 300));
-			$this->config->set('shout_on_cron', $this->request->variable('shout_on_cron', 1));
-			$this->config->set('shout_log_cron', $this->request->variable('shout_log_cron', 0));
-			$this->config->set('shout_num', $this->request->variable('shout_num', 25));
-			$this->config->set('shout_height', $this->request->variable('shout_height', 160));
-			$this->config->set('shout_color_background', $this->request->variable('shout_color_background', 'blue'));
-			$this->config->set('shout_button_background', $this->request->variable('shout_button_background', 1));
-			$this->config->set('shout_bar_option', $this->request->variable('shout_bar_option', 1));
-			$this->config->set('shout_defil', $this->request->variable('shout_defil', 1));
+			$this->update_config(array(
+				'shout_title'				=> str_replace("'", $this->language->lang('SHOUT_PROTECT'), $this->request->variable('shout_title', 'shoutbox', true)),
+				'shout_width_post'			=> $this->request->variable('shout_width_post', 325),
+				'shout_prune'				=> $this->request->variable('shout_prune', 0),
+				'shout_max_posts_on'		=> $this->request->variable('shout_max_posts_on', 100),
+				'shout_max_posts'			=> $this->request->variable('shout_max_posts', 300),
+				'shout_on_cron'				=> $this->request->variable('shout_on_cron', 1),
+				'shout_log_cron'			=> $this->request->variable('shout_log_cron', 0),
+				'shout_num'					=> $this->request->variable('shout_num', 25),
+				'shout_height'				=> $this->request->variable('shout_height', 160),
+				'shout_color_background'	=> $this->request->variable('shout_color_background', 'blue'),
+				'shout_button_background'	=> $this->request->variable('shout_button_background', 1),
+				'shout_bar_option'			=> $this->request->variable('shout_bar_option', 1),
+				'shout_defil'				=> $this->request->variable('shout_defil', 1),
+			));
 
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
@@ -282,9 +286,11 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			$this->config->set('shout_rules', $this->request->variable('shout_rules', 1));
-			$this->config->set('shout_rules_open', $this->request->variable('shout_rules_open', 0));
-			$this->config->set('shout_rules_open_priv', $this->request->variable('shout_rules_open_priv', 0));
+			$this->update_config(array(
+				'shout_rules'			=> $this->request->variable('shout_rules', 1),
+				'shout_rules_open'		=> $this->request->variable('shout_rules_open', 0),
+				'shout_rules_open_priv'	=> $this->request->variable('shout_rules_open_priv', 0),
+			));
 
 			$sql = array(
 				'SELECT'	=> 'l.lang_iso, r.rules_lang',
@@ -332,8 +338,10 @@ class admin_controller
 					$this->db->sql_query($sql);
 				}
 
-				$this->config->set("shout_rules_{$iso}", (($data['rules_text'] !== '') ? 1 : 0));
-				$this->config->set("shout_rules_priv_{$iso}", (($data['rules_text_priv'] !== '') ? 1 : 0));
+				$this->update_config(array(
+					'shout_rules_' . $iso		=> ($data['rules_text'] !== '') ? 1 : 0,
+					'shout_rules_priv_' . $iso	=> ($data['rules_text_priv'] !== '') ? 1 : 0,
+				));
 			}
 			$this->db->sql_freeresult($result);
 			$this->cache->destroy('_shout_rules');
@@ -903,21 +911,23 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			$this->config->set('shout_title_priv', str_replace("'", $this->language->lang('SHOUT_PROTECT'), $this->request->variable('shout_title_priv', '', true)));
-			$this->config->set('shout_width_post_priv', $this->request->variable('shout_width_post_priv', 325));
-			$this->config->set('shout_prune_priv', $this->request->variable('shout_prune_priv', 0));
-			$this->config->set('shout_on_cron_priv', $this->request->variable('shout_on_cron_priv', 1));
-			$this->config->set('shout_log_cron_priv', $this->request->variable('shout_log_cron_priv', 0));
-			$this->config->set('shout_button_background_priv', $this->request->variable('shout_button_background_priv', 0));
-			$this->config->set('shout_defil_priv', $this->request->variable('shout_defil_priv', 1));
-			$this->config->set('shout_max_posts_priv', $this->request->variable('shout_max_posts_priv', 400));
-			$this->config->set('shout_max_posts_on_priv', $this->request->variable('shout_max_posts_on_priv', 300));
-			$this->config->set('shout_height_priv', $this->request->variable('shout_height_priv', 460));
-			$this->config->set('shout_num_priv', $this->request->variable('shout_num_priv', 25));
-			$this->config->set('shout_color_background_priv', $this->request->variable('shout_color_background_priv', ''));
-			$this->config->set('shout_on_cron_priv', $this->request->variable('shout_on_cron_priv', 1));
-			$this->config->set('shout_bar_option_priv', $this->request->variable('shout_bar_option_priv', 1));
-			$this->config->set('shout_sound_new_priv', $this->request->variable('shout_sound_new_priv', ''));
+			$this->update_config(array(
+				'shout_title_priv'				=> str_replace("'", $this->language->lang('SHOUT_PROTECT'), $this->request->variable('shout_title_priv', '', true)),
+				'shout_width_post_priv'			=> $this->request->variable('shout_width_post_priv', 325),
+				'shout_prune_priv'				=> $this->request->variable('shout_prune_priv', 0),
+				'shout_on_cron_priv'			=> $this->request->variable('shout_on_cron_priv', 1),
+				'shout_log_cron_priv'			=> $this->request->variable('shout_log_cron_priv', 0),
+				'shout_button_background_priv'	=> $this->request->variable('shout_button_background_priv', 0),
+				'shout_defil_priv'				=> $this->request->variable('shout_defil_priv', 1),
+				'shout_max_posts_priv'			=> $this->request->variable('shout_max_posts_priv', 400),
+				'shout_max_posts_on_priv'		=> $this->request->variable('shout_max_posts_on_priv', 300),
+				'shout_height_priv'				=> $this->request->variable('shout_height_priv', 460),
+				'shout_num_priv'				=> $this->request->variable('shout_num_priv', 25),
+				'shout_color_background_priv'	=> $this->request->variable('shout_color_background_priv', ''),
+				'shout_on_cron_priv'			=> $this->request->variable('shout_on_cron_priv', 1),
+				'shout_bar_option_priv'			=> $this->request->variable('shout_bar_option_priv', 1),
+				'shout_sound_new_priv'			=> $this->request->variable('shout_sound_new_priv', ''),
+			));
 
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
@@ -960,15 +970,17 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			$this->config->set('shout_width_post_pop', $this->request->variable('shout_width_post_pop', 325));
-			$this->config->set('shout_height_pop', $this->request->variable('shout_height_pop', 460));
-			$this->config->set('shout_num_pop', $this->request->variable('shout_num_pop', 25));
-			$this->config->set('shout_popup_height', $this->request->variable('shout_popup_height', 580));
-			$this->config->set('shout_popup_width', $this->request->variable('shout_popup_width', 1100));
-			$this->config->set('shout_color_background_pop', $this->request->variable('shout_color_background_pop', 'blue'));
-			$this->config->set('shout_button_background_pop', $this->request->variable('shout_button_background_pop', 1));
-			$this->config->set('shout_bar_option_pop', $this->request->variable('shout_bar_option_pop', 1));
-			$this->config->set('shout_defil_pop', $this->request->variable('shout_defil_pop', 1));
+			$this->update_config(array(
+				'shout_width_post_pop'			=> $this->request->variable('shout_width_post_pop', 325),
+				'shout_height_pop'				=> $this->request->variable('shout_height_pop', 460),
+				'shout_num_pop'					=> $this->request->variable('shout_num_pop', 25),
+				'shout_popup_height'			=> $this->request->variable('shout_popup_height', 580),
+				'shout_popup_width'				=> $this->request->variable('shout_popup_width', 1100),
+				'shout_color_background_pop'	=> $this->request->variable('shout_color_background_pop', 'blue'),
+				'shout_button_background_pop'	=> $this->request->variable('shout_button_background_pop', 1),
+				'shout_bar_option_pop'			=> $this->request->variable('shout_bar_option_pop', 1),
+				'shout_defil_pop'				=> $this->request->variable('shout_defil_pop', 1),
+			));
 
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
@@ -1005,15 +1017,17 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			$this->config->set('shout_panel', $this->request->variable('shout_panel', 1));
-			$this->config->set('shout_panel_all', $this->request->variable('shout_panel_all', 0));
-			$this->config->set('shout_panel_auto', $this->request->variable('shout_panel_auto', 0));
-			$this->config->set('shout_page_exclude', str_replace("\n", '||', $this->request->variable('shout_page_exclude', '')));
-			$this->config->set('shout_panel_float', $this->request->variable('shout_panel_float', ''));
-			$this->config->set('shout_panel_img', $this->request->variable('shout_panel_img', ''));
-			$this->config->set('shout_panel_exit_img', $this->request->variable('shout_panel_exit_img', ''));
-			$this->config->set('shout_panel_width', $this->request->variable('shout_panel_width', 800));
-			$this->config->set('shout_panel_height', $this->request->variable('shout_panel_height', 510));
+			$this->update_config(array(
+				'shout_panel'			=> $this->request->variable('shout_panel', 1),
+				'shout_panel_all'		=> $this->request->variable('shout_panel_all', 0),
+				'shout_panel_auto'		=> $this->request->variable('shout_panel_auto', 0),
+				'shout_page_exclude'	=> str_replace("\n", '||', $this->request->variable('shout_page_exclude', '')),
+				'shout_panel_float'		=> $this->request->variable('shout_panel_float', ''),
+				'shout_panel_img'		=> $this->request->variable('shout_panel_img', ''),
+				'shout_panel_exit_img'	=> $this->request->variable('shout_panel_exit_img', ''),
+				'shout_panel_width'		=> $this->request->variable('shout_panel_width', 800),
+				'shout_panel_height'	=> $this->request->variable('shout_panel_height', 510),
+			));
 
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
@@ -1109,44 +1123,40 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			$this->config->set('shout_enable_robot', $this->request->variable('shout_enable_robot', 1));
-			$this->config->set('shout_name_robot', $this->request->variable('shout_name_robot', '', true));
-			$this->config->set('shout_post_robot', $this->request->variable('shout_post_robot', 1));
-			$this->config->set('shout_rep_robot', $this->request->variable('shout_rep_robot', 1));
-			$this->config->set('shout_edit_robot', $this->request->variable('shout_edit_robot', 1));
-			$this->config->set('shout_post_robot_priv', $this->request->variable('shout_post_robot_priv', 1));
-			$this->config->set('shout_rep_robot_priv', $this->request->variable('shout_rep_robot_priv', 1));
-			$this->config->set('shout_edit_robot_priv', $this->request->variable('shout_edit_robot_priv', 1));
-			$this->config->set('shout_prez_form', $this->request->variable('shout_prez_form', ''));
-			$this->config->set('shout_color_robot', $this->request->variable('shout_color_robot', ''));
-			$this->config->set('shout_color_message', $this->request->variable('shout_color_message', ''));
-			$this->config->set('shout_delete_robot', $this->request->variable('shout_delete_robot', 1));
-			$this->config->set('shout_sessions', $this->request->variable('shout_sessions', 1));
-			$this->config->set('shout_sessions_priv', $this->request->variable('shout_sessions_priv', 0));
-			$this->config->set('shout_sessions_time', $this->request->variable('shout_sessions_time', 15));
-			$this->config->set('shout_sessions_bots', $this->request->variable('shout_sessions_bots', 0));
-			$this->config->set('shout_sessions_bots_priv', $this->request->variable('shout_sessions_bots_priv', 0));
-			$this->config->set('shout_hello', $this->request->variable('shout_hello', 1));
-			$this->config->set('shout_hello_priv', $this->request->variable('shout_hello_priv', 1));
-			$this->config->set('shout_newest', $this->request->variable('shout_newest', 1));
-			$this->config->set('shout_newest_priv', $this->request->variable('shout_newest_priv', 1));
-			$this->config->set('shout_birthday', $this->request->variable('shout_birthday', 1));
-			$this->config->set('shout_birthday_priv', $this->request->variable('shout_birthday_priv', 1));
-			$this->config->set('shout_cron_hour', $this->request->variable('shout_cron_hour', '09'));
-			$this->config->set('shout_exclude_forums', implode(', ', $this->request->variable('shout_exclude_forums', array(0))));
-			$this->config->set('shout_birthday_exclude', implode(', ', $this->request->variable('shout_birthday_exclude', array(0))));
-			$this->config->set('shout_robot_choice', implode(', ', $this->request->variable('shout_robot_choice', array(0))));
-			$this->config->set('shout_robot_choice_priv', implode(', ', $this->request->variable('shout_robot_choice_priv', array(0))));
-			if ($this->shoutbox->breizhyoutube_exist())
-			{
-				$this->config->set('shout_video_new', $this->request->variable('shout_video_new', 0));
-			}
-			if ($this->shoutbox->relaxarcade_exist())
-			{
-				$this->config->set('shout_arcade_new', $this->request->variable('shout_arcade_new', 0));
-				$this->config->set('shout_arcade_record', $this->request->variable('shout_arcade_record', 0));
-				$this->config->set('shout_arcade_urecord', $this->request->variable('shout_arcade_urecord', 0));
-			}
+			$this->update_config(array(
+				'shout_enable_robot'		=> $this->request->variable('shout_enable_robot', 1),
+				'shout_name_robot'			=> $this->request->variable('shout_name_robot', '', true),
+				'shout_post_robot'			=> $this->request->variable('shout_post_robot', 1),
+				'shout_rep_robot'			=> $this->request->variable('shout_rep_robot', 1),
+				'shout_edit_robot'			=> $this->request->variable('shout_edit_robot', 1),
+				'shout_post_robot_priv'		=> $this->request->variable('shout_post_robot_priv', 1),
+				'shout_rep_robot_priv'		=> $this->request->variable('shout_rep_robot_priv', 1),
+				'shout_edit_robot_priv'		=> $this->request->variable('shout_edit_robot_priv', 1),
+				'shout_prez_form'			=> $this->request->variable('shout_prez_form', ''),
+				'shout_color_robot'			=> $this->request->variable('shout_color_robot', ''),
+				'shout_color_message'		=> $this->request->variable('shout_color_message', ''),
+				'shout_delete_robot'		=> $this->request->variable('shout_delete_robot', 1),
+				'shout_sessions'			=> $this->request->variable('shout_sessions', 1),
+				'shout_sessions_priv'		=> $this->request->variable('shout_sessions_priv', 0),
+				'shout_sessions_time'		=> $this->request->variable('shout_sessions_time', 15),
+				'shout_sessions_bots'		=> $this->request->variable('shout_sessions_bots', 0),
+				'shout_sessions_bots_priv'	=> $this->request->variable('shout_sessions_bots_priv', 0),
+				'shout_hello'				=> $this->request->variable('shout_hello', 1),
+				'shout_hello_priv'			=> $this->request->variable('shout_hello_priv', 1),
+				'shout_newest'				=> $this->request->variable('shout_newest', 1),
+				'shout_newest_priv'			=> $this->request->variable('shout_newest_priv', 1),
+				'shout_birthday'			=> $this->request->variable('shout_birthday', 1),
+				'shout_birthday_priv'		=> $this->request->variable('shout_birthday_priv', 1),
+				'shout_cron_hour'			=> $this->request->variable('shout_cron_hour', '09'),
+				'shout_exclude_forums'		=> implode(', ', $this->request->variable('shout_exclude_forums', array(0))),
+				'shout_birthday_exclude'	=> implode(', ', $this->request->variable('shout_birthday_exclude', array(0))),
+				'shout_robot_choice'		=> implode(', ', $this->request->variable('shout_robot_choice', array(0))),
+				'shout_robot_choice_priv'	=> implode(', ', $this->request->variable('shout_robot_choice_priv', array(0))),
+				'shout_video_new'			=> $this->request->variable('shout_video_new', 0),
+				'shout_arcade_new'			=> $this->request->variable('shout_arcade_new', 0),
+				'shout_arcade_record'		=> $this->request->variable('shout_arcade_record', 0),
+				'shout_arcade_urecord'		=> $this->request->variable('shout_arcade_urecord', 0),
+			));
 
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
@@ -1231,6 +1241,14 @@ class admin_controller
 		$this->template->assign_vars(array(
 			'S_ROBOT'	=> true,
 		));
+	}
+
+	private function update_config($data)
+	{
+		foreach ($data as $key => $value)
+		{
+			$this->config->set($key, $value);
+		}
 	}
 
 	/**

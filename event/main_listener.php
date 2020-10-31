@@ -255,7 +255,6 @@ class main_listener implements EventSubscriberInterface
 			'm_shout_edit_mod'		=> array('lang' => 'ACL_M_SHOUT_EDIT_MOD', 'cat' => 'shoutbox'),
 			'm_shout_info'			=> array('lang' => 'ACL_M_SHOUT_INFO', 'cat' => 'shoutbox'),
 			'm_shout_personal'		=> array('lang' => 'ACL_M_SHOUT_PERSONAL', 'cat' => 'shoutbox'),
-			'm_shout_purge'			=> array('lang' => 'ACL_M_SHOUT_PURGE', 'cat' => 'shoutbox'),
 			'm_shout_robot'			=> array('lang' => 'ACL_M_SHOUT_ROBOT', 'cat' => 'shoutbox'),
 			'u_shout_bbcode'		=> array('lang' => 'ACL_U_SHOUT_BBCODE', 'cat' => 'shoutbox'),
 			'u_shout_bbcode_change'	=> array('lang' => 'ACL_U_SHOUT_BBCODE_CHANGE', 'cat' => 'shoutbox'),
