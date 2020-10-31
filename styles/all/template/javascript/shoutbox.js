@@ -1837,7 +1837,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				dataChars += '</div><div class="row-chars">';
 				cols = 0;
 			}
-			dataChars += '<span class="cell-chars" title="'+chars[i][2]+'">'+chars[i][0]+'</span>';
+			dataChars += '<span class="cell-chars" ><a name="char" title="'+chars[i][2]+'">'+chars[i][0]+'</a></span>';
 			cols++;
 		}
 		dataChars += '</div></div>';
@@ -1846,7 +1846,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 	};
 
 	shoutbox.mouseChar = function(){
-		$('#table-chars span.cell-chars').each(function(){
+		$('#table-chars a[name=char]').each(function(){
 			$(this).on({
 				'click': function(){shoutbox.shoutInsertText($(this).html(),false)},
 				'mouseover': function(){shoutbox.zoomChar($(this).html(),$(this).attr('title'))},
