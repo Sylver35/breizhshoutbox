@@ -556,98 +556,20 @@ class admin_controller
 		else
 		{
 			$start = $this->request->variable('start', 0);
-			$sql_nr = 'SELECT COUNT(DISTINCT shout_id) as total
-				FROM ' . $this->shoutbox_table . '
-				WHERE shout_inp = 0
-					OR shout_inp = ' . $this->user->data['user_id'] . '
-					OR shout_user_id = ' . $this->user->data['user_id'];
-			$result_nr = $this->db->sql_query($sql_nr);
-			$total_posts = $this->db->sql_fetchfield('total', $result_nr);
-			$this->db->sql_freeresult($result_nr);
-
-			$i = $start_log = $li = 0;
 			$shout_number = (int) $this->config['shout_nr_acp'];
-			$sql = $this->db->sql_build_query('SELECT', array(
-				'SELECT'	=> 's.*, u.user_id, u.username, u.user_colour, v.user_id as x_user_id, v.username as x_username, v.user_colour as x_user_colour',
-				'FROM'		=> array($this->shoutbox_table => 's'),
-				'LEFT_JOIN'	=> array(
-					array(
-						'FROM'	=> array(USERS_TABLE => 'u'),
-						'ON'	=> 's.shout_user_id = u.user_id',
-					),
-					array(
-						'FROM'	=> array(USERS_TABLE => 'v'),
-						'ON'	=> 'v.user_id = s.shout_robot_user',
-					),
-				),
-				'WHERE'		=> 'shout_inp = 0 OR shout_inp = ' . $this->user->data['user_id'] . ' OR shout_user_id = ' . $this->user->data['user_id'],
-				'ORDER_BY'	=> 's.shout_time DESC',
-			));
-			$result = $this->db->sql_query_limit($sql, $shout_number, $start);
-			while ($row = $this->db->sql_fetchrow($result))
-			{
-				if ($row['shout_inp'])
-				{
-					if (($row['shout_inp'] != $this->user->data['user_id']) && ($row['shout_user_id'] != $this->user->data['user_id']))
-					{
-						continue;
-					}
-				}
-				$row['username'] = ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'];
-				$row['shout_text'] = $this->shoutbox->shout_text_for_display($row, 3, true);
-
-				$this->template->assign_block_vars('messages', array(
-					'TIME'				=> $this->user->format_date($row['shout_time']),
-					'POSTER'			=> $this->shoutbox->construct_action_shout($row['shout_user_id'], $row['username'], $row['user_colour'], true),
-					'ID'				=> $row['shout_id'],
-					'MESSAGE'			=> $row['shout_text'],
-					'ROW_NUMBER'		=> $i + ($start + 1),
-				));
-				$i++;
-			}
-			$this->db->sql_freeresult($result);
-
-			$log_array = array('LOG_SHOUT_SCRIPT', 'LOG_SHOUT_ACTIVEX', 'LOG_SHOUT_APPLET', 'LOG_SHOUT_OBJECTS', 'LOG_SHOUT_IFRAME');
-			$sql = $this->db->sql_build_query('SELECT', array(
-				'SELECT'	=> 'l.log_id, l.user_id, l.log_type, l.log_ip, l.log_time, l.log_operation, l.reportee_id, u.user_id, u.username, u.user_colour',
-				'FROM'		=> array(LOG_TABLE => 'l'),
-				'LEFT_JOIN'	=> array(
-					array(
-						'FROM'	=> array(USERS_TABLE => 'u'),
-						'ON'	=> 'l.user_id = u.user_id',
-					),
-				),
-				'WHERE'		=> $this->db->sql_in_set('log_operation', $log_array),
-				'ORDER_BY'	=> 'log_time DESC',
-			));
-			$result = $this->db->sql_query($sql);
-			while ($row = $this->db->sql_fetchrow($result))
-			{
-				$row['username'] = ($row['user_id'] == ANONYMOUS) ? $this->language->lang('GUEST') : $row['username'];
-				$this->template->assign_block_vars('logs', array(
-					'TIME'				=> $this->user->format_date($row['log_time']),
-					'REPORTEE'			=> $this->shoutbox->construct_action_shout($row['user_id'], $row['username'], $row['user_colour'], true),
-					'OPERATION'			=> $this->language->lang($row['log_operation']),
-					'ID'				=> $row['log_id'],
-					'IP'				=> $row['log_ip'],
-					'ROW_NUMBER'		=> $li + ($start_log + 1),
-				));
-				$li++;
-			}
-			$this->db->sql_freeresult($result);
-
+			$return = $this->get_messages($start, $shout_number, true);
+			$li = $this->get_logs(true);
 			$total_del = $this->config['shout_del_acp'] + $this->config['shout_del_auto'] + $this->config['shout_del_purge'] + $this->config['shout_del_user'];
-			$data = $this->shoutbox->get_version();
+
 			$this->template->assign_vars(array(
 				'S_OVERVIEW'				=> true,
-				'S_DISPLAY_MESSAGES'		=> ($i > 0) ? true : false,
+				'S_DISPLAY_MESSAGES'		=> ($return['i'] > 0) ? true : false,
 				'S_DISPLAY_LOGS'			=> ($li > 0) ? true : false,
-				'S_ON_PAGE'					=> ($total_posts > $shout_number) ? true : false,
-				'TOTAL_POSTS'				=> $total_posts,
-				'SHOUT_VERSION'				=> $data['version'],
-				'TOTAL_MESSAGES'			=> $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $total_posts), $total_posts),
+				'S_ON_PAGE'					=> ($return['total_posts'] > $shout_number) ? true : false,
+				'TOTAL_POSTS'				=> $return['total_posts'],
+				'TOTAL_MESSAGES'			=> $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $return['total_posts']), $return['total_posts']),
 				'MESSAGES_TOTAL_NR'			=> $this->language->lang('SHOUT_MESSAGES_TOTAL_NR', $this->config['shout_nr'], $this->user->format_date($this->config['shout_time'])),
-				'PAGE_NUMBER' 				=> $this->pagination->validate_start($total_posts, (int) $shout_number, $start),	
+				'PAGE_NUMBER' 				=> $this->pagination->validate_start($return['total_posts'], (int) $shout_number, $start),	
 				'LAST_SHOUT_RUN'			=> ($this->config['shout_last_run'] == $this->config['shout_time']) ? $this->language->lang('SHOUT_NEVER') : $this->user->format_date($this->config['shout_last_run']),
 				'LOGS_TOTAL_NR'				=> $this->language->lang($this->shoutbox->plural('NUMBER_LOG', $this->config['shout_nr_log'], '_TOTAL'), $this->config['shout_nr_log'], $this->user->format_date($this->config['shout_time'])),
 				'MESSAGES_DEL_TOTAL'		=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $total_del), $total_del) . $this->language->lang('SHOUT_DEL_TOTAL'),
@@ -656,7 +578,7 @@ class admin_controller
 				'MESSAGES_DEL_PURGE'		=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_purge']), $this->config['shout_del_purge']),
 				'MESSAGES_DEL_USER'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_user']), $this->config['shout_del_user']),
 			));
-			$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $total_posts, $shout_number, $start);
+			$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $return['total_posts'], $shout_number, $start);
 		}
 	}
 
@@ -719,7 +641,7 @@ class admin_controller
 				)));
 			}
 		}
-		if ($deletemarklog)
+		else if ($deletemarklog)
 		{
 			if (confirm_box(true))
 			{
@@ -759,7 +681,7 @@ class admin_controller
 				)));
 			}
 		}
-		if ($action)
+		else if ($action)
 		{
 			if (!confirm_box(true))
 			{
@@ -797,106 +719,33 @@ class admin_controller
 				}
 			}
 		}
-
-		$sql_nr = 'SELECT COUNT(DISTINCT shout_id) as total 
-			FROM ' . $this->shoutbox_priv_table . '
-			WHERE shout_inp = 0
-				OR shout_inp = ' . $this->user->data['user_id'] . '
-				OR shout_user_id = ' . $this->user->data['user_id'];
-		$result_nr = $this->db->sql_query($sql_nr);
-		$total_posts = $this->db->sql_fetchfield('total', $result_nr);
-		$this->db->sql_freeresult($result_nr);
-
-		$start = $this->request->variable('start', 0);
-		$i = $start_log = $li = 0;
-		$shout_number = (int) $this->config['shout_nr_acp'];
-
-		$sql = $this->db->sql_build_query('SELECT', array(
-			'SELECT'	=> 's.*, u.user_id, u.username, u.user_colour, v.user_id as x_user_id, v.username as x_username, v.user_colour as x_user_colour',
-			'FROM'		=> array($this->shoutbox_priv_table => 's'),
-			'LEFT_JOIN'	=> array(
-				array(
-					'FROM'	=> array(USERS_TABLE => 'u'),
-					'ON'	=> 's.shout_user_id = u.user_id',
-				),
-				array(
-					'FROM'	=> array(USERS_TABLE => 'v'),
-					'ON'	=> 'v.user_id = s.shout_robot_user',
-				),
-			),
-			'WHERE'		=> 'shout_inp = 0 OR shout_inp = ' . $this->user->data['user_id'] . ' OR shout_user_id = ' . $this->user->data['user_id'],
-			'ORDER_BY'	=> 's.shout_time DESC',
-		));
-		$result = $this->db->sql_query_limit($sql, $shout_number, $start);
-		while ($row = $this->db->sql_fetchrow($result))
+		else
 		{
-			if ($row['shout_inp'])
-			{
-				if ($row['shout_inp'] != $this->user->data['user_id'] && $row['shout_user_id'] != $this->user->data['user_id'])
-				{
-					continue;
-				}
-			}
-			$row['username'] = ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'];
-			$this->template->assign_block_vars('messages', array(
-				'TIME'				=> $this->user->format_date($row['shout_time']),
-				'POSTER'			=> $this->shoutbox->construct_action_shout($row['shout_user_id'], $row['username'], $row['user_colour'], true),
-				'ID'				=> $row['shout_id'],
-				'MESSAGE'			=> $this->shoutbox->shout_text_for_display($row, 3, true),
-				'ROW_NUMBER'		=> $i + ($start + 1),
-			));
-			$i++;
-		}
-		$this->db->sql_freeresult($result);
+			$start = $this->request->variable('start', 0);
+			$shout_number = (int) $this->config['shout_nr_acp'];
+			$return = $this->get_messages($start, $shout_number, false);
+			$li = $this->get_logs(false);
+			$total_del = $this->config['shout_del_acp_priv'] + $this->config['shout_del_auto_priv'] + $this->config['shout_del_purge_priv'] + $this->config['shout_del_user_priv'];
 
-		$log_array = array('LOG_SHOUT_SCRIPT_PRIV', 'LOG_SHOUT_ACTIVEX_PRIV', 'LOG_SHOUT_APPLET_PRIV', 'LOG_SHOUT_OBJECTS_PRIV', 'LOG_SHOUT_IFRAME_PRIV');
-		$sql = $this->db->sql_build_query('SELECT', array(
-			'SELECT'	=> 'l.log_id, l.user_id, l.log_type, l.log_ip, l.log_time, l.log_operation, l.reportee_id, u.user_id, u.username, u.user_colour',
-			'FROM'		=> array(LOG_TABLE => 'l'),
-			'LEFT_JOIN'	=> array(
-				array(
-					'FROM'	=> array(USERS_TABLE => 'u'),
-					'ON'	=> 'l.user_id = u.user_id',
-				),
-			),
-			'WHERE'		=> $this->db->sql_in_set('log_operation', $log_array),
-			'ORDER_BY'	=> 'log_time DESC',
-		));
-		$result = $this->db->sql_query($sql);
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$row['username'] = ($row['user_id'] == ANONYMOUS) ? $this->language->lang('GUEST') : $row['username'];
-			$this->template->assign_block_vars('logs', array(
-				'TIME'				=> $this->user->format_date($row['log_time']),
-				'REPORTEE'			=> $this->shoutbox->construct_action_shout($row['user_id'], $row['username'], $row['user_colour'], true),
-				'OPERATION'			=> $this->language->lang($row['log_operation']),
-				'ID'				=> $row['log_id'],
-				'IP'				=> $row['log_ip'],
-				'ROW_NUMBER'		=> $li + ($start_log + 1),
+			$this->template->assign_vars(array(
+				'S_PRIVATE'					=> true,
+				'TOTAL_POSTS'				=> $return['total_posts'],
+				'S_DISPLAY_MESSAGES'		=> ($return['i'] > 0) ? true : false,
+				'S_DISPLAY_LOGS'			=> ($li > 0) ? true : false,
+				'S_ON_PAGE'					=> ($return['total_posts'] > $shout_number) ? true : false,
+				'TOTAL_MESSAGES'			=> $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $return['total_posts']), $return['total_posts']),
+				'MESSAGES_TOTAL_NR'			=> $this->language->lang('SHOUT_MESSAGES_TOTAL_NR', $this->config['shout_nr_priv'], $this->user->format_date($this->config['shout_time_priv'])),
+				'PAGE_NUMBER'				=> $this->pagination->validate_start($return['total_posts'], $shout_number, $start),	
+				'LAST_SHOUT_RUN'			=> ($this->config['shout_last_run_priv'] == $this->config['shout_time_priv']) ? $this->language->lang('SHOUT_NEVER') : $this->user->format_date($this->config['shout_last_run_priv']),
+				'LOGS_TOTAL_NR'				=> $this->language->lang($this->shoutbox->plural('NUMBER_LOG', $this->config['shout_nr_log_priv'], '_TOTAL'), $this->config['shout_nr_log_priv'], $this->user->format_date($this->config['shout_time_priv'])),
+				'MESSAGES_DEL_TOTAL'		=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $total_del), $total_del) . $this->language->lang('SHOUT_DEL_TOTAL'),
+				'MESSAGES_DEL_ACP'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_acp_priv']), $this->config['shout_del_acp_priv']),
+				'MESSAGES_DEL_AUTO'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_auto_priv']), $this->config['shout_del_auto_priv']),
+				'MESSAGES_DEL_PURGE'		=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_purge_priv']), $this->config['shout_del_purge_priv']),
+				'MESSAGES_DEL_USER'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_user_priv']), $this->config['shout_del_user_priv']),
 			));
-			$li++;
+			$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $return['total_posts'], $shout_number, $start);
 		}
-		$this->db->sql_freeresult($result);
-
-		$total_del = $this->config['shout_del_acp_priv'] + $this->config['shout_del_auto_priv'] + $this->config['shout_del_purge_priv'] + $this->config['shout_del_user_priv'];
-		$this->template->assign_vars(array(
-			'S_PRIVATE'					=> true,
-			'TOTAL_POSTS'				=> $total_posts,
-			'S_DISPLAY_MESSAGES'		=> ($i > 0) ? true : false,
-			'S_DISPLAY_LOGS'			=> ($li > 0) ? true : false,
-			'S_ON_PAGE'					=> ($total_posts > $shout_number) ? true : false,
-			'TOTAL_MESSAGES'			=> $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $total_posts), $total_posts),
-			'MESSAGES_TOTAL_NR'			=> $this->language->lang('SHOUT_MESSAGES_TOTAL_NR', $this->config['shout_nr_priv'], $this->user->format_date($this->config['shout_time_priv'])),
-			'PAGE_NUMBER'				=> $this->pagination->validate_start($total_posts, $shout_number, $start),	
-			'LAST_SHOUT_RUN'			=> ($this->config['shout_last_run_priv'] == $this->config['shout_time_priv']) ? $this->language->lang('SHOUT_NEVER') : $this->user->format_date($this->config['shout_last_run_priv']),
-			'LOGS_TOTAL_NR'				=> $this->language->lang($this->shoutbox->plural('NUMBER_LOG', $this->config['shout_nr_log_priv'], '_TOTAL'), $this->config['shout_nr_log_priv'], $this->user->format_date($this->config['shout_time_priv'])),
-			'MESSAGES_DEL_TOTAL'		=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $total_del), $total_del) . $this->language->lang('SHOUT_DEL_TOTAL'),
-			'MESSAGES_DEL_ACP'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_acp_priv']), $this->config['shout_del_acp_priv']),
-			'MESSAGES_DEL_AUTO'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_auto_priv']), $this->config['shout_del_auto_priv']),
-			'MESSAGES_DEL_PURGE'		=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_purge_priv']), $this->config['shout_del_purge_priv']),
-			'MESSAGES_DEL_USER'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_user_priv']), $this->config['shout_del_user_priv']),
-		));
-		$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $total_posts, $shout_number, $start);
 	}
 
 	public function acp_shoutbox_config_priv()
@@ -1241,6 +1090,107 @@ class admin_controller
 		$this->template->assign_vars(array(
 			'S_ROBOT'	=> true,
 		));
+	}
+
+	private function get_messages($start, $shout_number, $sort)
+	{
+		$shoutbox_table = ($sort) ? $this->shoutbox_table : $this->shoutbox_priv_table;
+		$sql_nr = 'SELECT COUNT(DISTINCT shout_id) as total
+			FROM ' . $shoutbox_table . '
+			WHERE shout_inp = 0
+				OR shout_inp = ' . $this->user->data['user_id'] . '
+				OR shout_user_id = ' . $this->user->data['user_id'];
+		$result_nr = $this->db->sql_query($sql_nr);
+		$total_posts = $this->db->sql_fetchfield('total', $result_nr);
+		$this->db->sql_freeresult($result_nr);
+
+		$i = 0;
+		$sql = $this->db->sql_build_query('SELECT', array(
+			'SELECT'	=> 's.*, u.user_id, u.username, u.user_colour, v.user_id as x_user_id, v.username as x_username, v.user_colour as x_user_colour',
+			'FROM'		=> array($shoutbox_table => 's'),
+			'LEFT_JOIN'	=> array(
+				array(
+					'FROM'	=> array(USERS_TABLE => 'u'),
+					'ON'	=> 's.shout_user_id = u.user_id',
+				),
+				array(
+					'FROM'	=> array(USERS_TABLE => 'v'),
+					'ON'	=> 'v.user_id = s.shout_robot_user',
+				),
+			),
+			'WHERE'		=> 'shout_inp = 0 OR shout_inp = ' . $this->user->data['user_id'] . ' OR shout_user_id = ' . $this->user->data['user_id'],
+			'ORDER_BY'	=> 's.shout_time DESC',
+		));
+		$result = $this->db->sql_query_limit($sql, $shout_number, $start);
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			if ($row['shout_inp'])
+			{
+				if (($row['shout_inp'] != $this->user->data['user_id']) && ($row['shout_user_id'] != $this->user->data['user_id']))
+				{
+					continue;
+				}
+			}
+			$row['username'] = ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'];
+			$row['shout_text'] = $this->shoutbox->shout_text_for_display($row, 3, true);
+
+			$this->template->assign_block_vars('messages', array(
+				'TIME'				=> $this->user->format_date($row['shout_time']),
+				'POSTER'			=> $this->shoutbox->construct_action_shout($row['shout_user_id'], $row['username'], $row['user_colour'], true),
+				'ID'				=> $row['shout_id'],
+				'MESSAGE'			=> $row['shout_text'],
+				'ROW_NUMBER'		=> $i + ($start + 1),
+			));
+			$i++;
+		}
+		$this->db->sql_freeresult($result);
+
+		return array(
+			'i'				=> $i,
+			'total_posts'	=> $total_posts,
+		);
+	}
+
+	private function get_logs($sort)
+	{
+		$li = $start_log = 0;
+		if ($sort)
+		{
+			$log_array = array('LOG_SHOUT_SCRIPT', 'LOG_SHOUT_ACTIVEX', 'LOG_SHOUT_APPLET', 'LOG_SHOUT_OBJECTS', 'LOG_SHOUT_IFRAME');
+		}
+		else
+		{
+			$log_array = array('LOG_SHOUT_SCRIPT_PRIV', 'LOG_SHOUT_ACTIVEX_PRIV', 'LOG_SHOUT_APPLET_PRIV', 'LOG_SHOUT_OBJECTS_PRIV', 'LOG_SHOUT_IFRAME_PRIV');
+		}
+		$sql = $this->db->sql_build_query('SELECT', array(
+			'SELECT'	=> 'l.log_id, l.user_id, l.log_type, l.log_ip, l.log_time, l.log_operation, l.reportee_id, u.user_id, u.username, u.user_colour',
+			'FROM'		=> array(LOG_TABLE => 'l'),
+			'LEFT_JOIN'	=> array(
+				array(
+					'FROM'	=> array(USERS_TABLE => 'u'),
+					'ON'	=> 'l.user_id = u.user_id',
+				),
+			),
+			'WHERE'		=> $this->db->sql_in_set('log_operation', $log_array),
+			'ORDER_BY'	=> 'log_time DESC',
+		));
+		$result = $this->db->sql_query($sql);
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$row['username'] = ($row['user_id'] == ANONYMOUS) ? $this->language->lang('GUEST') : $row['username'];
+			$this->template->assign_block_vars('logs', array(
+				'TIME'				=> $this->user->format_date($row['log_time']),
+				'REPORTEE'			=> $this->shoutbox->construct_action_shout($row['user_id'], $row['username'], $row['user_colour'], true),
+				'OPERATION'			=> $this->language->lang($row['log_operation']),
+				'ID'				=> $row['log_id'],
+				'IP'				=> $row['log_ip'],
+				'ROW_NUMBER'		=> $li + ($start_log + 1),
+			));
+			$li++;
+		}
+		$this->db->sql_freeresult($result);
+
+		return $li;
 	}
 
 	private function update_config($data)
