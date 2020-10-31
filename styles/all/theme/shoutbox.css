@@ -515,7 +515,6 @@ div.shout-submit {
 	font-size: 1.1em;
 	width: 100%;
 	border: none;
-	color: #333399;
 }
 #char_shout2 {
 	border-left: none;
@@ -891,6 +890,9 @@ span.cell-chars {
 	cursor: pointer;
 	width: 22px;
 	height: 22px;
+}
+span.cell-chars a {
+	font-weight: normal;
 }
 span.cell-colors {
 	display: table-cell;
