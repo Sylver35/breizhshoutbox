@@ -61,7 +61,13 @@
 			<span class="separation"></span>
 			<dl>
 				<dt><label for="shout_prez_form">{{ lang('SHOUT_ROBOT_PREZ') }}:</label><br />{{ lang('SHOUT_ROBOT_PREZ_EXPLAIN') }}</dt>
-				<dd>{{ SHOUT_PREZ_FORM }}</dd>
+				<dd>
+					<select id="shout_prez_form" name="shout_prez_form">
+						<option value="0">{{ lang('SELECT_FORUM') }}</option>
+						<option value="0" disabled="disabled"></option>
+						{{ SHOUT_PREZ_FORM }}
+					</select>
+				</dd>
 			</dl>
 			<dl>
 				<dt><label for="shout_exclude_forums">{{ lang('SHOUT_ROBOT_EXCLU') }}:</label><br />{{ lang('SHOUT_ROBOT_EXCLU_EXPLAIN') }}<br /><br />{{ lang('LOOK_UP_FORUMS_EXPLAIN') }}</dt>
@@ -124,7 +130,9 @@
 			</dl>
 			<dl>
 				<dt><label for="shout_birthday_exclude">{{ lang('SHOUT_BIRTHDAY_EXCLUDE') }}:</label><br />{{ lang('SHOUT_BIRTHDAY_EXCLUDE_EXPLAIN') }}</dt>
-				<dd><select style="width:250px;" id="shout_birthday_exclude" name="shout_birthday_exclude[]" multiple="multiple" size="5">{{ GROUP_OPTIONS }}</select></dd>
+				<dd>
+					<select style="width:250px;" id="shout_birthday_exclude" name="shout_birthday_exclude[]" multiple="multiple" size="5">{{ GROUP_OPTIONS }}</select>
+				</dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>

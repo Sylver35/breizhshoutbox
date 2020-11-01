@@ -90,8 +90,8 @@ $lang = array_merge($lang, array(
 	'ACP_SHOUT_ROBOT_CAT'			=> 'Robot de la shoutbox',
 	'ACP_SHOUT_ROBOT'				=> 'Configuration du Robot',
 	'ACP_SHOUT_ROBOT_T'				=> 'Configuration du Robot de Breizh Shoutbox',
-	'ACP_SHOUT_ROBOT_T_EXPLAIN'		=> 'Sur cette page, vous pouvez régler tous les différents points de configuration du Robot de la shoutbox.
-										<br />Certains paramètres sont soit pour la shoutbox principale, soit pour la shoutbox privée.',
+	'ACP_SHOUT_ROBOT_T_EXPLAIN'		=> 'Sur cette page, vous pouvez régler tous les différents points de configuration du Robot de la shoutbox.<br />Certains paramètres sont soit pour la shoutbox principale, soit pour la shoutbox privée.',
+
 // Language for Logs
 	'LOG_SHOUT_CONFIGS'				=> '<strong>Mise à jour de la configuration générale de Breizh Shoutbox.</strong>',
 	'LOG_SHOUT_CONFIG_GEN'			=> '<strong>Mise à jour des paramètres de la Shoutbox générale.</strong>',

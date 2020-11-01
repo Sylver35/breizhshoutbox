@@ -158,7 +158,7 @@
 					<th class="th-centered th3">#</th>
 					<th class="th-centered th13">{{ lang('SHOUT_DATE') }}</th>
 					<th class="th-centered th11">{{ lang('SHOUT_USER') }}</th>
-					<th class="th-centered th5">ID</th>
+					<th class="th-centered th6">ID</th>
 					<th>{{ lang('SHOUT_LOG_ENTRIE') }}</th>
 					<th class="th-centered th5">{{ lang('MARK') }}</th>
 				</tr>
@@ -173,7 +173,7 @@
 					<td>{{ log.REPORTEE }}</td>
 					<td class="td-centered">{{ log.ID }}</td>
 					<td>{{ log.OPERATION }}</td>
-					<td class="td-centered"><input type="checkbox" class="radio" name="mark[]" value="{logs.ID}" /></td>
+					<td class="td-centered"><input type="checkbox" class="radio" name="mark[]" value="{log.ID}" /></td>
 				</tr>
 				{% endfor %}
 			{% else %}

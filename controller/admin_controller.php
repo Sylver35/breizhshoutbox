@@ -359,32 +359,7 @@ class admin_controller
 		{
 			if (confirm_box(true))
 			{
-				if (!check_form_key($form_key))
-				{
-					trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
-				}
-				$where_sql = '';
-				if ($deletemark && sizeof($marked))
-				{
-					$sql_in = array();
-					foreach ($marked as $mark)
-					{
-						$sql_in[] = $mark;
-					}
-					$where_sql = ' WHERE ' . $this->db->sql_in_set('shout_id', $sql_in);
-					unset($sql_in);
-				}
-				if ($where_sql)
-				{
-					$sql = 'DELETE FROM ' . $this->shoutbox_table . $where_sql;
-					$this->db->sql_query($sql);
-					$deleted = $this->db->sql_affectedrows();
-					// Reload the shoutbox for all
-					$this->shoutbox->update_shout_messages($this->shoutbox_table);
-					
-					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_SELECT', $deleted, '_SHOUTBOX'), time(), array($deleted));
-					$this->config->increment('shout_del_acp', $deleted, true);
-				}
+				$this->action_delete_mark($form_key, $deletemark, false);
 			}
 			else
 			{
@@ -404,29 +379,7 @@ class admin_controller
 		{
 			if (confirm_box(true))
 			{
-				if (!check_form_key($form_key))
-				{
-					trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
-				}
-				$where_sql = '';
-				if ($deletemarklog && sizeof($marked))
-				{
-					$sql_in = array();
-					foreach ($marked as $mark)
-					{
-						$sql_in[] = $mark;
-					}
-					$where_sql = ' WHERE ' . $this->db->sql_in_set('log_id', $sql_in);
-					unset($sql_in);
-				}
-				if ($where_sql)
-				{
-					$sql = 'DELETE FROM ' . LOG_TABLE . $where_sql;
-					$this->db->sql_query($sql);
-					$deleted = $this->db->sql_affectedrows();
-					
-					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX'), time(), array($deleted));
-				}
+				$this->action_delete_marklog($form_key, $deletemarklog, false);
 			}
 			else
 			{
@@ -446,20 +399,7 @@ class admin_controller
 		{
 			if (confirm_box(true))
 			{
-				if (!check_form_key($form_key))
-				{
-					trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
-				}
-				if ($action == 'purge')
-				{
-					$this->shoutbox->purge_all_shout_admin(false);
-					trigger_error($this->language->lang('LOG_PURGE_SHOUTBOX') . adm_back_link($this->u_action));
-				}
-				else
-				{
-					$deleted = $this->shoutbox->purge_shout_admin($action, false);
-					trigger_error($this->language->lang('LOG_PURGE_SHOUTBOX_ROBOT', $deleted) . adm_back_link($this->u_action));
-				}
+				$this->action_purge_shoutbox($form_key, $action, false);
 			}
 			else
 			{
@@ -477,7 +417,7 @@ class admin_controller
 			$start = $this->request->variable('start', 0);
 			$shout_number = (int) $this->config['shout_nr_acp'];
 			$return = $this->get_messages($start, $shout_number, true);
-			$li = $this->get_logs(true);
+			$li = $this->get_logs(false);
 			$total_del = $this->config['shout_del_acp'] + $this->config['shout_del_auto'] + $this->config['shout_del_purge'] + $this->config['shout_del_user'];
 
 			$this->template->assign_vars(array(
@@ -519,32 +459,7 @@ class admin_controller
 		{
 			if (confirm_box(true))
 			{
-				if (!check_form_key($form_key))
-				{
-					trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
-				}
-				$where_sql = '';
-				if ($deletemark && sizeof($marked))
-				{
-					$sql_in = array();
-					foreach ($marked as $mark)
-					{
-						$sql_in[] = $mark;
-					}
-					$where_sql = ' WHERE ' . $this->db->sql_in_set('shout_id', $sql_in);
-					unset($sql_in);
-				}
-				if ($where_sql)
-				{
-					$sql = 'DELETE FROM ' . $this->shoutbox_priv_table . $where_sql;
-					$this->db->sql_query($sql);
-					$deleted = $this->db->sql_affectedrows();
-					// Reload the shoutbox for all
-					$this->shoutbox->update_shout_messages($this->shoutbox_priv_table);
-
-					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_SELECT', $deleted, '_SHOUTBOX_PRIV'), time(), array($deleted));
-					$this->config->increment('shout_del_acp_priv', $deleted, true);
-				}
+				$this->action_delete_mark($form_key, $deletemark, true);
 			}
 			else
 			{
@@ -564,29 +479,7 @@ class admin_controller
 		{
 			if (confirm_box(true))
 			{
-				if (!check_form_key($form_key))
-				{
-					trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
-				}
-				$where_sql = '';
-				if ($deletemarklog && sizeof($marked))
-				{
-					$sql_in = array();
-					foreach ($marked as $mark)
-					{
-						$sql_in[] = $mark;
-					}
-					$where_sql = ' WHERE ' . $this->db->sql_in_set('log_id', $sql_in);
-					unset($sql_in);
-				}
-				if ($where_sql)
-				{
-					$sql = 'DELETE FROM ' . LOG_TABLE . $where_sql;
-					$this->db->sql_query($sql);
-					$deleted = $this->db->sql_affectedrows();
-					
-					$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX_PRIV'), time(), array($deleted));
-				}
+				$this->action_delete_marklog($form_key, $deletemarklog, true);
 			}
 			else
 			{
@@ -602,40 +495,18 @@ class admin_controller
 		}
 		else if ($action)
 		{
-			if (!confirm_box(true))
+			if (confirm_box(true))
 			{
-				switch ($action)
-				{
-					default:
-						$confirm = true;
-						$confirm_lang = 'CONFIRM_OPERATION';
-				}
-				if ($confirm)
-				{
-					confirm_box(false, $this->language->lang($confirm_lang), build_hidden_fields(array(
-						'i'				=> $id,
-						'action'		=> $action,
-						'creation_time'	=> $creation,
-						'form_token'	=> $token,
-					)));
-				}
+				$this->action_purge_shoutbox($form_key, $action, true);
 			}
 			else
 			{
-				if (!check_form_key($form_key))
-				{
-					trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
-				}
-				if ($action == 'purge')
-				{
-					$this->shoutbox->purge_all_shout_admin(true);
-					trigger_error($this->language->lang('LOG_PURGE_SHOUTBOX_PRIV') . adm_back_link($this->u_action));
-				}
-				else
-				{
-					$deleted = $this->shoutbox->purge_shout_admin($action, true);
-					trigger_error($this->language->lang('LOG_PURGE_SHOUTBOX_PRIV_ROBOT', $deleted) . adm_back_link($this->u_action));
-				}
+				confirm_box(false, $this->language->lang('CONFIRM_OPERATION'), build_hidden_fields(array(
+					'i'				=> $id,
+					'action'		=> $action,
+					'creation_time'	=> $creation,
+					'form_token'	=> $token,
+				)));
 			}
 		}
 		else
@@ -643,7 +514,7 @@ class admin_controller
 			$start = $this->request->variable('start', 0);
 			$shout_number = (int) $this->config['shout_nr_acp'];
 			$return = $this->get_messages($start, $shout_number, false);
-			$li = $this->get_logs(false);
+			$li = $this->get_logs(true);
 			$total_del = $this->config['shout_del_acp_priv'] + $this->config['shout_del_auto_priv'] + $this->config['shout_del_purge_priv'] + $this->config['shout_del_user_priv'];
 
 			$this->template->assign_vars(array(
@@ -931,24 +802,7 @@ class admin_controller
 		}
 		else
 		{
-			$group_options = '';
-			$sql = $this->db->sql_build_query('SELECT', array(
-				'SELECT'	=> 'DISTINCT group_type, group_name, group_id, group_colour',
-				'FROM'		=> array(GROUPS_TABLE => ''),
-				'WHERE'		=> $this->db->sql_in_set('group_name', array('GUESTS', 'BOTS'), true),
-				'ORDER_BY'	=> 'group_type DESC, group_name ASC',
-			));
-			$result = $this->db->sql_query($sql);
-			while ($row = $this->db->sql_fetchrow($result))
-			{
-				$selected = (in_array($row['group_id'], explode(', ', $this->config['shout_birthday_exclude']))) ? ' selected="selected"' : '';
-				$group_options .= '<option' . (($row['group_type'] == GROUP_SPECIAL) ? ' class="sep"' : '') . ' value="' . $row['group_id'] . '" style="color:#' . $row['group_colour'] . ';font-weight:bold;"' . $selected . '>' . (($row['group_type'] == GROUP_SPECIAL) ? $this->language->lang('G_' . $row['group_name']) : $row['group_name']) . "</option>\n";
-			}
-			$this->db->sql_freeresult($result);
-			
-			$select_prez = '<select id="shout_prez_form" name="shout_prez_form"><option value="0">' . $this->language->lang('SELECT_FORUM') . '</option><option value="0" disabled="disabled"></option>';
-			$select_prez .= make_forum_select((int) $this->config['shout_prez_form'], false, true, true) . '</select>';
-
+			$this->get_another_options();
 			$this->template->assign_vars(array(
 				'SHOUT_NAME_ROBOT'			=> (string) $this->config['shout_name_robot'],
 				'SHOUT_ENABLE_ROBOT'		=> $this->shoutbox->construct_radio('shout_enable_robot', 2, true),
@@ -973,42 +827,65 @@ class admin_controller
 				'SHOUT_COLOR_MESSAGE'		=> $this->config['shout_color_message'],
 				'SHOUT_SESSIONS_TIME'		=> $this->config['shout_sessions_time'],
 				'SHOUT_CRON_HOUR'			=> $this->shoutbox->hour_select((string) $this->config['shout_cron_hour'], 'shout_cron_hour'),
-				'SHOUT_PREZ_FORM'			=> $select_prez,
+				'SHOUT_PREZ_FORM'			=> make_forum_select((int) $this->config['shout_prez_form'], false, true, true),
 				'SHOUT_EXCLUDE_FORUMS'		=> make_forum_select(explode(', ', $this->config['shout_exclude_forums']), false, false, false, false),
-				'GROUP_OPTIONS'				=> $group_options,
+				'GROUP_OPTIONS'				=> $this->get_group_options(),
 				'SERVER_HOUR'				=> $this->language->lang($this->shoutbox->plural('SHOUT_SERVER_HOUR', date('H')), date('H'), date('i')),
 			));
-
-			for ($i = 1; $i < 8; $i++)
-			{
-				$this->template->assign_vars(array(
-					'CHOICE_' . $i		=> preg_match('/' . $i . '/i', $this->config['shout_robot_choice']) ? ' checked="checked"' : '',
-					'CHOICE_PRIV_' . $i	=> preg_match('/' . $i . '/i', $this->config['shout_robot_choice_priv']) ? ' checked="checked"' : '',
-				));
-			}
-
-			if ($this->shoutbox->breizhyoutube_exist())
-			{
-				$this->template->assign_vars(array(
-					'SHOUT_ENABLE_YOUTUBE'	=> true,
-					'SHOUT_VIDEO_NEW'		=> $this->shoutbox->construct_radio('shout_video_new', 2),
-					'IMAGE_VIDEO'			=> $this->ext_path . 'images/panel/ecran.webp',
-				));
-			}
-
-			if ($this->shoutbox->relaxarcade_exist())
-			{
-				$this->template->assign_vars(array(
-					'SHOUT_ENABLE_ROBOT_RA'	=> true,
-					'SHOUT_NEW_SCORE'		=> $this->shoutbox->construct_radio('shout_arcade_new', 2),
-					'SHOUT_NEW_RECORD'		=> $this->shoutbox->construct_radio('shout_arcade_record', 2),
-					'SHOUT_NEW_URECORD'		=> $this->shoutbox->construct_radio('shout_arcade_urecord', 2),
-				));
-			}
 		}
 		$this->template->assign_vars(array(
 			'S_ROBOT'	=> true,
 		));
+	}
+
+	private function get_group_options()
+	{
+		$group_options = '';
+		$sql = $this->db->sql_build_query('SELECT', array(
+			'SELECT'	=> 'DISTINCT group_type, group_name, group_id, group_colour',
+			'FROM'		=> array(GROUPS_TABLE => ''),
+			'WHERE'		=> $this->db->sql_in_set('group_name', array('GUESTS', 'BOTS'), true),
+			'ORDER_BY'	=> 'group_type DESC, group_name ASC',
+		));
+		$result = $this->db->sql_query($sql);
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$selected = (in_array($row['group_id'], explode(', ', $this->config['shout_birthday_exclude']))) ? ' selected="selected"' : '';
+			$group_options .= '<option' . (($row['group_type'] == GROUP_SPECIAL) ? ' class="sep"' : '') . ' value="' . $row['group_id'] . '" style="color:#' . $row['group_colour'] . ';font-weight:bold;"' . $selected . '>' . (($row['group_type'] == GROUP_SPECIAL) ? $this->language->lang('G_' . $row['group_name']) : $row['group_name']) . "</option>\n";
+		}
+		$this->db->sql_freeresult($result);
+
+		return $group_options;
+	}
+
+	private function get_another_options()
+	{
+		for ($i = 1; $i < 8; $i++)
+		{
+			$this->template->assign_vars(array(
+				'CHOICE_' . $i		=> preg_match('/' . $i . '/i', $this->config['shout_robot_choice']) ? ' checked="checked"' : '',
+				'CHOICE_PRIV_' . $i	=> preg_match('/' . $i . '/i', $this->config['shout_robot_choice_priv']) ? ' checked="checked"' : '',
+			));
+		}
+
+		if ($this->shoutbox->breizhyoutube_exist())
+		{
+			$this->template->assign_vars(array(
+				'SHOUT_ENABLE_YOUTUBE'	=> true,
+				'SHOUT_VIDEO_NEW'		=> $this->shoutbox->construct_radio('shout_video_new', 2),
+				'IMAGE_VIDEO'			=> $this->ext_path . 'images/panel/ecran.webp',
+			));
+		}
+
+		if ($this->shoutbox->relaxarcade_exist())
+		{
+			$this->template->assign_vars(array(
+				'SHOUT_ENABLE_ROBOT_RA'	=> true,
+				'SHOUT_NEW_SCORE'		=> $this->shoutbox->construct_radio('shout_arcade_new', 2),
+				'SHOUT_NEW_RECORD'		=> $this->shoutbox->construct_radio('shout_arcade_record', 2),
+				'SHOUT_NEW_URECORD'		=> $this->shoutbox->construct_radio('shout_arcade_urecord', 2),
+			));
+		}
 	}
 
 	private function update_rules()
@@ -1160,7 +1037,7 @@ class admin_controller
 	private function get_logs($sort)
 	{
 		$li = $start_log = 0;
-		if ($sort)
+		if (!$sort)
 		{
 			$log_array = array('LOG_SHOUT_SCRIPT', 'LOG_SHOUT_ACTIVEX', 'LOG_SHOUT_APPLET', 'LOG_SHOUT_OBJECTS', 'LOG_SHOUT_IFRAME');
 		}
@@ -1197,6 +1074,123 @@ class admin_controller
 		$this->db->sql_freeresult($result);
 
 		return $li;
+	}
+
+	private function action_delete_mark($form_key, $deletemark, $sort)
+	{
+		$id = $this->request->variable('i', '');
+		$action = $this->request->variable('action', '');
+		$start = $this->request->variable('start', 0);
+		$mode = $this->request->variable('mode', 0);
+		$marked = $this->request->variable('mark', array(0));
+		$creation = $this->request->variable('creation_time', 0);
+		$token = $this->request->variable('form_token', '');
+
+		if ($sort)
+		{
+			$priv = '_priv';
+			$private = '_PRIV';
+			$shoutbox_table = $this->shoutbox_priv_table;
+		}
+		else
+		{
+			$priv = $private = '';
+			$shoutbox_table = $this->shoutbox_table;
+		}
+
+		if (!check_form_key($form_key))
+		{
+			trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
+		}
+
+		$where_sql = '';
+		if ($deletemark && sizeof($marked))
+		{
+			$sql_in = array();
+			foreach ($marked as $mark)
+			{
+				$sql_in[] = $mark;
+			}
+			$where_sql = ' WHERE ' . $this->db->sql_in_set('shout_id', $sql_in);
+			unset($sql_in);
+		}
+		if ($where_sql)
+		{
+			$sql = 'DELETE FROM ' . $shoutbox_table . $where_sql;
+			$this->db->sql_query($sql);
+			$deleted = $this->db->sql_affectedrows();
+			// Reload the shoutbox for all
+			$this->shoutbox->update_shout_messages($shoutbox_table);
+
+			$message = $this->shoutbox->plural('LOG_SELECT', $deleted, '_SHOUTBOX' . $private);
+			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), array($deleted));
+			$this->config->increment("shout_del_acp{$priv}", $deleted, true);
+			trigger_error($this->language->lang($message, $deleted) . adm_back_link($this->u_action));
+		}
+	}
+
+	private function action_delete_marklog($form_key, $deletemarklog, $sort)
+	{
+		$id = $this->request->variable('i', '');
+		$mode = $this->request->variable('mode', '');
+		$action = $this->request->variable('action', '');
+		$start = $this->request->variable('start', 0);
+		$marked = $this->request->variable('mark', array(0));
+		$creation = $this->request->variable('creation_time', 0);
+		$token = $this->request->variable('form_token', '');
+		$private = ($sort) ? '_PRIV' : '';
+
+		if (!check_form_key($form_key))
+		{
+			trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
+		}
+
+		$where_sql = '';
+		if ($deletemarklog && sizeof($marked))
+		{
+			$sql_in = array();
+			foreach ($marked as $mark)
+			{
+				$sql_in[] = $mark;
+			}
+			$where_sql = ' WHERE ' . $this->db->sql_in_set('log_id', $sql_in);
+			unset($sql_in);
+		}
+		if ($where_sql)
+		{
+			$sql = 'DELETE FROM ' . LOG_TABLE . $where_sql;
+			$this->db->sql_query($sql);
+			$deleted = $this->db->sql_affectedrows();
+
+			$message = $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX' . $private);
+			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), array($deleted));
+
+			trigger_error($this->language->lang($message, $deleted) . adm_back_link($this->u_action));
+		}
+	}
+
+	private function action_purge_shoutbox($form_key, $action, $sort)
+	{
+		$mode = $this->request->variable('mode', '');
+		$creation = $this->request->variable('creation_time', 0);
+		$token = $this->request->variable('form_token', '');
+		$private = ($sort) ? '_PRIV' : '';
+
+		if (!check_form_key($form_key))
+		{
+			trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
+		}
+
+		if ($action == 'purge')
+		{
+			$this->shoutbox->purge_all_shout_admin($sort);
+			trigger_error($this->language->lang('LOG_PURGE_SHOUTBOX' . $private) . adm_back_link($this->u_action));
+		}
+		else
+		{
+			$deleted = $this->shoutbox->purge_shout_admin($action, $sort);
+			trigger_error($this->language->lang("LOG_PURGE_SHOUTBOX{$private}_ROBOT", $deleted) . adm_back_link($this->u_action));
+		}
 	}
 
 	private function update_config($data)
