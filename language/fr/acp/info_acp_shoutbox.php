@@ -259,12 +259,6 @@ $lang = array_merge($lang, array(
 	'SHOUT_POSITION_FORUM_EXPLAIN'	=> 'Déterminez quelle position vous souhaitez attribuer à la shoutbox sur les pages de vue des forums (viewforum).',
 	'SHOUT_POSITION_TOPIC'			=> 'Position de la shoutbox dans les sujets',
 	'SHOUT_POSITION_TOPIC_EXPLAIN'	=> 'Déterminez quelle position vous souhaitez attribuer à la shoutbox sur les pages de vue des sujets (viewtopic).',
-	'SHOUT_INDEX_ON'				=> 'Affichage sur la page index',
-	'SHOUT_INDEX_ON_EXPLAIN'		=> 'Déterminez si vous souhaitez afficher la shoutbox sur la page index',
-	'SHOUT_FORUM_ON'				=> 'Affichage dans la vue des forums',
-	'SHOUT_FORUM_ON_EXPLAIN'		=> 'Déterminez si vous souhaitez afficher la shoutbox sur les pages des forums (viewforum)',
-	'SHOUT_TOPIC_ON'				=> 'Affichage dans la vue des sujets',
-	'SHOUT_TOPIC_ON_EXPLAIN'		=> 'Déterminez si vous souhaitez afficher la shoutbox sur les pages des sujets (viewtopic)',
 
 	'SHOUT_ON_CRON'					=> 'Activation des suppressions et délestages automatiques',
 	'SHOUT_ON_CRON_EXPLAIN'			=> 'Déterminez si vous souhaitez activer les suppressions et délestages automatiques des messages.',

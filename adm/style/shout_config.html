@@ -5,7 +5,7 @@
 	<form id="configs" method="post" action="{{ U_ACTION }}">								
 		<fieldset>
 			<legend><img src="{{ IMAGE_SETTINGS }}" alt="{{ lang('GENERAL_SETTINGS') }}" title="{{ lang('GENERAL_SETTINGS') }}" /> {{ lang('GENERAL_SETTINGS') }}</legend>
-			<strong>{{ lang('SHOUT_TEMP') }}</strong><span class="separation"></span>
+			<strong>{{ lang('SHOUT_TEMP') }}</strong>
 			<dl>
 				<dt>{{ lang('SHOUT_TEMP_TITLE') }}</dt>
 			</dl>
@@ -130,21 +130,12 @@
 			</dl>
 			<span class="separation"></span><span class="separation"></span>
 			<dl>
-				<dt><label for="shout_index">{{ lang('SHOUT_INDEX_ON') }}:</label><br />{{ lang('SHOUT_INDEX_ON_EXPLAIN') }}</dt>
-				<dd>{{ SHOUT_INDEX_ON }}</dd>
-			</dl>
-			<dl>
 				<dt><label for="shout_position_index">{{ lang('SHOUT_POSITION_INDEX') }}:</label><br />{{ lang('SHOUT_POSITION_INDEX_EXPLAIN') }}</dt>
 				<dd>
 					<select id="shout_position_index" name="shout_position_index">
 						{{ POS_SHOUT_INDEX }}
 					</select>
 				</dd>
-			</dl>
-			<span class="separation"></span>
-			<dl>
-				<dt><label for="shout_forum">{{ lang('SHOUT_FORUM_ON') }}:</label><br />{{ lang('SHOUT_FORUM_ON_EXPLAIN') }}</dt>
-				<dd>{{ SHOUT_FORUM_ON }}</dd>
 			</dl>
 			<dl>
 				<dt><label for="shout_position_forum">{{ lang('SHOUT_POSITION_FORUM') }}:</label><br />{{ lang('SHOUT_POSITION_FORUM_EXPLAIN') }}</dt>
@@ -153,11 +144,6 @@
 						{{ POS_SHOUT_FORUM }}
 					</select>
 				</dd>
-			</dl>
-			<span class="separation"></span>
-			<dl>
-				<dt><label for="shout_topic">{{ lang('SHOUT_TOPIC_ON') }}:</label><br />{{ lang('SHOUT_TOPIC_ON_EXPLAIN') }}</dt>
-				<dd>{{ SHOUT_TOPIC_ON }}</dd>
 			</dl>
 			<dl>
 				<dt><label for="shout_position_topic">{{ lang('SHOUT_POSITION_TOPIC') }}:</label><br />{{ lang('SHOUT_POSITION_TOPIC_EXPLAIN') }}</dt>

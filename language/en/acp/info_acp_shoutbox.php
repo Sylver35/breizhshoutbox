@@ -255,12 +255,6 @@ $lang = array_merge($lang, array(
 	'SHOUT_POSITION_FORUM_EXPLAIN'	=> 'Decide what position you want to assign to the shoutbox on the pages of forums (viewforum).',
 	'SHOUT_POSITION_TOPIC'			=> 'Shoutbox Position on the viewtopic',
 	'SHOUT_POSITION_TOPIC_EXPLAIN'	=> 'Decide what position you want to assign to the shoutbox on the pages of messages (viewtopic).',
-	'SHOUT_INDEX_ON'				=> 'Display on the index page',
-	'SHOUT_INDEX_ON_EXPLAIN'		=> 'Decide if you want to display the shoutbox on the index page',
-	'SHOUT_FORUM_ON'				=> 'Display on the view forums',
-	'SHOUT_FORUM_ON_EXPLAIN'		=> 'Decide if you want to display the shoutbox on forums pages (viewforum)',
-	'SHOUT_TOPIC_ON'				=> 'Display on the view topics',
-	'SHOUT_TOPIC_ON_EXPLAIN'		=> 'Decide if you want to display the shoutbox on topics pages (viewtopic)',
 
 	'SHOUT_ON_CRON'					=> 'Enabling automatic deletions and prune',
 	'SHOUT_ON_CRON_EXPLAIN'			=> 'Decide if you want to enable automatic deletions and automatic prune of messages.',

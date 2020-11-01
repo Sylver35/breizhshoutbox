@@ -101,6 +101,7 @@ class main_module
 			'TITLE'				=> $language->lang($this->page_title),
 			'TITLE_EXPLAIN'		=> $language->lang('ACP_SHOUT_' . strtoupper($mode) . '_T_EXPLAIN'),
 			'SHOUTBOX_VERSION'	=> $language->lang('SHOUTBOX_VERSION_ACP_COPY', $meta['homepage'], $meta['version']),
+			'SHOUT_VERSION'		=> $meta['version'],
 			'IMAGE_TITLE'		=> $img_src . $mode . '.webp',
 			'IMAGE_SUBMIT'		=> $img_src . 'submit.webp',
 			'IMAGE_MESSAGES'	=> $img_src . 'messages.webp',

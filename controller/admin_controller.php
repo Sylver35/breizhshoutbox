@@ -162,10 +162,6 @@ class admin_controller
 		}
 		else
 		{
-			$select_index = $this->shoutbox->build_select_position($this->config['shout_position_index'], true, true);
-			$select_forum = $this->shoutbox->build_select_position($this->config['shout_position_forum'], false, true);
-			$select_topic = $this->shoutbox->build_select_position($this->config['shout_position_topic'], false, true);
-			$data = $this->shoutbox->get_version();
 			$this->template->assign_vars(array(
 				'SHOUT_TEMP_USERS'			=> (int) $this->config['shout_temp_users'],
 				'SHOUT_TEMP_ANONYMOUS'		=> (int) $this->config['shout_temp_anonymous'],
@@ -192,11 +188,11 @@ class admin_controller
 				'SHOUT_NR_ACP'				=> (int) $this->config['shout_nr_acp'],
 				'SHOUT_MAX_POST_CHARS'		=> (int) $this->config['shout_max_post_chars'],
 				'SHOUT_INDEX_ON'			=> $this->shoutbox->construct_radio('shout_index', 2),
-				'POS_SHOUT_INDEX'			=> $select_index['data'],
+				'POS_SHOUT_INDEX'			=> $this->shoutbox->build_select_position($this->config['shout_position_index'], true),
 				'SHOUT_FORUM_ON'			=> $this->shoutbox->construct_radio('shout_forum', 2),
-				'POS_SHOUT_FORUM'			=> $select_forum['data'],
+				'POS_SHOUT_FORUM'			=> $this->shoutbox->build_select_position($this->config['shout_position_forum'], false),
 				'SHOUT_TOPIC_ON'			=> $this->shoutbox->construct_radio('shout_topic', 2),
-				'POS_SHOUT_TOPIC'			=> $select_topic['data'],
+				'POS_SHOUT_TOPIC'			=> $this->shoutbox->build_select_position($this->config['shout_position_topic'], false),
 				'NEW_SOUND'					=> $this->shoutbox->build_adm_sound_select('new'),
 				'ERROR_SOUND'				=> $this->shoutbox->build_adm_sound_select('error'),
 				'DEL_SOUND'					=> $this->shoutbox->build_adm_sound_select('del'),
@@ -205,7 +201,6 @@ class admin_controller
 				'SHOUT_SOUNDS_PATH'			=> $this->ext_path . 'sounds/',
 				'SHOUT_IMG_PATH'			=> $this->ext_path . 'images/',
 				'U_DATE_FORMAT'				=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'date_format')),
-				'SHOUT_VERSION'				=> $data['version'],
 			));
 		}
 		$this->template->assign_vars(array(
@@ -285,66 +280,9 @@ class admin_controller
 			{
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
+			
+			$this->update_rules();
 
-			$this->update_config(array(
-				'shout_rules'			=> $this->request->variable('shout_rules', 1),
-				'shout_rules_open'		=> $this->request->variable('shout_rules_open', 0),
-				'shout_rules_open_priv'	=> $this->request->variable('shout_rules_open_priv', 0),
-			));
-
-			$sql = array(
-				'SELECT'	=> 'l.lang_iso, r.rules_lang',
-				'FROM'		=> array(LANG_TABLE => 'l'),
-				'LEFT_JOIN'	=> array(
-					array(
-						'FROM'	=> array($this->shoutbox_rules_table => 'r'),
-						'ON'	=> 'r.rules_lang = l.lang_iso',
-					),
-				),
-			);
-			$result = $this->db->sql_query($this->db->sql_build_query('SELECT', $sql));
-			while ($row = $this->db->sql_fetchrow($result))
-			{
-				$iso = $row['lang_iso'];
-				$rules_flags = $rules_flags_priv = 0;
-				$rules_uid = $rules_bitfield = $rules_uid_priv = $rules_bitfield_priv = '';
-				$rules_text = $this->request->variable("rules_text_{$iso}", '', true);
-				$rules_text_priv = $this->request->variable("rules_text_priv_{$iso}", '', true);
-				generate_text_for_storage($rules_text, $rules_uid, $rules_bitfield, $rules_flags, true, true, true);
-				generate_text_for_storage($rules_text_priv, $rules_uid_priv, $rules_bitfield_priv, $rules_flags_priv, true, true, true);
-
-				$data = array(
-					'rules_lang'			=> $iso,
-					'rules_text'			=> $rules_text,
-					'rules_bitfield'		=> $rules_bitfield,
-					'rules_uid'				=> $rules_uid,
-					'rules_flags'			=> $rules_flags,
-					'rules_text_priv'		=> $rules_text_priv,
-					'rules_bitfield_priv'	=> $rules_bitfield_priv,
-					'rules_uid_priv'		=> $rules_uid_priv,
-					'rules_flags_priv'		=> $rules_flags_priv,
-				);
-
-				if (isset($row['rules_lang']) && $row['rules_lang'])
-				{
-					$sql = 'UPDATE ' . $this->shoutbox_rules_table . '
-						SET ' . $this->db->sql_build_array('UPDATE', $data) . "
-							WHERE rules_lang = '$iso'";
-					$this->db->sql_query($sql);
-				}
-				else
-				{
-					$sql = 'INSERT INTO ' . $this->shoutbox_rules_table . ' ' . $this->db->sql_build_array('INSERT', $data);
-					$this->db->sql_query($sql);
-				}
-
-				$this->update_config(array(
-					'shout_rules_' . $iso		=> ($data['rules_text'] !== '') ? 1 : 0,
-					'shout_rules_priv_' . $iso	=> ($data['rules_text_priv'] !== '') ? 1 : 0,
-				));
-			}
-			$this->db->sql_freeresult($result);
-			$this->cache->destroy('_shout_rules');
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_RULES');
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
 		}
@@ -388,26 +326,7 @@ class admin_controller
 			}
 			$this->db->sql_freeresult($result);
 
-			$sql = $this->db->sql_build_query('SELECT', array(
-				'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url,  MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
-				'FROM'		=> array(SMILIES_TABLE => ''),
-				'WHERE'		=> 'display_on_shout = 1',
-				'GROUP_BY'	=> 'smiley_url',
-				'ORDER_BY'	=> 'min_smiley_order ASC',
-			));
-			$result = $this->db->sql_query($sql);
-			while ($row = $this->db->sql_fetchrow($result))
-			{
-				$this->template->assign_block_vars('smilies', array(
-					'SRC'		=> $this->root_path . $this->config['smilies_path'] . '/' . $row['smiley_url'],
-					'ID'		=> $row['smiley_id'],
-					'CODE'		=> addslashes($row['code']),
-					'EMOTION'	=> $row['emotion'],
-					'WIDTH'		=> $row['smiley_width'],
-					'HEIGHT'	=> $row['smiley_height'],
-				));
-			}
-			$this->db->sql_freeresult($result);
+			$this->get_shout_smilies();
 			display_custom_bbcodes();
 
 			$this->template->assign_vars(array(
@@ -1031,8 +950,8 @@ class admin_controller
 			$select_prez .= make_forum_select((int) $this->config['shout_prez_form'], false, true, true) . '</select>';
 
 			$this->template->assign_vars(array(
-				'SHOUT_ENABLE_ROBOT'		=> $this->shoutbox->construct_radio('shout_enable_robot', 2, true),
 				'SHOUT_NAME_ROBOT'			=> (string) $this->config['shout_name_robot'],
+				'SHOUT_ENABLE_ROBOT'		=> $this->shoutbox->construct_radio('shout_enable_robot', 2, true),
 				'SHOUT_POST_ROBOT'			=> $this->shoutbox->construct_radio('shout_post_robot', 2),
 				'SHOUT_REP_ROBOT'			=> $this->shoutbox->construct_radio('shout_rep_robot', 2),
 				'SHOUT_EDIT_ROBOT'			=> $this->shoutbox->construct_radio('shout_edit_robot', 2),
@@ -1092,8 +1011,96 @@ class admin_controller
 		));
 	}
 
+	private function update_rules()
+	{
+		$this->update_config(array(
+			'shout_rules'			=> $this->request->variable('shout_rules', 1),
+			'shout_rules_open'		=> $this->request->variable('shout_rules_open', 0),
+			'shout_rules_open_priv'	=> $this->request->variable('shout_rules_open_priv', 0),
+		));
+
+		$sql = array(
+			'SELECT'	=> 'l.lang_iso, r.rules_lang',
+			'FROM'		=> array(LANG_TABLE => 'l'),
+			'LEFT_JOIN'	=> array(
+				array(
+					'FROM'	=> array($this->shoutbox_rules_table => 'r'),
+					'ON'	=> 'r.rules_lang = l.lang_iso',
+				),
+			),
+		);
+		$result = $this->db->sql_query($this->db->sql_build_query('SELECT', $sql));
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$iso = $row['lang_iso'];
+			$rules_flags = $rules_flags_priv = 0;
+			$rules_uid = $rules_bitfield = $rules_uid_priv = $rules_bitfield_priv = '';
+			$rules_text = $this->request->variable("rules_text_{$iso}", '', true);
+			$rules_text_priv = $this->request->variable("rules_text_priv_{$iso}", '', true);
+			generate_text_for_storage($rules_text, $rules_uid, $rules_bitfield, $rules_flags, true, true, true);
+			generate_text_for_storage($rules_text_priv, $rules_uid_priv, $rules_bitfield_priv, $rules_flags_priv, true, true, true);
+
+			$data = array(
+				'rules_lang'			=> $iso,
+				'rules_text'			=> $rules_text,
+				'rules_bitfield'		=> $rules_bitfield,
+				'rules_uid'				=> $rules_uid,
+				'rules_flags'			=> $rules_flags,
+				'rules_text_priv'		=> $rules_text_priv,
+				'rules_bitfield_priv'	=> $rules_bitfield_priv,
+				'rules_uid_priv'		=> $rules_uid_priv,
+				'rules_flags_priv'		=> $rules_flags_priv,
+			);
+
+			if (isset($row['rules_lang']) && $row['rules_lang'])
+			{
+				$sql = 'UPDATE ' . $this->shoutbox_rules_table . '
+					SET ' . $this->db->sql_build_array('UPDATE', $data) . "
+						WHERE rules_lang = '$iso'";
+				$this->db->sql_query($sql);
+			}
+			else
+			{
+				$sql = 'INSERT INTO ' . $this->shoutbox_rules_table . ' ' . $this->db->sql_build_array('INSERT', $data);
+				$this->db->sql_query($sql);
+			}
+
+			$this->update_config(array(
+				'shout_rules_' . $iso		=> ($data['rules_text'] !== '') ? 1 : 0,
+				'shout_rules_priv_' . $iso	=> ($data['rules_text_priv'] !== '') ? 1 : 0,
+			));
+		}
+		$this->db->sql_freeresult($result);
+		$this->cache->destroy('_shout_rules');
+	}
+
+	private function get_shout_smilies()
+	{
+		$sql = $this->db->sql_build_query('SELECT', array(
+			'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url,  MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
+			'FROM'		=> array(SMILIES_TABLE => ''),
+			'WHERE'		=> 'display_on_shout = 1',
+			'GROUP_BY'	=> 'smiley_url',
+			'ORDER_BY'	=> 'min_smiley_order ASC',
+		));
+		$result = $this->db->sql_query($sql);
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$this->template->assign_block_vars('smilies', array(
+				'SRC'		=> $this->root_path . $this->config['smilies_path'] . '/' . $row['smiley_url'],
+				'ID'		=> $row['smiley_id'],
+				'CODE'		=> addslashes($row['code']),
+				'EMOTION'	=> $row['emotion'],
+				'WIDTH'		=> $row['smiley_width'],
+				'HEIGHT'	=> $row['smiley_height'],
+			));
+		}
+		$this->db->sql_freeresult($result);
+	}
+
 	private function get_messages($start, $shout_number, $sort)
 	{
+		$i = 0;
 		$shoutbox_table = ($sort) ? $this->shoutbox_table : $this->shoutbox_priv_table;
 		$sql_nr = 'SELECT COUNT(DISTINCT shout_id) as total
 			FROM ' . $shoutbox_table . '
@@ -1104,7 +1111,6 @@ class admin_controller
 		$total_posts = $this->db->sql_fetchfield('total', $result_nr);
 		$this->db->sql_freeresult($result_nr);
 
-		$i = 0;
 		$sql = $this->db->sql_build_query('SELECT', array(
 			'SELECT'	=> 's.*, u.user_id, u.username, u.user_colour, v.user_id as x_user_id, v.username as x_username, v.user_colour as x_user_colour',
 			'FROM'		=> array($shoutbox_table => 's'),

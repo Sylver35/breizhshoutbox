@@ -40,16 +40,19 @@ class breizhshoutbox_1_8_0 extends migration
 
 			// Config remove
 			array('config.remove', array('shout_color_background_sub')),
+			array('config.remove', array('shout_forum')),
 			array('config.remove', array('shout_ie_nr')),
 			array('config.remove', array('shout_ie_nr_pop')),
 			array('config.remove', array('shout_ie_nr_priv')),
-			array('config.remove', array('shout_non_ie_nr_pop')),
-			array('config.remove', array('shout_non_ie_nr_priv')),
+			array('config.remove', array('shout_index')),
 			array('config.remove', array('shout_non_ie_height_pop')),
 			array('config.remove', array('shout_non_ie_height_priv')),
+			array('config.remove', array('shout_non_ie_nr_pop')),
+			array('config.remove', array('shout_non_ie_nr_priv')),
 			array('config.remove', array('shout_pagin_option')),
 			array('config.remove', array('shout_pagin_option_pop')),
 			array('config.remove', array('shout_pagin_option_priv')),
+			array('config.remove', array('shout_topic')),
 			array('config.remove', array('shout_width_post_sub')),
 
 			// Permission remove

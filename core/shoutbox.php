@@ -278,12 +278,6 @@ class shoutbox
 			$this->shout_error("NO_VIEW{$val['privat']}_PERM");
 			return;
 		}
-		/*
-		if ($val['userid'] !== $val['id'])
-		{
-			$this->shout_error('SERVER_ERR');
-			return;
-		}*/
 
 		// We have our own error handling
 		$this->db->sql_return_on_error(true);
@@ -379,8 +373,7 @@ class shoutbox
 		}
 		else
 		{
-			$priv = '';
-			$private = '';
+			$priv = $private = '';
 			$shoutbox_table = $this->shoutbox_table;
 		}
 
@@ -390,13 +383,11 @@ class shoutbox
 		}
 		if (($this->config["shout_last_run{$priv}"] + ($this->config["shout_prune{$priv}"] * 3600)) < time())
 		{
-
 			if ((time() - 900) <= $this->config["shout_last_run{$priv}"])
 			{
 				return;
 			}
-
-			if ($this->config["shout_prune{$priv}"] == '' || $this->config["shout_prune{$priv}"] == 0 || $this->config["shout_max_posts{$priv}"] > 0)
+			else if ($this->config["shout_prune{$priv}"] == '' || $this->config["shout_prune{$priv}"] == 0 || $this->config["shout_max_posts{$priv}"] > 0)
 			{
 				return;
 			}
@@ -412,7 +403,7 @@ class shoutbox
 					$this->config->increment("shout_del_auto{$priv}", $deleted, true);
 					if ($this->config["shout_log_cron{$priv}"])
 					{
-						$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT' . $private . '_PURGED', time(), array($deleted));
+						$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, "LOG_SHOUT{$private}_PURGED", time(), array($deleted));
 					}
 					if ($this->config['shout_delete_robot'])
 					{
@@ -463,6 +454,7 @@ class shoutbox
 				$delete[] = $row['shout_id'];
 			}
 			$this->db->sql_freeresult($result);
+
 			$sql = 'DELETE FROM ' . $val['shout_table'] . '
 				WHERE ' . $this->db->sql_in_set('shout_id', $delete, true);
 			$this->db->sql_query($sql);
@@ -470,7 +462,7 @@ class shoutbox
 
 			if ($this->config["shout_log_cron{$val['priv']}"])
 			{
-				$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT' . $val['priv'] . '_REMOVED', time(), array($deleted));
+				$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, "LOG_SHOUT{$val['privat']}_REMOVED", time(), array($deleted));
 			}
 			$this->config->set("shout_del_auto{$val['priv']}", $deleted, true);
 			if ($this->config['shout_delete_robot'])
@@ -543,6 +535,7 @@ class shoutbox
 				}
 			}
 		}
+
 		return '';
 	}
 
@@ -564,10 +557,6 @@ class shoutbox
 				),
 			);
 			$result = $this->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary));
-			if (!$result)
-			{
-				return;
-			}
 			while ($row = $this->db->sql_fetchrow($result))
 			{
 				$rules[$row['lang_iso']] = array(
@@ -826,16 +815,13 @@ class shoutbox
 			$user_shout = json_decode($this->user->data['user_shout']);
 			if ($user_shout->index != 3)
 			{
-				$this->config['shout_index'] = $this->set_user_option($user_shout->index, 'shout_index', 2);
-				$this->config['shout_forum'] = $this->set_user_option($user_shout->forum, 'shout_forum', 2);
-				$this->config['shout_topic'] = $this->set_user_option($user_shout->topic, 'shout_topic', 2);
-				$this->config['shout_position_index'] = (int) $user_shout->index;
-				$this->config['shout_position_forum'] = (int) $user_shout->forum;
-				$this->config['shout_position_topic'] = (int) $user_shout->topic;
+				$this->config['shout_position_index'] = $this->set_user_option($user_shout->index, 'shout_index', 2);
+				$this->config['shout_position_forum'] = $this->set_user_option($user_shout->forum, 'shout_forum', 2);
+				$this->config['shout_position_topic'] = $this->set_user_option($user_shout->topic, 'shout_topic', 2);
 			}
 		}
 
-		if (!$this->stop_shout_display($this->config['shout_index'], $this->config['shout_forum'], $this->config['shout_topic']))
+		if (!$this->run_shout_display($this->config['shout_position_index'], $this->config['shout_position_forum'], $this->config['shout_position_topic']))
 		{
 			return;
 		}
@@ -865,10 +851,7 @@ class shoutbox
 			'PANEL_ALL'				=> $panel,
 			'S_IN_PRIV'				=> $in_priv,
 			'ACTION_USERS_TOP'		=> ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_')) ? true : false,
-			'INDEX_SHOUT'			=> $this->config['shout_index'],
-			'FORUM_SHOUT'			=> $this->config['shout_forum'],
-			'TOPIC_SHOUT'			=> $this->config['shout_topic'],
-			'INDEX_SHOUT_POS'		=> $this->config['shout_position_index'],
+			'SHOUT_INDEX_POS'		=> $this->config['shout_position_index'],
 			'SHOUT_FORUM_POS'		=> $this->config['shout_position_forum'],
 			'SHOUT_TOPIC_POS'		=> $this->config['shout_position_topic'],
 			'SHOUT_EXT_PATH'		=> $this->ext_path_web,
@@ -886,25 +869,25 @@ class shoutbox
 		$this->shout_run_robot(true);
 	}
 
-	private function stop_shout_display($index, $forum, $topic)
+	private function run_shout_display($index, $forum, $topic)
 	{
-		$stop = true;
+		$run = true;
 		$page = str_replace('.' . $this->php_ext, '', $this->user->page['page_name']);
 
 		if ($page === 'index')
 		{
-			$stop = $index;
+			$run = ($index > 0) ? true : false;
 		}
 		else if ($page === 'viewforum')
 		{
-			$stop = $forum;
+			$run = ($forum > 0) ? true : false;
 		}
 		else if ($page === 'viewtopic')
 		{
-			$stop = $topic;
+			$run = ($topic > 0) ? true : false;
 		}
 
-		return $stop;
+		return $run;
 	}
 
 	private function shout_charge_posting()
@@ -1132,10 +1115,8 @@ class shoutbox
 				return true;
 			}
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 	/*
@@ -1154,10 +1135,8 @@ class shoutbox
 			}
 			return $open . $message . $close;
 		}
-		else
-		{
-			return $message;
-		}
+
+		return $message;
 	}
 
 	/*
@@ -1367,11 +1346,6 @@ class shoutbox
 		// This will not alter the minimum in the post form...
 		$this->config['min_post_chars'] = 1;
 
-		// Delete enter message before if present...
-		if (strpos($message, $this->language->lang('SHOUT_AUTO')) !== false)
-		{
-			$message = str_replace($this->language->lang('SHOUT_AUTO'), '', $message);
-		}
 		// Never post an empty message (with bbcode or not)
 		if (empty($message) || empty(preg_replace("(\[.+?\])is", '', $message)))
 		{
@@ -3253,25 +3227,22 @@ class shoutbox
 
 	private function shout_verify_delete($userid, $on_id, $can_delete_all, $can_delete)
 	{
+		$result = false;
 		if ($userid == ANONYMOUS)
 		{
 			$message = 'NO_DELETE_PERM';
-			$result = false;
 		}
 		else if (!$can_delete && ($userid == $on_id))
 		{
 			$message = 'NO_DELETE_PERM_S';
-			$result = false;
 		}
 		else if (!$can_delete_all && $can_delete && ($userid != $on_id))
 		{
 			$message = 'NO_DELETE_PERM_T';
-			$result = false;
 		}
 		else if (!$can_delete)
 		{
 			$message = 'NO_DELETE_PERM';
-			$result = false;
 		}
 		else if (($can_delete && ($userid == $on_id)) || $can_delete_all)
 		{
@@ -3281,7 +3252,6 @@ class shoutbox
 		else
 		{
 			$message = 'NO_DELETE_PERM';
-			$result = false;
 		}
 
 		return array(
@@ -3938,44 +3908,33 @@ class shoutbox
 		return $select;
 	}
 
-	public function build_select_position($value, $sort = false, $acp = false)
+	public function build_select_position($value, $index = false)
 	{
-		$option = [
-			'data'	=> '',
-			'title'	=> '',
-		];
-		// / No selected_3 because it's the defaut
+		// No selected_3 because it's the defaut
 		$selected_0 = $selected_1 = $selected_2 = $selected_4 = '';
 		switch ($value)
 		{
 			case 0:
 				$selected_0 = ' selected="selected"';
-				$option['title'] = $this->language->lang('SHOUT_POSITION_NONE');
 			break;
 			case 1:
 				$selected_1 = ' selected="selected"';
-				$option['title'] = $this->language->lang('SHOUT_POSITION_TOP');
 			break;
 			case 2:
 				$selected_2 = ' selected="selected"';
-				$option['title'] = $this->language->lang('SHOUT_POSITION_END');
 			break;
 			case 4:
 				$selected_4 = ' selected="selected"';
-				$option['title'] = $this->language->lang('SHOUT_POSITION_AFTER');
 			break;
 		}
 
-		if (!$acp)
+		$option = '<option title="' . $this->language->lang('SHOUT_POSITION_NONE') . '" value="0"' . $selected_0 . '>' . $this->language->lang('SHOUT_POSITION_NONE') . '</option>';
+		$option .= '<option title="' . $this->language->lang('SHOUT_POSITION_TOP') . '" value="1"' . $selected_1 . '>' . $this->language->lang('SHOUT_POSITION_TOP') . '</option>';
+		if ($index)
 		{
-			$option['data'] = '<option title="' . $this->language->lang('SHOUT_POSITION_NONE') . '" value="0"' . $selected_0 . '>' . $this->language->lang('SHOUT_POSITION_NONE') . '</option>';
+			$option .= '<option title="' . $this->language->lang('SHOUT_POSITION_AFTER') . '" value="4"' . $selected_4 . '>' . $this->language->lang('SHOUT_POSITION_AFTER') . '</option>';
 		}
-		$option['data'] .= '<option title="' . $this->language->lang('SHOUT_POSITION_TOP') . '" value="1"' . $selected_1 . '>' . $this->language->lang('SHOUT_POSITION_TOP') . '</option>';
-		if ($sort)
-		{
-			$option['data'] .= '<option title="' . $this->language->lang('SHOUT_POSITION_AFTER') . '" value="4"' . $selected_4 . '>' . $this->language->lang('SHOUT_POSITION_AFTER') . '</option>';
-		}
-		$option['data'] .= '<option title="' . $this->language->lang('SHOUT_POSITION_END') . '" value="2"' . $selected_2 . '>' . $this->language->lang('SHOUT_POSITION_END') . '</option>';
+		$option .= '<option title="' . $this->language->lang('SHOUT_POSITION_END') . '" value="2"' . $selected_2 . '>' . $this->language->lang('SHOUT_POSITION_END') . '</option>';
 
 		return $option;
 	}
@@ -4243,6 +4202,7 @@ class shoutbox
 			$result = $this->db->sql_query($sql);
 			$row = $this->db->sql_fetchrow($result);
 			$this->db->sql_freeresult($result);
+
 			$username = $row['username'];
 			$user_shout = json_decode($row['user_shout']);
 			$user_shoutbox = json_decode($row['user_shoutbox']);
@@ -4257,18 +4217,6 @@ class shoutbox
 		$user_shout->del = $this->set_user_option($user_shout->del, 'shout_sound_del', 1);
 		$user_shout->add = $this->set_user_option($user_shout->add, 'shout_sound_add', 1);
 		$user_shout->edit = $this->set_user_option($user_shout->edit, 'shout_sound_edit', 1);
-		$user_shoutbox->bar = $this->set_user_option($user_shoutbox->bar, 'shout_bar_option', 3);
-		$user_shoutbox->bar_pop = $this->set_user_option($user_shoutbox->bar_pop, 'shout_bar_option_pop', 3);
-		$user_shoutbox->bar_priv = $this->set_user_option($user_shoutbox->bar_priv, 'shout_bar_option_priv', 3);
-		$user_shoutbox->defil = $this->set_user_option($user_shoutbox->defil, 'shout_defil', 3);
-		$user_shoutbox->defil_pop = $this->set_user_option($user_shoutbox->defil_pop, 'shout_defil_pop', 3);
-		$user_shoutbox->defil_priv = $this->set_user_option($user_shoutbox->defil_priv, 'shout_defil_priv', 3);
-		$user_shoutbox->panel = $this->set_user_option($user_shoutbox->panel, 'shout_panel', 3);
-		$user_shoutbox->panel_float = $this->set_user_option($user_shoutbox->panel_float, 'shout_panel_float', 3);
-		$user_shoutbox->dateformat = $this->set_user_option($user_shoutbox->dateformat, 'shout_dateformat', 5);
-		$select_index = $this->build_select_position($this->set_user_option($user_shout->index, 'shout_position_index', 2), true);
-		$select_forum = $this->build_select_position($this->set_user_option($user_shout->forum, 'shout_position_forum', 2));
-		$select_topic = $this->build_select_position($this->set_user_option($user_shout->topic, 'shout_position_topic', 2));
 		$version = $this->get_version();
 
 		$this->template->assign_vars(array(
@@ -4297,22 +4245,19 @@ class shoutbox
 			'USER_SOUND_INFO_D'		=> $user_shout->del,
 			'USER_SOUND_INFO_A'		=> $user_shout->add,
 			'USER_SOUND_INFO_ED'	=> $user_shout->edit,
-			'SHOUT_BAR'				=> $user_shoutbox->bar,
-			'SHOUT_BAR_POP'			=> $user_shoutbox->bar_pop,
-			'SHOUT_BAR_PRIV'		=> $user_shoutbox->bar_priv,
-			'SHOUT_DEFIL'			=> $user_shoutbox->defil,
-			'SHOUT_DEFIL_POP'		=> $user_shoutbox->defil_pop,
-			'SHOUT_DEFIL_PRIV'		=> $user_shoutbox->defil_priv,
-			'SHOUT_PANEL'			=> $user_shoutbox->panel,
-			'SHOUT_PANEL_FLOAT'		=> $user_shoutbox->panel_float,
-			'SELECT_ON_INDEX'		=> $select_index['data'],
-			'SELECT_ON_FORUM'		=> $select_forum['data'],
-			'SELECT_ON_TOPIC'		=> $select_topic['data'],
-			'TITLE_ON_INDEX'		=> $select_index['title'],
-			'TITLE_ON_FORUM'		=> $select_forum['title'],
-			'TITLE_ON_TOPIC'		=> $select_topic['title'],
+			'SHOUT_BAR'				=> $this->set_user_option($user_shoutbox->bar, 'shout_bar_option', 3),
+			'SHOUT_BAR_POP'			=> $this->set_user_option($user_shoutbox->bar_pop, 'shout_bar_option_pop', 3),
+			'SHOUT_BAR_PRIV'		=> $this->set_user_option($user_shoutbox->bar_priv, 'shout_bar_option_priv', 3),
+			'SHOUT_DEFIL'			=> $this->set_user_option($user_shoutbox->defil, 'shout_defil', 3),
+			'SHOUT_DEFIL_POP'		=> $this->set_user_option($user_shoutbox->defil_pop, 'shout_defil_pop', 3),
+			'SHOUT_DEFIL_PRIV'		=> $this->set_user_option($user_shoutbox->defil_priv, 'shout_defil_priv', 3),
+			'SHOUT_PANEL'			=> $this->set_user_option($user_shoutbox->panel, 'shout_panel', 3),
+			'SHOUT_PANEL_FLOAT'		=> $this->set_user_option($user_shoutbox->panel_float, 'shout_panel_float', 3),
+			'SELECT_ON_INDEX'		=> $this->build_select_position($this->set_user_option($user_shout->index, 'shout_position_index', 2), true),
+			'SELECT_ON_FORUM'		=> $this->build_select_position($this->set_user_option($user_shout->forum, 'shout_position_forum', 2)),
+			'SELECT_ON_TOPIC'		=> $this->build_select_position($this->set_user_option($user_shout->topic, 'shout_position_topic', 2)),
 			'SHOUT_EXT_PATH'		=> $this->ext_path_web,
-			'DATE_FORMAT'			=> $user_shoutbox->dateformat,
+			'DATE_FORMAT'			=> $this->set_user_option($user_shoutbox->dateformat, 'shout_dateformat', 5),
 			'DATE_FORMAT_EX'		=> $this->user->format_date(time() - 60 * 61, $user_shoutbox->dateformat),
 			'DATE_FORMAT_EX2'		=> $this->user->format_date(time() - 60 * 60 * 60, $user_shoutbox->dateformat),
 			'S_DATEFORMAT_OPTIONS'	=> $this->build_dateformat_option($user_shoutbox->dateformat),
