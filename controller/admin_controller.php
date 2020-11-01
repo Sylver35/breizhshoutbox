@@ -1078,13 +1078,7 @@ class admin_controller
 
 	private function action_delete_mark($form_key, $deletemark, $sort)
 	{
-		$id = $this->request->variable('i', '');
-		$action = $this->request->variable('action', '');
-		$start = $this->request->variable('start', 0);
-		$mode = $this->request->variable('mode', 0);
 		$marked = $this->request->variable('mark', array(0));
-		$creation = $this->request->variable('creation_time', 0);
-		$token = $this->request->variable('form_token', '');
 
 		if ($sort)
 		{
@@ -1131,13 +1125,7 @@ class admin_controller
 
 	private function action_delete_marklog($form_key, $deletemarklog, $sort)
 	{
-		$id = $this->request->variable('i', '');
-		$mode = $this->request->variable('mode', '');
-		$action = $this->request->variable('action', '');
-		$start = $this->request->variable('start', 0);
 		$marked = $this->request->variable('mark', array(0));
-		$creation = $this->request->variable('creation_time', 0);
-		$token = $this->request->variable('form_token', '');
 		$private = ($sort) ? '_PRIV' : '';
 
 		if (!check_form_key($form_key))
@@ -1171,9 +1159,6 @@ class admin_controller
 
 	private function action_purge_shoutbox($form_key, $action, $sort)
 	{
-		$mode = $this->request->variable('mode', '');
-		$creation = $this->request->variable('creation_time', 0);
-		$token = $this->request->variable('form_token', '');
 		$private = ($sort) ? '_PRIV' : '';
 
 		if (!check_form_key($form_key))
