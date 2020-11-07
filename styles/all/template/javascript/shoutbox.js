@@ -1772,10 +1772,9 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 
 			var msg_txt = shoutbox.cE('div','msg_txt',false,'text-align:center;',false,false,false,false,false);
 			base.appendChild(msg_txt);
-
-			var divPosts = shoutbox.cE('div','shout_messages',false,'display:block;width:100%;overflow-x:hidden;overflow-y:scroll;position:relative;height:'+config.shoutHeight+'px;',false,false,'<div style="text-align:center;margin:50px auto;">'+imgChargeOn+bzhLang['LOADING']+'</div>',false,false);
+			var shoutImg = config.shoutImg ? 'background: transparent url("'+config.shoutImgUrl+config.shoutImg+'") no-repeat scroll '+config.shoutImgHori+' '+config.shoutImgVert+';' : '';
+			var divPosts = shoutbox.cE('div','shout_messages',false,'height: '+config.shoutHeight+'px;'+shoutImg,false,false,'<div style="text-align:center;margin:50px auto;">'+imgChargeOn+bzhLang['LOADING']+'</div>',false,false);
 			base.appendChild(divPosts);
-
 			if(!config.barHaute && config.postOk){
 				postingForm.appendChild(postingBox);
 				dl.appendChild(postingForm);
@@ -1784,7 +1783,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			}
 			var pagindiv = shoutbox.cE('div','divnr',false,false,false,false,false,false,false);
 			var paginul = shoutbox.cE('ul','ulnr','topiclist forums','margin:0;',false,false,false,false,false);
-			var paginli = shoutbox.cE('li','linr','pagination button_background'+config.buttonBg,'text-align:'+config.direction+';',false,false,false,false,false);
+			var paginli = shoutbox.cE('li','linr','pagination button_background'+config.buttonBg,'text-align: '+config.direction+';',false,false,false,false,false);
 			paginul.appendChild(paginli);
 			pagindiv.appendChild(paginul);
 			base.appendChild(pagindiv);
