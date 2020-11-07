@@ -4,8 +4,15 @@
 #all_shout, #chat_message {
 	font-size: 11px;
 }
+#shout_messages {
+	display: block;
+	width: 100%;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	position: relative;
+}
 #shout_messages > li.row1, #shout_messages > li.row2 {
-	display: inline;
+	display: inline-block;
 	list-style-type: none;
 	height: auto;
 	min-height: 22px;
@@ -14,6 +21,7 @@
 	margin: 0;
 	padding: 0;
 	font-size: 1em;
+	background-color: transparent;
 	/* uncomment the line below to abort the lines between messages */
 	/*border: none;*/
 }
