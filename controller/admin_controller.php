@@ -230,7 +230,10 @@ class admin_controller
 				'shout_on_cron'				=> $this->request->variable('shout_on_cron', 1),
 				'shout_log_cron'			=> $this->request->variable('shout_log_cron', 0),
 				'shout_num'					=> $this->request->variable('shout_num', 25),
-				'shout_height'				=> $this->request->variable('shout_height', 160),
+				'shout_height'				=> $this->request->variable('shout_height', 200),
+				'shout_div_img'				=> $this->request->variable('shout_div_img', ''),
+				'shout_img_horizontal'		=> $this->request->variable('shout_img_horizontal', 'right'),
+				'shout_img_vertical'		=> $this->request->variable('shout_img_vertical', 'bottom'),
 				'shout_color_background'	=> $this->request->variable('shout_color_background', 'blue'),
 				'shout_button_background'	=> $this->request->variable('shout_button_background', 1),
 				'shout_bar_option'			=> $this->request->variable('shout_bar_option', 1),
@@ -242,7 +245,6 @@ class admin_controller
 		}
 		else
 		{
-			$color_path = 'styles/all/theme/images/fond/';
 			$this->template->assign_vars(array(
 				'SHOUT_TITLE'			=> (string) $this->config['shout_title'],
 				'SHOUT_WIDTH_POST'		=> (int) $this->config['shout_width_post'],
@@ -251,14 +253,18 @@ class admin_controller
 				'SHOUT_MAX_POSTS_ON'	=> (int) $this->config['shout_max_posts_on'],
 				'SHOUT_NUM'				=> (int) $this->config['shout_num'],
 				'SHOUT_HEIGHT'			=> (int) $this->config['shout_height'],
+				'SHOUT_DIV_IMG'			=> (string) $this->config['shout_div_img'],
+				'COLOR_IMAGE'			=> (string) $this->config['shout_color_background'] . '.webp',
+				'SHOUT_BAR_OPTION'		=> (bool) $this->config['shout_bar_option'],
+				'SHOUT_IMG_HORIZONTAL'	=> $this->shoutbox->build_select_horizontal('shout_img_horizontal'),
+				'SHOUT_IMG_VERTICAL'	=> $this->shoutbox->build_select_vertical('shout_img_vertical'),
 				'SHOUT_ON_CRON'			=> $this->shoutbox->construct_radio('shout_on_cron', 2),
 				'SHOUT_LOG_CRON'		=> $this->shoutbox->construct_radio('shout_log_cron', 2),
-				'COLOR_IMAGE'			=> (string) $this->config['shout_color_background'] . '.webp',
 				'SHOUT_BUTTON'			=> $this->shoutbox->construct_radio('shout_button_background', 1),
-				'SHOUT_BAR_OPTION'		=> (bool) $this->config['shout_bar_option'],
 				'SHOUT_DEFIL'			=> $this->shoutbox->construct_radio('shout_defil', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
-				'COLOR_OPTION'			=> $this->shoutbox->build_select_img($this->ext_path, $color_path, 'shout_color_background', false, 'webp'),
-				'COLOR_PATH'			=> $this->ext_path . $color_path,
+				'COLOR_OPTION'			=> $this->shoutbox->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background', false, 'webp'),
+				'COLOR_PATH'			=> $this->ext_path . 'styles/all/theme/images/fond/',
+				'DIV_IMG_PATH'			=> $this->ext_path . 'styles/all/theme/images/',
 			));
 		}
 		$this->template->assign_vars(array(
@@ -561,6 +567,9 @@ class admin_controller
 				'shout_max_posts_priv'			=> $this->request->variable('shout_max_posts_priv', 400),
 				'shout_max_posts_on_priv'		=> $this->request->variable('shout_max_posts_on_priv', 300),
 				'shout_height_priv'				=> $this->request->variable('shout_height_priv', 460),
+				'shout_div_img_priv'			=> $this->request->variable('shout_div_img_priv', ''),
+				'shout_img_horizontal_priv'		=> $this->request->variable('shout_img_horizontal_priv', 'right'),
+				'shout_img_vertical_priv'		=> $this->request->variable('shout_img_vertical_priv', 'bottom'),
 				'shout_num_priv'				=> $this->request->variable('shout_num_priv', 25),
 				'shout_color_background_priv'	=> $this->request->variable('shout_color_background_priv', ''),
 				'shout_on_cron_priv'			=> $this->request->variable('shout_on_cron_priv', 1),
@@ -573,11 +582,12 @@ class admin_controller
 		}
 		else
 		{
-			$color_path = 'styles/all/theme/images/fond/';
 			$this->template->assign_vars(array(
 				'SHOUT_TITLE_PRIV'			=> (string) $this->config['shout_title_priv'],
 				'SHOUT_WIDTH_POST'			=> (int) $this->config['shout_width_post_priv'],
 				'SHOUT_PRUNE_PRIV'			=> (int) $this->config['shout_prune_priv'],
+				'SHOUT_IMG_HORIZONTAL_PRIV'	=> $this->shoutbox->build_select_horizontal('shout_img_horizontal_priv'),
+				'SHOUT_IMG_VERTICAL_PRIV'	=> $this->shoutbox->build_select_vertical('shout_img_vertical_priv'),
 				'SHOUT_ON_CRON_PRIV'		=> $this->shoutbox->construct_radio('shout_on_cron_priv', 2),
 				'SHOUT_LOG_CRON_PRIV'		=> $this->shoutbox->construct_radio('shout_log_cron_priv', 2),
 				'SHOUT_BUTTON'				=> $this->shoutbox->construct_radio('shout_button_background_priv', 1),
@@ -586,12 +596,14 @@ class admin_controller
 				'SHOUT_MAX_POSTS'			=> (int) $this->config['shout_max_posts_priv'],
 				'SHOUT_MAX_POSTS_ON'		=> (int) $this->config['shout_max_posts_on_priv'],
 				'SHOUT_HEIGHT_PRIV' 		=> (int) $this->config['shout_height_priv'],
+				'SHOUT_DIV_IMG_PRIV'		=> (string) $this->config['shout_div_img_priv'],
 				'SHOUT_NUM_PRIV'			=> (int) $this->config['shout_num_priv'],
 				'COLOR_IMAGE'				=> (string) $this->config['shout_color_background_priv'] . '.webp',
 				'SHOUT_BAR_TOP'				=> (bool) $this->config['shout_bar_option_priv'],
 				'SHOUT_SOUNDS_PATH'			=> $this->ext_path . 'sounds/',
-				'OPTION_IMAGE'				=> $this->shoutbox->build_select_img($this->ext_path, $color_path, 'shout_color_background_priv', false, 'webp'),
-				'COLOR_PATH'				=> $this->ext_path . $color_path,
+				'OPTION_IMAGE'				=> $this->shoutbox->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background_priv', false, 'webp'),
+				'COLOR_PATH'				=> $this->ext_path . 'styles/all/theme/images/fond/',
+				'DIV_IMG_PATH'				=> $this->ext_path . 'styles/all/theme/images/',
 				'S_PRIV_CONFIG'				=> true,
 			));
 		}
@@ -611,7 +623,10 @@ class admin_controller
 
 			$this->update_config(array(
 				'shout_width_post_pop'			=> $this->request->variable('shout_width_post_pop', 325),
-				'shout_height_pop'				=> $this->request->variable('shout_height_pop', 460),
+				'shout_height_pop'				=> $this->request->variable('shout_height_pop', 210),
+				'shout_div_img_pop'				=> $this->request->variable('shout_div_img_pop', ''),
+				'shout_img_horizontal_pop'		=> $this->request->variable('shout_img_horizontal_pop', 'right'),
+				'shout_img_vertical_pop'		=> $this->request->variable('shout_img_vertical_pop', 'bottom'),
 				'shout_num_pop'					=> $this->request->variable('shout_num_pop', 25),
 				'shout_popup_height'			=> $this->request->variable('shout_popup_height', 580),
 				'shout_popup_width'				=> $this->request->variable('shout_popup_width', 1100),
@@ -626,20 +641,23 @@ class admin_controller
 		}
 		else
 		{
-			$color_path = 'styles/all/theme/images/fond/';
 			$this->template->assign_vars(array(
-				'SHOUT_WIDTH_POST'		=> (int) $this->config['shout_width_post_pop'],
-				'SHOUT_HEIGHT_POP'		=> (int) $this->config['shout_height_pop'],
-				'SHOUT_NUM_POP'			=> (int) $this->config['shout_num_pop'],
-				'SHOUT_HEIGHT_POP'		=> (int) $this->config['shout_popup_height'],
-				'SHOUT_WIDTH_POP'		=> (int) $this->config['shout_popup_width'],
-				'SHOUT_BAR_OPTION'		=> (bool) $this->config['shout_bar_option_pop'],
-				'COLOR_IMAGE'			=> (string) $this->config['shout_color_background_pop'] . '.webp',
-				'COLOR_SELECT'			=> $this->shoutbox->build_select_img($this->ext_path, $color_path, 'shout_color_background_pop', false, 'webp'),
-				'SHOUT_BUTTON'			=> $this->shoutbox->construct_radio('shout_button_background_pop', 1),
-				'SHOUT_DEFIL'			=> $this->shoutbox->construct_radio('shout_defil_pop', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
-				'COLOR_PATH'			=> $this->ext_path . $color_path,
-				'S_POPUP'				=> true,
+				'SHOUT_WIDTH_POST'			=> (int) $this->config['shout_width_post_pop'],
+				'SHOUT_HEIGHT_POP'			=> (int) $this->config['shout_height_pop'],
+				'SHOUT_DIV_IMG_POP'			=> (string) $this->config['shout_div_img_pop'],
+				'SHOUT_NUM_POP'				=> (int) $this->config['shout_num_pop'],
+				'SHOUT_POPUP_HEIGHT'		=> (int) $this->config['shout_popup_height'],
+				'SHOUT_WIDTH_POP'			=> (int) $this->config['shout_popup_width'],
+				'SHOUT_BAR_OPTION'			=> (bool) $this->config['shout_bar_option_pop'],
+				'COLOR_IMAGE'				=> (string) $this->config['shout_color_background_pop'] . '.webp',
+				'SHOUT_IMG_HORIZONTAL_POP'	=> $this->shoutbox->build_select_horizontal('shout_img_horizontal_pop'),
+				'SHOUT_IMG_VERTICAL_POP'	=> $this->shoutbox->build_select_vertical('shout_img_vertical_pop'),
+				'SHOUT_BUTTON'				=> $this->shoutbox->construct_radio('shout_button_background_pop', 1),
+				'SHOUT_DEFIL'				=> $this->shoutbox->construct_radio('shout_defil_pop', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
+				'COLOR_SELECT'				=> $this->shoutbox->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background_pop', false, 'webp'),
+				'COLOR_PATH'				=> $this->ext_path . 'styles/all/theme/images/fond/',
+				'DIV_IMG_PATH'				=> $this->ext_path . 'styles/all/theme/images/',
+				'S_POPUP'					=> true,
 			));
 		}
 	}
@@ -1079,7 +1097,6 @@ class admin_controller
 	private function action_delete_mark($form_key, $deletemark, $sort)
 	{
 		$marked = $this->request->variable('mark', array(0));
-
 		if ($sort)
 		{
 			$priv = '_priv';
@@ -1125,15 +1142,14 @@ class admin_controller
 
 	private function action_delete_marklog($form_key, $deletemarklog, $sort)
 	{
-		$marked = $this->request->variable('mark', array(0));
-		$private = ($sort) ? '_PRIV' : '';
-
 		if (!check_form_key($form_key))
 		{
 			trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 		}
 
 		$where_sql = '';
+		$private = ($sort) ? '_PRIV' : '';
+		$marked = $this->request->variable('mark', array(0));
 		if ($deletemarklog && sizeof($marked))
 		{
 			$sql_in = array();
@@ -1152,20 +1168,18 @@ class admin_controller
 
 			$message = $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX' . $private);
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), array($deleted));
-
 			trigger_error($this->language->lang($message, $deleted) . adm_back_link($this->u_action));
 		}
 	}
 
 	private function action_purge_shoutbox($form_key, $action, $sort)
 	{
-		$private = ($sort) ? '_PRIV' : '';
-
 		if (!check_form_key($form_key))
 		{
 			trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 		}
 
+		$private = ($sort) ? '_PRIV' : '';
 		if ($action == 'purge')
 		{
 			$this->shoutbox->purge_all_shout_admin($sort);

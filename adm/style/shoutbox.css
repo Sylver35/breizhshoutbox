@@ -94,6 +94,10 @@ div.more-smilies {
 	font-size: 1.00em;
 }
 
+#img_shout_div_img {
+	vertical-align: middle;
+}
+
 a.smilies-none {
 	text-decoration: none;
 	cursor: pointer;

@@ -587,11 +587,6 @@ class shoutbox
 	 */
 	public function shout_ajax_rules($sort)
 	{
-		$content = array(
-			'sort'	=> 0,
-			'texte'	=> '',
-		);
-
 		$iso = $this->check_shout_rules($sort);
 		if ($iso !== '')
 		{
@@ -599,19 +594,18 @@ class shoutbox
 			$text = $rules[$iso];
 			if ($text["rules_text{$sort}"])
 			{
-				if (!function_exists('generate_text_for_display'))
-				{
-					include($this->root_path . 'includes/functions_content.' . $this->php_ext);
-				}
 				$on_rules = generate_text_for_display($text["rules_text{$sort}"], $text["rules_uid{$sort}"], $text["rules_bitfield{$sort}"], $text["rules_flags{$sort}"]);
-				$content = array(
+				return array(
 					'sort'	=> 1,
 					'texte'	=> $on_rules,
 				);
 			}
 		}
 
-		return $content;
+		return array(
+			'sort'	=> 0,
+			'texte'	=> '',
+		);
 	}
 
 	/**
@@ -685,7 +679,6 @@ class shoutbox
 	 */
 	public function delete_user_messages($user_id)
 	{
-		$user_id = (int) $user_id;
 		// Phase 1 delete messages in shoutbox table
 		$sql = 'DELETE FROM ' . $this->shoutbox_table . "
 			WHERE shout_user_id = $user_id
@@ -718,7 +711,6 @@ class shoutbox
 	 */
 	public function shout_delete_topic($topic_id)
 	{
-		$topic_id = (int) $topic_id;
 		// Phase 1 delete messages in shoutbox table
 		$sql = 'DELETE FROM ' . $this->shoutbox_table . "
 			WHERE shout_forum <> 0
@@ -749,7 +741,6 @@ class shoutbox
 	 */
 	public function shout_delete_post($post_id)
 	{
-		$post_id = (int) $post_id;
 		// Phase 1 delete messages in shoutbox table
 		$sql = 'DELETE FROM ' . $this->shoutbox_table . "
 			WHERE shout_forum <> 0
@@ -3888,6 +3879,30 @@ class shoutbox
 		return $list;
 	}
 
+	public function build_select_horizontal($value)
+	{
+		$sel_center = ($this->config[$value] == 'center') ? ' selected="selected"' : '';
+		$sel_right = ($this->config[$value] == 'right') ? ' selected="selected"' : '';
+
+		$select = '<option title="' . $this->language->lang('SHOUT_DIV_CENTER') . '" value="center"' . $sel_center . '>' . $this->language->lang('SHOUT_DIV_CENTER') . '</option>';
+		$select .= '<option title="' . $this->language->lang('SHOUT_DIV_RIGHT') . '" value="right"' . $sel_right . '>' . $this->language->lang('SHOUT_DIV_RIGHT') . '</option>';
+		
+		return $select;
+	}
+
+	public function build_select_vertical($value)
+	{
+		$sel_top = ($this->config[$value] == 'top') ? ' selected="selected"' : '';
+		$sel_center = ($this->config[$value] == 'center') ? ' selected="selected"' : '';
+		$sel_bottom = ($this->config[$value] == 'bottom') ? ' selected="selected"' : '';
+
+		$select = '<option title="' . $this->language->lang('SHOUT_DIV_TOP') . '" value="top"' . $sel_top . '>' . $this->language->lang('SHOUT_DIV_TOP') . '</option>';
+		$select .= '<option title="' . $this->language->lang('SHOUT_DIV_CENTER') . '" value="center"' . $sel_center . '>' . $this->language->lang('SHOUT_DIV_CENTER') . '</option>';
+		$select .= '<option title="' . $this->language->lang('SHOUT_DIV_BOTTOM') . '" value="bottom"' . $sel_bottom . '>' . $this->language->lang('SHOUT_DIV_BOTTOM') . '</option>';
+		
+		return $select;
+	}
+
 	public function build_select_img($rootdir, $path, $sort, $panel = false, $type = '')
 	{
 		$select = '';
@@ -4009,22 +4024,22 @@ class shoutbox
 		switch ($sort)
 		{
 			case 1:
-				$shout_info = array(1, 2, 3);
+				$shout_info = array(1, 2, 3, 4);
 			break;
 			case 2:
-				$shout_info = array(14, 15, 16, 60);
+				$shout_info = array(4, 14, 15, 16, 60);
 			break;
 			case 3:
-				$shout_info = array(17, 18, 19, 20, 21, 70, 71, 72, 73, 74, 75, 76, 77, 80);
+				$shout_info = array(4, 17, 18, 19, 20, 21, 70, 71, 72, 73, 74, 75, 76, 77, 80);
 			break;
 			case 4:
-				$shout_info = array(12);
+				$shout_info = array(4, 12);
 			break;
 			case 5:
-				$shout_info = array(11);
+				$shout_info = array(4, 11);
 			break;
 			case 6:
-				$shout_info = array(13);
+				$shout_info = array(4, 13);
 			break;
 		}
 
@@ -4382,6 +4397,7 @@ class shoutbox
 				);
 			}
 		}
+		$data['style'] = 'styles/' . (file_exists($this->ext_path . 'styles/' . rawurlencode($this->user->style['style_path']) . '/') ? rawurlencode($this->user->style['style_path']) : 'all') . '/theme/images/';
 		$data['inactiv'] = (($data['inactiv'] > 0) && !$data['private']) ? round($data['inactiv'] * 60 / ($data['refresh'] / 1000)) : 0;
 
 		return array(
@@ -4474,6 +4490,10 @@ class shoutbox
 			'addSound'			=> $sound['add'],
 			'editSound'			=> $sound['edit'],
 			'titleUrl'			=> $data['homepage'],
+			'shoutImgUrl'		=> $this->ext_path_web . $data['style'],
+			'shoutImg'			=> file_exists($this->ext_path . $data['style'] . $this->config["shout_div_img{$data['sort_p']}"]) ? $this->config["shout_div_img{$data['sort_p']}"] : '',
+			'shoutImgHori'		=> $this->config["shout_img_horizontal{$data['sort_p']}"],
+			'shoutImgVert'		=> $this->config["shout_img_vertical{$data['sort_p']}"],
 			'buttonBg'			=> ' button_background_' . $this->config["shout_color_background{$data['sort_p']}"],
 			'shoutHeight'		=> $this->config["shout_height{$data['sort_p']}"],
 			'widthPost'			=> $this->config["shout_width_post{$data['sort_p']}"],
