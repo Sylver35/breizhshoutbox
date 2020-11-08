@@ -45,6 +45,7 @@ class main_module
 
 		$this->tpl_name = 'breizhshoutbox_body';
 		$this->page_title = 'ACP_SHOUT_' . strtoupper($mode) . '_T';
+		$active = 'S_' . strtoupper($mode);
 		$img_src = $phpbb_root_path . 'ext/sylver35/breizhshoutbox/images/';
 		$meta = $shoutbox->get_version();
 
@@ -96,7 +97,6 @@ class main_module
 		}
 
 		$template->assign_vars(array(
-			'S_IN_SHOUTBOX'		=> true,
 			'U_ACTION'			=> $this->u_action,
 			'TITLE'				=> $language->lang($this->page_title),
 			'TITLE_EXPLAIN'		=> $language->lang('ACP_SHOUT_' . strtoupper($mode) . '_T_EXPLAIN'),
@@ -109,6 +109,8 @@ class main_module
 			'IMAGE_PURGE'		=> $img_src . 'burn.webp',
 			'IMAGE_STATS'		=> $img_src . 'numbers.webp',
 			'IMAGE_ALERT'		=> $img_src . 'alert.webp',
+			'S_IN_SHOUTBOX'		=> true,
+			$active				=> true,
 		));
 	}
 }

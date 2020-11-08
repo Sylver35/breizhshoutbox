@@ -204,7 +204,6 @@ class admin_controller
 			));
 		}
 		$this->template->assign_vars(array(
-			'S_CONFIGS'		=> true,
 			'SHOUT_USER_ID'	=> $this->user->data['user_id'],
 		));
 	}
@@ -264,12 +263,9 @@ class admin_controller
 				'SHOUT_DEFIL'			=> $this->shoutbox->construct_radio('shout_defil', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
 				'COLOR_OPTION'			=> $this->shoutbox->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background', false, 'webp'),
 				'COLOR_PATH'			=> $this->ext_path . 'styles/all/theme/images/fond/',
-				'DIV_IMG_PATH'			=> $this->ext_path . 'styles/all/theme/images/',
+				'DIV_IMG_PATH'			=> $this->ext_path . 'styles/' . (file_exists($this->ext_path . 'styles/' . rawurlencode($this->user->style['style_path']) . '/theme/images/' . $this->config['shout_div_img']) ? rawurlencode($this->user->style['style_path']) : 'all') . '/theme/images/',
 			));
 		}
-		$this->template->assign_vars(array(
-			'S_CONFIG_GEN'	=> true
-		));
 	}
 
 	public function acp_shoutbox_rules()
@@ -342,7 +338,6 @@ class admin_controller
 				'U_SHOUT_SMILIES'		=> $this->helper->route('sylver35_breizhshoutbox_smilies_pop'),
 				'U_PREVIEW_AJAX'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'preview_rules')),
 				'SHOUT_USER_ID'			=> $this->user->data['user_id'],
-				'S_RULES'				=> true,
 			));
 		}
 	}
@@ -427,7 +422,6 @@ class admin_controller
 			$total_del = $this->config['shout_del_acp'] + $this->config['shout_del_auto'] + $this->config['shout_del_purge'] + $this->config['shout_del_user'];
 
 			$this->template->assign_vars(array(
-				'S_OVERVIEW'				=> true,
 				'S_DISPLAY_MESSAGES'		=> ($return['i'] > 0) ? true : false,
 				'S_DISPLAY_LOGS'			=> ($li > 0) ? true : false,
 				'S_ON_PAGE'					=> ($return['total_posts'] > $shout_number) ? true : false,
@@ -524,7 +518,6 @@ class admin_controller
 			$total_del = $this->config['shout_del_acp_priv'] + $this->config['shout_del_auto_priv'] + $this->config['shout_del_purge_priv'] + $this->config['shout_del_user_priv'];
 
 			$this->template->assign_vars(array(
-				'S_PRIVATE'					=> true,
 				'TOTAL_POSTS'				=> $return['total_posts'],
 				'S_DISPLAY_MESSAGES'		=> ($return['i'] > 0) ? true : false,
 				'S_DISPLAY_LOGS'			=> ($li > 0) ? true : false,
@@ -603,8 +596,7 @@ class admin_controller
 				'SHOUT_SOUNDS_PATH'			=> $this->ext_path . 'sounds/',
 				'OPTION_IMAGE'				=> $this->shoutbox->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background_priv', false, 'webp'),
 				'COLOR_PATH'				=> $this->ext_path . 'styles/all/theme/images/fond/',
-				'DIV_IMG_PATH'				=> $this->ext_path . 'styles/all/theme/images/',
-				'S_PRIV_CONFIG'				=> true,
+				'DIV_IMG_PATH'				=> $this->ext_path . 'styles/' . (file_exists($this->ext_path . 'styles/' . rawurlencode($this->user->style['style_path']) . '/theme/images/' . $this->config['shout_div_img_priv']) ? rawurlencode($this->user->style['style_path']) : 'all') . '/theme/images/',
 			));
 		}
 	}
@@ -656,8 +648,7 @@ class admin_controller
 				'SHOUT_DEFIL'				=> $this->shoutbox->construct_radio('shout_defil_pop', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
 				'COLOR_SELECT'				=> $this->shoutbox->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background_pop', false, 'webp'),
 				'COLOR_PATH'				=> $this->ext_path . 'styles/all/theme/images/fond/',
-				'DIV_IMG_PATH'				=> $this->ext_path . 'styles/all/theme/images/',
-				'S_POPUP'					=> true,
+				'DIV_IMG_PATH'				=> $this->ext_path . 'styles/' . (file_exists($this->ext_path . 'styles/' . rawurlencode($this->user->style['style_path']) . '/theme/images/' . $this->config['shout_div_img_pop']) ? rawurlencode($this->user->style['style_path']) : 'all') . '/theme/images/',
 			));
 		}
 	}
@@ -709,9 +700,6 @@ class admin_controller
 				'PANEL_EXIT_OPTION'			=> $this->shoutbox->build_select_img($this->ext_path, $panel_path, 'shout_panel_exit_img', true),
 			));
 		}
-		$this->template->assign_vars(array(
-			'S_PANEL'	=> true,
-		));
 	}
 
 	public function acp_shoutbox_smilies()
@@ -759,7 +747,6 @@ class admin_controller
 		$this->db->sql_freeresult($result);
 
 		$this->template->assign_vars(array(
-			'S_SMILIES'				=> true,
 			'SHOUT_USER_ID'			=> $this->user->data['user_id'],
 			'SMILIES_URL'			=> $this->root_path . $this->config['smilies_path'] . '/',
 			'U_DISPLAY_AJAX'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'display_smilies')),
@@ -851,9 +838,6 @@ class admin_controller
 				'SERVER_HOUR'				=> $this->language->lang($this->shoutbox->plural('SHOUT_SERVER_HOUR', date('H')), date('H'), date('i')),
 			));
 		}
-		$this->template->assign_vars(array(
-			'S_ROBOT'	=> true,
-		));
 	}
 
 	private function get_group_options()
