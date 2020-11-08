@@ -4320,10 +4320,10 @@ class shoutbox
 		$result = $this->create_user_preferences($data, $sort_of);
 
 		$this->template->assign_vars(array(
+			'ON_SHOUT_DISPLAY'			=> true,
 			'LIST_SETTINGS_AUTH'		=> $this->get_settings($result['data'], 'auth'),
 			'LIST_SETTINGS_STRING'		=> $this->get_settings($result['data'], 'data', $result['sound']),
 			'LIST_SETTINGS_LANG'		=> $this->get_settings($result['data'], 'lang'),
-			'ON_SHOUT_DISPLAY'			=> true,
 		));
 	}
 
@@ -4360,7 +4360,7 @@ class shoutbox
 		else
 		{
 			$data = array_merge($data, array(
-				'refresh'					=> $this->config['shout_temp_anonymous'] * 1000,
+				'refresh'					=> ($this->user->data['is_bot']) ? 60 * 1000 : $this->config['shout_temp_anonymous'] * 1000,
 				'inactiv'					=> $this->config['shout_inactiv_anony'],
 				'dateformat'				=> $this->config['shout_dateformat'],
 				'shout_bar_option'			=> $this->config['shout_bar_option'],
@@ -4370,32 +4370,16 @@ class shoutbox
 				'shout_defil_pop'			=> $this->config['shout_defil_pop'],
 				'shout_defil_priv'			=> $this->config['shout_defil_priv'],
 			));
-			if ($this->user->data['is_bot'])
-			{
-				$data['refresh'] = 60 * 1000;
-				// No sounds for bots, they have no ears [:-)
-				$sound = array(
-					'new_priv'	=> '',
-					'new'		=> '',
-					'error'		=> '',
-					'del'		=> '',
-					'add'		=> '',
-					'edit'		=> '',
-					'active'	=> false,
-				);
-			}
-			else
-			{
-				$sound = array(
-					'new_priv'	=> '',
-					'new'		=> $this->config['shout_sound_new'],
-					'error'		=> $this->config['shout_sound_error'],
-					'del'		=> $this->config['shout_sound_del'],
-					'add'		=> $this->config['shout_sound_add'],
-					'edit'		=> $this->config['shout_sound_edit'],
-					'active'	=> $this->config['shout_sound_on'] ? true : false,
-				);
-			}
+
+			$sound = array(
+				'new_priv'	=> '',
+				'new'		=> $this->config['shout_sound_new'],
+				'error'		=> $this->config['shout_sound_error'],
+				'del'		=> $this->config['shout_sound_del'],
+				'add'		=> $this->config['shout_sound_add'],
+				'edit'		=> $this->config['shout_sound_edit'],
+				'active'	=> ($this->user->data['is_bot']) ? false : $this->config['shout_sound_on'],
+			);
 		}
 		$data['style'] = 'styles/' . (file_exists($this->ext_path . 'styles/' . rawurlencode($this->user->style['style_path']) . '/') ? rawurlencode($this->user->style['style_path']) : 'all') . '/theme/images/';
 		$data['inactiv'] = (($data['inactiv'] > 0) && !$data['private']) ? round($data['inactiv'] * 60 / ($data['refresh'] / 1000)) : 0;
