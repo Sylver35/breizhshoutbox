@@ -1772,6 +1772,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 
 			var msg_txt = shoutbox.cE('div','msg_txt',false,'text-align:center;',false,false,false,false,false);
 			base.appendChild(msg_txt);
+			config.shoutImgHori = config.shoutImgHori.replace('right','98%');
+			config.shoutImgVert = config.shoutImgVert.replace('top','1%').replace('bottom','98%');
 			var shoutImg = config.shoutImg ? 'background: transparent url("'+config.shoutImgUrl+config.shoutImg+'") no-repeat scroll '+config.shoutImgHori+' '+config.shoutImgVert+';' : '';
 			var divPosts = shoutbox.cE('div','shout_messages',false,'height: '+config.shoutHeight+'px;'+shoutImg,false,false,'<div style="text-align:center;margin:50px auto;">'+imgChargeOn+bzhLang['LOADING']+'</div>',false,false);
 			base.appendChild(divPosts);
