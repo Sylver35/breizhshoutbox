@@ -4320,9 +4320,9 @@ class shoutbox
 		$result = $this->create_user_preferences($data, $sort_of);
 
 		$this->template->assign_vars(array(
-			'LIST_SETTINGS_AUTH'		=> $this->settings_auth_to_javascript($result['data']),
-			'LIST_SETTINGS_STRING'		=> $this->settings_to_javascript($result['data'], $result['sound']),
-			'LIST_SETTINGS_LANG'		=> $this->lang_to_javascript($result['data']),
+			'LIST_SETTINGS_AUTH'		=> $this->get_settings($result['data'], 'auth'),
+			'LIST_SETTINGS_STRING'		=> $this->get_settings($result['data'], 'data', $result['sound']),
+			'LIST_SETTINGS_LANG'		=> $this->get_settings($result['data'], 'lang'),
 			'ON_SHOUT_DISPLAY'			=> true,
 		));
 	}
@@ -4406,6 +4406,61 @@ class shoutbox
 		);
 	}
 
+	private function get_settings($data, $sort, $sound = '')
+	{
+		$i = 0;
+		$settings = '';
+		if ($sort == 'auth')
+		{
+			$list = $this->settings_auth_to_javascript($data);
+			$settings = "var config = {\n		";
+			foreach ($list as $key => $value)
+			{
+				if ($i > 18)
+				{
+					$settings .= "\n		";
+					$i = 0;
+				}
+				$settings .= $key . ':' . $value . ', ';
+				$i++;
+			}
+		}
+		else if ($sort == 'data')
+		{
+			$list = $this->settings_to_javascript($data, $sound);
+			$settings = "	";
+			foreach ($list as $key => $value)
+			{
+				$settings .= $key . ":'" . $value . "', ";
+				if ($i > 9)
+				{
+					$settings .= "\n		";
+					$i = 0;
+				}
+				$i++;
+			}
+			$settings .= "\n	};";
+		}
+		else if ($sort == 'lang')
+		{
+			$list = $this->lang_to_javascript($data);
+			$settings = "var bzhLang = {\n		";
+			foreach ($list as $key => $value)
+			{
+				$settings .= "'" . $key . "':" . json_encode($value) . ', ';
+				if ($i > 7)
+				{
+					$settings .= "\n		";
+					$i = 0;
+				}
+				$i++;
+			}
+			$settings .= "\n	};";
+		}
+
+		return $settings;
+	}
+
 	private function settings_auth_to_javascript($data)
 	{
 		// Display the rules if wanted
@@ -4457,20 +4512,7 @@ class shoutbox
 			'category'			=> $this->return_bool($data['category']),
 		);
 
-		$i = 0;
-		$settings = "var config = {\n		";
-		foreach ($settings_auth as $key => $value)
-		{
-			if ($i > 18)
-			{
-				$settings .= "\n		";
-				$i = 0;
-			}
-			$settings .= $key . ':' . $value . ', ';
-			$i++;
-		}
-
-		return $settings;
+		return $settings_auth;
 	}
 
 	private function settings_to_javascript($data, $sound)
@@ -4535,21 +4577,7 @@ class shoutbox
 			));
 		}
 
-		$i = 0;
-		$settings = "	";
-		foreach ($settings_string as $key => $value)
-		{
-			$settings .= $key . ":'" . $value . "', ";
-			if ($i > 9)
-			{
-				$settings .= "\n		";
-				$i = 0;
-			}
-			$i++;
-		}
-		$settings .= "\n	};";
-
-		return $settings;
+		return $settings_string;
 	}
 
 	private function lang_to_javascript($data)
@@ -4671,20 +4699,6 @@ class shoutbox
 			));
 		}
 
-		$i = 0;
-		$settings = "var bzhLang = {\n		";
-		foreach ($lang_shout as $key => $value)
-		{
-			$settings .= "'" . $key . "':" . json_encode($value) . ', ';
-			if ($i > 7)
-			{
-				$settings .= "\n		";
-				$i = 0;
-			}
-			$i++;
-		}
-		$settings .= "\n	};";
-
-		return $settings;
+		return $lang_shout;
 	}
 }
