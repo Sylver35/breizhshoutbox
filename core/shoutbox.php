@@ -1170,6 +1170,50 @@ class shoutbox
 			$shout_bbcode = $this->user->data['shout_bbcode'];
 		}
 
+		$first = $this->first_parse_bbcodes($open, $close, $array_open, $array_close, $shout_bbcode);
+		if ($first['sort'] !== 3)
+		{
+			return [
+				'sort'		=> $first['sort'],
+				'message'	=> $first['message'],
+			];
+		}
+
+		$verify = $this->verify_imbrication($open, $close, $array_open, $array_close, $shout_bbcode);
+		if ($verify['sort'] !== 1)
+		{
+			return [
+				'sort'		=> $verify['sort'],
+				'message'	=> $verify['message'],
+			];
+		}
+
+		$unautorised = $this->verify_unautorised_and_size($open, $close);
+		if ($unautorised['sort'] !== 1)
+		{
+			return [
+				'sort'		=> $unautorised['sort'],
+				'message'	=> $unautorised['message'],
+			];
+		}
+
+		$video = $this->verify_video_bbcode($open);
+		if ($video['sort'] !== 1)
+		{
+			return [
+				'sort'		=> $video['sort'],
+				'message'	=> $video['message'],
+			];
+		}
+
+		// If all is ok, return 3
+		return [
+			'sort'	=> 3,
+		];
+	}
+
+	private function first_parse_bbcodes($open, $close, $array_open, $array_close, $shout_bbcode)
+	{
 		// Any modification
 		if ($open == 1 && $close == 1)
 		{
@@ -1211,40 +1255,10 @@ class shoutbox
 				'message'	=> $this->language->lang('SHOUT_BBCODE_ERROR_COUNT'),
 			];
 		}
-		else
-		{
-			$verify = $this->verify_imbrication($open, $close, $array_open, $array_close, $shout_bbcode);
-			if ($verify['sort'] !== 1)
-			{
-				return [
-					'sort'		=> $verify['sort'],
-					'message'	=> $verify['message'],
-				];
-			}
 
-			$unautorised = $this->verify_unautorised_and_size($open, $close);
-			if ($unautorised['sort'] !== 1)
-			{
-				return [
-					'sort'		=> $unautorised['sort'],
-					'message'	=> $unautorised['message'],
-				];
-			}
-
-			$video = $this->verify_video_bbcode($open);
-			if ($video['sort'] !== 1)
-			{
-				return [
-					'sort'		=> $video['sort'],
-					'message'	=> $video['message'],
-				];
-			}
-
-			// If all is ok, return 3
-			return [
-				'sort'	=> 3,
-			];
-		}
+		return [
+			'sort'	=> 3,
+		];
 	}
 
 	private function verify_imbrication($open, $close, $array_open, $array_close, $shout_bbcode)
@@ -1485,7 +1499,7 @@ class shoutbox
 		$list = ['script', 'vbscript', 'applet', 'activex', 'object', 'chrome', 'about', 'iframe'];
 		$lang = ['SHOUT_NO_SCRIPT', 'SHOUT_NO_SCRIPT', 'SHOUT_NO_APPLET', 'SHOUT_NO_ACTIVEX', 'SHOUT_NO_OBJECTS', 'SHOUT_NO_OBJECTS', 'SHOUT_NO_OBJECTS', 'SHOUT_NO_IFRAME'];
 		$log = ['LOG_SHOUT_SCRIPT', 'LOG_SHOUT_SCRIPT', 'LOG_SHOUT_APPLET', 'LOG_SHOUT_ACTIVEX', 'LOG_SHOUT_OBJECTS', 'LOG_SHOUT_OBJECTS', 'LOG_SHOUT_OBJECTS', 'LOG_SHOUT_IFRAME'];
-		
+
 		for ($i = 0, $nb = sizeof($list); $i < $nb; $i++)
 		{
 			if ((strpos($message, '&lt;' . $list[$i]) !== false && strpos($message, '&lt;/' . $list[$i]) !== false) || (strpos($message, '<' . $list[$i]) !== false && strpos($message, '</' . $list[$i]) !== false))
