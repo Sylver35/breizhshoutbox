@@ -777,17 +777,9 @@ class shoutbox
 		$priv = ($in_priv) ? '_priv' : '';
 		$private = ($in_priv) ? '_priv' : '_view';
 
-		if (!$this->auth->acl_get("u_shout{$private}"))
+		if (!$this->first_run_shout($in_priv, $private))
 		{
-			$this->template->assign_vars(array(
-				'S_DISPLAY_SHOUTBOX'	=> false,
-			));
 			return;
-		}
-		else if ($in_priv)
-		{
-			// Always post enter info in the private shoutbox -> toc toc toc, it's me ;)
-			$this->post_robot_shout($this->user->data['user_id'], $this->user->ip, true, false, false, false, false);
 		}
 
 		// Define the username for anonymous here
@@ -818,28 +810,14 @@ class shoutbox
 		}
 
 		// Active lateral panel or not
-		$panel = false;
-		if ($this->auth->acl_get('u_shout_lateral'))
-		{
-			// Activate it in private shoutbox
-			if ($in_priv)
-			{
-				// Force autoload here
-				$this->config['shout_panel_auto'] = true;
-				$panel = true;
-			}
-			else
-			{
-				// And verifie in another pages
-				$panel = ($this->config['shout_panel'] && $this->config['shout_panel_all']) ? true : false;
-			}
-		}
+		$panel = $this->get_panel($in_priv);
+		$this->config['shout_panel_auto'] = $panel['auto'];
 
 		$this->template->assign_vars(array(
 			'S_DISPLAY_SHOUTBOX'	=> true,
 			'COLOR_PANEL'			=> 3,
 			'IN_SHOUT_POPUP'		=> ($sort_of === 1) ? true : false,
-			'PANEL_ALL'				=> $panel,
+			'PANEL_ALL'				=> $panel['active'],
 			'S_IN_PRIV'				=> $in_priv,
 			'ACTION_USERS_TOP'		=> ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_')) ? true : false,
 			'SHOUT_INDEX_POS'		=> $this->config['shout_position_index'],
@@ -858,6 +836,50 @@ class shoutbox
 			$this->execute_shout_cron($in_priv);
 		}
 		$this->shout_run_robot();
+	}
+
+	private function first_run_shout($in_priv, $private)
+	{
+		if (!$this->auth->acl_get("u_shout{$private}"))
+		{
+			$this->template->assign_vars(array(
+				'S_DISPLAY_SHOUTBOX'	=> false,
+			));
+			return false;
+		}
+		else if ($in_priv)
+		{
+			// Always post enter info in the private shoutbox -> toc toc toc, it's me ;)
+			$this->post_robot_shout($this->user->data['user_id'], $this->user->ip, true, false, false, false, false);
+		}
+
+		return true;
+	}
+
+	private function get_panel($in_priv)
+	{
+		// Active lateral panel or not
+		$panel = [
+			'active'	=> false,
+			'auto'		=> false,
+		];
+		if ($this->auth->acl_get('u_shout_lateral'))
+		{
+			// Activate it in private shoutbox
+			if ($in_priv)
+			{
+				// Force autoload here
+				$panel['auto'] = true;
+				$panel['active'] = true;
+			}
+			else
+			{
+				// And verifie in another pages
+				$panel['active'] = ($this->config['shout_panel'] && $this->config['shout_panel_all']) ? true : false;
+			}
+		}
+
+		return $panel;
 	}
 
 	private function run_shout_display($index, $forum, $topic)
@@ -1303,6 +1325,7 @@ class shoutbox
 				'message'	=> $this->language->lang($this->plural('SHOUT_BBCODE_ERROR_IMB', $n), $n, $sort),
 			];
 		}
+
 		// Check opening and closing of bbcodes
 		if ($shout_bbcode)
 		{
@@ -1655,24 +1678,41 @@ class shoutbox
 	{
 		// Founders protection
 		$go_founder = ($row['user_type'] != USER_FOUNDER || $this->user->data['user_type'] == USER_FOUNDER) ? true : false;
+		$action = $this->create_urls_action_user($row, $sort, $go_founder);
 
 		return [
 			'type'			=> 3,
-			'id'			=> $row['user_id'],
+			'id'			=> (int) $row['user_id'],
 			'sort'			=> $sort,
 			'foe'			=> ($row['foe']) ? true : false,
 			'inp'			=> ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_')) ? true : false,
-			'username'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'], '', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", "mode=viewprofile")),
+			'retour'		=> ($this->auth->acl_get('a_user') || $this->auth->acl_get('m_') || ($this->auth->acl_get('m_ban') && $go_founder)) ? true : false,
+			'username'		=> $action['username'],
 			'avatar'		=> $this->shout_user_avatar($row, 60, true),
-			'url_profile'	=> $this->tpl('profile', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", "mode=viewprofile&amp;u={$row['user_id']}", false), $row['username']),
+			'url_profile'	=> $action['url_profile'],
 			'url_message'	=> $this->tpl('personal'),
 			'url_del_to'	=> $this->tpl('delreqto', $userid),
 			'url_del'		=> $this->tpl('delreq', $userid),
 			'url_cite'		=> $this->tpl('citemsg'),
 			'url_cite_m'	=> $this->tpl('citemulti', $row['username'], $row['user_colour']),
+			'url_auth'		=> $action['url_auth'],
+			'url_prefs'		=> $action['url_prefs'],
+			'url_admin'		=> $action['url_admin'],
+			'url_modo'		=> $action['url_modo'],
+			'url_ban'		=> $action['url_ban'],
+			'url_remove'	=> $action['url_remove'],
+			'url_perso'		=> $action['url_perso'],
+			'url_robot'		=> $action['url_robot'],
+		];
+	}
+
+	private function create_urls_action_user($row, $sort, $go_founder)
+	{
+		return [
+			'username'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'], '', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", "mode=viewprofile")),
+			'url_profile'	=> $this->tpl('profile', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", "mode=viewprofile&amp;u={$row['user_id']}", false), $row['username']),
 			'url_auth'		=> ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_personal')) ? $this->tpl('auth', $row['user_id'], $row['username']) : '',
 			'url_prefs'		=> ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_personal')) ? $this->tpl('prefs', $this->helper->route('sylver35_breizhshoutbox_configshout', array('id' => $row['user_id']))) : '',
-			'retour'		=> ($this->auth->acl_get('a_user') || $this->auth->acl_get('m_') || ($this->auth->acl_get('m_ban') && $go_founder)) ? true : false,
 			'url_admin'		=> ($this->auth->acl_get('a_user')) ? $this->tpl('admin', append_sid("{$this->adm_path()}index.{$this->php_ext}", "i=users&amp;mode=overview&amp;u={$row['user_id']}", true, $this->user->session_id)) : '',
 			'url_modo'		=> ($this->auth->acl_get('m_')) ? $this->tpl('modo', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", "i=notes&amp;mode=user_notes&amp;u={$row['user_id']}", true, $this->user->session_id)) : '',
 			'url_ban'		=> ($this->auth->acl_get('m_ban') && $go_founder) ? $this->tpl('ban', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", "i=ban&amp;mode=user&amp;u={$row['user_id']}", true, $this->user->session_id)) : '',
