@@ -38,7 +38,7 @@ class ajax
 	 */
 	public function construct_ajax($mode)
 	{
-		$data = array();
+		$data = [];
 		$val = $this->shoutbox->shout_manage_ajax($mode, (int) $this->request->variable('sort', 2), (int) $this->request->variable('user', 0), (int) $this->request->variable('other', 0));
 
 		switch ($mode)

@@ -287,7 +287,7 @@ class main_listener implements EventSubscriberInterface
 		{
 			foreach ($event['user_ids'] as $user_id)
 			{
-				$this->shoutbox->delete_user_messages($user_id);
+				$this->shoutbox->delete_user_messages((int) $user_id);
 			}
 		}
 	}
@@ -299,7 +299,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		foreach ($event['topic_ids'] as $topic_id)
 		{
-			$this->shoutbox->shout_delete_topic($topic_id);
+			$this->shoutbox->shout_delete_topic((int) $topic_id);
 		}
 	}
 
@@ -310,7 +310,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		foreach ($event['post_ids'] as $post_id)
 		{
-			$this->shoutbox->shout_delete_post($post_id);
+			$this->shoutbox->shout_delete_post((int) $post_id);
 		}
 	}
 
