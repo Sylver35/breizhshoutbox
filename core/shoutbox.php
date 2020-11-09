@@ -1419,7 +1419,7 @@ class shoutbox
 			return;
 		}
 
-		if (!$this->parse_unautorized_content($message))
+		if (!$this->parse_unautorized_content($message, $priv, $on_priv))
 		{
 			return;
 		}
@@ -1480,50 +1480,21 @@ class shoutbox
 		return true;
 	}
 
-	private function parse_unautorized_content($message)
+	private function parse_unautorized_content($message, $priv, $on_priv)
 	{
-		// Die script and vbscript for all the time... and log it
-		if ((strpos($message, '&lt;script') !== false && strpos($message, '&lt;/script') !== false) || (strpos($message, '<script') !== false && strpos($message, '</script') !== false) ||
-			 (strpos($message, '&lt;vbscript') !== false && strpos($message, '&lt;/vbscript') !== false) || (strpos($message, '<vbscript') !== false && strpos($message, '</vbscript') !== false))
+		$list = ['script', 'vbscript', 'applet', 'activex', 'object', 'chrome', 'about', 'iframe'];
+		$lang = ['SHOUT_NO_SCRIPT', 'SHOUT_NO_SCRIPT', 'SHOUT_NO_APPLET', 'SHOUT_NO_ACTIVEX', 'SHOUT_NO_OBJECTS', 'SHOUT_NO_OBJECTS', 'SHOUT_NO_OBJECTS', 'SHOUT_NO_IFRAME'];
+		$log = ['LOG_SHOUT_SCRIPT', 'LOG_SHOUT_SCRIPT', 'LOG_SHOUT_APPLET', 'LOG_SHOUT_ACTIVEX', 'LOG_SHOUT_OBJECTS', 'LOG_SHOUT_OBJECTS', 'LOG_SHOUT_OBJECTS', 'LOG_SHOUT_IFRAME'];
+		
+		for ($i = 0, $nb = sizeof($list); $i < $nb; $i++)
 		{
-			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_SCRIPT' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
-			$this->config->increment("shout_nr_log{$priv}", 1, true);
-			$this->shout_error('SHOUT_NO_SCRIPT');
-			return false;
-		}
-		// Die applet for all the time...  and log it
-		else if ((strpos($message, '&lt;applet') !== false && strpos($message, '&lt;/applet') !== false) || (strpos($message, '<applet') !== false && strpos($message, '</applet') !== false))
-		{
-			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_APPLET' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
-			$this->config->increment("shout_nr_log{$priv}", 1, true);
-			$this->shout_error('SHOUT_NO_APPLET');
-			return false;
-		}
-		// Die activex for all the time...  and log it
-		else if ((strpos($message, '&lt;activex') !== false && strpos($message, '&lt;/activex') !== false) || (strpos($message, '<activex') !== false && strpos($message, '</activex') !== false))
-		{
-			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_ACTIVEX' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
-			$this->config->increment("shout_nr_log{$priv}", 1, true);
-			$this->shout_error('SHOUT_NO_ACTIVEX');
-			return false;
-		}
-		// Die about and chrome objects for all the time...  and log it
-		else if ((strpos($message, '&lt;object') !== false && strpos($message, '&lt;/object') !== false) || (strpos($message, '<object') !== false && strpos($message, '</object') !== false) ||
-				 (strpos($message, '&lt;about') !== false && strpos($message, '&lt;/about') !== false) || (strpos($message, '<about') !== false && strpos($message, '</about') !== false) ||
-				 (strpos($message, '&lt;chrome') !== false && strpos($message, '&lt;/chrome') !== false) || (strpos($message, '<chrome') !== false && strpos($message, '</chrome') !== false))
-		{
-			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_OBJECTS' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
-			$this->config->increment("shout_nr_log{$priv}", 1, true);
-			$this->shout_error('SHOUT_NO_OBJECTS');
-			return false;
-		}
-		// Die iframe for all the time...  and log it
-		else if ((strpos($message, '&lt;iframe') !== false && strpos($message, '&lt;/iframe') !== false) || (strpos($message, '<iframe') !== false && strpos($message, '</iframe') !== false) || (strpos($message, '[iframe') !== false && strpos($message, '[/iframe') !== false))
-		{
-			$this->log->add('user', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_IFRAME' . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
-			$this->config->increment("shout_nr_log{$priv}", 1, true);
-			$this->shout_error('SHOUT_NO_IFRAME');
-			return false;
+			if ((strpos($message, '&lt;' . $list[$i]) !== false && strpos($message, '&lt;/' . $list[$i]) !== false) || (strpos($message, '<' . $list[$i]) !== false && strpos($message, '</' . $list[$i]) !== false))
+			{
+				$this->log->add('user', $this->user->data['user_id'], $this->user->ip, $log[$i] . $on_priv, time(), array('reportee_id' => $this->user->data['user_id']));
+				$this->config->increment("shout_nr_log{$priv}", 1, true);
+				$this->shout_error($lang[$i]);
+				return false;
+			}
 		}
 
 		return true;
