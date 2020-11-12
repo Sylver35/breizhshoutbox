@@ -85,19 +85,19 @@ class main
 		{
 			$this->shoutbox->shout_display(3);
 
-			$this->template->assign_vars(array(
+			$this->template->assign_vars([
 				'S_IN_PRIV'				=> true,
 				'S_IN_SHOUT_POP'		=> false,
 				'S_IN_SHOUT_TEMP'		=> true,
 				'S_DISPLAY_ONLINE_LIST'	=> true,
-			));
+			]);
 			// Add to navlinks
-			$this->template->assign_block_vars_array('navlinks', array(
-				array(
+			$this->template->assign_block_vars_array('navlinks', [
+				[
 					'FORUM_NAME'	=> $this->language->lang('SHOUTBOX_SECRET'),
 					'U_VIEW_FORUM'	=> $this->helper->route('sylver35_breizhshoutbox_private'),
-				),
-			));
+				],
+			]);
 			page_header($this->language->lang('SHOUTBOX_SECRET'), true);
 			return $this->helper->render('shout_private.html', $this->user->lang['SHOUTBOX_SECRET']);
 		}
@@ -113,12 +113,12 @@ class main
 		if ($this->auth->acl_get('u_shout_popup'))
 		{
 			$this->shoutbox->shout_display(1);
-			$this->template->assign_vars(array(
+			$this->template->assign_vars([
 				'S_IN_SHOUT_POP'	=> true,
 				'S_IN_PRIV'			=> false,
 				'S_IN_SHOUT_TEMP'	=> true,
 				'ABBC3_EXTENSION'	=> ($this->shoutbox->abbc3_exist()) ? true : false,
-			));
+			]);
 			return $this->helper->render('shout_popup.html', $this->language->lang('SHOUTBOX_POPUP'));
 		}
 		else
@@ -141,9 +141,9 @@ class main
 		}
 		else
 		{
-			$this->template->assign_vars(array(
+			$this->template->assign_vars([
 				'KILL_LATERAL'	=> true,
-			));
+			]);
 			return false;
 		}
 	}
@@ -175,23 +175,23 @@ class main
 		$count = (int) $this->db->sql_fetchfield('smilies_count');
 		$this->db->sql_freeresult($result);
 
-		$sql = $this->db->sql_build_query('SELECT', array(
+		$sql = $this->db->sql_build_query('SELECT', [
 			'SELECT'	=> 'smiley_url, MIN(smiley_id) AS smiley_id, MIN(code) AS code, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
-			'FROM'		=> array(SMILIES_TABLE => ''),
+			'FROM'		=> [SMILIES_TABLE => ''],
 			'WHERE'		=> 'display_on_shout = 0',
 			'GROUP_BY'	=> 'smiley_url',
 			'ORDER_BY'	=> 'min_smiley_order ASC',
-		));
+		]);
 		$result = $this->db->sql_query_limit($sql, (int) $this->config['smilies_per_page'], $start);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$this->template->assign_block_vars('smilies', array(
+			$this->template->assign_block_vars('smilies', [
 				'SMILEY_CODE'		=> $row['code'],
 				'SMILEY_EMOTION'	=> $row['emotion'],
 				'SMILEY_WIDTH'		=> $row['smiley_width'],
 				'SMILEY_HEIGHT'		=> $row['smiley_height'],
 				'SMILEY_SRC'		=> generate_board_url() . '/' . $this->config['smilies_path'] . '/' . $row['smiley_url'],
-			));
+			]);
 		}
 		$this->db->sql_freeresult($result);
 
@@ -199,16 +199,16 @@ class main
 		$this->pagination->generate_template_pagination($url, 'pagination', 'start', $count, (int) $this->config['smilies_per_page'], $start);
 
 		$data = $this->shoutbox->get_version();
-		$this->template->assign_vars(array(
+		$this->template->assign_vars([
 			'S_IN_SHOUT_ACP'	=> true,
 			'SHOUTBOX_VERSION'	=> $this->language->lang('SHOUTBOX_VERSION_ACP_COPY', $data['homepage'], $data['version']),
-		));
+		]);
 
 		page_header($this->language->lang('SMILIES'));
 
-		$this->template->set_filenames(array(
-			'body' => '@sylver35_breizhshoutbox/shout_template.html')
-		);
+		$this->template->set_filenames([
+			'body' => '@sylver35_breizhshoutbox/shout_template.html',
+		]);
 
 		page_footer();
 	}

@@ -11,6 +11,10 @@
 		$('#shout_'+id).attr('title',newTitle);
 		$('#'+id).attr('src',config.panelPath+newImg);
 	}
+	/** Change image for background **/
+	shoutbox.updateBackground = function(newImg,newTitle){
+		$('#div_img').attr({'src':config.backgroundPath+newImg,'alt':newTitle,'title':newTitle});
+	}
 	/** Play sounds **/
 	shoutbox.playSound = function(file){
 		if(file != 0){

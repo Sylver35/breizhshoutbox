@@ -22,7 +22,7 @@
 			<dl>
 				<dt><label for="shout_div_img">{{ lang('SHOUT_DIV_IMG') }}:</label><br />{{ lang('SHOUT_DIV_IMG_EXPLAIN') }}</dt>
 				<dd>
-					<input class="text small" type="text" id="shout_div_img" name="shout_div_img" value="{{ SHOUT_DIV_IMG }}" maxlength="50" size="15" />{% if SHOUT_DIV_IMG %}&nbsp;<img src="{{ DIV_IMG_PATH }}{{ SHOUT_DIV_IMG }}" class="img_select" id="img_shout_div_img" alt="{{ SHOUT_DIV_IMG }}" title="{{ SHOUT_DIV_IMG }}" height="40" />{% endif %}<br />
+					<select id="shout_div_img" onchange="shoutbox.updateBackground(this.options[selectedIndex].value, this.options[selectedIndex].title);" name="shout_div_img">{{ DIV_IMG_OPTION }}</select>&nbsp;<img src="{{ DIV_IMG_PATH }}{{ SHOUT_DIV_IMG }}" class="img_select" id="div_img" alt="{{ SHOUT_DIV_IMG }}" title="{{ SHOUT_DIV_IMG }}" height="40" /><br />
 					<br /><select id="shout_img_horizontal" name="shout_img_horizontal">{{ SHOUT_IMG_HORIZONTAL }}</select> {{ lang('SHOUT_DIV_HORIZONTAL') }}
 					<br /><select id="shout_img_vertical" name="shout_img_vertical">{{ SHOUT_IMG_VERTICAL }}</select> {{ lang('SHOUT_DIV_VERTICAL') }}
 				</dd>
