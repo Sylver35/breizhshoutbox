@@ -4266,7 +4266,7 @@ class shoutbox
 					WHERE user_id = $user_id";
 			$this->db->sql_query($sql);
 
-			redirect($this->helper->route('sylver35_breizhshoutbox_configshout',['id' => $user_id]));
+			redirect($this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $user_id]));
 		}
 		else if ($this->request->is_set_post('retour'))
 		{
