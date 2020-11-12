@@ -20,17 +20,17 @@ class breizhshoutbox_1_1_0 extends migration
 
 	static public function depends_on()
 	{
-		return array('\sylver35\breizhshoutbox\migrations\breizhshoutbox_1_0_0');
+		return ['\sylver35\breizhshoutbox\migrations\breizhshoutbox_1_0_0'];
 	}
 
 	public function update_data()
 	{
-		return array(
+		return [
 			// Version of extension
-			array('config.update', array('shout_version', '1.1.0')),
+			['config.update', ['shout_version', '1.1.0']],
 
 			// Config
-			array('config.add', array('shout_rules_open', 0)),
-		);
+			['config.add', ['shout_rules_open', 0]],
+		];
 	}
 }

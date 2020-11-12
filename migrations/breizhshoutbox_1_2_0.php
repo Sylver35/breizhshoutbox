@@ -20,20 +20,20 @@ class breizhshoutbox_1_2_0 extends migration
 
 	static public function depends_on()
 	{
-		return array('\sylver35\breizhshoutbox\migrations\breizhshoutbox_1_1_0');
+		return ['\sylver35\breizhshoutbox\migrations\breizhshoutbox_1_1_0'];
 	}
 
 	public function update_data()
 	{
-		return array(
+		return [
 			// Version of extension
-			array('config.update', array('shout_version', '1.2.0')),
+			['config.update', ['shout_version', '1.2.0']],
 
 			// Config
-			array('config.add', array('shout_last_run_birthday', '', true)),
-			array('config.add', array('shout_arcade_new', 0)),
-			array('config.add', array('shout_arcade_record', 0)),
-			array('config.add', array('shout_arcade_urecord', 0)),
-		);
+			['config.add', ['shout_last_run_birthday', '', true]],
+			['config.add', ['shout_arcade_new', 0]],
+			['config.add', ['shout_arcade_record', 0]],
+			['config.add', ['shout_arcade_urecord', 0]],
+		];
 	}
 }

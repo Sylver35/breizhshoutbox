@@ -20,81 +20,81 @@ class breizhshoutbox_1_8_0 extends migration
 
 	static public function depends_on()
 	{
-		return array('\sylver35\breizhshoutbox\migrations\breizhshoutbox_1_7_0');
+		return ['\sylver35\breizhshoutbox\migrations\breizhshoutbox_1_7_0'];
 	}
 
 	public function update_data()
 	{
-		return array(
+		return [
 			// Version of extension
-			array('config.update', array('shout_version', '1.8.0')),
+			['config.update', ['shout_version', '1.8.0']],
 
 			// Config add
-			array('config.add', array('shout_defil_pop', 1)),
-			array('config.add', array('shout_defil_priv', 1)),
-			array('config.add', array('shout_div_img', 'discus.png')),
-			array('config.add', array('shout_div_img_pop', '')),
-			array('config.add', array('shout_div_img_priv', 'stamp-secret.png')),
-			array('config.add', array('shout_img_horizontal', 'center')),
-			array('config.add', array('shout_img_horizontal_pop', '')),
-			array('config.add', array('shout_img_horizontal_priv', 'right')),
-			array('config.add', array('shout_img_vertical', 'bottom')),
-			array('config.add', array('shout_img_vertical_pop', '')),
-			array('config.add', array('shout_img_vertical_priv', 'bottom')),
-			array('config.add', array('shout_num', $this->config['shout_non_ie_nr'])),
-			array('config.add', array('shout_num_pop', $this->config['shout_non_ie_nr_pop'])),
-			array('config.add', array('shout_num_priv', $this->config['shout_non_ie_nr_priv'])),
-			array('config.add', array('shout_height_pop', $this->config['shout_non_ie_height_pop'])),
-			array('config.add', array('shout_height_priv', $this->config['shout_non_ie_height_priv'])),
+			['config.add', ['shout_defil_pop', 1]],
+			['config.add', ['shout_defil_priv', 1]],
+			['config.add', ['shout_div_img', 'discus.png']],
+			['config.add', ['shout_div_img_pop', '']],
+			['config.add', ['shout_div_img_priv', 'stamp-secret.png']],
+			['config.add', ['shout_img_horizontal', 'right']],
+			['config.add', ['shout_img_horizontal_pop', '']],
+			['config.add', ['shout_img_horizontal_priv', 'right']],
+			['config.add', ['shout_img_vertical', 'bottom']],
+			['config.add', ['shout_img_vertical_pop', '']],
+			['config.add', ['shout_img_vertical_priv', 'center']],
+			['config.add', ['shout_num', $this->config['shout_non_ie_nr']]],
+			['config.add', ['shout_num_pop', $this->config['shout_non_ie_nr_pop']]],
+			['config.add', ['shout_num_priv', $this->config['shout_non_ie_nr_priv']]],
+			['config.add', ['shout_height_pop', $this->config['shout_non_ie_height_pop']]],
+			['config.add', ['shout_height_priv', $this->config['shout_non_ie_height_priv']]],
 
 			// Config remove
-			array('config.remove', array('shout_color_background_sub')),
-			array('config.remove', array('shout_forum')),
-			array('config.remove', array('shout_ie_nr')),
-			array('config.remove', array('shout_ie_nr_pop')),
-			array('config.remove', array('shout_ie_nr_priv')),
-			array('config.remove', array('shout_index')),
-			array('config.remove', array('shout_non_ie_height_pop')),
-			array('config.remove', array('shout_non_ie_height_priv')),
-			array('config.remove', array('shout_non_ie_nr_pop')),
-			array('config.remove', array('shout_non_ie_nr_priv')),
-			array('config.remove', array('shout_pagin_option')),
-			array('config.remove', array('shout_pagin_option_pop')),
-			array('config.remove', array('shout_pagin_option_priv')),
-			array('config.remove', array('shout_topic')),
-			array('config.remove', array('shout_width_post_sub')),
+			['config.remove', ['shout_color_background_sub']],
+			['config.remove', ['shout_forum']],
+			['config.remove', ['shout_ie_nr']],
+			['config.remove', ['shout_ie_nr_pop']],
+			['config.remove', ['shout_ie_nr_priv']],
+			['config.remove', ['shout_index']],
+			['config.remove', ['shout_non_ie_height_pop']],
+			['config.remove', ['shout_non_ie_height_priv']],
+			['config.remove', ['shout_non_ie_nr_pop']],
+			['config.remove', ['shout_non_ie_nr_priv']],
+			['config.remove', ['shout_pagin_option']],
+			['config.remove', ['shout_pagin_option_pop']],
+			['config.remove', ['shout_pagin_option_priv']],
+			['config.remove', ['shout_topic']],
+			['config.remove', ['shout_width_post_sub']],
 
 			// Permission remove
-			array('permission.remove', array('m_shout_purge', true)),
+			['permission.remove', ['m_shout_purge', true]],
 
-			array('custom', array(
-				array(&$this, 'update_user_shoutbox')
-			)),
-		);
+			['custom', [
+				[&$this, 'update_user_shoutbox']
+			]],
+		];
 	}
 
 	public function update_schema()
 	{
-		return array(
-			'change_columns'	=> array(
-				$this->table_prefix . 'users'	=> array(
-					'user_shout'	=> array('VCHAR:255', '{"user":2,"new":"N","new_priv":"N","error":"N","del":"N","add":"N","edit":"N","index":3,"forum":3,"topic":3}'),
-					'user_shoutbox'	=> array('VCHAR:255', '{"bar":2,"bar_pop":2,"bar_priv":2,"defil":2,"defil_pop":2,"defil_priv":2,"panel":2,"panel_float":2,"dateformat":""}'),
-				),
-			),
-		);
+		return [
+			'change_columns'	=> [
+				$this->table_prefix . 'users'	=> [
+					'user_shout'	=> ['VCHAR:255', '{"user":2,"new":"N","new_priv":"N","error":"N","del":"N","add":"N","edit":"N","index":3,"forum":3,"topic":3}'],
+					'user_shoutbox'	=> ['VCHAR:255', '{"bar":2,"bar_pop":2,"bar_priv":2,"defil":2,"defil_pop":2,"defil_priv":2,"panel":2,"panel_float":2,"dateformat":""}'],
+				],
+			],
+		];
 	}
 
 	public function revert_schema()
 	{
-		return array(
-			'change_columns'	=> array(
-				$this->table_prefix . 'users'	=> array(
-					'user_shout'	=> array('VCHAR:255', '{"user":2,"new":0,"new_priv":0,"error":0,"del":0,"add":0,"edit":0,"index":3,"forum":3,"topic":3}'),
-					'user_shoutbox'	=> array('VCHAR:255', '{"bar":"N","pagin":"N","bar_pop":"N","pagin_pop":"N","bar_priv":"N","pagin_priv":"N","defil":"N","panel":"N","dateformat":""}'),
-				),
-			),
-		);
+		return [
+			'change_columns'	=> [
+				$this->table_prefix . 'users'	=> [
+					'user_shout'	=> ['VCHAR:255', '{"user":2,"new":0,"new_priv":0,"error":0,"del":0,"add":0,"edit":0,"index":3,"forum":3,"topic":3}'],
+					'user_shoutbox'	=> ['VCHAR:255', '{"bar":"N","pagin":"N","bar_pop":"N","pagin_pop":"N","bar_priv":"N","pagin_priv":"N","defil":"N","panel":"N","dateformat":""}'],
+				],
+			],
+		];
 	}
 
 	public function update_user_shoutbox()

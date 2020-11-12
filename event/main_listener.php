@@ -62,7 +62,7 @@ class main_listener implements EventSubscriberInterface
 
 	static public function getSubscribedEvents()
 	{
-		return array(
+		return [
 			'core.user_setup'							=> 'load_language_on_setup',
 			'core.page_header'							=> 'add_page_header',
 			'core.session_create_after'					=> 'charge_post_session_shout',
@@ -88,7 +88,7 @@ class main_listener implements EventSubscriberInterface
 			'arcade.page_arcade_games'					=> 'charge_shout_display',
 			'arcade.page_arcade_list'					=> 'charge_shout_display',
 			'portal.handle'								=> 'charge_shout_display',
-		);
+		];
 	}
 
 	/**
@@ -97,10 +97,10 @@ class main_listener implements EventSubscriberInterface
 	public function load_language_on_setup($event)
 	{
 		$lang_set_ext = $event['lang_set_ext'];
-		$lang_set_ext[] = array(
+		$lang_set_ext[] = [
 			'ext_name' => 'sylver35/breizhshoutbox',
-			'lang_set' => array('shout', 'acp/info_acp_shoutbox'),
-		);
+			'lang_set' => ['shout', 'acp/info_acp_shoutbox'],
+		];
 		$event['lang_set_ext'] = $lang_set_ext;
 	}
 
@@ -111,15 +111,15 @@ class main_listener implements EventSubscriberInterface
 	{
 		$data = $this->shoutbox->get_version();
 		$this->shoutbox->shout_panel();
-		$this->template->assign_vars(array(
+		$this->template->assign_vars([
 			'SHOUT_POPUP_H'			=> $this->config['shout_popup_width'],
 			'SHOUT_POPUP_W'			=> $this->config['shout_popup_height'],
 			'U_SHOUT_PRIV_PAGE'		=> $this->auth->acl_get('u_shout_priv') ? $this->helper->route('sylver35_breizhshoutbox_private') : '',
 			'U_SHOUT_POPUP'			=> $this->auth->acl_get('u_shout_popup') ? $this->helper->route('sylver35_breizhshoutbox_popup') : '',
-			'U_SHOUT_CONFIG'		=> $this->auth->acl_get('u_shout_post') ? $this->helper->route('sylver35_breizhshoutbox_configshout', array('id' => $this->user->data['user_id'])) : '',
-			'U_SHOUT_AJAX'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', array('mode' => 'display_smilies')),
+			'U_SHOUT_CONFIG'		=> $this->auth->acl_get('u_shout_post') ? $this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $this->user->data['user_id']]) : '',
+			'U_SHOUT_AJAX'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'display_smilies']),
 			'SHOUT_COPYRIGHT'		=> $this->language->lang('SHOUTBOX_VER', $data['version']),
-		));
+		]);
 	}
 
 	/**
@@ -135,7 +135,18 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function charge_post_session_shout($event)
 	{
-		$this->shoutbox->post_session_shout($event['session_data']);
+		if ((int) $event['session_user_id'] === ANONYMOUS)
+		{
+			return;
+		}
+		else if ($this->user->data['is_bot'])
+		{
+			$this->shoutbox->post_session_shout_bot($event['session_data']);
+		}
+		else
+		{
+			$this->shoutbox->post_session_shout($event['session_data']);
+		}
 	}
 
 	/**
@@ -170,9 +181,9 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function shout_modify_post_data($event)
 	{
-		$event['post_data'] = array_merge($event['post_data'], array(
+		$event['post_data'] = array_merge($event['post_data'], [
 			'hide_robot'	=> false,
-		));
+		]);
 	}
 
 	/**
@@ -180,9 +191,9 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function shout_modify_post_before_data($event)
 	{
-		$event['data'] = array_merge($event['data'], array(
+		$event['data'] = array_merge($event['data'], [
 			'hide_robot'	=> $event['post_data']['hide_robot'],
-		));
+		]);
 	}
 
 	/**
@@ -190,9 +201,9 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function shout_modify_post_before($event)
 	{
-		$event['post_data'] = array_merge($event['post_data'], array(
+		$event['post_data'] = array_merge($event['post_data'], [
 			'hide_robot'	=> $this->request->variable('hide_robot', false),
-		));
+		]);
 	}
 
 	/**
@@ -200,9 +211,9 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function shout_submission_post_data($event)
 	{
-		$event['post_data'] = array_merge($event['post_data'], array(
+		$event['post_data'] = array_merge($event['post_data'], [
 			'hide_robot'	=> $this->request->variable('hide_robot', false),
-		));
+		]);
 	}
 
 	/**
@@ -233,10 +244,10 @@ class main_listener implements EventSubscriberInterface
 			}
 		}
 
-		$event['page_data'] = array_merge($event['page_data'], array(
+		$event['page_data'] = array_merge($event['page_data'], [
 			'S_SHOUT_HIDE_CHECKED'		=> ($event['post_data']['hide_robot']) ? ' checked="checked"' : '',
 			'S_SHOUT_HIDE_ALLOWED'		=> $shout_hide_allowed,
-		));
+		]);
 	}
 
 	/**
@@ -244,38 +255,38 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function add_permissions($event)
 	{
-		$event['categories'] = array_merge($event['categories'], array(
+		$event['categories'] = array_merge($event['categories'], [
 			'shoutbox' =>	'ACL_CAT_SHOUT',
-		));
+		]);
 
-		$event['permissions'] = array_merge($event['permissions'], array(
-			'a_shout_manage'		=> array('lang' => 'ACL_A_SHOUT_MANAGE', 'cat' => 'misc'),
-			'a_shout_priv'			=> array('lang' => 'ACL_A_SHOUT_PRIV', 'cat' => 'misc'),
-			'm_shout_delete'		=> array('lang' => 'ACL_M_SHOUT_DELETE', 'cat' => 'shoutbox'),
-			'm_shout_edit_mod'		=> array('lang' => 'ACL_M_SHOUT_EDIT_MOD', 'cat' => 'shoutbox'),
-			'm_shout_info'			=> array('lang' => 'ACL_M_SHOUT_INFO', 'cat' => 'shoutbox'),
-			'm_shout_personal'		=> array('lang' => 'ACL_M_SHOUT_PERSONAL', 'cat' => 'shoutbox'),
-			'm_shout_robot'			=> array('lang' => 'ACL_M_SHOUT_ROBOT', 'cat' => 'shoutbox'),
-			'u_shout_bbcode'		=> array('lang' => 'ACL_U_SHOUT_BBCODE', 'cat' => 'shoutbox'),
-			'u_shout_bbcode_change'	=> array('lang' => 'ACL_U_SHOUT_BBCODE_CHANGE', 'cat' => 'shoutbox'),
-			'u_shout_chars'			=> array('lang' => 'ACL_U_SHOUT_CHARS', 'cat' => 'shoutbox'),
-			'u_shout_color'			=> array('lang' => 'ACL_U_SHOUT_COLOR', 'cat' => 'shoutbox'),
-			'u_shout_delete_s'		=> array('lang' => 'ACL_U_SHOUT_DELETE_S', 'cat' => 'shoutbox'),
-			'u_shout_edit'			=> array('lang' => 'ACL_U_SHOUT_EDIT', 'cat' => 'shoutbox'),
-			'u_shout_hide'			=> array('lang' => 'ACL_U_SHOUT_HIDE', 'cat' => 'shoutbox'),
-			'u_shout_ignore_flood'	=> array('lang' => 'ACL_U_SHOUT_IGNORE_FLOOD', 'cat' => 'shoutbox'),
-			'u_shout_image'			=> array('lang' => 'ACL_U_SHOUT_IMAGE', 'cat' => 'shoutbox'),
-			'u_shout_inactiv'		=> array('lang' => 'ACL_U_SHOUT_INACTIV', 'cat' => 'shoutbox'),
-			'u_shout_info_s'		=> array('lang' => 'ACL_U_SHOUT_INFO_S', 'cat' => 'shoutbox'),
-			'u_shout_lateral'		=> array('lang' => 'ACL_U_SHOUT_LATERAL', 'cat' => 'shoutbox'),
-			'u_shout_limit_post'	=> array('lang' => 'ACL_U_SHOUT_LIMIT_POST', 'cat' => 'shoutbox'),
-			'u_shout_popup'			=> array('lang' => 'ACL_U_SHOUT_POPUP', 'cat' => 'shoutbox'),
-			'u_shout_post'			=> array('lang' => 'ACL_U_SHOUT_POST', 'cat' => 'shoutbox'),
-			'u_shout_post_inp'		=> array('lang' => 'ACL_U_SHOUT_POST_INP', 'cat' => 'shoutbox'),
-			'u_shout_priv'			=> array('lang' => 'ACL_U_SHOUT_PRIV', 'cat' => 'shoutbox'),
-			'u_shout_smilies'		=> array('lang' => 'ACL_U_SHOUT_SMILIES', 'cat' => 'shoutbox'),
-			'u_shout_view'			=> array('lang' => 'ACL_U_SHOUT_VIEW', 'cat' => 'shoutbox'),
-		));
+		$event['permissions'] = array_merge($event['permissions'], [
+			'a_shout_manage'		=> ['lang' => 'ACL_A_SHOUT_MANAGE', 'cat' => 'misc'],
+			'a_shout_priv'			=> ['lang' => 'ACL_A_SHOUT_PRIV', 'cat' => 'misc'],
+			'm_shout_delete'		=> ['lang' => 'ACL_M_SHOUT_DELETE', 'cat' => 'shoutbox'],
+			'm_shout_edit_mod'		=> ['lang' => 'ACL_M_SHOUT_EDIT_MOD', 'cat' => 'shoutbox'],
+			'm_shout_info'			=> ['lang' => 'ACL_M_SHOUT_INFO', 'cat' => 'shoutbox'],
+			'm_shout_personal'		=> ['lang' => 'ACL_M_SHOUT_PERSONAL', 'cat' => 'shoutbox'],
+			'm_shout_robot'			=> ['lang' => 'ACL_M_SHOUT_ROBOT', 'cat' => 'shoutbox'],
+			'u_shout_bbcode'		=> ['lang' => 'ACL_U_SHOUT_BBCODE', 'cat' => 'shoutbox'],
+			'u_shout_bbcode_change'	=> ['lang' => 'ACL_U_SHOUT_BBCODE_CHANGE', 'cat' => 'shoutbox'],
+			'u_shout_chars'			=> ['lang' => 'ACL_U_SHOUT_CHARS', 'cat' => 'shoutbox'],
+			'u_shout_color'			=> ['lang' => 'ACL_U_SHOUT_COLOR', 'cat' => 'shoutbox'],
+			'u_shout_delete_s'		=> ['lang' => 'ACL_U_SHOUT_DELETE_S', 'cat' => 'shoutbox'],
+			'u_shout_edit'			=> ['lang' => 'ACL_U_SHOUT_EDIT', 'cat' => 'shoutbox'],
+			'u_shout_hide'			=> ['lang' => 'ACL_U_SHOUT_HIDE', 'cat' => 'shoutbox'],
+			'u_shout_ignore_flood'	=> ['lang' => 'ACL_U_SHOUT_IGNORE_FLOOD', 'cat' => 'shoutbox'],
+			'u_shout_image'			=> ['lang' => 'ACL_U_SHOUT_IMAGE', 'cat' => 'shoutbox'],
+			'u_shout_inactiv'		=> ['lang' => 'ACL_U_SHOUT_INACTIV', 'cat' => 'shoutbox'],
+			'u_shout_info_s'		=> ['lang' => 'ACL_U_SHOUT_INFO_S', 'cat' => 'shoutbox'],
+			'u_shout_lateral'		=> ['lang' => 'ACL_U_SHOUT_LATERAL', 'cat' => 'shoutbox'],
+			'u_shout_limit_post'	=> ['lang' => 'ACL_U_SHOUT_LIMIT_POST', 'cat' => 'shoutbox'],
+			'u_shout_popup'			=> ['lang' => 'ACL_U_SHOUT_POPUP', 'cat' => 'shoutbox'],
+			'u_shout_post'			=> ['lang' => 'ACL_U_SHOUT_POST', 'cat' => 'shoutbox'],
+			'u_shout_post_inp'		=> ['lang' => 'ACL_U_SHOUT_POST_INP', 'cat' => 'shoutbox'],
+			'u_shout_priv'			=> ['lang' => 'ACL_U_SHOUT_PRIV', 'cat' => 'shoutbox'],
+			'u_shout_smilies'		=> ['lang' => 'ACL_U_SHOUT_SMILIES', 'cat' => 'shoutbox'],
+			'u_shout_view'			=> ['lang' => 'ACL_U_SHOUT_VIEW', 'cat' => 'shoutbox'],
+		]);
 	}
 
 	/**

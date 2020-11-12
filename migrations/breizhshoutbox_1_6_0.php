@@ -20,25 +20,25 @@ class breizhshoutbox_1_6_0 extends migration
 
 	static public function depends_on()
 	{
-		return array('\sylver35\breizhshoutbox\migrations\breizhshoutbox_1_5_0');
+		return ['\sylver35\breizhshoutbox\migrations\breizhshoutbox_1_5_0'];
 	}
 
 	public function update_data()
 	{
-		return array(
+		return [
 			// Version of extension
-			array('config.update', array('shout_version', '1.6.0')),
+			['config.update', ['shout_version', '1.6.0']],
 
 			// Config
-			array('config.add', array('shout_see_cite', 1)),
+			['config.add', ['shout_see_cite', 1]],
 
 			// Delete ".mp3" in somes config
-			array('config.update', array('shout_sound_new', str_replace('.mp3', '', $this->config['shout_sound_new']))),
-			array('config.update', array('shout_sound_new_priv', str_replace('.mp3', '', $this->config['shout_sound_new']))),
-			array('config.update', array('shout_sound_error', str_replace('.mp3', '', $this->config['shout_sound_error']))),
-			array('config.update', array('shout_sound_del', str_replace('.mp3', '', $this->config['shout_sound_del']))),
-			array('config.update', array('shout_sound_add', str_replace('.mp3', '', $this->config['shout_sound_add']))),
-			array('config.update', array('shout_sound_edit', str_replace('.mp3', '', $this->config['shout_sound_edit']))),
-		);
+			['config.update', ['shout_sound_new', str_replace('.mp3', '', $this->config['shout_sound_new'])]],
+			['config.update', ['shout_sound_new_priv', str_replace('.mp3', '', $this->config['shout_sound_new'])]],
+			['config.update', ['shout_sound_error', str_replace('.mp3', '', $this->config['shout_sound_error'])]],
+			['config.update', ['shout_sound_del', str_replace('.mp3', '', $this->config['shout_sound_del'])]],
+			['config.update', ['shout_sound_add', str_replace('.mp3', '', $this->config['shout_sound_add'])]],
+			['config.update', ['shout_sound_edit', str_replace('.mp3', '', $this->config['shout_sound_edit'])]],
+		];
 	}
 }
