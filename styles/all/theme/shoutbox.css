@@ -21,7 +21,7 @@
 	margin: 0;
 	padding: 0;
 	font-size: 1em;
-	background-color: transparent;
+	background-color: transparent !important;
 	/* uncomment the line below to abort the lines between messages */
 	/*border: none;*/
 }
@@ -682,10 +682,10 @@ input.button_shout_img:hover {
 	background-position: -98px -20px;
 }
 input.button_shout_popup, input.button_shout_popup_no {
-	background-position: -124px 0;
+	background-position: -125px 0;
 }
 input.button_shout_popup:hover {
-	background-position: -124px -20px;
+	background-position: -125px -20px;
 }
 input.button_shout_priv, input.button_shout_priv_no {
 	background-position: -197px 0;
@@ -777,7 +777,6 @@ input.button_shout_color_no:hover, input.button_shout_chars_no:hover,
 input.button_shout_robot_no:hover, input.button_shout_purge_no:hover {
 	background-position: -270px 0;
 }
-
 input.shout_bot {
 	background-image: url("./images/bot.webp");
 	-webkit-transition-property: none;
@@ -798,62 +797,62 @@ li.button_background, dt.button_background, div.button_background{
 	height: auto;
 	display: block;
 }
-li.button_background_grey, dt.button_background_grey, div.button_background_grey {
+.button_background_grey {
 	background-image: url("./images/fond/grey.webp");
 }
-li.button_background_grey2, dt.button_background_grey2, div.button_background_grey2 {
+.button_background_grey2 {
 	background-image: url("./images/fond/grey2.webp");
 }
-li.button_background_orange, dt.button_background_orange, div.button_background_orange {
+.button_background_orange {
 	background-image: url("./images/fond/orange.webp");
 }
-li.button_background_blue, dt.button_background_blue, div.button_background_blue {
+.button_background_blue {
 	background-image: url("./images/fond/blue.webp");
 }
-li.button_background_blue2, dt.button_background_blue2, div.button_background_blue2 {
+.button_background_blue2 {
 	background-image: url("./images/fond/blue2.webp");
 }
-li.button_background_violet, dt.button_background_violet, div.button_background_violet {
+.button_background_violet {
 	background-image: url("./images/fond/violet.webp");
 }
-li.button_background_soft, dt.button_background_soft, div.button_background_soft {
+.button_background_soft {
 	background-image: url("./images/fond/soft.webp");
 }
-li.button_background_green, dt.button_background_green, div.button_background_green {
+.button_background_green {
 	background-image: url("./images/fond/green.webp");
 }
-li.button_background_red, dt.button_background_red, div.button_background_red {
+.button_background_red {
 	background-image: url("./images/fond/red.webp");
 }
-li.button_background_red2, dt.button_background_red2, div.button_background_red2 {
+.button_background_red2 {
 	background-image: url("./images/fond/red2.webp");
 }
-li.button_background_red3, dt.button_background_red3, div.button_background_red3 {
+.button_background_red3 {
 	background-image: url("./images/fond/red3.webp");
 }
-li.button_background_purple, dt.button_background_purple, div.button_background_purple {
+.button_background_purple {
 	background-image: url("./images/fond/purple.webp");
 }
-li.button_background_transparent, dt.button_background_transparent, div.button_background_transparent {
-	background-image: url("./images/fond/transparent.webp");
-}
-li.button_background_yellow, dt.button_background_yellow, div.button_background_yellow {
+.button_background_yellow {
 	background-image: url("./images/fond/yellow.webp");
 }
-li.button_background_pink, dt.button_background_pink, div.button_background_pink {
+.button_background_pink {
 	background-image: url("./images/fond/pink.webp");
 }
-li.button_background_prosilver, dt.button_background_prosilver, div.button_background_prosilver {
+.button_background_prosilver {
 	background-image: url("./images/fond/prosilver.webp");
 }
-li.button_background_prosilver2, dt.button_background_prosilver2, div.button_background_prosilver2 {
+.button_background_prosilver2 {
 	background-image: url("./images/fond/prosilver2.webp");
 }
-li.button_background_subsilver2, dt.button_background_subsilver2, div.button_background_subsilver2 {
+.button_background_subsilver2 {
 	background-image: url("./images/fond/subsilver2.webp");
 }
-li.button_background_subsilver3, dt.button_background_subsilver3, div.button_background_subsilver3 {
+.button_background_subsilver3 {
 	background-image: url("./images/fond/subsilver3.webp");
+}
+.button_background_transparent {
+	background-image: none;
 }
 hr.dotted, hr.dashed {
 	background-color: transparent;
