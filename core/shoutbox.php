@@ -1954,6 +1954,19 @@ class shoutbox
 		];
 	}
 
+	private function get_session_shout($shoutbox_table, $user_id)
+	{
+		$interval = (int) $this->config['shout_sessions_time'] * 60;
+		$sql = 'SELECT shout_time
+			FROM ' . $shoutbox_table . '
+			WHERE shout_robot = 1 AND shout_robot_user = ' . $user_id . ' AND shout_time BETWEEN ' . (time() - $interval) . ' AND ' . time();
+		$result = $this->db->sql_query($sql);
+		$is_posted = $this->db->sql_fetchfield('shout_time');
+		$this->db->sql_freeresult($result);
+
+		return $is_posted ? true : false;
+	}
+
 	/*
 	 * Display infos Robot for connections
 	 */
@@ -1964,32 +1977,15 @@ class shoutbox
 			return;
 		}
 
-		$interval = (int) $this->config['shout_sessions_time'] * 60;
-		$is_posted = $is_posted_priv = $go_post = $go_post_priv = false;
+		$is_posted = $is_posted_priv = false;
 
 		if ($this->config['shout_sessions'])
 		{
-			$go_post = true;
-			$sql = $this->db->sql_build_query('SELECT', [
-				'SELECT'	=> 'shout_time',
-				'FROM'		=> [$this->shoutbox_table => ''],
-				'WHERE'		=> 'shout_robot = 1 AND shout_robot_user = ' . (int) $event['session_user_id'] . ' AND shout_time BETWEEN ' . (time() - $interval) . ' AND ' . time(),
-			]);
-			$result = $this->db->sql_query($sql);
-			$is_posted = $this->db->sql_fetchfield('shout_time');
-			$this->db->sql_freeresult($result);
+			$is_posted = $this->get_session_shout($this->shoutbox_table, (int) $event['session_user_id']);
 		}
 		if ($this->config['shout_sessions_priv'])
 		{
-			$go_post_priv = true;
-			$sql = $this->db->sql_build_query('SELECT', [
-				'SELECT'	=> 'shout_time',
-				'FROM'		=> [$this->shoutbox_priv_table => ''],
-				'WHERE'		=> 'shout_robot = 1 AND shout_robot_user = ' . (int) $event['session_user_id'] . ' AND shout_time BETWEEN ' . (time() - $interval) . ' AND ' . time(),
-			]);
-			$result = $this->db->sql_query($sql);
-			$is_posted_priv = $this->db->sql_fetchfield('shout_time');
-			$this->db->sql_freeresult($result);
+			$is_posted_priv = $this->get_session_shout($this->shoutbox_priv_table, (int) $event['session_user_id']);
 		}
 
 		$sql_data = [
@@ -2003,17 +1999,17 @@ class shoutbox
 			'shout_robot'				=> 1,
 			'shout_robot_user'			=> (int) $event['session_user_id'],
 			'shout_forum'				=> 0,
-			'shout_info'				=> ($bot) ? 2 : 1,
+			'shout_info'				=> 1,
 		];
 
-		if ($go_post && !$is_posted)
+		if ($this->config['shout_sessions'] && !$is_posted)
 		{
 			$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);
 			$this->config->increment('shout_nr', 1, true);
 		}
 
-		if ($go_post_priv && !$is_posted_priv)
+		if ($this->config['shout_sessions_priv'] && !$is_posted_priv)
 		{
 			$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);
@@ -2031,32 +2027,15 @@ class shoutbox
 			return;
 		}
 
-		$interval = (int) $this->config['shout_sessions_time'] * 60;
-		$is_posted = $is_posted_priv = $go_post = $go_post_priv = false;
+		$is_posted = $is_posted_priv = false;
 
 		if ($this->config['shout_sessions_bots'])
 		{
-			$go_post = true;
-			$sql = $this->db->sql_build_query('SELECT', [
-				'SELECT'	=> 'shout_time',
-				'FROM'		=> [$this->shoutbox_table => ''],
-				'WHERE'		=> 'shout_robot = 1 AND shout_robot_user = ' . (int) $event['session_user_id'] . ' AND shout_time BETWEEN ' . (time() - $interval) . ' AND ' . time(),
-			]);
-			$result = $this->db->sql_query($sql);
-			$is_posted = $this->db->sql_fetchfield('shout_time');
-			$this->db->sql_freeresult($result);
+			$is_posted = $this->get_session_shout($this->shoutbox_table, (int) $event['session_user_id']);
 		}
 		if ($this->config['shout_sessions_bots_priv'])
 		{
-			$go_post_priv = true;
-			$sql = $this->db->sql_build_query('SELECT', [
-				'SELECT'	=> 'shout_time',
-				'FROM'		=> [$this->shoutbox_priv_table => ''],
-				'WHERE'		=> 'shout_robot = 1 AND shout_robot_user = ' . (int) $event['session_user_id'] . ' AND shout_time BETWEEN ' . (time() - $interval) . ' AND ' . time(),
-			]);
-			$result = $this->db->sql_query($sql);
-			$is_posted_priv = $this->db->sql_fetchfield('shout_time');
-			$this->db->sql_freeresult($result);
+			$is_posted_priv = $this->get_session_shout($this->shoutbox_priv_table, (int) $event['session_user_id']);
 		}
 
 		$sql_data = [
@@ -2070,17 +2049,17 @@ class shoutbox
 			'shout_robot'				=> 1,
 			'shout_robot_user'			=> (int) $event['session_user_id'],
 			'shout_forum'				=> 0,
-			'shout_info'				=> ($bot) ? 2 : 1,
+			'shout_info'				=> 2,
 		];
 
-		if ($go_post && !$is_posted)
+		if ($this->config['shout_sessions_bots'] && !$is_posted)
 		{
 			$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);
 			$this->config->increment('shout_nr', 1, true);
 		}
 
-		if ($go_post_priv && !$is_posted_priv)
+		if ($this->config['shout_sessions_bots_priv'] && !$is_posted_priv)
 		{
 			$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
 			$this->db->sql_query($sql);

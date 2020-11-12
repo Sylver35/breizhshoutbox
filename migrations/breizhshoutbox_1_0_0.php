@@ -353,7 +353,7 @@ class breizhshoutbox_1_0_0 extends migration
 
 			// Custon function for first message
 			['custom', [
-				[&$this, 'add_first_messages')
+				[&$this, 'add_first_messages']
 			]]],
 		];
 	}
