@@ -4111,7 +4111,7 @@ class shoutbox
 			$user_shoutbox = json_decode($row['user_shoutbox']);
 		}
 
-		$auth_pop = $other ? $this->auth->acl_get_list($user_id, 'u_shout_popup') : $this->auth->acl_get('u_shout_popup');;
+		$auth_pop = $other ? $this->auth->acl_get_list($user_id, 'u_shout_popup') : $this->auth->acl_get('u_shout_popup');
 		$auth_priv = $other ? $this->auth->acl_get_list($user_id, 'u_shout_priv') : $this->auth->acl_get('u_shout_priv');
 		$user_shout->user = $this->set_user_option($user_shout->user, 'shout_sound_on', 4);
 		$user_shout->new = $this->set_user_option($user_shout->new, 'shout_sound_new', 1);

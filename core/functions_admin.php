@@ -288,7 +288,7 @@ class functions_admin
 
 		$sql = 'SELECT COUNT(shout_id) as total
 			FROM ' . $shoutbox_table;
-		$result = $this->shout_sql_query($sql);
+		$result = $this->db->sql_query($sql);
 		$deleted = $this->db->sql_fetchfield('total', $result);
 		$this->db->sql_freeresult($result);
 
