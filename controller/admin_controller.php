@@ -9,6 +9,7 @@
 
 namespace sylver35\breizhshoutbox\controller;
 use sylver35\breizhshoutbox\core\shoutbox;
+use sylver35\breizhshoutbox\core\functions_admin;
 use phpbb\cache\driver\driver_interface as cache;
 use phpbb\config\config;
 use phpbb\controller\helper;
@@ -26,6 +27,9 @@ class admin_controller
 {
 	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
+
+	/* @var \sylver35\breizhshoutbox\core\functions_admin */
+	protected $functions_admin;
 
 	/** @var \phpbb\cache\driver\driver_interface */
 	protected $cache;
@@ -86,9 +90,10 @@ class admin_controller
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, cache $cache, config $config, helper $helper, manager $ext_manager, db $db, pagination $pagination, request $request, template $template, auth $auth, user $user, language $language, log $log, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
+	public function __construct(shoutbox $shoutbox, functions_admin $functions_admin, cache $cache, config $config, helper $helper, manager $ext_manager, db $db, pagination $pagination, request $request, template $template, auth $auth, user $user, language $language, log $log, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
 	{
 		$this->shoutbox = $shoutbox;
+		$this->functions_admin = $functions_admin;
 		$this->cache = $cache;
 		$this->config = $config;
 		$this->helper = $helper;
@@ -122,7 +127,7 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			$this->update_config([
+			$this->functions_admin->update_config([
 				'shout_temp_users'			=> $this->request->variable('shout_temp_users', 5),
 				'shout_temp_anonymous'		=> $this->request->variable('shout_temp_anonymous', 10),
 				'shout_inactiv_anony'		=> $this->request->variable('shout_inactiv_anony', 15),
@@ -172,32 +177,32 @@ class admin_controller
 				'SHOUT_BBCODE'				=> (string) $this->config['shout_bbcode'],
 				'SHOUT_BBCODE_USER'			=> (string) $this->config['shout_bbcode_user'],
 				'SHOUT_BBCODE_SIZE'			=> (int) $this->config['shout_bbcode_size'],
-				'SHOUT_SEE_BUTTONS'			=> $this->shoutbox->construct_radio('shout_see_buttons', 1),
-				'SHOUT_SEE_BUTTONS_LEFT'	=> $this->shoutbox->construct_radio('shout_see_buttons_left', 1),
-				'SHOUT_SEE_BUTTON_IP'		=> $this->shoutbox->construct_radio('shout_see_button_ip', 1),
-				'SHOUT_SEE_CITE'			=> $this->shoutbox->construct_radio('shout_see_cite', 1),
-				'SHOUT_AVATAR'				=> $this->shoutbox->construct_radio('shout_avatar', 2),
+				'SHOUT_SEE_BUTTONS'			=> $this->functions_admin->construct_radio('shout_see_buttons', 1),
+				'SHOUT_SEE_BUTTONS_LEFT'	=> $this->functions_admin->construct_radio('shout_see_buttons_left', 1),
+				'SHOUT_SEE_BUTTON_IP'		=> $this->functions_admin->construct_radio('shout_see_button_ip', 1),
+				'SHOUT_SEE_CITE'			=> $this->functions_admin->construct_radio('shout_see_cite', 1),
+				'SHOUT_AVATAR'				=> $this->functions_admin->construct_radio('shout_avatar', 2),
 				'SHOUT_AVATAR_HEIGHT'		=> (int) $this->config['shout_avatar_height'],
-				'SHOUT_AVATAR_ROBOT'		=> $this->shoutbox->construct_radio('shout_avatar_robot', 2),
-				'SHOUT_AVATAR_USER'			=> $this->shoutbox->construct_radio('shout_avatar_user', 2),
+				'SHOUT_AVATAR_ROBOT'		=> $this->functions_admin->construct_radio('shout_avatar_robot', 2),
+				'SHOUT_AVATAR_USER'			=> $this->functions_admin->construct_radio('shout_avatar_user', 2),
 				'SHOUT_AVATAR_IMG'			=> (string) $this->config['shout_avatar_img'],
 				'SHOUT_AVATAR_IMG_BOT'		=> (string) $this->config['shout_avatar_img_robot'],
 				'SHOUT_AVATAR_IMG_SRC'		=> $this->ext_path . 'images/' . $this->config['shout_avatar_img'],
 				'SHOUT_AVATAR_IMG_BOT_SRC'	=> $this->ext_path . 'images/' . $this->config['shout_avatar_img_robot'],
-				'SHOUT_SOUND_ON'			=> $this->shoutbox->construct_radio('shout_sound_on', 2),
+				'SHOUT_SOUND_ON'			=> $this->functions_admin->construct_radio('shout_sound_on', 2),
 				'SHOUT_NR_ACP'				=> (int) $this->config['shout_nr_acp'],
 				'SHOUT_MAX_POST_CHARS'		=> (int) $this->config['shout_max_post_chars'],
-				'SHOUT_INDEX_ON'			=> $this->shoutbox->construct_radio('shout_index', 2),
+				'SHOUT_INDEX_ON'			=> $this->functions_admin->construct_radio('shout_index', 2),
 				'POS_SHOUT_INDEX'			=> $this->shoutbox->build_select_position($this->config['shout_position_index'], true),
-				'SHOUT_FORUM_ON'			=> $this->shoutbox->construct_radio('shout_forum', 2),
+				'SHOUT_FORUM_ON'			=> $this->functions_admin->construct_radio('shout_forum', 2),
 				'POS_SHOUT_FORUM'			=> $this->shoutbox->build_select_position($this->config['shout_position_forum'], false),
-				'SHOUT_TOPIC_ON'			=> $this->shoutbox->construct_radio('shout_topic', 2),
+				'SHOUT_TOPIC_ON'			=> $this->functions_admin->construct_radio('shout_topic', 2),
 				'POS_SHOUT_TOPIC'			=> $this->shoutbox->build_select_position($this->config['shout_position_topic'], false),
-				'NEW_SOUND'					=> $this->shoutbox->build_adm_sound_select('new'),
-				'ERROR_SOUND'				=> $this->shoutbox->build_adm_sound_select('error'),
-				'DEL_SOUND'					=> $this->shoutbox->build_adm_sound_select('del'),
-				'ADD_SOUND'					=> $this->shoutbox->build_adm_sound_select('add'),
-				'EDIT_SOUND'				=> $this->shoutbox->build_adm_sound_select('edit'),
+				'NEW_SOUND'					=> $this->functions_admin->build_adm_sound_select('new'),
+				'ERROR_SOUND'				=> $this->functions_admin->build_adm_sound_select('error'),
+				'DEL_SOUND'					=> $this->functions_admin->build_adm_sound_select('del'),
+				'ADD_SOUND'					=> $this->functions_admin->build_adm_sound_select('add'),
+				'EDIT_SOUND'				=> $this->functions_admin->build_adm_sound_select('edit'),
 				'SHOUT_SOUNDS_PATH'			=> $this->ext_path . 'sounds/',
 				'SHOUT_IMG_PATH'			=> $this->ext_path . 'images/',
 				'U_DATE_FORMAT'				=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'date_format']),
@@ -220,7 +225,7 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			$this->update_config([
+			$this->functions_admin->update_config([
 				'shout_title'				=> str_replace("'", $this->language->lang('SHOUT_PROTECT'), $this->request->variable('shout_title', 'shoutbox', true)),
 				'shout_width_post'			=> $this->request->variable('shout_width_post', 325),
 				'shout_prune'				=> $this->request->variable('shout_prune', 0),
@@ -255,14 +260,14 @@ class admin_controller
 				'COLOR_IMAGE'			=> (string) $this->config['shout_color_background'] . '.webp',
 				'SHOUT_DIV_IMG'			=> (string) $this->config['shout_div_img'],
 				'SHOUT_BAR_OPTION'		=> (bool) $this->config['shout_bar_option'],
-				'SHOUT_IMG_HORIZONTAL'	=> $this->shoutbox->build_select_horizontal('shout_img_horizontal'),
-				'SHOUT_IMG_VERTICAL'	=> $this->shoutbox->build_select_vertical('shout_img_vertical'),
-				'SHOUT_ON_CRON'			=> $this->shoutbox->construct_radio('shout_on_cron', 2),
-				'SHOUT_LOG_CRON'		=> $this->shoutbox->construct_radio('shout_log_cron', 2),
-				'SHOUT_BUTTON'			=> $this->shoutbox->construct_radio('shout_button_background', 1),
-				'SHOUT_DEFIL'			=> $this->shoutbox->construct_radio('shout_defil', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
-				'DIV_IMG_OPTION'		=> $this->shoutbox->build_select_background($this->ext_path, 'styles/all/theme/images/background/', 'shout_div_img'),
-				'COLOR_OPTION'			=> $this->shoutbox->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background', false, 'webp'),
+				'SHOUT_IMG_HORIZONTAL'	=> $this->functions_admin->build_select_horizontal('shout_img_horizontal'),
+				'SHOUT_IMG_VERTICAL'	=> $this->functions_admin->build_select_vertical('shout_img_vertical'),
+				'SHOUT_ON_CRON'			=> $this->functions_admin->construct_radio('shout_on_cron', 2),
+				'SHOUT_LOG_CRON'		=> $this->functions_admin->construct_radio('shout_log_cron', 2),
+				'SHOUT_BUTTON'			=> $this->functions_admin->construct_radio('shout_button_background', 1),
+				'SHOUT_DEFIL'			=> $this->functions_admin->construct_radio('shout_defil', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
+				'DIV_IMG_OPTION'		=> $this->functions_admin->build_select_background($this->ext_path, 'styles/all/theme/images/background/', 'shout_div_img'),
+				'COLOR_OPTION'			=> $this->functions_admin->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background', false, 'webp'),
 				'COLOR_PATH'			=> $this->ext_path . 'styles/all/theme/images/fond/',
 				'DIV_IMG_PATH'			=> $this->ext_path . 'styles/' . (file_exists($this->ext_path . 'styles/' . rawurlencode($this->user->style['style_path']) . '/theme/images/background/' . $this->config['shout_div_img']) ? rawurlencode($this->user->style['style_path']) : 'all') . '/theme/images/background/',
 			]);
@@ -284,7 +289,7 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 			
-			$this->update_rules();
+			$this->functions_admin->update_rules();
 
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_RULES');
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
@@ -329,13 +334,13 @@ class admin_controller
 			}
 			$this->db->sql_freeresult($result);
 
-			$this->get_shout_smilies();
+			$this->functions_admin->get_shout_smilies();
 			display_custom_bbcodes();
 
 			$this->template->assign_vars([
-				'SHOUT_RULES'			=> $this->shoutbox->construct_radio('shout_rules', 2),
-				'SHOUT_RULES_OPEN'		=> $this->shoutbox->construct_radio('shout_rules_open', 1),
-				'SHOUT_RULES_OPEN_PRIV'	=> $this->shoutbox->construct_radio('shout_rules_open_priv', 1),
+				'SHOUT_RULES'			=> $this->functions_admin->construct_radio('shout_rules', 2),
+				'SHOUT_RULES_OPEN'		=> $this->functions_admin->construct_radio('shout_rules_open', 1),
+				'SHOUT_RULES_OPEN_PRIV'	=> $this->functions_admin->construct_radio('shout_rules_open_priv', 1),
 				'U_SHOUT_SMILIES'		=> $this->helper->route('sylver35_breizhshoutbox_smilies_pop'),
 				'U_PREVIEW_AJAX'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'preview_rules']),
 				'SHOUT_USER_ID'			=> $this->user->data['user_id'],
@@ -361,7 +366,7 @@ class admin_controller
 		{
 			if (confirm_box(true))
 			{
-				$this->action_delete_mark($form_key, $deletemark, false);
+				$this->functions_admin->action_delete_mark($form_key, $deletemark, false, $this->u_action);
 			}
 			else
 			{
@@ -381,7 +386,7 @@ class admin_controller
 		{
 			if (confirm_box(true))
 			{
-				$this->action_delete_marklog($form_key, $deletemarklog, false);
+				$this->functions_admin->action_delete_marklog($form_key, $deletemarklog, false, $this->u_action);
 			}
 			else
 			{
@@ -401,7 +406,7 @@ class admin_controller
 		{
 			if (confirm_box(true))
 			{
-				$this->action_purge_shoutbox($form_key, $action, false);
+				$this->functions_admin->action_purge_shoutbox($form_key, $action, false, $this->u_action);
 			}
 			else
 			{
@@ -418,8 +423,8 @@ class admin_controller
 		{
 			$start = $this->request->variable('start', 0);
 			$shout_number = (int) $this->config['shout_nr_acp'];
-			$return = $this->get_messages($start, $shout_number, true);
-			$li = $this->get_logs(false);
+			$return = $this->functions_admin->get_messages($start, $shout_number, true);
+			$li = $this->functions_admin->get_logs(false);
 			$total_del = $this->config['shout_del_acp'] + $this->config['shout_del_auto'] + $this->config['shout_del_purge'] + $this->config['shout_del_user'];
 
 			$this->template->assign_vars([
@@ -460,7 +465,7 @@ class admin_controller
 		{
 			if (confirm_box(true))
 			{
-				$this->action_delete_mark($form_key, $deletemark, true);
+				$this->functions_admin->action_delete_mark($form_key, $deletemark, true, $this->u_action);
 			}
 			else
 			{
@@ -480,7 +485,7 @@ class admin_controller
 		{
 			if (confirm_box(true))
 			{
-				$this->action_delete_marklog($form_key, $deletemarklog, true);
+				$this->functions_admin->action_delete_marklog($form_key, $deletemarklog, true, $this->u_action);
 			}
 			else
 			{
@@ -498,7 +503,7 @@ class admin_controller
 		{
 			if (confirm_box(true))
 			{
-				$this->action_purge_shoutbox($form_key, $action, true);
+				$this->functions_admin->action_purge_shoutbox($form_key, $action, true, $this->u_action);
 			}
 			else
 			{
@@ -514,8 +519,8 @@ class admin_controller
 		{
 			$start = $this->request->variable('start', 0);
 			$shout_number = (int) $this->config['shout_nr_acp'];
-			$return = $this->get_messages($start, $shout_number, false);
-			$li = $this->get_logs(true);
+			$return = $this->functions_admin->get_messages($start, $shout_number, false);
+			$li = $this->functions_admin->get_logs(true);
 			$total_del = $this->config['shout_del_acp_priv'] + $this->config['shout_del_auto_priv'] + $this->config['shout_del_purge_priv'] + $this->config['shout_del_user_priv'];
 
 			$this->template->assign_vars([
@@ -550,7 +555,7 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			$this->update_config([
+			$this->functions_admin->update_config([
 				'shout_title_priv'				=> str_replace("'", $this->language->lang('SHOUT_PROTECT'), $this->request->variable('shout_title_priv', '', true)),
 				'shout_width_post_priv'			=> $this->request->variable('shout_width_post_priv', 325),
 				'shout_prune_priv'				=> $this->request->variable('shout_prune_priv', 0),
@@ -580,13 +585,13 @@ class admin_controller
 				'SHOUT_TITLE_PRIV'			=> (string) $this->config['shout_title_priv'],
 				'SHOUT_WIDTH_POST'			=> (int) $this->config['shout_width_post_priv'],
 				'SHOUT_PRUNE_PRIV'			=> (int) $this->config['shout_prune_priv'],
-				'SHOUT_IMG_HORIZONTAL_PRIV'	=> $this->shoutbox->build_select_horizontal('shout_img_horizontal_priv'),
-				'SHOUT_IMG_VERTICAL_PRIV'	=> $this->shoutbox->build_select_vertical('shout_img_vertical_priv'),
-				'SHOUT_ON_CRON_PRIV'		=> $this->shoutbox->construct_radio('shout_on_cron_priv', 2),
-				'SHOUT_LOG_CRON_PRIV'		=> $this->shoutbox->construct_radio('shout_log_cron_priv', 2),
-				'SHOUT_BUTTON'				=> $this->shoutbox->construct_radio('shout_button_background_priv', 1),
-				'SHOUT_DEFIL'				=> $this->shoutbox->construct_radio('shout_defil_priv', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
-				'NEW_SOUND_PRIV'			=> $this->shoutbox->build_adm_sound_select('new_priv'),
+				'SHOUT_IMG_HORIZONTAL_PRIV'	=> $this->functions_admin->build_select_horizontal('shout_img_horizontal_priv'),
+				'SHOUT_IMG_VERTICAL_PRIV'	=> $this->functions_admin->build_select_vertical('shout_img_vertical_priv'),
+				'SHOUT_ON_CRON_PRIV'		=> $this->functions_admin->construct_radio('shout_on_cron_priv', 2),
+				'SHOUT_LOG_CRON_PRIV'		=> $this->functions_admin->construct_radio('shout_log_cron_priv', 2),
+				'SHOUT_BUTTON'				=> $this->functions_admin->construct_radio('shout_button_background_priv', 1),
+				'SHOUT_DEFIL'				=> $this->functions_admin->construct_radio('shout_defil_priv', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
+				'NEW_SOUND_PRIV'			=> $this->functions_admin->build_adm_sound_select('new_priv'),
 				'SHOUT_MAX_POSTS'			=> (int) $this->config['shout_max_posts_priv'],
 				'SHOUT_MAX_POSTS_ON'		=> (int) $this->config['shout_max_posts_on_priv'],
 				'SHOUT_HEIGHT_PRIV' 		=> (int) $this->config['shout_height_priv'],
@@ -595,10 +600,10 @@ class admin_controller
 				'SHOUT_DIV_IMG_PRIV'		=> (string) $this->config['shout_div_img_priv'],
 				'SHOUT_BAR_TOP'				=> (bool) $this->config['shout_bar_option_priv'],
 				'SHOUT_SOUNDS_PATH'			=> $this->ext_path . 'sounds/',
-				'OPTION_IMAGE'				=> $this->shoutbox->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background_priv', false, 'webp'),
+				'OPTION_IMAGE'				=> $this->functions_admin->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background_priv', false, 'webp'),
 				'COLOR_PATH'				=> $this->ext_path . 'styles/all/theme/images/fond/',
 				'DIV_IMG_PATH'				=> $this->ext_path . 'styles/' . (file_exists($this->ext_path . 'styles/' . rawurlencode($this->user->style['style_path']) . '/theme/images/background/' . $this->config['shout_div_img_priv']) ? rawurlencode($this->user->style['style_path']) : 'all') . '/theme/images/background/',
-				'DIV_IMG_OPTION'			=> $this->shoutbox->build_select_background($this->ext_path, 'styles/all/theme/images/background/', 'shout_div_img'),
+				'DIV_IMG_OPTION'			=> $this->functions_admin->build_select_background($this->ext_path, 'styles/all/theme/images/background/', 'shout_div_img'),
 			]);
 		}
 	}
@@ -615,7 +620,7 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			$this->update_config([
+			$this->functions_admin->update_config([
 				'shout_width_post_pop'			=> $this->request->variable('shout_width_post_pop', 325),
 				'shout_height_pop'				=> $this->request->variable('shout_height_pop', 210),
 				'shout_div_img_pop'				=> $this->request->variable('shout_div_img_pop', ''),
@@ -644,14 +649,14 @@ class admin_controller
 				'SHOUT_BAR_OPTION'			=> (bool) $this->config['shout_bar_option_pop'],
 				'COLOR_IMAGE'				=> (string) $this->config['shout_color_background_pop'] . '.webp',
 				'SHOUT_DIV_IMG_POP'			=> (string) $this->config['shout_div_img_pop'],
-				'SHOUT_IMG_HORIZONTAL_POP'	=> $this->shoutbox->build_select_horizontal('shout_img_horizontal_pop'),
-				'SHOUT_IMG_VERTICAL_POP'	=> $this->shoutbox->build_select_vertical('shout_img_vertical_pop'),
-				'SHOUT_BUTTON'				=> $this->shoutbox->construct_radio('shout_button_background_pop', 1),
-				'SHOUT_DEFIL'				=> $this->shoutbox->construct_radio('shout_defil_pop', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
-				'COLOR_SELECT'				=> $this->shoutbox->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background_pop', false, 'webp'),
+				'SHOUT_IMG_HORIZONTAL_POP'	=> $this->functions_admin->build_select_horizontal('shout_img_horizontal_pop'),
+				'SHOUT_IMG_VERTICAL_POP'	=> $this->functions_admin->build_select_vertical('shout_img_vertical_pop'),
+				'SHOUT_BUTTON'				=> $this->functions_admin->construct_radio('shout_button_background_pop', 1),
+				'SHOUT_DEFIL'				=> $this->functions_admin->construct_radio('shout_defil_pop', 3, true, 'SHOUT_DEFIL_TOP', 'SHOUT_DEFIL_BOTTOM'),
+				'COLOR_SELECT'				=> $this->functions_admin->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background_pop', false, 'webp'),
 				'COLOR_PATH'				=> $this->ext_path . 'styles/all/theme/images/fond/',
 				'DIV_IMG_PATH'				=> $this->ext_path . 'styles/' . (file_exists($this->ext_path . 'styles/' . rawurlencode($this->user->style['style_path']) . '/theme/images/background/' . $this->config['shout_div_img_pop']) ? rawurlencode($this->user->style['style_path']) : 'all') . '/theme/images/background/',
-				'DIV_IMG_OPTION'			=> $this->shoutbox->build_select_background($this->ext_path, 'styles/all/theme/images/background/', 'shout_div_img'),
+				'DIV_IMG_OPTION'			=> $this->functions_admin->build_select_background($this->ext_path, 'styles/all/theme/images/background/', 'shout_div_img'),
 			]);
 		}
 	}
@@ -668,7 +673,7 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			$this->update_config([
+			$this->functions_admin->update_config([
 				'shout_panel'			=> $this->request->variable('shout_panel', 1),
 				'shout_panel_all'		=> $this->request->variable('shout_panel_all', 0),
 				'shout_panel_auto'		=> $this->request->variable('shout_panel_auto', 0),
@@ -688,10 +693,10 @@ class admin_controller
 			$panel_path = 'images/panel/';
 			$this->template->assign_vars([
 				'PANEL_PATH'				=> $this->ext_path . $panel_path,
-				'SHOUT_PANEL'				=> $this->shoutbox->construct_radio('shout_panel', 2),
-				'SHOUT_PANEL_ALL'			=> $this->shoutbox->construct_radio('shout_panel_all', 2),
-				'SHOUT_PANEL_AUTO'			=> $this->shoutbox->construct_radio('shout_panel_auto', 2),
-				'SHOUT_PANEL_FLOAT'			=> $this->shoutbox->construct_radio('shout_panel_float', 3, false, 'SHOUT_PANEL_FLOAT_LEFT', 'SHOUT_PANEL_FLOAT_RIGHT'),
+				'SHOUT_PANEL'				=> $this->functions_admin->construct_radio('shout_panel', 2),
+				'SHOUT_PANEL_ALL'			=> $this->functions_admin->construct_radio('shout_panel_all', 2),
+				'SHOUT_PANEL_AUTO'			=> $this->functions_admin->construct_radio('shout_panel_auto', 2),
+				'SHOUT_PANEL_FLOAT'			=> $this->functions_admin->construct_radio('shout_panel_float', 3, false, 'SHOUT_PANEL_FLOAT_LEFT', 'SHOUT_PANEL_FLOAT_RIGHT'),
 				'SHOUT_PANEL_WIDTH'			=> $this->config['shout_panel_width'],
 				'SHOUT_PANEL_HEIGHT'		=> $this->config['shout_panel_height'],
 				'PANEL_OPEN_IMAGE'			=> $this->config['shout_panel_img'],
@@ -699,8 +704,8 @@ class admin_controller
 				'SHOUT_PAGE_EXCLUDE'		=> str_replace('||', "\n", $this->config['shout_page_exclude']),
 				'OPTION_OPEN_TITLE'			=> substr($this->config['shout_panel_img'], 0, strrpos($this->config['shout_panel_img'], '.')),
 				'OPTION_EXIT_TITLE'			=> substr($this->config['shout_panel_exit_img'], 0, strrpos($this->config['shout_panel_exit_img'], '.')),
-				'PANEL_OPEN_OPTION'			=> $this->shoutbox->build_select_img($this->ext_path, $panel_path, 'shout_panel_img', true),
-				'PANEL_EXIT_OPTION'			=> $this->shoutbox->build_select_img($this->ext_path, $panel_path, 'shout_panel_exit_img', true),
+				'PANEL_OPEN_OPTION'			=> $this->functions_admin->build_select_img($this->ext_path, $panel_path, 'shout_panel_img', true),
+				'PANEL_EXIT_OPTION'			=> $this->functions_admin->build_select_img($this->ext_path, $panel_path, 'shout_panel_exit_img', true),
 			]);
 		}
 	}
@@ -770,7 +775,7 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 
-			$this->update_config([
+			$this->functions_admin->update_config([
 				'shout_enable_robot'		=> $this->request->variable('shout_enable_robot', 1),
 				'shout_name_robot'			=> $this->request->variable('shout_name_robot', '', true),
 				'shout_post_robot'			=> $this->request->variable('shout_post_robot', 1),
@@ -810,380 +815,36 @@ class admin_controller
 		}
 		else
 		{
-			$this->get_another_options();
+			$this->functions_admin->get_another_options();
 			$this->template->assign_vars([
 				'SHOUT_NAME_ROBOT'			=> (string) $this->config['shout_name_robot'],
-				'SHOUT_ENABLE_ROBOT'		=> $this->shoutbox->construct_radio('shout_enable_robot', 2, true),
-				'SHOUT_POST_ROBOT'			=> $this->shoutbox->construct_radio('shout_post_robot', 2),
-				'SHOUT_REP_ROBOT'			=> $this->shoutbox->construct_radio('shout_rep_robot', 2),
-				'SHOUT_EDIT_ROBOT'			=> $this->shoutbox->construct_radio('shout_edit_robot', 2),
-				'SHOUT_POST_ROBOT_PRIV'		=> $this->shoutbox->construct_radio('shout_post_robot_priv', 2),
-				'SHOUT_REP_ROBOT_PRIV'		=> $this->shoutbox->construct_radio('shout_rep_robot_priv', 2),
-				'SHOUT_EDIT_ROBOT_PRIV'		=> $this->shoutbox->construct_radio('shout_edit_robot_priv', 2),
-				'SHOUT_DELETE_ROBOT'		=> $this->shoutbox->construct_radio('shout_delete_robot', 2),
-				'SHOUT_SESSIONS'			=> $this->shoutbox->construct_radio('shout_sessions', 2),
-				'SHOUT_SESSIONS_PRIV'		=> $this->shoutbox->construct_radio('shout_sessions_priv', 2),
-				'SHOUT_SESSIONS_BOTS'		=> $this->shoutbox->construct_radio('shout_sessions_bots', 2),
-				'SHOUT_SESSIONS_BOTS_PRIV'	=> $this->shoutbox->construct_radio('shout_sessions_bots_priv', 2),
-				'SHOUT_HELLO'				=> $this->shoutbox->construct_radio('shout_hello', 2),
-				'SHOUT_HELLO_PRIV'			=> $this->shoutbox->construct_radio('shout_hello_priv', 2),
-				'SHOUT_NEWEST'				=> $this->shoutbox->construct_radio('shout_newest', 2),
-				'SHOUT_NEWEST_PRIV'			=> $this->shoutbox->construct_radio('shout_newest_priv', 2),
-				'SHOUT_BIRTHDAY'			=> $this->shoutbox->construct_radio('shout_birthday', 2),
-				'SHOUT_BIRTHDAY_PRIV'		=> $this->shoutbox->construct_radio('shout_birthday_priv', 2),
+				'SHOUT_ENABLE_ROBOT'		=> $this->functions_admin->construct_radio('shout_enable_robot', 2, true),
+				'SHOUT_POST_ROBOT'			=> $this->functions_admin->construct_radio('shout_post_robot', 2),
+				'SHOUT_REP_ROBOT'			=> $this->functions_admin->construct_radio('shout_rep_robot', 2),
+				'SHOUT_EDIT_ROBOT'			=> $this->functions_admin->construct_radio('shout_edit_robot', 2),
+				'SHOUT_POST_ROBOT_PRIV'		=> $this->functions_admin->construct_radio('shout_post_robot_priv', 2),
+				'SHOUT_REP_ROBOT_PRIV'		=> $this->functions_admin->construct_radio('shout_rep_robot_priv', 2),
+				'SHOUT_EDIT_ROBOT_PRIV'		=> $this->functions_admin->construct_radio('shout_edit_robot_priv', 2),
+				'SHOUT_DELETE_ROBOT'		=> $this->functions_admin->construct_radio('shout_delete_robot', 2),
+				'SHOUT_SESSIONS'			=> $this->functions_admin->construct_radio('shout_sessions', 2),
+				'SHOUT_SESSIONS_PRIV'		=> $this->functions_admin->construct_radio('shout_sessions_priv', 2),
+				'SHOUT_SESSIONS_BOTS'		=> $this->functions_admin->construct_radio('shout_sessions_bots', 2),
+				'SHOUT_SESSIONS_BOTS_PRIV'	=> $this->functions_admin->construct_radio('shout_sessions_bots_priv', 2),
+				'SHOUT_HELLO'				=> $this->functions_admin->construct_radio('shout_hello', 2),
+				'SHOUT_HELLO_PRIV'			=> $this->functions_admin->construct_radio('shout_hello_priv', 2),
+				'SHOUT_NEWEST'				=> $this->functions_admin->construct_radio('shout_newest', 2),
+				'SHOUT_NEWEST_PRIV'			=> $this->functions_admin->construct_radio('shout_newest_priv', 2),
+				'SHOUT_BIRTHDAY'			=> $this->functions_admin->construct_radio('shout_birthday', 2),
+				'SHOUT_BIRTHDAY_PRIV'		=> $this->functions_admin->construct_radio('shout_birthday_priv', 2),
 				'SHOUT_COLOR_ROBOT'			=> $this->config['shout_color_robot'],
 				'SHOUT_COLOR_MESSAGE'		=> $this->config['shout_color_message'],
 				'SHOUT_SESSIONS_TIME'		=> $this->config['shout_sessions_time'],
-				'SHOUT_CRON_HOUR'			=> $this->shoutbox->hour_select((string) $this->config['shout_cron_hour'], 'shout_cron_hour'),
+				'SHOUT_CRON_HOUR'			=> $this->functions_admin->hour_select((string) $this->config['shout_cron_hour'], 'shout_cron_hour'),
 				'SHOUT_PREZ_FORM'			=> make_forum_select((int) $this->config['shout_prez_form'], false, true, true),
 				'SHOUT_EXCLUDE_FORUMS'		=> make_forum_select(explode(', ', $this->config['shout_exclude_forums']), false, false, false, false),
-				'GROUP_OPTIONS'				=> $this->get_group_options(),
+				'GROUP_OPTIONS'				=> $this->functions_admin->get_group_options(),
 				'SERVER_HOUR'				=> $this->language->lang($this->shoutbox->plural('SHOUT_SERVER_HOUR', date('H')), date('H'), date('i')),
 			]);
-		}
-	}
-
-	private function get_group_options()
-	{
-		$group_options = '';
-		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 'DISTINCT group_type, group_name, group_id, group_colour',
-			'FROM'		=> [GROUPS_TABLE => ''],
-			'WHERE'		=> $this->db->sql_in_set('group_name', ['GUESTS', 'BOTS'], true),
-			'ORDER_BY'	=> 'group_type DESC, group_name ASC',
-		]);
-		$result = $this->db->sql_query($sql);
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$selected = (in_array($row['group_id'], explode(', ', $this->config['shout_birthday_exclude']))) ? ' selected="selected"' : '';
-			$group_options .= '<option' . (($row['group_type'] == GROUP_SPECIAL) ? ' class="sep"' : '') . ' value="' . $row['group_id'] . '" style="color:#' . $row['group_colour'] . ';font-weight:bold;"' . $selected . '>' . (($row['group_type'] == GROUP_SPECIAL) ? $this->language->lang('G_' . $row['group_name']) : $row['group_name']) . "</option>\n";
-		}
-		$this->db->sql_freeresult($result);
-
-		return $group_options;
-	}
-
-	private function get_another_options()
-	{
-		for ($i = 1; $i < 8; $i++)
-		{
-			$this->template->assign_vars([
-				'CHOICE_' . $i		=> preg_match('/' . $i . '/i', $this->config['shout_robot_choice']) ? ' checked="checked"' : '',
-				'CHOICE_PRIV_' . $i	=> preg_match('/' . $i . '/i', $this->config['shout_robot_choice_priv']) ? ' checked="checked"' : '',
-			]);
-		}
-
-		if ($this->shoutbox->breizhyoutube_exist())
-		{
-			$this->template->assign_vars([
-				'SHOUT_ENABLE_YOUTUBE'	=> true,
-				'SHOUT_VIDEO_NEW'		=> $this->shoutbox->construct_radio('shout_video_new', 2),
-				'IMAGE_VIDEO'			=> $this->ext_path . 'images/panel/ecran.webp',
-			]);
-		}
-
-		if ($this->shoutbox->relaxarcade_exist())
-		{
-			$this->template->assign_vars([
-				'SHOUT_ENABLE_ROBOT_RA'	=> true,
-				'SHOUT_NEW_SCORE'		=> $this->shoutbox->construct_radio('shout_arcade_new', 2),
-				'SHOUT_NEW_RECORD'		=> $this->shoutbox->construct_radio('shout_arcade_record', 2),
-				'SHOUT_NEW_URECORD'		=> $this->shoutbox->construct_radio('shout_arcade_urecord', 2),
-			]);
-		}
-	}
-
-	private function update_rules()
-	{
-		$this->update_config([
-			'shout_rules'			=> $this->request->variable('shout_rules', 1),
-			'shout_rules_open'		=> $this->request->variable('shout_rules_open', 0),
-			'shout_rules_open_priv'	=> $this->request->variable('shout_rules_open_priv', 0),
-		]);
-
-		$sql = [
-			'SELECT'	=> 'l.lang_iso, r.rules_lang',
-			'FROM'		=> [LANG_TABLE => 'l'],
-			'LEFT_JOIN'	=> [
-				[
-					'FROM'	=> [$this->shoutbox_rules_table => 'r'],
-					'ON'	=> 'r.rules_lang = l.lang_iso',
-				],
-			],
-		];
-		$result = $this->db->sql_query($this->db->sql_build_query('SELECT', $sql));
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$iso = $row['lang_iso'];
-			$rules_flags = $rules_flags_priv = 0;
-			$rules_uid = $rules_bitfield = $rules_uid_priv = $rules_bitfield_priv = '';
-			$rules_text = $this->request->variable("rules_text_{$iso}", '', true);
-			$rules_text_priv = $this->request->variable("rules_text_priv_{$iso}", '', true);
-			generate_text_for_storage($rules_text, $rules_uid, $rules_bitfield, $rules_flags, true, true, true);
-			generate_text_for_storage($rules_text_priv, $rules_uid_priv, $rules_bitfield_priv, $rules_flags_priv, true, true, true);
-
-			$data = [
-				'rules_lang'			=> $iso,
-				'rules_text'			=> $rules_text,
-				'rules_bitfield'		=> $rules_bitfield,
-				'rules_uid'				=> $rules_uid,
-				'rules_flags'			=> $rules_flags,
-				'rules_text_priv'		=> $rules_text_priv,
-				'rules_bitfield_priv'	=> $rules_bitfield_priv,
-				'rules_uid_priv'		=> $rules_uid_priv,
-				'rules_flags_priv'		=> $rules_flags_priv,
-			];
-
-			if (isset($row['rules_lang']) && $row['rules_lang'])
-			{
-				$sql = 'UPDATE ' . $this->shoutbox_rules_table . '
-					SET ' . $this->db->sql_build_array('UPDATE', $data) . "
-						WHERE rules_lang = '$iso'";
-				$this->db->sql_query($sql);
-			}
-			else
-			{
-				$sql = 'INSERT INTO ' . $this->shoutbox_rules_table . ' ' . $this->db->sql_build_array('INSERT', $data);
-				$this->db->sql_query($sql);
-			}
-
-			$this->update_config([
-				"shout_rules_{$iso}"		=> ($data['rules_text'] !== '') ? 1 : 0,
-				"shout_rules_priv_{$iso}"	=> ($data['rules_text_priv'] !== '') ? 1 : 0,
-			]);
-		}
-		$this->db->sql_freeresult($result);
-		$this->cache->destroy('_shout_rules');
-	}
-
-	private function get_shout_smilies()
-	{
-		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url,  MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
-			'FROM'		=> [SMILIES_TABLE => ''],
-			'WHERE'		=> 'display_on_shout = 1',
-			'GROUP_BY'	=> 'smiley_url',
-			'ORDER_BY'	=> 'min_smiley_order ASC',
-		]);
-		$result = $this->db->sql_query($sql);
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$this->template->assign_block_vars('smilies', [
-				'SRC'		=> $this->root_path . $this->config['smilies_path'] . '/' . $row['smiley_url'],
-				'ID'		=> $row['smiley_id'],
-				'CODE'		=> addslashes($row['code']),
-				'EMOTION'	=> $row['emotion'],
-				'WIDTH'		=> $row['smiley_width'],
-				'HEIGHT'	=> $row['smiley_height'],
-			]);
-		}
-		$this->db->sql_freeresult($result);
-	}
-
-	private function get_messages($start, $shout_number, $sort)
-	{
-		$i = 0;
-		$shoutbox_table = ($sort) ? $this->shoutbox_table : $this->shoutbox_priv_table;
-		$sql_nr = 'SELECT COUNT(DISTINCT shout_id) as total
-			FROM ' . $shoutbox_table . '
-			WHERE shout_inp = 0
-				OR shout_inp = ' . $this->user->data['user_id'] . '
-				OR shout_user_id = ' . $this->user->data['user_id'];
-		$result_nr = $this->db->sql_query($sql_nr);
-		$total_posts = $this->db->sql_fetchfield('total', $result_nr);
-		$this->db->sql_freeresult($result_nr);
-
-		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 's.*, u.user_id, u.username, u.user_colour, v.user_id as x_user_id, v.username as x_username, v.user_colour as x_user_colour',
-			'FROM'		=> [$shoutbox_table => 's'],
-			'LEFT_JOIN'	=> [
-				[
-					'FROM'	=> [USERS_TABLE => 'u'],
-					'ON'	=> 's.shout_user_id = u.user_id',
-				],
-				[
-					'FROM'	=> [USERS_TABLE => 'v'],
-					'ON'	=> 'v.user_id = s.shout_robot_user',
-				],
-			],
-			'WHERE'		=> 'shout_inp = 0 OR shout_inp = ' . $this->user->data['user_id'] . ' OR shout_user_id = ' . $this->user->data['user_id'],
-			'ORDER_BY'	=> 's.shout_time DESC',
-		]);
-		$result = $this->db->sql_query_limit($sql, $shout_number, $start);
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			if ($row['shout_inp'])
-			{
-				if (($row['shout_inp'] != $this->user->data['user_id']) && ($row['shout_user_id'] != $this->user->data['user_id']))
-				{
-					continue;
-				}
-			}
-			$row['username'] = ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'];
-			$row['shout_text'] = $this->shoutbox->shout_text_for_display($row, 3, true);
-
-			$this->template->assign_block_vars('messages', [
-				'TIME'				=> $this->user->format_date($row['shout_time']),
-				'POSTER'			=> $this->shoutbox->construct_action_shout($row['shout_user_id'], $row['username'], $row['user_colour'], true),
-				'ID'				=> $row['shout_id'],
-				'MESSAGE'			=> $row['shout_text'],
-				'ROW_NUMBER'		=> $i + ($start + 1),
-			]);
-			$i++;
-		}
-		$this->db->sql_freeresult($result);
-
-		return [
-			'i'				=> $i,
-			'total_posts'	=> $total_posts,
-		];
-	}
-
-	private function get_logs($sort)
-	{
-		$li = $start_log = 0;
-		if (!$sort)
-		{
-			$log_array = ['LOG_SHOUT_SCRIPT', 'LOG_SHOUT_ACTIVEX', 'LOG_SHOUT_APPLET', 'LOG_SHOUT_OBJECTS', 'LOG_SHOUT_IFRAME'];
-		}
-		else
-		{
-			$log_array = ['LOG_SHOUT_SCRIPT_PRIV', 'LOG_SHOUT_ACTIVEX_PRIV', 'LOG_SHOUT_APPLET_PRIV', 'LOG_SHOUT_OBJECTS_PRIV', 'LOG_SHOUT_IFRAME_PRIV'];
-		}
-		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 'l.log_id, l.user_id, l.log_type, l.log_ip, l.log_time, l.log_operation, l.reportee_id, u.user_id, u.username, u.user_colour',
-			'FROM'		=> [LOG_TABLE => 'l'],
-			'LEFT_JOIN'	=> [
-				[
-					'FROM'	=> [USERS_TABLE => 'u'],
-					'ON'	=> 'l.user_id = u.user_id',
-				],
-			],
-			'WHERE'		=> $this->db->sql_in_set('log_operation', $log_array),
-			'ORDER_BY'	=> 'log_time DESC',
-		]);
-		$result = $this->db->sql_query($sql);
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$row['username'] = ($row['user_id'] == ANONYMOUS) ? $this->language->lang('GUEST') : $row['username'];
-			$this->template->assign_block_vars('logs', [
-				'TIME'				=> $this->user->format_date($row['log_time']),
-				'REPORTEE'			=> $this->shoutbox->construct_action_shout($row['user_id'], $row['username'], $row['user_colour'], true),
-				'OPERATION'			=> $this->language->lang($row['log_operation']),
-				'ID'				=> $row['log_id'],
-				'IP'				=> $row['log_ip'],
-				'ROW_NUMBER'		=> $li + ($start_log + 1),
-			]);
-			$li++;
-		}
-		$this->db->sql_freeresult($result);
-
-		return $li;
-	}
-
-	private function action_delete_mark($form_key, $deletemark, $sort)
-	{
-		$marked = $this->request->variable('mark', [0]);
-		if ($sort)
-		{
-			$priv = '_priv';
-			$private = '_PRIV';
-			$shoutbox_table = $this->shoutbox_priv_table;
-		}
-		else
-		{
-			$priv = $private = '';
-			$shoutbox_table = $this->shoutbox_table;
-		}
-
-		if (!check_form_key($form_key))
-		{
-			trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
-		}
-
-		$where_sql = '';
-		if ($deletemark && sizeof($marked))
-		{
-			$sql_in = [];
-			foreach ($marked as $mark)
-			{
-				$sql_in[] = $mark;
-			}
-			$where_sql = ' WHERE ' . $this->db->sql_in_set('shout_id', $sql_in);
-			unset($sql_in);
-		}
-		if ($where_sql)
-		{
-			$sql = 'DELETE FROM ' . $shoutbox_table . $where_sql;
-			$this->db->sql_query($sql);
-			$deleted = $this->db->sql_affectedrows();
-			// Reload the shoutbox for all
-			$this->shoutbox->update_shout_messages($shoutbox_table);
-
-			$message = $this->shoutbox->plural('LOG_SELECT', $deleted, '_SHOUTBOX' . $private);
-			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), [$deleted]);
-			$this->config->increment("shout_del_acp{$priv}", $deleted, true);
-			trigger_error($this->language->lang($message, $deleted) . adm_back_link($this->u_action));
-		}
-	}
-
-	private function action_delete_marklog($form_key, $deletemarklog, $sort)
-	{
-		if (!check_form_key($form_key))
-		{
-			trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
-		}
-
-		$where_sql = '';
-		$private = ($sort) ? '_PRIV' : '';
-		$marked = $this->request->variable('mark', [0]);
-		if ($deletemarklog && sizeof($marked))
-		{
-			$sql_in = [];
-			foreach ($marked as $mark)
-			{
-				$sql_in[] = $mark;
-			}
-			$where_sql = ' WHERE ' . $this->db->sql_in_set('log_id', $sql_in);
-			unset($sql_in);
-		}
-		if ($where_sql)
-		{
-			$sql = 'DELETE FROM ' . LOG_TABLE . $where_sql;
-			$this->db->sql_query($sql);
-			$deleted = $this->db->sql_affectedrows();
-
-			$message = $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX' . $private);
-			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), [$deleted]);
-			trigger_error($this->language->lang($message, $deleted) . adm_back_link($this->u_action));
-		}
-	}
-
-	private function action_purge_shoutbox($form_key, $action, $sort)
-	{
-		if (!check_form_key($form_key))
-		{
-			trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
-		}
-
-		$private = ($sort) ? '_PRIV' : '';
-		if ($action == 'purge')
-		{
-			$this->shoutbox->purge_all_shout_admin($sort);
-			trigger_error($this->language->lang('LOG_PURGE_SHOUTBOX' . $private) . adm_back_link($this->u_action));
-		}
-		else
-		{
-			$deleted = $this->shoutbox->purge_shout_admin($action, $sort);
-			trigger_error($this->language->lang("LOG_PURGE_SHOUTBOX{$private}_ROBOT", $deleted) . adm_back_link($this->u_action));
-		}
-	}
-
-	private function update_config($data)
-	{
-		foreach ($data as $key => $value)
-		{
-			$this->config->set($key, $value);
 		}
 	}
 
