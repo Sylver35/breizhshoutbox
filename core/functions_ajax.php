@@ -599,30 +599,28 @@ class functions_ajax
 				WHERE user_id = ' . $id;
 		$result = $this->shoutbox->shout_sql_query($sql, true, 1);
 		$row = $this->db->sql_fetchrow($result);
+		$this->db->sql_freeresult($result);
 		if (!$row || $row['user_type'] == USER_IGNORE)
 		{
-			$content = [
+			return [
 				'type'		=> 0,
 				'message'	=> $this->language->lang('NO_USER'),
 			];
 		}
 		else
 		{
-			$content = [
+			return [
 				'type'		=> 1,
 				'id'		=> $row['user_id'],
 			];
 		}
-		$this->db->sql_freeresult($result);
-
-		return $content;
 	}
 
 	public function shout_ajax_action_user($val)
 	{
 		if (!$val['is_user'] || !$val['other'] || $val['other'] == ANONYMOUS)
 		{
-			$content = [
+			return [
 				'type'		=> 0,
 				'message'	=> $this->language->lang('NO_ACTION_PERM'),
 			];
@@ -645,13 +643,13 @@ class functions_ajax
 			$this->db->sql_freeresult($result);
 			if (!$row)
 			{
-				$content = [
+				return [
 					'type'		=> 1,
 				];
 			}
 			else if ($row['user_type'] == USER_IGNORE)
 			{
-				$content = [
+				return [
 					'type'		=> 2,
 					'username'	=> get_username_string('no_profile', $row['user_id'], $row['username'], $row['user_colour']),
 					'message'	=> $this->language->lang('SHOUT_USER_NONE'),
@@ -659,11 +657,9 @@ class functions_ajax
 			}
 			else
 			{
-				$content = $this->shoutbox->action_user($row, $val['userid'], $val['sort']);
+				return $this->shoutbox->action_user($row, $val['userid'], $val['sort']);
 			}
 		}
-
-		return $content;
 	}
 
 	public function shout_ajax_action_post($val, $message)
@@ -757,7 +753,7 @@ class functions_ajax
 	{
 		if ($val['other'] !== $val['userid'])
 		{
-			$content = [
+			return [
 				'type'		=> 0,
 				'message'	=> $this->language->lang('NO_ACTION_PERM'),
 			];
@@ -772,7 +768,7 @@ class functions_ajax
 			$deleted = $this->db->sql_affectedrows();
 			if (!$deleted)
 			{
-				$content = [
+				return [
 					'type'		=> 1,
 					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_NO'),
 				];
@@ -782,21 +778,19 @@ class functions_ajax
 				// For reload the message to everybody
 				$this->shoutbox->update_shout_messages($val['shout_table']);
 				$this->config->increment("shout_del_user{$val['priv']}", $deleted, true);
-				$content = [
+				return [
 					'type'		=> 1,
 					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_REP') . ' ' . $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $deleted), $deleted),
 				];
 			}
 		}
-
-		return $content;
 	}
 
 	public function shout_ajax_action_del_to($val)
 	{
 		if ($val['other'] !== $val['userid'])
 		{
-			$content = [
+			return [
 				'type'		=> 0,
 				'message'	=> $this->language->lang('NO_ACTION_PERM'),
 			];
@@ -811,7 +805,7 @@ class functions_ajax
 			$deleted = $this->db->sql_affectedrows();
 			if (!$deleted)
 			{
-				$content = [
+				return [
 					'type'		=> 1,
 					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_NO'),
 				];
@@ -820,14 +814,12 @@ class functions_ajax
 			{
 				$this->shoutbox->update_shout_messages($val['shout_table']);
 				$this->config->increment("shout_del_user{$val['priv']}", $deleted, true);
-				$content = [
+				return [
 					'type'		=> 1,
 					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_REP') . ' ' . $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $deleted), $deleted),
 				];
 			}
 		}
-
-		return $content;
 	}
 
 	public function shout_ajax_action_remove($val)
@@ -845,14 +837,14 @@ class functions_ajax
 			{
 				$this->shoutbox->update_shout_messages($val['shout_table']);
 				$this->config->increment("shout_del_user{$val['priv']}", $deleted, true);
-				$content = [
+				return [
 					'type'		=> 1,
 					'message'	=> $this->language->lang('SHOUT_ACTION_REMOVE_REP') . ' ' . $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $deleted), $deleted),
 				];
 			}
 			else
 			{
-				$content = [
+				return [
 					'type'		=> 0,
 					'message'	=> $this->language->lang('SHOUT_ACTION_REMOVE_NO'),
 				];
@@ -860,13 +852,11 @@ class functions_ajax
 		}
 		else
 		{
-			$content = [
+			return [
 				'type'		=> 0,
 				'message'	=> $this->language->lang('NO_SHOUT_DEL'),
 			];
 		}
-
-		return $content;
 	}
 
 	public function shout_ajax_delete($val, $post)
