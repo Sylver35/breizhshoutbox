@@ -608,7 +608,7 @@ class admin_controller
 				'OPTION_IMAGE'				=> $this->functions_admin->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background_priv', false, 'webp'),
 				'COLOR_PATH'				=> $this->ext_path . 'styles/all/theme/images/fond/',
 				'DIV_IMG_PATH'				=> $this->ext_path . 'styles/' . (file_exists($this->ext_path . 'styles/' . rawurlencode($this->user->style['style_path']) . '/theme/images/background/' . $this->config['shout_div_img_priv']) ? rawurlencode($this->user->style['style_path']) : 'all') . '/theme/images/background/',
-				'DIV_IMG_OPTION'			=> $this->functions_admin->build_select_background($this->ext_path, 'styles/all/theme/images/background/', 'shout_div_img'),
+				'DIV_IMG_OPTION'			=> $this->functions_admin->build_select_background($this->ext_path, 'styles/all/theme/images/background/', 'shout_div_img_priv'),
 			]);
 		}
 	}
@@ -661,7 +661,7 @@ class admin_controller
 				'COLOR_SELECT'				=> $this->functions_admin->build_select_img($this->ext_path, 'styles/all/theme/images/fond/', 'shout_color_background_pop', false, 'webp'),
 				'COLOR_PATH'				=> $this->ext_path . 'styles/all/theme/images/fond/',
 				'DIV_IMG_PATH'				=> $this->ext_path . 'styles/' . (file_exists($this->ext_path . 'styles/' . rawurlencode($this->user->style['style_path']) . '/theme/images/background/' . $this->config['shout_div_img_pop']) ? rawurlencode($this->user->style['style_path']) : 'all') . '/theme/images/background/',
-				'DIV_IMG_OPTION'			=> $this->functions_admin->build_select_background($this->ext_path, 'styles/all/theme/images/background/', 'shout_div_img'),
+				'DIV_IMG_OPTION'			=> $this->functions_admin->build_select_background($this->ext_path, 'styles/all/theme/images/background/', 'shout_div_img_pop'),
 			]);
 		}
 	}
