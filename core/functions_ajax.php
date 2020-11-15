@@ -822,7 +822,7 @@ class functions_ajax
 				$this->config->increment("shout_del_user{$val['priv']}", $deleted, true);
 				$content = [
 					'type'		=> 1,
-					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_REP') . ' ' . $this->language->lang($this->plural('NUMBER_MESSAGE', $deleted), $deleted),
+					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_REP') . ' ' . $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $deleted), $deleted),
 				];
 			}
 		}
