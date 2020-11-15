@@ -13,19 +13,13 @@ use phpbb\json_response;
 use phpbb\exception\http_exception;
 use phpbb\cache\driver\driver_interface as cache;
 use phpbb\config\config;
-use phpbb\controller\helper;
-use phpbb\path_helper;
 use phpbb\db\driver\driver_interface as db;
-use phpbb\pagination;
 use phpbb\request\request;
 use phpbb\template\template;
-use phpbb\auth\auth;
 use phpbb\user;
 use phpbb\language\language;
 use phpbb\log\log;
-use Symfony\Component\DependencyInjection\Container;
 use phpbb\extension\manager;
-use phpbb\event\dispatcher_interface as phpbb_dispatcher;
 
 class functions_admin
 {
@@ -38,26 +32,14 @@ class functions_admin
 	/** @var \phpbb\config\config */
 	protected $config;
 
-	/* @var \phpbb\controller\helper */
-	protected $helper;
-
-	/* @var \phpbb\path_helper */
-	protected $path_helper;
-
 	/** @var \phpbb\db\driver\driver_interface */
 	protected $db;
-
-	/** @var \phpbb\pagination */
-	protected $pagination;
 
 	/** @var \phpbb\request\request */
 	protected $request;
 
 	/** @var \phpbb\template\template */
 	protected $template;
-
-	/** @var \phpbb\auth\auth */
-	protected $auth;
 
 	/** @var \phpbb\user */
 	protected $user;
@@ -68,14 +50,8 @@ class functions_admin
 	/** @var \phpbb\log\log */
 	protected $log;
 
-	/** @var \Symfony\Component\DependencyInjection\Container */
-	protected $phpbb_container;
-
 	/** @var \phpbb\extension\manager */
 	protected $ext_manager;
-
-	/** @var \phpbb\event\dispatcher_interface */
-	protected $phpbb_dispatcher;
 
 	/** @var string phpBB root path */
 	protected $root_path;
@@ -85,9 +61,6 @@ class functions_admin
 
 	/** @var string root path web */
 	protected $root_path_web;
-
-	/** @var string ext path */
-	protected $ext_path;
 
 	/** @var string ext path web */
 	protected $ext_path_web;
@@ -106,32 +79,23 @@ class functions_admin
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, cache $cache, config $config, helper $helper, path_helper $path_helper, db $db, pagination $pagination, request $request, template $template, auth $auth, user $user, language $language, log $log, Container $phpbb_container, manager $ext_manager, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
+	public function __construct(shoutbox $shoutbox, cache $cache, config $config, db $db, request $request, template $template, user $user, language $language, log $log, manager $ext_manager, $root_path, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
 	{
 		$this->shoutbox = $shoutbox;
 		$this->cache = $cache;
 		$this->config = $config;
-		$this->helper = $helper;
-		$this->path_helper = $path_helper;
 		$this->db = $db;
-		$this->pagination = $pagination;
 		$this->request = $request;
 		$this->template = $template;
-		$this->auth = $auth;
 		$this->user = $user;
 		$this->language = $language;
 		$this->log = $log;
-		$this->phpbb_container = $phpbb_container;
 		$this->ext_manager = $ext_manager;
-		$this->phpbb_dispatcher = $phpbb_dispatcher;
 		$this->root_path = $root_path;
-		$this->php_ext = $php_ext;
 		$this->shoutbox_table = $shoutbox_table;
 		$this->shoutbox_priv_table = $shoutbox_priv_table;
 		$this->shoutbox_rules_table = $shoutbox_rules_table;
-		$this->root_path_web = generate_board_url() . '/';
 		$this->ext_path = $this->ext_manager->get_extension_path('sylver35/breizhshoutbox', true);
-		$this->ext_path_web = $this->path_helper->update_web_root_path($this->ext_path);
 	}
 
 	/*
@@ -405,12 +369,6 @@ class functions_admin
 
 	public function update_rules()
 	{
-		$this->update_config([
-			'shout_rules'			=> $this->request->variable('shout_rules', 1),
-			'shout_rules_open'		=> $this->request->variable('shout_rules_open', 0),
-			'shout_rules_open_priv'	=> $this->request->variable('shout_rules_open_priv', 0),
-		]);
-
 		$sql = [
 			'SELECT'	=> 'l.lang_iso, r.rules_lang',
 			'FROM'		=> [LANG_TABLE => 'l'],

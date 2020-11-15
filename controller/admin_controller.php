@@ -289,6 +289,11 @@ class admin_controller
 				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
 			}
 			
+			$this->functions_admin->update_config([
+				'shout_rules'			=> $this->request->variable('shout_rules', 1),
+				'shout_rules_open'		=> $this->request->variable('shout_rules_open', 0),
+				'shout_rules_open_priv'	=> $this->request->variable('shout_rules_open_priv', 0),
+			]);
 			$this->functions_admin->update_rules();
 
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_RULES');
