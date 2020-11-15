@@ -124,7 +124,7 @@ class functions_ajax
 		// Permissions and security verifications
 		if (!$this->auth->acl_get("u_shout{$val['perm']}"))
 		{
-			$this->shout_error("NO_VIEW{$val['privat']}_PERM");
+			$this->shoutbox->shout_error("NO_VIEW{$val['privat']}_PERM");
 			return;
 		}
 
@@ -784,7 +784,7 @@ class functions_ajax
 				$this->config->increment("shout_del_user{$val['priv']}", $deleted, true);
 				$content = [
 					'type'		=> 1,
-					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_REP') . ' ' . $this->language->lang($this->plural('NUMBER_MESSAGE', $deleted), $deleted),
+					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_REP') . ' ' . $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $deleted), $deleted),
 				];
 			}
 		}
@@ -1045,7 +1045,7 @@ class functions_ajax
 		// For guest, add a random number from ip after name
 		if (!$this->user->data['is_registered'])
 		{
-			$name = $this->add_random_ip($name);
+			$name = $this->shoutbox->add_random_ip($name);
 		}
 
 		$sql_ary = [

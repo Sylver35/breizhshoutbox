@@ -62,8 +62,8 @@ class functions_admin
 	/** @var string root path web */
 	protected $root_path_web;
 
-	/** @var string ext path web */
-	protected $ext_path_web;
+	/** @var string ext path */
+	protected $ext_path;
 
 	/** @var string Custom form action */
 	protected $u_action;
