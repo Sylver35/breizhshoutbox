@@ -1496,10 +1496,13 @@ class shoutbox
 	/*
 	 * protect title value for robot messages
 	 */
-	private function shout_chars($value)
+	private function shout_protect_title($value)
 	{
+		$value = strip_tags($value);
 		$value = str_replace('&amp;', '&', $value);
-		return htmlspecialchars(str_replace(['<t>', '</t>', '&lt;t&gt;', '&lt;/t&gt;', '&quot;'], '', $value), ENT_QUOTES);
+		$value = preg_replace('/\&#([^>]+)\;/', '', $value);
+
+		return htmlspecialchars($value, ENT_QUOTES);
 	}
 
 	/*
@@ -1507,31 +1510,76 @@ class shoutbox
 	 */
 	private function tpl($sort, $content1 = '', $content2 = '', $content3 = '')
 	{
-		$tpl = [
-			'action'	=> '<a onclick="shoutbox.actionUser(' . $content1 . ');" title="' . $content2 . '" class="username-coloured action-user">' . $content3 . '</a>',
-			'cite'		=> '<span style="color:#' . $this->config['shout_color_message'] . ';font-weight:bold;">' . $content1 . ' </span> ' . $content2 . ' :: ' . $content3,
-			'url'		=> '<a class="action-user" href="' . $content1 . '" title="' . $this->shout_chars(($content3 !== '') ? $content3 : $content2) . '">' . $content2 . '</a>',
-			'italic'	=> '<span class="shout-italic" style="color:#' . $this->config['shout_color_message'] . '">' . $content1 . '</span>',
-			'bold'		=> '<span class="shout-bold">',
-			'close'		=> '</span>',
-			'colorbot'	=> '[color=#' . $this->config['shout_color_message'] . '][i]' . $content1 . '[/i][/color]',
-			'personal'	=> 'onclick="shoutbox.personalMsg();" title="' . $this->language->lang('SHOUT_ACTION_MSG') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_MSG'),
-			'citemsg'	=> 'onclick="shoutbox.citeMsg();" title="' . $this->language->lang('SHOUT_ACTION_CITE_EXPLAIN') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_CITE'),
-			'citemulti'	=> 'onclick="shoutbox.citeMultiMsg(\'' . $content1 . '\', \'' . $content2 . '\', true);" title="' . $this->language->lang('SHOUT_ACTION_CITE_M_EXPLAIN') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_CITE_M'),
-			'perso'		=> 'onclick="shoutbox.changePerso(' . $content1 . ');" title="' . $this->language->lang('SHOUT_ACTION_PERSO') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_PERSO'),
-			'robot'		=> 'onclick="shoutbox.robotMsg(' . $content1 . ');" title="' . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->config['shout_name_robot']) . '"><span title="">' . $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->construct_action_shout(0)),
-			'auth'		=> 'onclick="shoutbox.runAuth(' . $content1 . ', \'' . $content2 . '\');" title="' . $this->language->lang('SHOUT_ACTION_AUTH') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_AUTH'),
-			'prefs'		=> 'onclick="shoutbox.shoutPopup(\'' . $content1 . '\', \'850\', \'500\', \'_popup\');" title="' . $this->language->lang('SHOUT_CONFIG_OPEN_TO') . '"><span title="">' . $this->language->lang('SHOUT_CONFIG_OPEN_TO'),
-			'delreqto'	=> 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DEL_TO_EXPLAIN') . '\'))shoutbox.delReqTo(' . $content1 . ');" title="' . $this->language->lang('SHOUT_ACTION_DEL_TO') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_DEL_TO'),
-			'delreq'	=> 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_DELETE_EXPLAIN') . '\'))shoutbox.delReq(' . $content1 . ');" title="' . $this->language->lang('SHOUT_ACTION_DELETE') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_DELETE'),
-			'remove'	=> 'onclick="if(confirm(\'' . $this->language->lang('SHOUT_ACTION_REMOVE_EXPLAIN') . '\'))shoutbox.removeMsg(' . $content1 . ');" title="' . $this->language->lang('SHOUT_ACTION_REMOVE') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_REMOVE'),
-			'profile'	=> $content1 . '" title="' . $this->language->lang('SHOUT_ACTION_PROFIL', $content2) . '"><span title="">' . $this->language->lang('SHOUT_ACTION_PROFIL', $content2),
-			'admin'		=> $content1 . '" title="' . $this->language->lang('SHOUT_ACTION_ADMIN') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_ADMIN'),
-			'modo'		=> $content1 . '" title="' . $this->language->lang('SHOUT_ACTION_MCP') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_MCP'),
-			'ban'		=> $content1 . '" title="' . $this->language->lang('SHOUT_ACTION_BAN') . '"><span title="">' . $this->language->lang('SHOUT_ACTION_BAN'),
-		];
+		$content4 = '';
+		switch ($sort)
+		{
+			case 'action':
+			case 'bold':
+			case 'close':
+			break;
+			case 'cite':
+				$content4 = $this->config['shout_color_message'];
+			break;
+			case 'url':
+				$content3 = $this->shout_protect_title($content3 ? $content3 : $content2);
+			break;
+			case 'italic':
+				$content2 = $this->config['shout_color_message'];
+			break;
+			case 'colorbot':
+				$content2 = $this->config['shout_color_message'];
+			break;
+			case 'personal':
+				$content1 = $this->language->lang('SHOUT_ACTION_MSG');
+			break;
+			case 'citemsg':
+				$content1 = $this->language->lang('SHOUT_ACTION_CITE_EXPLAIN');
+				$content2 = $this->language->lang('SHOUT_ACTION_CITE');
+			break;
+			case 'citemulti':
+				$content3 = $this->language->lang('SHOUT_ACTION_CITE_M_EXPLAIN');
+				$content4 = $this->language->lang('SHOUT_ACTION_CITE_M');
+			break;
+			case 'perso':
+				$content2 = $this->language->lang('SHOUT_ACTION_PERSO');
+			break;
+			case 'robot':
+				$content2 = $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->config['shout_name_robot']);
+				$content3 = $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->construct_action_shout(0));
+			break;
+			case 'auth':
+				$content3 = $this->language->lang('SHOUT_ACTION_AUTH');
+			break;
+			case 'prefs':
+				$content2 = $this->language->lang('SHOUT_CONFIG_OPEN_TO');
+			break;
+			case 'delreqto':
+				$content2 = $this->language->lang('SHOUT_ACTION_DEL_TO_EXPLAIN');
+				$content3 = $this->language->lang('SHOUT_ACTION_DEL_TO');
+			break;
+			case 'delreq':
+				$content2 = $this->language->lang('SHOUT_ACTION_DELETE_EXPLAIN');
+				$content3 = $this->language->lang('SHOUT_ACTION_DELETE');
+			break;
+			case 'remove':
+				$content2 = $this->language->lang('SHOUT_ACTION_REMOVE_EXPLAIN');
+				$content3 = $this->language->lang('SHOUT_ACTION_REMOVE');
+			break;
+			case 'profile':
+				$content2 = $this->language->lang('SHOUT_ACTION_PROFIL', $content2);
+			break;
+			case 'admin':
+				$content2 = $this->language->lang('SHOUT_ACTION_ADMIN');
+			break;
+			case 'modo':
+				$content2 = $this->language->lang('SHOUT_ACTION_MCP');
+			break;
+			case 'ban':
+				$content2 = $this->language->lang('SHOUT_ACTION_BAN');
+			break;	
+		}
 
-		return $tpl[$sort];
+		return sprintf($this->config["shout_tpl_{$sort}"], $content1, $content2, $content3, $content4);
 	}
 
 	public function action_user($row, $userid, $sort)
@@ -3140,7 +3188,7 @@ class shoutbox
 			break;
 		}
 
-		// Construct the user's preferences
+		// Construct the user's data
 		$result = $this->create_user_preferences($data, $sort_of);
 
 		$this->template->assign_vars([

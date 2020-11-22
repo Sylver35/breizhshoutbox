@@ -10,7 +10,6 @@
 namespace sylver35\breizhshoutbox\controller;
 use sylver35\breizhshoutbox\core\shoutbox;
 use sylver35\breizhshoutbox\core\functions_admin;
-use phpbb\cache\driver\driver_interface as cache;
 use phpbb\config\config;
 use phpbb\controller\helper;
 use phpbb\extension\manager;
@@ -18,7 +17,6 @@ use phpbb\db\driver\driver_interface as db;
 use phpbb\pagination;
 use phpbb\request\request;
 use phpbb\template\template;
-use phpbb\auth\auth;
 use phpbb\user;
 use phpbb\language\language;
 use phpbb\log\log;
@@ -30,9 +28,6 @@ class admin_controller
 
 	/* @var \sylver35\breizhshoutbox\core\functions_admin */
 	protected $functions_admin;
-
-	/** @var \phpbb\cache\driver\driver_interface */
-	protected $cache;
 
 	/** @var \phpbb\config\config */
 	protected $config;
@@ -54,9 +49,6 @@ class admin_controller
 
 	/** @var \phpbb\template\template */
 	protected $template;
-
-	/** @var \phpbb\auth\auth */
-	protected $auth;
 
 	/** @var \phpbb\user */
 	protected $user;
@@ -83,18 +75,15 @@ class admin_controller
 	 * The database tables
 	 *
 	 * @var string */
-	protected $shoutbox_table;
-	protected $shoutbox_priv_table;
 	protected $shoutbox_rules_table;
 
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, functions_admin $functions_admin, cache $cache, config $config, helper $helper, manager $ext_manager, db $db, pagination $pagination, request $request, template $template, auth $auth, user $user, language $language, log $log, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
+	public function __construct(shoutbox $shoutbox, functions_admin $functions_admin, config $config, helper $helper, manager $ext_manager, db $db, pagination $pagination, request $request, template $template, user $user, language $language, log $log, $root_path, $php_ext, $shoutbox_rules_table)
 	{
 		$this->shoutbox = $shoutbox;
 		$this->functions_admin = $functions_admin;
-		$this->cache = $cache;
 		$this->config = $config;
 		$this->helper = $helper;
 		$this->ext_manager = $ext_manager;
@@ -102,14 +91,11 @@ class admin_controller
 		$this->pagination = $pagination;
 		$this->request = $request;
 		$this->template = $template;
-		$this->auth = $auth;
 		$this->user = $user;
 		$this->language = $language;
 		$this->log = $log;
 		$this->root_path = $root_path;
 		$this->php_ext = $php_ext;
-		$this->shoutbox_table = $shoutbox_table;
-		$this->shoutbox_priv_table = $shoutbox_priv_table;
 		$this->shoutbox_rules_table = $shoutbox_rules_table;
 		$this->ext_path = $this->ext_manager->get_extension_path('sylver35/breizhshoutbox', true);
 	}
@@ -172,11 +158,11 @@ class admin_controller
 				'SHOUT_TEMP_ANONYMOUS'		=> (int) $this->config['shout_temp_anonymous'],
 				'SHOUT_INACTIV_ANONY'		=> (int) $this->config['shout_inactiv_anony'],
 				'SHOUT_INACTIV_MEMBER'		=> (int) $this->config['shout_inactiv_member'],
-				'SHOUT_DATEFORMAT'			=> $this->shoutbox->build_dateformat_option((string) $this->config['shout_dateformat'], true),
-				'DATEFORMAT_VALUE'			=> (string) $this->config['shout_dateformat'],
+				'SHOUT_BBCODE_SIZE'			=> (int) $this->config['shout_bbcode_size'],
 				'SHOUT_BBCODE'				=> (string) $this->config['shout_bbcode'],
 				'SHOUT_BBCODE_USER'			=> (string) $this->config['shout_bbcode_user'],
-				'SHOUT_BBCODE_SIZE'			=> (int) $this->config['shout_bbcode_size'],
+				'DATEFORMAT_VALUE'			=> (string) $this->config['shout_dateformat'],
+				'SHOUT_DATEFORMAT'			=> $this->shoutbox->build_dateformat_option((string) $this->config['shout_dateformat'], true),
 				'SHOUT_SEE_BUTTONS'			=> $this->functions_admin->construct_radio('shout_see_buttons', 1),
 				'SHOUT_SEE_BUTTONS_LEFT'	=> $this->functions_admin->construct_radio('shout_see_buttons_left', 1),
 				'SHOUT_SEE_BUTTON_IP'		=> $this->functions_admin->construct_radio('shout_see_button_ip', 1),
