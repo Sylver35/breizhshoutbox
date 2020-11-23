@@ -456,6 +456,10 @@ class shoutbox
 			// Build custom bbcodes array
 			if (($sort_of !== 1) && $this->auth->acl_get('u_shout_bbcode_custom'))
 			{
+				if (!function_exists('display_custom_bbcodes'))
+				{
+					include($this->root_path . 'includes/functions_display.' . $this->php_ext);
+				}
 				display_custom_bbcodes();
 			}
 
