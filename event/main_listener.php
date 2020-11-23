@@ -268,6 +268,7 @@ class main_listener implements EventSubscriberInterface
 			'm_shout_personal'		=> ['lang' => 'ACL_M_SHOUT_PERSONAL', 'cat' => 'shoutbox'],
 			'm_shout_robot'			=> ['lang' => 'ACL_M_SHOUT_ROBOT', 'cat' => 'shoutbox'],
 			'u_shout_bbcode'		=> ['lang' => 'ACL_U_SHOUT_BBCODE', 'cat' => 'shoutbox'],
+			'u_shout_bbcode_custom'	=> ['lang' => 'ACL_U_SHOUT_BBCODE_CUSTOM', 'cat' => 'shoutbox'],
 			'u_shout_bbcode_change'	=> ['lang' => 'ACL_U_SHOUT_BBCODE_CHANGE', 'cat' => 'shoutbox'],
 			'u_shout_chars'			=> ['lang' => 'ACL_U_SHOUT_CHARS', 'cat' => 'shoutbox'],
 			'u_shout_color'			=> ['lang' => 'ACL_U_SHOUT_COLOR', 'cat' => 'shoutbox'],

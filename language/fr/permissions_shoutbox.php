@@ -52,6 +52,7 @@ $lang = array_merge($lang, array(
 	'ACL_M_SHOUT_ROBOT'				=> 'Peut créer des messages robot',
 
 	'ACL_U_SHOUT_BBCODE'			=> 'Peut utiliser des bbcodes dans ses messages',
+	'ACL_U_SHOUT_BBCODE_CUSTOM'		=> 'Peut utiliser tous les bbcodes custom dans ses messages',
 	'ACL_U_SHOUT_BBCODE_CHANGE'		=> 'Peut utiliser la mise en forme des messages',
 	'ACL_U_SHOUT_CHARS'				=> 'Peut utiliser les caractères spéciaux', 
 	'ACL_U_SHOUT_COLOR'				=> 'Peut utiliser les couleurs dans ses messages',

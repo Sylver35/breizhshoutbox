@@ -24,6 +24,7 @@ use phpbb\language\language;
 use phpbb\log\log;
 use Symfony\Component\DependencyInjection\Container;
 use phpbb\extension\manager;
+use phpbb\event\dispatcher_interface as phpbb_dispatcher;
 
 class shoutbox
 {
@@ -69,6 +70,9 @@ class shoutbox
 	/** @var \phpbb\extension\manager */
 	protected $ext_manager;
 
+	/** @var \phpbb\event\dispatcher_interface */
+	protected $phpbb_dispatcher;
+
 	/** @var string phpBB root path */
 	protected $root_path;
 
@@ -98,7 +102,7 @@ class shoutbox
 	/**
 	 * Constructor
 	 */
-	public function __construct(cache $cache, config $config, helper $helper, path_helper $path_helper, db $db, pagination $pagination, request $request, template $template, auth $auth, user $user, language $language, log $log, Container $phpbb_container, manager $ext_manager, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
+	public function __construct(cache $cache, config $config, helper $helper, path_helper $path_helper, db $db, pagination $pagination, request $request, template $template, auth $auth, user $user, language $language, log $log, Container $phpbb_container, manager $ext_manager, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
 	{
 		$this->cache = $cache;
 		$this->config = $config;
@@ -114,6 +118,7 @@ class shoutbox
 		$this->log = $log;
 		$this->phpbb_container = $phpbb_container;
 		$this->ext_manager = $ext_manager;
+		$this->phpbb_dispatcher = $phpbb_dispatcher;
 		$this->root_path = $root_path;
 		$this->php_ext = $php_ext;
 		$this->shoutbox_table = $shoutbox_table;
@@ -291,6 +296,180 @@ class shoutbox
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Display the shoutbox
+	 */
+	public function shout_display($sort_of)
+	{
+		// Protection for private and define sort of shoutbox
+		$is_user = ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false;
+		$in_priv = ($sort_of === 3) ? true : false;
+		$priv = ($in_priv) ? '_priv' : '';
+
+		if (!$this->first_run_shout($in_priv))
+		{
+			return;
+		}
+
+		// Define the username for anonymous here
+		if (!$this->user->data['is_registered'])
+		{
+			$this->language->add_lang('ucp');
+			$this->template->assign_vars([
+				'SHOUT_USERNAME_EXPLAIN'	=> $this->language->lang($this->config['allow_name_chars'] . '_EXPLAIN', $this->language->lang('CHARACTERS', (int) $this->config['min_name_chars']), $this->language->lang('CHARACTERS', (int) $this->config['max_name_chars'])),
+			]);
+			// Add form token for login box
+			add_form_key('login', '_LOGIN');
+		}
+		else if ($is_user)
+		{
+			// Load the user's preferences
+			$user_shout = json_decode($this->user->data['user_shout']);
+			if ($user_shout->index != 3)
+			{
+				$this->config['shout_position_index'] = $this->set_user_option($user_shout->index, 'shout_index', 2);
+				$this->config['shout_position_forum'] = $this->set_user_option($user_shout->forum, 'shout_forum', 2);
+				$this->config['shout_position_topic'] = $this->set_user_option($user_shout->topic, 'shout_topic', 2);
+			}
+		}
+
+		if (!$this->run_shout_display($this->config['shout_position_index'], $this->config['shout_position_forum'], $this->config['shout_position_topic']))
+		{
+			return;
+		}
+
+		// Active lateral panel or not
+		$panel = $this->get_panel($in_priv);
+		$this->config['shout_panel_auto'] = $panel['auto'];
+
+		$this->template->assign_vars([
+			'S_DISPLAY_SHOUTBOX'	=> true,
+			'COLOR_PANEL'			=> 3,
+			'IN_SHOUT_POPUP'		=> ($sort_of === 1) ? true : false,
+			'PANEL_ALL'				=> $panel['active'],
+			'S_IN_PRIV'				=> $in_priv,
+			'ACTION_USERS_TOP'		=> ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_')) ? true : false,
+			'SHOUT_INDEX_POS'		=> $this->config['shout_position_index'],
+			'SHOUT_FORUM_POS'		=> $this->config['shout_position_forum'],
+			'SHOUT_TOPIC_POS'		=> $this->config['shout_position_topic'],
+			'SHOUT_EXT_PATH'		=> $this->ext_path_web,
+			'S_SHOUT_VERSION'		=> $this->get_version(true),
+		]);
+
+		// Active the posting form
+		$this->shout_charge_posting($sort_of);
+		// Create the script now
+		$this->javascript_shout($sort_of);
+
+		// Do the shoutbox Prune thang
+		if ($this->config["shout_on_cron{$priv}"] && ($this->config["shout_max_posts{$priv}"] == 0))
+		{
+			$this->execute_shout_cron($in_priv);
+		}
+		$this->shout_run_robot();
+	}
+
+	private function first_run_shout($in_priv)
+	{
+		$private = ($in_priv) ? '_priv' : '_view';
+		if (!$this->auth->acl_get("u_shout{$private}"))
+		{
+			$this->template->assign_vars([
+				'S_DISPLAY_SHOUTBOX'	=> false,
+			]);
+			return false;
+		}
+		else if ($in_priv)
+		{
+			// Always post enter info in the private shoutbox -> toc toc toc, it's me ;)
+			$this->post_robot_shout($this->user->data['user_id'], $this->user->ip, true, false, false, false, false);
+		}
+
+		return true;
+	}
+
+	private function get_panel($in_priv)
+	{
+		// Active lateral panel or not
+		$panel = [
+			'active'	=> false,
+			'auto'		=> false,
+		];
+		if ($this->auth->acl_get('u_shout_lateral'))
+		{
+			// Activate it in private shoutbox
+			if ($in_priv)
+			{
+				// Force autoload here
+				$panel['auto'] = true;
+				$panel['active'] = true;
+			}
+			else
+			{
+				// And verifie in another pages
+				$panel['active'] = ($this->config['shout_panel'] && $this->config['shout_panel_all']) ? true : false;
+			}
+		}
+
+		return $panel;
+	}
+
+	private function run_shout_display($index, $forum, $topic)
+	{
+		$run = true;
+		$page = str_replace('.' . $this->php_ext, '', $this->user->page['page_name']);
+
+		if ($page === 'index')
+		{
+			$run = ($index > 0) ? true : false;
+		}
+		else if ($page === 'viewforum')
+		{
+			$run = ($forum > 0) ? true : false;
+		}
+		else if ($page === 'viewtopic')
+		{
+			$run = ($topic > 0) ? true : false;
+		}
+
+		return $run;
+	}
+
+	private function shout_charge_posting($sort_of)
+	{
+		if ($this->auth->acl_get('u_shout_post') && $this->auth->acl_get('u_shout_bbcode'))
+		{
+			$this->language->add_lang('posting');
+			$this->template->assign_vars([
+				'SHOUT_POSTING'			=> true,
+				'S_BBCODE_ALLOWED'		=> true,
+				'S_BBCODE_IMG'			=> true,
+				'S_LINKS_ALLOWED'		=> true,
+				'S_BBCODE_QUOTE'		=> true,
+				'S_BBCODE_FLASH'		=> false,
+				'S_SMILIES_ALLOWED'		=> $this->auth->acl_get('u_shout_smilies'),
+				'TEXT_USER_TOP'			=> $this->auth->acl_get('u_shout_bbcode_change'),
+			]);
+
+			// Build custom bbcodes array
+			if (($sort_of !== 1) && $this->auth->acl_get('u_shout_bbcode_custom'))
+			{
+				display_custom_bbcodes();
+			}
+
+			$mode = 'inline';
+			/**
+			 * You can use this event to add something in the posting form.
+			 *
+			 * @event breizhshoutbox.display_posting
+			 * @var	array	mode
+			 * @since 1.8.0
+			 */
+			$vars = ['mode', 'sort_of'];
+			extract($this->phpbb_dispatcher->trigger_event('breizhshoutbox.display_posting', compact($vars)));
+		}
 	}
 
 	/**
@@ -625,167 +804,6 @@ class shoutbox
 		{
 			$this->config->increment('shout_del_auto_priv', $deleted, true);
 			$this->update_shout_messages($this->shoutbox_priv_table);
-		}
-	}
-
-	/**
-	 * Display the shoutbox
-	 */
-	public function shout_display($sort_of)
-	{
-		// Protection for private and define sort of shoutbox
-		$is_user = ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false;
-		$in_priv = ($sort_of === 3) ? true : false;
-		$priv = ($in_priv) ? '_priv' : '';
-		$private = ($in_priv) ? '_priv' : '_view';
-
-		if (!$this->first_run_shout($in_priv, $private))
-		{
-			return;
-		}
-
-		// Define the username for anonymous here
-		if (!$this->user->data['is_registered'])
-		{
-			$this->language->add_lang('ucp');
-			$this->template->assign_vars([
-				'SHOUT_USERNAME_EXPLAIN'	=> $this->language->lang($this->config['allow_name_chars'] . '_EXPLAIN', $this->language->lang('CHARACTERS', (int) $this->config['min_name_chars']), $this->language->lang('CHARACTERS', (int) $this->config['max_name_chars'])),
-			]);
-			// Add form token for login box
-			add_form_key('login', '_LOGIN');
-		}
-		else if ($is_user)
-		{
-			// Load the user's preferences
-			$user_shout = json_decode($this->user->data['user_shout']);
-			if ($user_shout->index != 3)
-			{
-				$this->config['shout_position_index'] = $this->set_user_option($user_shout->index, 'shout_index', 2);
-				$this->config['shout_position_forum'] = $this->set_user_option($user_shout->forum, 'shout_forum', 2);
-				$this->config['shout_position_topic'] = $this->set_user_option($user_shout->topic, 'shout_topic', 2);
-			}
-		}
-
-		if (!$this->run_shout_display($this->config['shout_position_index'], $this->config['shout_position_forum'], $this->config['shout_position_topic']))
-		{
-			return;
-		}
-
-		// Active lateral panel or not
-		$panel = $this->get_panel($in_priv);
-		$this->config['shout_panel_auto'] = $panel['auto'];
-
-		$this->template->assign_vars([
-			'S_DISPLAY_SHOUTBOX'	=> true,
-			'COLOR_PANEL'			=> 3,
-			'IN_SHOUT_POPUP'		=> ($sort_of === 1) ? true : false,
-			'PANEL_ALL'				=> $panel['active'],
-			'S_IN_PRIV'				=> $in_priv,
-			'ACTION_USERS_TOP'		=> ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_')) ? true : false,
-			'SHOUT_INDEX_POS'		=> $this->config['shout_position_index'],
-			'SHOUT_FORUM_POS'		=> $this->config['shout_position_forum'],
-			'SHOUT_TOPIC_POS'		=> $this->config['shout_position_topic'],
-			'SHOUT_EXT_PATH'		=> $this->ext_path_web,
-			'S_SHOUT_VERSION'		=> $this->get_version(true),
-		]);
-
-		$this->shout_charge_posting();
-		$this->javascript_shout($sort_of);
-
-		// Do the shoutbox Prune thang
-		if ($this->config["shout_on_cron{$priv}"] && ($this->config["shout_max_posts{$priv}"] == 0))
-		{
-			$this->execute_shout_cron($in_priv);
-		}
-		$this->shout_run_robot();
-	}
-
-	private function first_run_shout($in_priv, $private)
-	{
-		if (!$this->auth->acl_get("u_shout{$private}"))
-		{
-			$this->template->assign_vars([
-				'S_DISPLAY_SHOUTBOX'	=> false,
-		]);
-			return false;
-		}
-		else if ($in_priv)
-		{
-			// Always post enter info in the private shoutbox -> toc toc toc, it's me ;)
-			$this->post_robot_shout($this->user->data['user_id'], $this->user->ip, true, false, false, false, false);
-		}
-
-		return true;
-	}
-
-	private function get_panel($in_priv)
-	{
-		// Active lateral panel or not
-		$panel = [
-			'active'	=> false,
-			'auto'		=> false,
-		];
-		if ($this->auth->acl_get('u_shout_lateral'))
-		{
-			// Activate it in private shoutbox
-			if ($in_priv)
-			{
-				// Force autoload here
-				$panel['auto'] = true;
-				$panel['active'] = true;
-			}
-			else
-			{
-				// And verifie in another pages
-				$panel['active'] = ($this->config['shout_panel'] && $this->config['shout_panel_all']) ? true : false;
-			}
-		}
-
-		return $panel;
-	}
-
-	private function run_shout_display($index, $forum, $topic)
-	{
-		$run = true;
-		$page = str_replace('.' . $this->php_ext, '', $this->user->page['page_name']);
-
-		if ($page === 'index')
-		{
-			$run = ($index > 0) ? true : false;
-		}
-		else if ($page === 'viewforum')
-		{
-			$run = ($forum > 0) ? true : false;
-		}
-		else if ($page === 'viewtopic')
-		{
-			$run = ($topic > 0) ? true : false;
-		}
-
-		return $run;
-	}
-
-	private function shout_charge_posting()
-	{
-		if ($this->auth->acl_get('u_shout_post') && $this->auth->acl_get('u_shout_bbcode'))
-		{
-			$this->language->add_lang('posting');
-			$this->template->assign_vars([
-				'SHOUT_POSTING'			=> true,
-				'S_BBCODE_ALLOWED'		=> true,
-				'S_BBCODE_IMG'			=> true,
-				'S_LINKS_ALLOWED'		=> true,
-				'S_BBCODE_QUOTE'		=> true,
-				'S_BBCODE_FLASH'		=> false,
-				'TEXT_USER_TOP'			=> ($this->auth->acl_get('u_shout_bbcode_change')) ? true : false,
-			]);
-
-			if (!function_exists('display_custom_bbcodes'))
-			{
-				include($this->root_path . 'includes/functions_display.' . $this->php_ext);
-			}
-			// Build custom bbcodes array
-			display_custom_bbcodes();
 		}
 	}
 
@@ -1508,78 +1526,72 @@ class shoutbox
 	/*
 	 * Forms for robot messages and actions
 	 */
-	private function tpl($sort, $content1 = '', $content2 = '', $content3 = '')
+	private function tpl($sort, $data1 = '', $data2 = '', $data3 = '')
 	{
-		$content4 = '';
+		$data4 = '';
 		switch ($sort)
 		{
-			case 'action':
-			case 'bold':
-			case 'close':
-			break;
 			case 'cite':
-				$content4 = $this->config['shout_color_message'];
+				$data4 = $this->config['shout_color_message'];
 			break;
 			case 'url':
-				$content3 = $this->shout_protect_title($content3 ? $content3 : $content2);
+				$data3 = $this->shout_protect_title($data3 ? $data3 : $data2);
 			break;
 			case 'italic':
-				$content2 = $this->config['shout_color_message'];
-			break;
 			case 'colorbot':
-				$content2 = $this->config['shout_color_message'];
+				$data2 = $this->config['shout_color_message'];
 			break;
 			case 'personal':
-				$content1 = $this->language->lang('SHOUT_ACTION_MSG');
+				$data1 = $this->language->lang('SHOUT_ACTION_MSG');
 			break;
 			case 'citemsg':
-				$content1 = $this->language->lang('SHOUT_ACTION_CITE_EXPLAIN');
-				$content2 = $this->language->lang('SHOUT_ACTION_CITE');
+				$data1 = $this->language->lang('SHOUT_ACTION_CITE_EXPLAIN');
+				$data2 = $this->language->lang('SHOUT_ACTION_CITE');
 			break;
 			case 'citemulti':
-				$content3 = $this->language->lang('SHOUT_ACTION_CITE_M_EXPLAIN');
-				$content4 = $this->language->lang('SHOUT_ACTION_CITE_M');
+				$data3 = $this->language->lang('SHOUT_ACTION_CITE_M_EXPLAIN');
+				$data4 = $this->language->lang('SHOUT_ACTION_CITE_M');
 			break;
 			case 'perso':
-				$content2 = $this->language->lang('SHOUT_ACTION_PERSO');
+				$data2 = $this->language->lang('SHOUT_ACTION_PERSO');
 			break;
 			case 'robot':
-				$content2 = $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->config['shout_name_robot']);
-				$content3 = $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->construct_action_shout(0));
+				$data2 = $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->config['shout_name_robot']);
+				$data3 = $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->construct_action_shout(0));
 			break;
 			case 'auth':
-				$content3 = $this->language->lang('SHOUT_ACTION_AUTH');
+				$data3 = $this->language->lang('SHOUT_ACTION_AUTH');
 			break;
 			case 'prefs':
-				$content2 = $this->language->lang('SHOUT_CONFIG_OPEN_TO');
+				$data2 = $this->language->lang('SHOUT_CONFIG_OPEN_TO');
 			break;
 			case 'delreqto':
-				$content2 = $this->language->lang('SHOUT_ACTION_DEL_TO_EXPLAIN');
-				$content3 = $this->language->lang('SHOUT_ACTION_DEL_TO');
+				$data2 = $this->language->lang('SHOUT_ACTION_DEL_TO_EXPLAIN');
+				$data3 = $this->language->lang('SHOUT_ACTION_DEL_TO');
 			break;
 			case 'delreq':
-				$content2 = $this->language->lang('SHOUT_ACTION_DELETE_EXPLAIN');
-				$content3 = $this->language->lang('SHOUT_ACTION_DELETE');
+				$data2 = $this->language->lang('SHOUT_ACTION_DELETE_EXPLAIN');
+				$data3 = $this->language->lang('SHOUT_ACTION_DELETE');
 			break;
 			case 'remove':
-				$content2 = $this->language->lang('SHOUT_ACTION_REMOVE_EXPLAIN');
-				$content3 = $this->language->lang('SHOUT_ACTION_REMOVE');
+				$data2 = $this->language->lang('SHOUT_ACTION_REMOVE_EXPLAIN');
+				$data3 = $this->language->lang('SHOUT_ACTION_REMOVE');
 			break;
 			case 'profile':
-				$content2 = $this->language->lang('SHOUT_ACTION_PROFIL', $content2);
+				$data2 = $this->language->lang('SHOUT_ACTION_PROFIL', $data2);
 			break;
 			case 'admin':
-				$content2 = $this->language->lang('SHOUT_ACTION_ADMIN');
+				$data2 = $this->language->lang('SHOUT_ACTION_ADMIN');
 			break;
 			case 'modo':
-				$content2 = $this->language->lang('SHOUT_ACTION_MCP');
+				$data2 = $this->language->lang('SHOUT_ACTION_MCP');
 			break;
 			case 'ban':
-				$content2 = $this->language->lang('SHOUT_ACTION_BAN');
+				$data2 = $this->language->lang('SHOUT_ACTION_BAN');
 			break;	
 		}
 
-		return sprintf($this->config["shout_tpl_{$sort}"], $content1, $content2, $content3, $content4);
+		return sprintf($this->config["shout_tpl_{$sort}"], $data1, $data2, $data3, $data4);
 	}
 
 	public function action_user($row, $userid, $sort)

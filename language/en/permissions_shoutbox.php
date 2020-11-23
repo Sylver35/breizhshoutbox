@@ -51,7 +51,8 @@ $lang = array_merge($lang, array(
 	'ACL_M_SHOUT_PERSONAL'			=> 'Can change the personalization messages of user',
 	'ACL_M_SHOUT_ROBOT'				=> 'Can create robot messages',
 
-	'ACL_U_SHOUT_BBCODE'			=> 'Can use bbcode in messages',
+	'ACL_U_SHOUT_BBCODE'			=> 'Can use bbcodes in messages',
+	'ACL_U_SHOUT_BBCODE_CUSTOM'		=> 'Can use all custom bbcodes in messages',
 	'ACL_U_SHOUT_BBCODE_CHANGE'		=> 'Can use the personalization messages',
 	'ACL_U_SHOUT_CHARS'				=> 'Can use special characters',
 	'ACL_U_SHOUT_COLOR'				=> 'Can use colors in messages',

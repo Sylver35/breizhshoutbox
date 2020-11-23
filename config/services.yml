@@ -23,7 +23,6 @@ services:
         arguments:
             - '@sylver35.breizhshoutbox.shoutbox'
             - '@sylver35.breizhshoutbox.functions_admin'
-            - '@cache.driver'
             - '@config'
             - '@controller.helper'
             - '@ext.manager'
@@ -31,14 +30,11 @@ services:
             - '@pagination'
             - '@request'
             - '@template'
-            - '@auth'
             - '@user'
             - '@language'
             - '@log'
             - '%core.root_path%'
             - '%core.php_ext%'
-            - '%sylver35.breizhshoutbox.tables.shoutbox%'
-            - '%sylver35.breizhshoutbox.tables.shoutbox_priv%'
             - '%sylver35.breizhshoutbox.tables.shoutbox_rules%'
 
     sylver35.breizhshoutbox.main_listener:
@@ -72,6 +68,7 @@ services:
             - '@log'
             - '@service_container'
             - '@ext.manager'
+            - '@dispatcher'
             - '%core.root_path%'
             - '%core.php_ext%'
             - '%sylver35.breizhshoutbox.tables.shoutbox%'
