@@ -2166,7 +2166,7 @@ class shoutbox
 	 */
 	public function robot_birthday_shout($sleep)
 	{
-		if (!$this->config['shout_birthday'] && !$this->config['shout_birthday_priv'] || $this->config['shout_last_run_birthday'] == date('d-m-Y'))
+		if ((!$this->config['shout_birthday'] && !$this->config['shout_birthday_priv']) || $this->config['shout_last_run_birthday'] == date('d-m-Y'))
 		{
 			return;
 		}
@@ -2319,7 +2319,7 @@ class shoutbox
 	 */
 	public function hello_robot_shout($sleep)
 	{
-		if (!$this->config['shout_hello'] && !$this->config['shout_hello_priv'] || $this->config['shout_cron_run'] == date('d-m-Y'))
+		if ((!$this->config['shout_hello'] && !$this->config['shout_hello_priv']) || $this->config['shout_cron_run'] == date('d-m-Y'))
 		{
 			return;
 		}
