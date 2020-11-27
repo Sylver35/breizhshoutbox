@@ -84,13 +84,13 @@ class main
 		if ($this->auth->acl_get('u_shout_priv'))
 		{
 			$this->shoutbox->shout_display(3);
-
 			$this->template->assign_vars([
 				'S_IN_PRIV'				=> true,
 				'S_IN_SHOUT_POP'		=> false,
 				'S_IN_SHOUT_TEMP'		=> true,
 				'S_DISPLAY_ONLINE_LIST'	=> true,
 			]);
+
 			// Add to navlinks
 			$this->template->assign_block_vars_array('navlinks', [
 				[

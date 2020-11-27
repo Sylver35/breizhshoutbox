@@ -892,8 +892,8 @@ class functions_ajax
 		else
 		{
 			// Lets delete this post :D
-			$sql = 'DELETE FROM ' . $val['shout_table'] . "
-				WHERE shout_id = $post";
+			$sql = 'DELETE FROM ' . $val['shout_table'] . '
+				WHERE shout_id = ' . $post;
 			$this->db->sql_query($sql);
 
 			$this->shoutbox->update_shout_messages($val['shout_table']);

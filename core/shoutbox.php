@@ -303,12 +303,12 @@ class shoutbox
 	 */
 	public function shout_display($sort_of)
 	{
-		// Protection for private and define sort of shoutbox
 		$is_user = ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false;
+		$page = str_replace('.' . $this->php_ext, '', $this->user->page['page_name']);
 		$in_priv = ($sort_of === 3) ? true : false;
 		$priv = ($in_priv) ? '_priv' : '';
 
-		if (!$this->first_run_shout($in_priv))
+		if (!$this->verify_display_shout($in_priv))
 		{
 			return;
 		}
@@ -317,9 +317,7 @@ class shoutbox
 		if (!$this->user->data['is_registered'])
 		{
 			$this->language->add_lang('ucp');
-			$this->template->assign_vars([
-				'SHOUT_USERNAME_EXPLAIN'	=> $this->language->lang($this->config['allow_name_chars'] . '_EXPLAIN', $this->language->lang('CHARACTERS', (int) $this->config['min_name_chars']), $this->language->lang('CHARACTERS', (int) $this->config['max_name_chars'])),
-			]);
+			$this->template->assign_var('SHOUT_USERNAME_EXPLAIN', $this->language->lang($this->config['allow_name_chars'] . '_EXPLAIN', $this->language->lang('CHARACTERS', (int) $this->config['min_name_chars']), $this->language->lang('CHARACTERS', (int) $this->config['max_name_chars'])));
 			// Add form token for login box
 			add_form_key('login', '_LOGIN');
 		}
@@ -335,7 +333,7 @@ class shoutbox
 			}
 		}
 
-		if (!$this->run_shout_display($this->config['shout_position_index'], $this->config['shout_position_forum'], $this->config['shout_position_topic']))
+		if (!$this->run_shout_display($page, $this->config['shout_position_index'], $this->config['shout_position_forum'], $this->config['shout_position_topic']))
 		{
 			return;
 		}
@@ -359,7 +357,7 @@ class shoutbox
 		]);
 
 		// Active the posting form
-		$this->shout_charge_posting($sort_of);
+		$this->shout_enable_posting($sort_of, $page);
 		// Create the script now
 		$this->javascript_shout($sort_of);
 
@@ -371,7 +369,7 @@ class shoutbox
 		$this->shout_run_robot();
 	}
 
-	private function first_run_shout($in_priv)
+	private function verify_display_shout($in_priv)
 	{
 		$private = ($in_priv) ? '_priv' : '_view';
 		if (!$this->auth->acl_get("u_shout{$private}"))
@@ -416,10 +414,9 @@ class shoutbox
 		return $panel;
 	}
 
-	private function run_shout_display($index, $forum, $topic)
+	private function run_shout_display($page, $index, $forum, $topic)
 	{
 		$run = true;
-		$page = str_replace('.' . $this->php_ext, '', $this->user->page['page_name']);
 
 		if ($page === 'index')
 		{
@@ -437,10 +434,19 @@ class shoutbox
 		return $run;
 	}
 
-	private function shout_charge_posting($sort_of)
+	private function shout_enable_posting($sort_of, $page)
 	{
 		if ($this->auth->acl_get('u_shout_post') && $this->auth->acl_get('u_shout_bbcode'))
 		{
+			if ($page == 'viewtopic')
+			{
+				$forum_id = $this->request->variable('f', 0);
+				if ($forum_id && $this->auth->acl_get('f_reply', $forum_id))
+				{
+					return;
+				}
+			}
+
 			$this->language->add_lang('posting');
 			$this->template->assign_vars([
 				'SHOUT_POSTING'			=> true,
@@ -448,7 +454,6 @@ class shoutbox
 				'S_BBCODE_IMG'			=> true,
 				'S_LINKS_ALLOWED'		=> true,
 				'S_BBCODE_QUOTE'		=> true,
-				'S_BBCODE_FLASH'		=> false,
 				'S_SMILIES_ALLOWED'		=> $this->auth->acl_get('u_shout_smilies'),
 				'TEXT_USER_TOP'			=> $this->auth->acl_get('u_shout_bbcode_change'),
 			]);
@@ -2161,31 +2166,32 @@ class shoutbox
 	 */
 	public function robot_birthday_shout($sleep)
 	{
-		if (!$this->config['shout_birthday'] && !$this->config['shout_birthday_priv'])
-		{
-			return;
-		}
-		if ($this->config['shout_last_run_birthday'] == date('d-m-Y'))
+		if (!$this->config['shout_birthday'] && !$this->config['shout_birthday_priv'] || $this->config['shout_last_run_birthday'] == date('d-m-Y'))
 		{
 			return;
 		}
 
-		$table = ($this->config['shout_birthday']) ? $this->shoutbox_table : $this->shoutbox_priv_table;
+		if ($sleep)
+		{
+			usleep(mt_rand(500000, 2000000));
+		}
+		$shoutbox_table = ($this->config['shout_birthday']) ? $this->shoutbox_table : $this->shoutbox_priv_table;
 		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 'shout_id',
-			'FROM'		=> [$table => ''],
-			'WHERE'		=> 'shout_robot = 5 AND shout_info = 11 AND shout_time BETWEEN ' . (time() - 60 * 60) . ' AND ' . time(),
+			'SELECT'	=> 'COUNT(shout_id) as nr',
+			'FROM'		=> [$shoutbox_table => ''],
+			'WHERE'		=> 'shout_info = 11 AND shout_time BETWEEN ' . (time() - 60 * 60) . ' AND ' . time(),
+			'GROUP_BY'	=> 'shout_robot_user',
 		]);
 		$result = $this->db->sql_query($sql);
-		$is_posted = $this->db->sql_fetchfield('shout_id') ? true : false;
+		$is_posted = (int) $this->db->sql_fetchfield('nr');
 		$this->db->sql_freeresult($result);
+
+		$time = $this->user->create_datetime();
+		$now = phpbb_gmgetdate($time->getTimestamp() + $time->getOffset());
 
 		if (!$is_posted)
 		{
-			$time = $this->user->create_datetime();
-			$now = phpbb_gmgetdate($time->getTimestamp() + $time->getOffset());
-
-			$rows = $this->extract_birthdays($time, $now, $sleep);
+			$rows = $this->extract_birthdays($time, $now);
 			if (!empty($rows))
 			{
 				foreach ($rows as $row)
@@ -2228,14 +2234,49 @@ class shoutbox
 			}
 			$this->config->set('shout_last_run_birthday', date('d-m-Y'), true);
 		}
+		else if ($is_posted > 1)
+		{
+			$this->delete_double_birthdays($is_posted, $time, $now);
+		}
 	}
 
-	private function extract_birthdays($time, $now, $sleep)
+	private function delete_double_birthdays($nr, $time, $now)
 	{
-		if ($sleep)
+		$birthdays = count($this->extract_birthdays($time, $now));
+		$del = ($nr - 1) * $birthdays;
+		if ($this->config['shout_birthday'])
 		{
-			usleep(500000);
+			$sql = $this->db->sql_build_query('SELECT', [
+				'SELECT'	=> 'shout_id',
+				'FROM'		=> [$this->shoutbox_table => ''],
+				'WHERE'		=> 'shout_info = 11 AND shout_time BETWEEN ' . (time() - 60 * 60) . ' AND ' . time(),
+			]);
+			$result = $this->db->sql_query_limit($sql, $del);
+			while ($row = $this->db->sql_fetchrow($result))
+			{
+				$this->db->sql_query('DELETE FROM ' . $this->shoutbox_table . ' WHERE shout_id = ' . $row['shout_id']);
+			}
+			$this->db->sql_freeresult($result);
 		}
+
+		if ($this->config['shout_birthday_priv'])
+		{
+			$sql = $this->db->sql_build_query('SELECT', [
+				'SELECT'	=> 'shout_id',
+				'FROM'		=> [$this->shoutbox_priv_table => ''],
+				'WHERE'		=> 'shout_info = 11 AND shout_time BETWEEN ' . (time() - 60 * 60) . ' AND ' . time(),
+			]);
+			$result = $this->db->sql_query_limit($sql, $del);
+			while ($row = $this->db->sql_fetchrow($result))
+			{
+				$this->db->sql_query('DELETE FROM ' . $this->shoutbox_priv_table . ' WHERE shout_id = ' . $row['shout_id']);
+			}
+			$this->db->sql_freeresult($result);
+		}
+	}
+
+	private function extract_birthdays($time, $now)
+	{
 		if (($rows = $this->cache->get('_shoutbox_birthdays')) === false)
 		{
 			// Display birthdays of 29th february on 28th february in non-leap-years
@@ -2276,44 +2317,27 @@ class shoutbox
 	/*
 	 * Display the date info Robot
 	 */
-	private function hello_robot_shout($sleep)
+	public function hello_robot_shout($sleep)
 	{
-		if (!$this->config['shout_hello'] && !$this->config['shout_hello_priv'])
-		{
-			return;
-		}
-		if ($this->config['shout_cron_run'] == date('d-m-Y'))
+		if (!$this->config['shout_hello'] && !$this->config['shout_hello_priv'] || $this->config['shout_cron_run'] == date('d-m-Y'))
 		{
 			return;
 		}
 
-		$is_posted = false;
 		if ($sleep)
 		{
-			usleep(500000);
+			usleep(mt_rand(500000, 2000000));
 		}
-		if ($this->config['shout_hello'])
-		{
-			$sql = $this->db->sql_build_query('SELECT', [
-				'SELECT'	=> 'shout_id',
-				'FROM'		=> [$this->shoutbox_table => ''],
-				'WHERE'		=> 'shout_robot = 4 AND shout_info = 12 AND shout_time BETWEEN ' . (time() - 60 * 60) . ' AND ' . time(),
-			]);
-			$result = $this->db->sql_query($sql);
-			$is_posted = $this->db->sql_fetchfield('shout_id') ? true : false;
-			$this->db->sql_freeresult($result);
-		}
-		else if ($this->config['shout_hello_priv'])
-		{
-			$sql = $this->db->sql_build_query('SELECT', [
-				'SELECT'	=> 'shout_id',
-				'FROM'		=> [$this->shoutbox_priv_table => ''],
-				'WHERE'		=> 'shout_robot = 4 AND shout_info = 12 AND shout_time BETWEEN ' . (time() - 60 * 60) . ' AND ' . time(),
-			]);
-			$result = $this->db->sql_query($sql);
-			$is_posted = $this->db->sql_fetchfield('shout_id');
-			$this->db->sql_freeresult($result);
-		}
+		$shoutbox_table = ($this->config['shout_hello']) ? $this->shoutbox_table : $this->shoutbox_priv_table;
+		$sql = $this->db->sql_build_query('SELECT', [
+			'SELECT'	=> 'COUNT(shout_id) as nr',
+			'FROM'		=> [$shoutbox_table => ''],
+			'WHERE'		=> 'shout_info = 12 AND shout_time BETWEEN ' . (time() - 60 * 60) . ' AND ' . time(),
+		]);
+		$result = $this->db->sql_query($sql);
+		$is_posted = (int) $this->db->sql_fetchfield('nr');
+		$this->db->sql_freeresult($result);
+
 		if (!$is_posted)
 		{
 			$sql_data = [
@@ -2343,6 +2367,43 @@ class shoutbox
 				$this->config->increment('shout_nr_priv', 1, true);
 			}
 			$this->config->set('shout_cron_run', date('d-m-Y'), true);
+		}
+		else if ($is_posted > 1)
+		{
+			$this->delete_double_messages($is_posted);
+		}
+	}
+
+	private function delete_double_messages($nr)
+	{
+		if ($this->config['shout_hello'])
+		{
+			$sql = $this->db->sql_build_query('SELECT', [
+				'SELECT'	=> 'shout_id',
+				'FROM'		=> [$this->shoutbox_table => ''],
+				'WHERE'		=> "shout_info = 12 AND shout_text = '" . date('d-m-Y') . "'",
+			]);
+			$result = $this->db->sql_query_limit($sql, (int) $nr - 1);
+			while ($row = $this->db->sql_fetchrow($result))
+			{
+				$this->db->sql_query('DELETE FROM ' . $this->shoutbox_table . ' WHERE shout_id = ' . $row['shout_id']);
+			}
+			$this->db->sql_freeresult($result);
+		}
+
+		if ($this->config['shout_hello_priv'])
+		{
+			$sql = $this->db->sql_build_query('SELECT', [
+				'SELECT'	=> 'shout_id',
+				'FROM'		=> [$this->shoutbox_priv_table => ''],
+				'WHERE'		=> "shout_info = 12 AND shout_text = '" . date('d-m-Y') . "'",
+			]);
+			$result = $this->db->sql_query_limit($sql, (int) $nr - 1);
+			while ($row = $this->db->sql_fetchrow($result))
+			{
+				$this->db->sql_query('DELETE FROM ' . $this->shoutbox_priv_table . ' WHERE shout_id = ' . $row['shout_id']);
+			}
+			$this->db->sql_freeresult($result);
 		}
 	}
 
@@ -2430,13 +2491,12 @@ class shoutbox
 			return;
 		}
 
-		$title = (isset($event['row']['ra_cat_title'])) ? $event['row']['ra_cat_title'] : '';
 		$sql_data = [
 			'shout_time'				=> time(),
 			'shout_user_id'				=> (int) $this->user->data['user_id'],
 			'shout_ip'					=> (string) $this->user->ip,
 			'shout_text'				=> (string) $event['row']['game_name'],
-			'shout_text2'				=> (string) $title,
+			'shout_text2'				=> (string) (isset($event['row']['ra_cat_title'])) ? $event['row']['ra_cat_title'] : '',
 			'shout_bbcode_uid'			=> '',
 			'shout_bbcode_bitfield'		=> '',
 			'shout_bbcode_flags'		=> 0,
@@ -2463,6 +2523,7 @@ class shoutbox
 			'm_shout_personal',
 			'm_shout_robot',
 			'u_shout_bbcode',
+			'u_shout_bbcode_custom',
 			'u_shout_bbcode_change',
 			'u_shout_chars',
 			'u_shout_color',
@@ -2704,6 +2765,7 @@ class shoutbox
 	public function shout_extract_permissions($auth)
 	{
 		// Prevents some errors for the allocation of permissions
+		// Initialise data
 		$data = [
 			'edit'		=> $this->auth->acl_get('u_shout_edit'),
 			'delete'	=> $this->auth->acl_get('u_shout_delete_s'),
@@ -3030,16 +3092,15 @@ class shoutbox
 	private function data_config_shoutbox($user_id)
 	{
 		$this->language->add_lang('ucp');
-		$other = false;
-		$username = '';
 		if ($user_id === $this->user->data['user_id'])
 		{
+			$other = false;
+			$username = '';
 			$user_shout = json_decode($this->user->data['user_shout']);
 			$user_shoutbox = json_decode($this->user->data['user_shoutbox']);
 		}
 		else
 		{
-			$other = true;
 			$sql = 'SELECT username, user_shout, user_shoutbox
 				FROM ' . USERS_TABLE . '
 					WHERE user_id = ' . $user_id;
@@ -3047,6 +3108,7 @@ class shoutbox
 			$row = $this->db->sql_fetchrow($result);
 			$this->db->sql_freeresult($result);
 
+			$other = true;
 			$username = $row['username'];
 			$user_shout = json_decode($row['user_shout']);
 			$user_shoutbox = json_decode($row['user_shoutbox']);
