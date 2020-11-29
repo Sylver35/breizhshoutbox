@@ -1082,7 +1082,7 @@ class functions_ajax
 
 		// check just with the last 4 numbers
 		return [
-			't'		=> substr($time, 6, 4),
+			't'	=> substr($time, 6, 4),
 		];
 	}
 
@@ -1119,40 +1119,21 @@ class functions_ajax
 		{
 			// Initialize additional data
 			$row = array_merge($row, [
-				'delete'		=> false,
-				'edit'			=> false,
-				'show_ip'		=> false,
-				'on_ip'			=> false,
-				'avatar_img'	=> '',
-				'msg_plain'		=> '',
-				'is_user'		=> (($row['shout_user_id'] > 1) && ((int) $row['shout_user_id'] !== $val['userid'])) ? true : false,
-				'real_user'		=> (($row['shout_user_id'] > 1) || ((int) $row['shout_robot_user'] !== 0)) ? true : false,
-				'name'			=> $row['username'],
+				'avatar_img'	=> (!$is_mobile) ? $this->shoutbox->get_avatar_row($row, $val['sort']) : '',
+				'is_user'		=> (($row['shout_user_id'] > 1) && ((int) $row['shout_user_id'] !== $val['userid'])),
+				'name'			=> ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'],
 			]);
-
-			if (!$is_mobile)
-			{
-				$row['avatar_img'] = $this->shoutbox->get_avatar_row($row, $val['sort']);
-			}
-
-			// Message made by anonymous
-			$row['username'] = ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'];
-			$row['username'] = $this->shoutbox->construct_action_shout($row['user_id'], $row['username'], $row['user_colour']);
-			$row['on_time'] = $this->user->format_date($row['shout_time'], $dateformat);
 
 			// Checks permissions for delete, edit and show_ip
 			$row = $this->shoutbox->get_permissions_row($row, $perm, $val);
 
-			// The message now
-			$row['shout_text'] = $this->shoutbox->shout_text_for_display($row, $val['sort'], false);
-
 			// Construct the content of loop
 			$content['messages'][$i] = [
 				'shoutId'		=> $row['shout_id'],
-				'shoutTime'		=> $row['on_time'],
+				'shoutText'		=> $this->shoutbox->shout_text_for_display($row, $val['sort'], false),
+				'username'		=> $this->shoutbox->construct_action_shout($row['user_id'], $row['name'], $row['user_colour']),
+				'shoutTime'		=> $this->user->format_date($row['shout_time'], $dateformat),
 				'timeMsg'		=> $row['shout_time'],
-				'shoutText'		=> $row['shout_text'],
-				'username'		=> $row['username'],
 				'isUser'		=> $row['is_user'],
 				'name'			=> $row['name'],
 				'colour'		=> $row['user_colour'],
@@ -1167,15 +1148,12 @@ class functions_ajax
 		}
 		$this->db->sql_freeresult($result);
 
-		// Get the last message time
-		$last_time = $this->shoutbox->get_shout_time($sql_where, $val['shout_table']);
-		// The number of total messages for pagination
-		$number = $this->shoutbox->shout_pagination($sql_where, $val['shout_table'], $val['priv']);
-
 		$content = array_merge($content, [
 			'total'		=> $i,
-			'last'		=> $last_time,
-			'number'	=> $number,
+			// Get the last message time
+			'last'		=> $this->shoutbox->get_shout_time($sql_where, $val['shout_table']),
+			// The number of total messages for pagination
+			'number'	=> $this->shoutbox->shout_pagination($sql_where, $val['shout_table'], $val['priv']),
 		]);
 
 		return $content;

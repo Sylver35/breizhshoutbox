@@ -2194,14 +2194,13 @@ class shoutbox
 			$rows = $this->extract_birthdays($time, $now);
 			if (!empty($rows))
 			{
+				$exclude_group = explode(', ', $this->config['shout_birthday_exclude']);
 				foreach ($rows as $row)
 				{
-					$exclude_group = explode(', ', $this->config['shout_birthday_exclude']);
 					if (in_array($row['group_id'], $exclude_group))
 					{
 						continue;
 					}
-					$birthday_year = (int) substr($row['user_birthday'], -4);
 
 					$sql_data = [
 						'shout_time'			=> time(),
@@ -2214,7 +2213,7 @@ class shoutbox
 						'shout_robot'			=> 5,
 						'shout_robot_user'		=> (int) $row['user_id'],
 						'shout_forum'			=> 0,
-						'shout_info_nb'			=> ($birthday_year) ? max(0, $now['year'] - $birthday_year) : 0,
+						'shout_info_nb'			=> $row['user_birthday'] ? max(0, $now['year'] - substr($row['user_birthday'], -4)) : 0,
 						'shout_info'			=> 11,
 					];
 
@@ -2287,17 +2286,15 @@ class shoutbox
 			}
 
 			$sql_ary = [
-				'SELECT' => 'u.user_id, u.user_birthday, u.group_id',
-				'FROM' => [
-					USERS_TABLE => 'u',
-				],
-				'LEFT_JOIN' => [
+				'SELECT'	=> 'u.user_id, u.user_birthday, u.group_id',
+				'FROM'		=> [USERS_TABLE => 'u'],
+				'LEFT_JOIN'	=> [
 					[
-						'FROM' => [BANLIST_TABLE => 'b'],
-						'ON' => 'u.user_id = b.ban_userid',
+						'FROM'	=> [BANLIST_TABLE => 'b'],
+						'ON'	=> 'u.user_id = b.ban_userid',
 					],
 				],
-				'WHERE' => "(b.ban_id IS NULL OR b.ban_exclude = 1)
+				'WHERE'		=> "(b.ban_id IS NULL OR b.ban_exclude = 1)
 					AND (u.user_birthday LIKE '" . $this->db->sql_escape(sprintf('%2d-%2d-', $now['mday'], $now['mon'])) . "%' $leap_year_birthdays)
 					AND u.user_type IN (" . USER_NORMAL . ', ' . USER_FOUNDER . ')',
 			];
@@ -2681,37 +2678,17 @@ class shoutbox
 		return true;
 	}
 
-	public function get_avatar_row($row, $sort)
-	{
-		if (!$this->config['shout_avatar'] || !$this->config['allow_avatar'])
-		{
-			return false;
-		}
-		$avatar = '';
-		$popup = $sort === 1;
-		if (!$row['shout_user_id'] && $row['shout_robot_user'])
-		{
-			$row_avatar = [
-				'user_id'				=> $row['x_user_id'],
-				'username'				=> $row['x_username'],
-				'user_type'				=> $row['x_user_type'],
-				'user_avatar'			=> $row['x_user_avatar'],
-				'user_avatar_type'		=> $row['x_user_avatar_type'],
-				'user_avatar_width'		=> $row['x_user_avatar_width'],
-				'user_avatar_height'	=> $row['x_user_avatar_height'],
-			];
-			$avatar = $this->shout_user_avatar($row_avatar, $this->config['shout_avatar_height'], false, $popup);
-		}
-		else
-		{
-			$avatar = $this->shout_user_avatar($row, $this->config['shout_avatar_height'], false, $popup);
-		}
-
-		return $avatar;
-	}
-
 	public function get_permissions_row($row, $perm, $val)
 	{
+		// Initialize additional data
+		$row = array_merge($row, [
+			'delete'		=> false,
+			'edit'			=> false,
+			'show_ip'		=> false,
+			'on_ip'			=> false,
+			'msg_plain'		=> '',
+		]);
+
 		if ($val['is_user'])
 		{
 			if ($perm['delete_all'] || ((int) $row['shout_user_id'] === $val['userid']) && $perm['delete'])
@@ -2842,13 +2819,43 @@ class shoutbox
 		return $sql_where;
 	}
 
+	public function get_avatar_row($row, $sort)
+	{
+		if (!$this->config['shout_avatar'] || !$this->config['allow_avatar'])
+		{
+			return '';
+		}
+
+		$avatar = '';
+		$popup = ($sort === 1) ? true : false;
+		if (!$row['shout_user_id'] && $row['shout_robot_user'])
+		{
+			$row_avatar = [
+				'user_id'				=> $row['x_user_id'],
+				'username'				=> $row['x_username'],
+				'user_type'				=> $row['x_user_type'],
+				'user_avatar'			=> $row['x_user_avatar'],
+				'user_avatar_type'		=> $row['x_user_avatar_type'],
+				'user_avatar_width'		=> $row['x_user_avatar_width'],
+				'user_avatar_height'	=> $row['x_user_avatar_height'],
+			];
+			$avatar = $this->shout_user_avatar($row_avatar, $this->config['shout_avatar_height'], false, $popup);
+		}
+		else
+		{
+			$avatar = $this->shout_user_avatar($row, $this->config['shout_avatar_height'], false, $popup);
+		}
+
+		return $avatar;
+	}
+
 	/*
 	 * Display user avatar with resizing
 	 * Add avatar type for robot, users with no avatar and anonymous
 	 * Add title with username
 	 * Return string or false
 	 */
-	public function shout_user_avatar($row, $height, $force = false, $popup = false)
+	private function shout_user_avatar($row, $height, $force = false, $popup = false)
 	{
 		if (!$force)
 		{
@@ -2857,22 +2864,8 @@ class shoutbox
 				return '';
 			}
 		}
-		if (!$row['user_id'] && $this->config['shout_avatar_robot'])
-		{
-			$val_src = $this->ext_path . 'images/' . $this->config['shout_avatar_img_robot'];
-			$val_alt = $this->language->lang('SHOUT_AVATAR_TITLE', $this->config['shout_name_robot']);
-		}
-		else if ($row['user_id'] == ANONYMOUS && $this->config['shout_avatar_user'])
-		{
-			$val_src = $this->ext_path . 'images/anonym.webp';
-			$val_alt = $this->language->lang('SHOUT_AVATAR_TITLE', $this->language->lang('GUEST'));
-		}
-		else if ($row['user_id'] && !$row['user_avatar'] && $this->config['shout_avatar_user'])
-		{
-			$val_src = $this->ext_path . 'images/' . $this->config['shout_avatar_img'];
-			$val_alt = $this->language->lang('SHOUT_AVATAR_NONE', $row['username']);
-		}
-		else if ($row['user_id'] && $row['user_avatar'] && $row['user_avatar_height'])
+
+		if ($row['user_id'] && $row['user_avatar'] && $row['user_avatar_height'])
 		{
 			$avatar_height = ($row['user_avatar_height'] > $height) ? $height : $row['user_avatar_height'];
 			$row['user_avatar_width'] = round($avatar_height / $row['user_avatar_height'] * $row['user_avatar_width']);
@@ -2888,23 +2881,54 @@ class shoutbox
 		}
 		else
 		{
-			return '';
+			$val = $this->build_additional_avatar($row);
 		}
 
 		$row = [
-			'avatar'		=> $val_src,
+			'avatar'		=> $val['src'],
 			'avatar_type'	=> 'avatar.driver.upload',
 			'avatar_height'	=> $height,
 			'avatar_width'	=> '',
 		];
-		$avatar = phpbb_get_user_avatar($row, $val_alt);
-		$avatar = str_replace(['./download/file.php?avatar=', 'alt="'], ['', 'title="' . $val_alt . '" alt="'], $avatar);
+		$avatar = phpbb_get_user_avatar($row, $val['alt']);
+		$avatar = str_replace(['./download/file.php?avatar=', 'alt="'], ['', 'title="' . $val['alt'] . '" alt="'], $avatar);
 		if ($popup)
 		{
 			$avatar = str_replace('class="avatar', 'class="avatar popup-avatar', $avatar);
 		}
 
 		return $this->replace_shout_url($avatar);
+	}
+
+	private function build_additional_avatar($row)
+	{
+		$val = [
+			'src'	=> '',
+			'alt'	=> '',
+		];
+		if (!$row['user_id'] && $this->config['shout_avatar_robot'])
+		{
+			$val = [
+				'src'	=> $this->ext_path . 'images/' . $this->config['shout_avatar_img_robot'],
+				'alt'	=> $this->language->lang('SHOUT_AVATAR_TITLE', $this->config['shout_name_robot']),
+			];
+		}
+		else if ($row['user_id'] == ANONYMOUS && $this->config['shout_avatar_user'])
+		{
+			$val = [
+				'src'	=> $this->ext_path . 'images/anonym.webp',
+				'alt'	=> $this->language->lang('SHOUT_AVATAR_TITLE', $this->language->lang('GUEST')),
+			];
+		}
+		else if ($row['user_id'] && !$row['user_avatar'] && $this->config['shout_avatar_user'])
+		{
+			$val = [
+				'src'	=> $this->ext_path . 'images/' . $this->config['shout_avatar_img'],
+				'alt'	=> $this->language->lang('SHOUT_AVATAR_NONE', $row['username']),
+			];
+		}
+
+		return $val;
 	}
 
 	private function build_sound_select($actual, $sort)
