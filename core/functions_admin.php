@@ -405,7 +405,7 @@ class functions_admin
 			if (isset($row['rules_lang']) && $row['rules_lang'])
 			{
 				$sql = 'UPDATE ' . $this->shoutbox_rules_table . '
-					SET ' . $data . " WHERE rules_lang = '$iso'";
+					SET ' .  $this->db->sql_build_array('INSERT', $data) . " WHERE rules_lang = '$iso'";
 				$this->db->sql_query($sql);
 			}
 			else
