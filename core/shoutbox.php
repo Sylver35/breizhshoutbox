@@ -2750,7 +2750,7 @@ class shoutbox
 		$this->db->sql_freeresult($result_time);
 
 		// check just with the last 4 numbers
-		return (int) substr($last_time, 6, 4);
+		return substr($last_time, 6, 4);
 	}
 
 	public function extract_dateformat($is_user)
