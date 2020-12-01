@@ -486,7 +486,7 @@ class shoutbox
 		{
 			case 1:
 				return;
-			break;
+			/* no break here */
 			case 2:
 				if ($is_mobile)
 				{

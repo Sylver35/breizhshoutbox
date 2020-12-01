@@ -390,7 +390,7 @@ class functions_admin
 			generate_text_for_storage($rules_text, $rules_uid, $rules_bitfield, $rules_flags, true, true, true);
 			generate_text_for_storage($rules_text_priv, $rules_uid_priv, $rules_bitfield_priv, $rules_flags_priv, true, true, true);
 
-			$data = $this->db->sql_build_array('UPDATE', [
+			$data = [
 				'rules_lang'			=> $iso,
 				'rules_text'			=> $rules_text,
 				'rules_bitfield'		=> $rules_bitfield,
@@ -400,7 +400,7 @@ class functions_admin
 				'rules_bitfield_priv'	=> $rules_bitfield_priv,
 				'rules_uid_priv'		=> $rules_uid_priv,
 				'rules_flags_priv'		=> $rules_flags_priv,
-			]);
+			];
 
 			if (isset($row['rules_lang']) && $row['rules_lang'])
 			{
