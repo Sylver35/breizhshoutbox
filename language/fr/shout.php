@@ -273,6 +273,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_ONLINE_TITLE'		=> 'Membres connectés en temps réel',
 	'SHOUT_ONLINE'				=> 'Ouvrir le panneau des membres connectés',
 	'SHOUT_ONLINE_CLOSE'		=> 'Fermer le panneau des membres connectés',
+	'NO_ONLINE_BOTS'			=> 'Aucun robot connecté',
 
 // Post infos Robot
 	'SHOUT_ROBOT_ON'			=> 'Désactiver les infos Robot',

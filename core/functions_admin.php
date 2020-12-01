@@ -152,7 +152,7 @@ class functions_admin
 
 	public function build_adm_sound_select($sort)
 	{
-		$actual = $this->config["shout_sound_{$sort}"];
+		$actual = $this->config['shout_sound_' . $sort];
 		$soundlist = $this->shoutbox->filelist_all($this->ext_path, 'sounds/', 'mp3');
 		if (sizeof($soundlist))
 		{
@@ -259,7 +259,7 @@ class functions_admin
 		$sql = 'TRUNCATE ' . $shoutbox_table;
 		$this->db->sql_query($sql);
 
-		$this->config->increment("shout_del_purge{$val_priv}", $deleted, true);
+		$this->config->increment('shout_del_purge' . $val_priv, $deleted, true);
 		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_PURGE_SHOUTBOX' . $val_priv_on, time());
 		$this->shoutbox->post_robot_shout(0, $this->user->ip, $priv, true, false);
 	}
@@ -309,7 +309,7 @@ class functions_admin
 
 		if ($deleted)
 		{
-			$this->config->increment("shout_del_purge{$val_priv}", $deleted, true);
+			$this->config->increment('shout_del_purge' . $val_priv, $deleted, true);
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, "LOG_PURGE_SHOUTBOX{$val_priv_on}_ROBOT", time(), [$deleted]);
 			$this->shoutbox->post_robot_shout(0, $this->user->ip, $priv, true, true);
 		}
@@ -369,7 +369,7 @@ class functions_admin
 
 	public function update_rules()
 	{
-		$sql = [
+		$sql = $this->db->sql_build_query('SELECT', [
 			'SELECT'	=> 'l.lang_iso, r.rules_lang',
 			'FROM'		=> [LANG_TABLE => 'l'],
 			'LEFT_JOIN'	=> [
@@ -378,19 +378,19 @@ class functions_admin
 					'ON'	=> 'r.rules_lang = l.lang_iso',
 				],
 			],
-		];
-		$result = $this->db->sql_query($this->db->sql_build_query('SELECT', $sql));
+		]);
+		$result = $this->db->sql_query($sql);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
 			$iso = $row['lang_iso'];
 			$rules_flags = $rules_flags_priv = 0;
 			$rules_uid = $rules_bitfield = $rules_uid_priv = $rules_bitfield_priv = '';
-			$rules_text = $this->request->variable("rules_text_{$iso}", '', true);
-			$rules_text_priv = $this->request->variable("rules_text_priv_{$iso}", '', true);
+			$rules_text = $this->request->variable('rules_text_' . $iso, '', true);
+			$rules_text_priv = $this->request->variable('rules_text_priv_' . $iso, '', true);
 			generate_text_for_storage($rules_text, $rules_uid, $rules_bitfield, $rules_flags, true, true, true);
 			generate_text_for_storage($rules_text_priv, $rules_uid_priv, $rules_bitfield_priv, $rules_flags_priv, true, true, true);
 
-			$data = [
+			$data = $this->db->sql_build_array('UPDATE', [
 				'rules_lang'			=> $iso,
 				'rules_text'			=> $rules_text,
 				'rules_bitfield'		=> $rules_bitfield,
@@ -400,13 +400,12 @@ class functions_admin
 				'rules_bitfield_priv'	=> $rules_bitfield_priv,
 				'rules_uid_priv'		=> $rules_uid_priv,
 				'rules_flags_priv'		=> $rules_flags_priv,
-			];
+			]);
 
 			if (isset($row['rules_lang']) && $row['rules_lang'])
 			{
 				$sql = 'UPDATE ' . $this->shoutbox_rules_table . '
-					SET ' . $this->db->sql_build_array('UPDATE', $data) . "
-						WHERE rules_lang = '$iso'";
+					SET ' . $data . " WHERE rules_lang = '$iso'";
 				$this->db->sql_query($sql);
 			}
 			else
@@ -510,14 +509,8 @@ class functions_admin
 	public function get_logs($sort)
 	{
 		$li = $start_log = 0;
-		if (!$sort)
-		{
-			$log_array = ['LOG_SHOUT_SCRIPT', 'LOG_SHOUT_ACTIVEX', 'LOG_SHOUT_APPLET', 'LOG_SHOUT_OBJECTS', 'LOG_SHOUT_IFRAME'];
-		}
-		else
-		{
-			$log_array = ['LOG_SHOUT_SCRIPT_PRIV', 'LOG_SHOUT_ACTIVEX_PRIV', 'LOG_SHOUT_APPLET_PRIV', 'LOG_SHOUT_OBJECTS_PRIV', 'LOG_SHOUT_IFRAME_PRIV'];
-		}
+		$log_array = (!$sort) ? ['LOG_SHOUT_SCRIPT', 'LOG_SHOUT_ACTIVEX', 'LOG_SHOUT_APPLET', 'LOG_SHOUT_OBJECTS', 'LOG_SHOUT_IFRAME'] : ['LOG_SHOUT_SCRIPT_PRIV', 'LOG_SHOUT_ACTIVEX_PRIV', 'LOG_SHOUT_APPLET_PRIV', 'LOG_SHOUT_OBJECTS_PRIV', 'LOG_SHOUT_IFRAME_PRIV'];
+
 		$sql = $this->db->sql_build_query('SELECT', [
 			'SELECT'	=> 'l.log_id, l.user_id, l.log_type, l.log_ip, l.log_time, l.log_operation, l.reportee_id, u.user_id, u.username, u.user_colour',
 			'FROM'		=> [LOG_TABLE => 'l'],
@@ -590,7 +583,7 @@ class functions_admin
 
 			$message = $this->shoutbox->plural('LOG_SELECT', $deleted, '_SHOUTBOX' . $private);
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), [$deleted]);
-			$this->config->increment("shout_del_acp{$priv}", $deleted, true);
+			$this->config->increment('shout_del_acp' . $priv, $deleted, true);
 			trigger_error($this->language->lang($message, $deleted) . adm_back_link($u_action));
 		}
 	}

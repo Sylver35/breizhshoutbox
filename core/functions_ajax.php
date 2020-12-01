@@ -122,9 +122,9 @@ class functions_ajax
 		}
 
 		// Permissions and security verifications
-		if (!$this->auth->acl_get("u_shout{$val['perm']}"))
+		if (!$this->auth->acl_get('u_shout' . $val['perm']))
 		{
-			$this->shoutbox->shout_error("NO_VIEW{$val['privat']}_PERM");
+			$this->shoutbox->shout_error('NO_VIEW' . $val['privat'] . '_PERM');
 			return;
 		}
 
@@ -146,9 +146,9 @@ class functions_ajax
 		{
 			$rules = $this->shoutbox->get_shout_rules();
 			$text = $rules[$iso];
-			if ($text["rules_text{$sort}"])
+			if ($text['rules_text' . $sort])
 			{
-				$on_rules = generate_text_for_display($text["rules_text{$sort}"], $text["rules_uid{$sort}"], $text["rules_bitfield{$sort}"], $text["rules_flags{$sort}"]);
+				$on_rules = generate_text_for_display($text['rules_text' . $sort], $text['rules_uid' . $sort], $text['rules_bitfield' . $sort], $text['rules_flags' . $sort]);
 				return [
 					'sort'	=> 1,
 					'texte'	=> $on_rules,
@@ -172,38 +172,48 @@ class functions_ajax
 		$online = obtain_users_online();
 		$online_strings = obtain_users_online_string($online);
 		$list_online = $online_strings['online_userlist'];
+		$start = $this->language->lang('REGISTERED_USERS') . ' ';
 
 		$content = [
 			'title'	=> $online_strings['l_online_users'] . '<br />(' . $this->language->lang('VIEW_ONLINE_TIMES', (int) $this->config['load_online_time']) . ')',
-			'list'	=> $this->language->lang('REGISTERED_USERS') . ' ',
+			'list'	=> '',
 		];
 
-		if ($list_online == $this->language->lang('NO_ONLINE_USERS'))
+		if ($list_online === $start . $this->language->lang('NO_ONLINE_USERS'))
 		{
 			$content['list'] = $list_online;
 		}
 		else
 		{
+			$r = $u = 0;
 			$robots = $users = '';
-			$userlist = explode(', ', str_replace($content['list'], '', $list_online));
+			$userlist = explode(', ', str_replace($start, '', $list_online));
 			foreach ($userlist as $user)
 			{
 				$id = $this->shoutbox->find_string($user, '&amp;u=', '" ');
 				if (!$id)
 				{
-					$robots .= ($robots ? ', ' : '') . $user;
+					$robots .= ($r > 0) ? ', ' : '';
+					$robots .= $user;
+					$r++;
 				}
 				else
 				{
-					$username = $this->shoutbox->find_string($user, '">', '</a>');
-					$colour = $this->shoutbox->find_string($user, 'color: #', ';"');
-					$users .= ($users ? ', ' : '') . $this->shoutbox->construct_action_shout($id, $username, $colour);
+					$avatar = (strpos($user, 'class="useravatar"')) ? '<span class="useravatar">' . $this->shoutbox->find_string($user, 'class="useravatar">', '</span>') . '</span> ' : '';
+					$user = str_replace($avatar, '', $user);
+					$users .= ($u > 0) ? ', ' : '';
+					$users .= ($avatar) ? $avatar : '';
+					$users .= $this->shoutbox->construct_action_shout($id, $this->shoutbox->find_string($user, '">', '</a>'), $this->shoutbox->find_string($user, 'color: #', ';"'));
+					$u++;
 				}
 			}
-			$content['list'] .= $users . (($users && $robots) ? ', ' : '') . $robots;
+			$content['list'] .= $u . ' ' . $start;
+			$content['list'] .= ($u > 0) ? $users : $this->language->lang('NO_ONLINE_USERS');
+			$content['list'] .= '<hr />' . $r . ' ' . $this->language->lang('G_BOTS') . ' : ';
+			$content['list'] .= ($r > 0) ? $robots : $this->language->lang('NO_ONLINE_BOTS');
 		}
 
-		return $content;
+		return $this->shoutbox->replace_shout_url($content);
 	}
 
 	public function shout_ajax_auth($user_id, $username)
@@ -733,7 +743,7 @@ class functions_ajax
 			];
 			$sql = 'INSERT INTO ' . $val['shout_table'] . ' ' . $this->db->sql_build_array('INSERT', $sql_ary);
 			$this->db->sql_query($sql);
-			$this->config->increment("shout_nr{$val['priv']}", 1, true);
+			$this->config->increment('shout_nr' . $val['priv'], 1, true);
 
 			return [
 				'type'		=> 1,
@@ -777,7 +787,7 @@ class functions_ajax
 			{
 				// For reload the message to everybody
 				$this->shoutbox->update_shout_messages($val['shout_table']);
-				$this->config->increment("shout_del_user{$val['priv']}", $deleted, true);
+				$this->config->increment('shout_del_user' . $val['priv'], $deleted, true);
 				return [
 					'type'		=> 1,
 					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_REP') . ' ' . $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $deleted), $deleted),
@@ -813,7 +823,7 @@ class functions_ajax
 			else
 			{
 				$this->shoutbox->update_shout_messages($val['shout_table']);
-				$this->config->increment("shout_del_user{$val['priv']}", $deleted, true);
+				$this->config->increment('shout_del_user' . $val['priv'], $deleted, true);
 				return [
 					'type'		=> 1,
 					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_REP') . ' ' . $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $deleted), $deleted),
@@ -836,7 +846,7 @@ class functions_ajax
 			if ($deleted)
 			{
 				$this->shoutbox->update_shout_messages($val['shout_table']);
-				$this->config->increment("shout_del_user{$val['priv']}", $deleted, true);
+				$this->config->increment('shout_del_user' . $val['priv'], $deleted, true);
 				return [
 					'type'		=> 1,
 					'message'	=> $this->language->lang('SHOUT_ACTION_REMOVE_REP') . ' ' . $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $deleted), $deleted),
@@ -897,7 +907,7 @@ class functions_ajax
 			$this->db->sql_query($sql);
 
 			$this->shoutbox->update_shout_messages($val['shout_table']);
-			$this->config->increment("shout_del_user{$val['priv']}", 1, true);
+			$this->config->increment('shout_del_user' . $val['priv'], 1, true);
 			return [
 				'type'	=> 1,
 				'post'	=> $post,
@@ -908,7 +918,7 @@ class functions_ajax
 
 	public function shout_ajax_purge($val)
 	{
-		if (!$this->auth->acl_get("a_shout{$val['auth']}"))
+		if (!$this->auth->acl_get('a_shout' . $val['auth']))
 		{
 			return [
 				'type'		=> 2,
@@ -917,11 +927,18 @@ class functions_ajax
 		}
 		else
 		{
-			$sql = 'DELETE FROM ' . $val['shout_table'];
-			$this->shoutbox->shout_sql_query($sql);
-			$deleted = $this->db->sql_affectedrows();
+			// First count total id
+			$sql = 'SELECT COUNT(shout_id) as total
+				FROM ' . $val['shout_table'];
+			$result = $this->db->sql_query($sql);
+			$deleted = $this->db->sql_fetchfield('total', $result);
+			$this->db->sql_freeresult($result);
 
-			$this->config->increment("shout_del_purge{$val['priv']}", $deleted, true);
+			// And now truncate the table, new id increment to 0
+			$sql = 'TRUNCATE ' . $val['shout_table'];
+			$this->db->sql_query($sql);
+
+			$this->config->increment('shout_del_purge' . $val['priv'], $deleted, true);
 			$this->shoutbox->post_robot_shout($val['userid'], $this->user->ip, $val['on_priv'], true, false, false, false);
 
 			return [
@@ -942,14 +959,14 @@ class functions_ajax
 		}
 		else
 		{
-			$sort_on = explode(', ', $this->config["shout_robot_choice{$val['priv']}"] . ', 4');
+			$sort_on = explode(', ', $this->config['shout_robot_choice' . $val['priv']] . ', 4');
 
 			$sql = 'DELETE FROM ' . $val['shout_table'] . '
 				WHERE ' . $this->db->sql_in_set('shout_info', $sort_on, false, true);
 			$this->shoutbox->shout_sql_query($sql);
 			$deleted = $this->db->sql_affectedrows();
 
-			$this->config->increment("shout_del_purge{$val['priv']}", $deleted, true);
+			$this->config->increment('shout_del_purge' . $val['priv'], $deleted, true);
 			$this->shoutbox->post_robot_shout($val['userid'], $this->user->ip, $val['on_priv'], true, true, false, false);
 
 			return [
@@ -1055,7 +1072,7 @@ class functions_ajax
 
 		$sql = 'INSERT INTO ' . $val['shout_table'] . ' ' . $this->db->sql_build_array('INSERT', $sql_ary);
 		$this->shoutbox->shout_sql_query($sql);
-		$this->config->increment("shout_nr{$val['priv']}", 1, true);
+		$this->config->increment('shout_nr' . $val['priv'], 1, true);
 		$this->shoutbox->delete_shout_posts($val);
 
 		return [
@@ -1093,8 +1110,8 @@ class functions_ajax
 			'messages'	=> [],
 		];
 
-		$perm = $this->shoutbox->shout_extract_permissions($val['auth']);
-		$dateformat = $this->shoutbox->shout_extract_dateformat($val['is_user']);
+		$perm = $this->shoutbox->extract_permissions($val['auth']);
+		$dateformat = $this->shoutbox->extract_dateformat($val['is_user']);
 		$sql_where = $this->shoutbox->shout_sql_where($val['is_user'], $val['userid'], $on_bot);
 		$is_mobile = $this->shoutbox->shout_is_mobile();
 
@@ -1114,12 +1131,11 @@ class functions_ajax
 			'WHERE'		=> $sql_where,
 			'ORDER_BY'	=> 's.shout_id DESC',
 		]);
-		$result = $this->shoutbox->shout_sql_query($sql, true, (int) $this->config["shout_num{$val['sort_on']}"], $start);
+		$result = $this->shoutbox->shout_sql_query($sql, true, (int) $this->config['shout_num' . $val['sort_on']], $start);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
 			// Initialize additional data
 			$row = array_merge($row, [
-				'avatar_img'	=> (!$is_mobile) ? $this->shoutbox->get_avatar_row($row, $val['sort']) : '',
 				'is_user'		=> (($row['shout_user_id'] > 1) && ((int) $row['shout_user_id'] !== $val['userid'])),
 				'name'			=> ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'],
 			]);
@@ -1130,19 +1146,19 @@ class functions_ajax
 			// Construct the content of loop
 			$content['messages'][$i] = [
 				'shoutId'		=> $row['shout_id'],
-				'shoutText'		=> $this->shoutbox->shout_text_for_display($row, $val['sort'], false),
-				'username'		=> $this->shoutbox->construct_action_shout($row['user_id'], $row['name'], $row['user_colour']),
 				'shoutTime'		=> $this->user->format_date($row['shout_time'], $dateformat),
+				'username'		=> $this->shoutbox->construct_action_shout($row['user_id'], $row['name'], $row['user_colour']),
+				'avatar'		=> $this->shoutbox->get_avatar_row($row, $val['sort'], $is_mobile),
+				'shoutText'		=> $this->shoutbox->shout_text_for_display($row, $val['sort'], false),
 				'timeMsg'		=> $row['shout_time'],
 				'isUser'		=> $row['is_user'],
 				'name'			=> $row['name'],
 				'colour'		=> $row['user_colour'],
-				'avatar'		=> $row['avatar_img'],
 				'deletemsg'		=> $row['delete'],
 				'edit'			=> $row['edit'],
 				'showIp'		=> $row['show_ip'],
-				'msgPlain'		=> $row['msg_plain'],
 				'shoutIp'		=> $row['on_ip'],
+				'msgPlain'		=> $row['msg_plain'],
 			];
 			$i++;
 		}

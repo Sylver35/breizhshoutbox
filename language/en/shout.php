@@ -264,14 +264,15 @@ $lang = array_merge($lang, array(
 	'SHOUT_ONLINE_TITLE'		=> 'Members connected in real time',
 	'SHOUT_ONLINE'				=> 'Open the panel of connected members',
 	'SHOUT_ONLINE_CLOSE'		=> 'Close the panel of connected members',
-	
+	'NO_ONLINE_BOTS'			=> 'No robot connected',
+
 // Post infos Robot
 	'SHOUT_ROBOT_ON'			=> 'Disable Robot infos',
 	'SHOUT_ROBOT_OFF'			=> 'Show Robot infos',
 	'SHOUT_SELECT_ROBOT'		=> 'Disable the publication by the shoutbox’s robot',
 	'SHOUT_ROBOT_START'			=> 'Info:', // At the beginning of infos robot
 	'SHOUT_ROBOT_DATE'			=> 'l F j, Y', // Form of the info date
-	
+
 // Robot info messages
 	'SHOUT_POST_ROBOT_14'		=> '%1$s %2$s just create a global announcement: %3$s',
 	'SHOUT_POST_ROBOT_15'		=> '%1$s %2$s just create an announcement: %3$s',
