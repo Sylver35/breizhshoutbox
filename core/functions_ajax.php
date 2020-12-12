@@ -524,7 +524,7 @@ class functions_ajax
 
 		return [
 			'id'		=> $id,
-			'name'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour']),
+			'name'		=> $this->shoutbox->replace_shout_url(get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'])),
 			'before'	=> $on_bbcode[0],
 			'after'		=> $on_bbcode[1],
 			'message'	=> $message,
@@ -674,7 +674,7 @@ class functions_ajax
 
 	public function shout_ajax_action_post($val, $message)
 	{
-		if ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('m_shout_robot') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_'))
+		if ($this->auth->acl_gets(['u_shout_post_inp', 'm_shout_robot', 'a_', 'm_']))
 		{
 			$info = 65;
 			$robot = false;
@@ -688,7 +688,7 @@ class functions_ajax
 			else if ($val['other'] === 1)
 			{
 				// post a robot message
-				if ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_robot'))
+				if ($this->auth->acl_gets(['a_', 'm_shout_robot']))
 				{
 					$info = 0;
 					$robot = true;
@@ -834,7 +834,7 @@ class functions_ajax
 
 	public function shout_ajax_action_remove($val)
 	{
-		if ($this->auth->acl_get('a_shout_manage') || $this->auth->acl_get('m_shout_delete'))
+		if ($this->auth->acl_gets(['a_shout_manage', 'm_shout_delete']))
 		{
 			// Delete all messages of this user
 			$sql = 'DELETE FROM ' . $val['shout_table'] . '
@@ -880,7 +880,7 @@ class functions_ajax
 		}
 
 		// If someone can delete all messages, he can delete it's messages :)
-		$can_delete_all = ($this->auth->acl_get('m_shout_delete') || $this->auth->acl_get("a_shout{$val['auth']}")) ? true : false;
+		$can_delete_all = ($this->auth->acl_gets(['m_shout_delete', 'a_shout' . $val['auth']])) ? true : false;
 		$can_delete = $can_delete_all ? true : $this->auth->acl_get('u_shout_delete_s');
 
 		$sql = 'SELECT shout_user_id
@@ -950,7 +950,7 @@ class functions_ajax
 
 	public function shout_ajax_purge_robot($val)
 	{
-		if (!$this->auth->acl_get("a_shout{$val['auth']}"))
+		if (!$this->auth->acl_get('a_shout' . $val['auth']))
 		{
 			return [
 				'type'		=> 2,
@@ -1086,20 +1086,11 @@ class functions_ajax
 	public function shout_ajax_check($val, $on_bot)
 	{
 		$this->shoutbox->shout_run_robot(true);
+		$sql_where = $this->shoutbox->shout_sql_where($val['is_user'], $val['userid'], $on_bot);
+		$last_time = $this->shoutbox->get_shout_time($sql_where, $val['shout_table']);
 
-		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 's.shout_time',
-			'FROM'		=> [$val['shout_table'] => 's'],
-			'WHERE'		=> $this->shoutbox->shout_sql_where($val['is_user'], $val['userid'], $on_bot),
-			'ORDER_BY'	=> 's.shout_time DESC',
-		]);
-		$result = $this->shoutbox->shout_sql_query($sql, true, 1);
-		$time = $this->db->sql_fetchfield('shout_time');
-		$this->db->sql_freeresult($result);
-
-		// check just with the last 4 numbers
 		return [
-			't'	=> substr($time, 6, 4),
+			't'	=> $last_time,
 		];
 	}
 

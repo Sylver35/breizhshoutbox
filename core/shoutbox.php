@@ -2748,9 +2748,10 @@ class shoutbox
 		$result_time = $this->shout_sql_query($sql, true, 1);
 		$last_time = $this->db->sql_fetchfield('shout_time');
 		$this->db->sql_freeresult($result_time);
-
 		// check just with the last 4 numbers
-		return substr($last_time, 6, 4);
+		$last_time = substr($last_time, 6, 4);
+
+		return (string) $last_time;
 	}
 
 	public function extract_dateformat($is_user)
