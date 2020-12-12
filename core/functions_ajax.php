@@ -661,7 +661,7 @@ class functions_ajax
 			{
 				return [
 					'type'		=> 2,
-					'username'	=> get_username_string('no_profile', $row['user_id'], $row['username'], $row['user_colour']),
+					'username'	=> $this->shoutbox->replace_shout_url(get_username_string('no_profile', $row['user_id'], $row['username'], $row['user_colour'])),
 					'message'	=> $this->language->lang('SHOUT_USER_NONE'),
 				];
 			}
