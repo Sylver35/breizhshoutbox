@@ -2,7 +2,7 @@
 /**
  *
  * @package Breizh Shoutbox Extension
- * @copyright (c) 2018-2020 Sylver35  https://breizhcode.com
+ * @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
  *
  */
@@ -189,87 +189,21 @@ class breizhshoutbox_1_0_0 extends migration
 			['permission.add', ['u_shout_view', true]],
 
 			// Set permissions administration
-			['permission.permission_set', ['ADMINISTRATORS', 'a_shout_manage', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'a_shout_priv', 'group']],
+			['permission.permission_set', ['ADMINISTRATORS', ['a_shout_manage', 'a_shout_priv'], 'group']],
+			['permission.permission_set', ['ROLE_ADMIN_FULL', ['a_shout_manage', 'a_shout_priv'], 'role']],
 
 			// Set permissions moderation
-			['permission.permission_set', ['ADMINISTRATORS', 'm_shout_delete', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'm_shout_edit_mod', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'm_shout_info', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'm_shout_personal', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'm_shout_purge', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'm_shout_robot', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'm_shout_delete', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'm_shout_edit_mod', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'm_shout_info', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'm_shout_personal', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'm_shout_purge', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'm_shout_robot', 'group']],
+			['permission.permission_set', ['ADMINISTRATORS', ['m_shout_delete', 'm_shout_edit_mod', 'm_shout_info', 'm_shout_personal', 'm_shout_purge', 'm_shout_robot'], 'group']],
+			['permission.permission_set', ['GLOBAL_MODERATORS', ['m_shout_delete', 'm_shout_edit_mod', 'm_shout_info', 'm_shout_personal', 'm_shout_purge', 'm_shout_robot'], 'group']],
+			['permission.permission_set', ['ROLE_MOD_FULL', ['m_shout_delete', 'm_shout_edit_mod', 'm_shout_info', 'm_shout_personal', 'm_shout_purge', 'm_shout_robot'], 'role']],
 
 			// Set permissions users
-			['permission.permission_set', ['REGISTERED', 'u_shout_bbcode', 'group']],
-			['permission.permission_set', ['REGISTERED', 'u_shout_bbcode_change', 'group']],
-			['permission.permission_set', ['REGISTERED', 'u_shout_chars', 'group']],
-			['permission.permission_set', ['REGISTERED', 'u_shout_color', 'group']],
-			['permission.permission_set', ['REGISTERED', 'u_shout_edit', 'group']],
-			['permission.permission_set', ['REGISTERED', 'u_shout_hide', 'group']],
-			['permission.permission_set', ['REGISTERED', 'u_shout_image', 'group']],
-			['permission.permission_set', ['REGISTERED', 'u_shout_info_s', 'group']],
-			['permission.permission_set', ['REGISTERED', 'u_shout_lateral', 'group']],
-			['permission.permission_set', ['REGISTERED', 'u_shout_popup', 'group']],
-			['permission.permission_set', ['REGISTERED', 'u_shout_post', 'group']],
-			['permission.permission_set', ['REGISTERED', 'u_shout_post_inp', 'group']],
-			['permission.permission_set', ['REGISTERED', 'u_shout_smilies', 'group']],
-			['permission.permission_set', ['REGISTERED', 'u_shout_view', 'group']],
-
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_delete_s', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_inactiv', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_limit_post', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_ignore_flood', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_bbcode', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_bbcode_change', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_chars', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_color', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_edit', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_hide', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_image', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_info_s', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_lateral', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_popup', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_post', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_post_inp', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_smilies', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_view', 'group']],
-			['permission.permission_set', ['ADMINISTRATORS', 'u_shout_priv', 'group']],
-
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_delete_s', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_inactiv', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_limit_post', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_ignore_flood', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_bbcode', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_bbcode_change', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_chars', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_color', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_edit', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_hide', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_image', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_info_s', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_lateral', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_popup', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_post', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_post_inp', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_smilies', 'group']],
-			['permission.permission_set', ['GLOBAL_MODERATORS', 'u_shout_view', 'group']],
-
-			['permission.permission_set', ['NEWLY_REGISTERED', 'u_shout_view', 'group']],
-			['permission.permission_set', ['NEWLY_REGISTERED', 'u_shout_lateral', 'group']],
-			['permission.permission_set', ['NEWLY_REGISTERED', 'u_shout_post', 'group']],
-			['permission.permission_set', ['NEWLY_REGISTERED', 'u_shout_popup', 'group']],
-			['permission.permission_set', ['NEWLY_REGISTERED', 'u_shout_smilies', 'group']],
-			['permission.permission_set', ['NEWLY_REGISTERED', 'u_shout_bbcode', 'group']],
-			['permission.permission_set', ['GUESTS', 'u_shout_view', 'group']],
-			['permission.permission_set', ['GUESTS', 'u_shout_lateral', 'group']],
-			['permission.permission_set', ['BOTS', 'u_shout_view', 'group']],
+			['permission.permission_set', ['REGISTERED', ['u_shout_bbcode', 'u_shout_bbcode_change', 'u_shout_chars', 'u_shout_color', 'u_shout_edit', 'u_shout_hide', 'u_shout_image', 'u_shout_info_s', 'u_shout_lateral', 'u_shout_popup', 'u_shout_post', 'u_shout_post_inp', 'u_shout_smilies', 'u_shout_view'], 'group']],
+			['permission.permission_set', ['ADMINISTRATORS', ['u_shout_delete_s', 'u_shout_inactiv', 'u_shout_limit_post', 'u_shout_ignore_flood', 'u_shout_bbcode', 'u_shout_bbcode_change', 'u_shout_chars', 'u_shout_color', 'u_shout_edit', 'u_shout_hide', 'u_shout_image', 'u_shout_info_s', 'u_shout_lateral', 'u_shout_popup', 'u_shout_post', 'u_shout_post_inp', 'u_shout_smilies', 'u_shout_view', 'u_shout_priv'], 'group']],
+			['permission.permission_set', ['GLOBAL_MODERATORS', ['u_shout_delete_s', 'u_shout_inactiv', 'u_shout_limit_post', 'u_shout_ignore_flood', 'u_shout_bbcode', 'u_shout_bbcode_change', 'u_shout_chars', 'u_shout_color', 'u_shout_edit', 'u_shout_hide', 'u_shout_image', 'u_shout_info_s', 'u_shout_lateral', 'u_shout_popup', 'u_shout_post', 'u_shout_post_inp', 'u_shout_smilies', 'u_shout_view'], 'group']],
+			['permission.permission_set', ['NEWLY_REGISTERED', ['u_shout_view', 'u_shout_lateral', 'u_shout_post', 'u_shout_popup', 'u_shout_smilies', 'u_shout_bbcode'], 'group']],
+			['permission.permission_set', ['GUESTS', ['u_shout_view', 'u_shout_lateral'], 'group']],
+			['permission.permission_set', ['BOTS', ['u_shout_view'], 'group']],
 
 			// Add ACP extension category
 			['module.add', ['acp', '', [

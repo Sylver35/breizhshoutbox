@@ -2,7 +2,7 @@
 /**
  *
  * @package Breizh Shoutbox Extension
- * @copyright (c) 2018-2020 Sylver35  https://breizhcode.com
+ * @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
  *
  */

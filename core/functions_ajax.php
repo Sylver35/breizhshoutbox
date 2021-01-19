@@ -2,7 +2,7 @@
 /**
 *
 * @package Breizh Shoutbox Extension
-* @copyright (c) 2018-2020 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -790,7 +790,7 @@ class functions_ajax
 				$this->config->increment('shout_del_user' . $val['priv'], $deleted, true);
 				return [
 					'type'		=> 1,
-					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_REP') . ' ' . $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $deleted), $deleted),
+					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_REP') . ' ' . $this->language->lang('NUMBER_MESSAGE', $deleted),
 				];
 			}
 		}
@@ -826,7 +826,7 @@ class functions_ajax
 				$this->config->increment('shout_del_user' . $val['priv'], $deleted, true);
 				return [
 					'type'		=> 1,
-					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_REP') . ' ' . $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $deleted), $deleted),
+					'message'	=> $this->language->lang('SHOUT_ACTION_DEL_REP') . ' ' . $this->language->lang('NUMBER_MESSAGE', $deleted),
 				];
 			}
 		}
@@ -849,7 +849,7 @@ class functions_ajax
 				$this->config->increment('shout_del_user' . $val['priv'], $deleted, true);
 				return [
 					'type'		=> 1,
-					'message'	=> $this->language->lang('SHOUT_ACTION_REMOVE_REP') . ' ' . $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $deleted), $deleted),
+					'message'	=> $this->language->lang('SHOUT_ACTION_REMOVE_REP') . ' ' . $this->language->lang('NUMBER_MESSAGE', $deleted),
 				];
 			}
 			else
@@ -1141,6 +1141,7 @@ class functions_ajax
 				'username'		=> $this->shoutbox->construct_action_shout($row['user_id'], $row['name'], $row['user_colour']),
 				'avatar'		=> $this->shoutbox->get_avatar_row($row, $val['sort'], $is_mobile),
 				'shoutText'		=> $this->shoutbox->shout_text_for_display($row, $val['sort'], false),
+				'msgPlain'		=> $row['msg_plain'],
 				'timeMsg'		=> $row['shout_time'],
 				'isUser'		=> $row['is_user'],
 				'name'			=> $row['name'],
@@ -1148,8 +1149,7 @@ class functions_ajax
 				'deletemsg'		=> $row['delete'],
 				'edit'			=> $row['edit'],
 				'showIp'		=> $row['show_ip'],
-				'shoutIp'		=> $row['on_ip'],
-				'msgPlain'		=> $row['msg_plain'],
+				'shoutIp'		=> $this->config['shout_see_button_ip'] ? $row['on_ip'] : '',
 			];
 			$i++;
 		}

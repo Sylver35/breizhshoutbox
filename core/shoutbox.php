@@ -2,12 +2,13 @@
 /**
 *
 * @package Breizh Shoutbox Extension
-* @copyright (c) 2018-2020 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
 namespace sylver35\breizhshoutbox\core;
+
 use phpbb\json_response;
 use phpbb\exception\http_exception;
 use phpbb\cache\driver\driver_interface as cache;
@@ -961,7 +962,7 @@ class shoutbox
 		}
 
 		// Exclude all pages in this list
-		if (preg_match("#ucp|mcp|search#i", $this->user->page['page_name']) || preg_match("#adm#i", $this->user->page['page_dir']))
+		if (preg_match("#ucp|mcp#i", $this->user->page['page_name']) || preg_match("#adm#i", $this->user->page['page_dir']))
 		{
 			return false;
 		}
@@ -1629,7 +1630,7 @@ class shoutbox
 		return sprintf($this->config['shout_tpl_' . $sort], $data1, $data2, $data3, $data4);
 	}
 
-	public function action_user($row, $userid, $sort)
+	public function action_user($row, $id, $sort)
 	{
 		// Founders protection
 		$go_founder = ($row['user_type'] != USER_FOUNDER || $this->user->data['user_type'] == USER_FOUNDER) ? true : false;
@@ -1645,8 +1646,8 @@ class shoutbox
 			'username'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'], '', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", 'mode=viewprofile')),
 			'avatar'		=> $this->shout_user_avatar($row, 60, true),
 			'url_message'	=> $this->tpl('personal'),
-			'url_del_to'	=> $this->tpl('delreqto', $userid),
-			'url_del'		=> $this->tpl('delreq', $userid),
+			'url_del_to'	=> $this->tpl('delreqto', $id),
+			'url_del'		=> $this->tpl('delreq', $id),
 			'url_cite'		=> $this->tpl('citemsg'),
 			'url_cite_m'	=> $this->tpl('citemulti', $row['username'], $row['user_colour']),
 			'url_profile'	=> $action['url_profile'],
@@ -1664,12 +1665,12 @@ class shoutbox
 	private function create_urls_action_user($row, $sort, $go_founder)
 	{
 		return [
-			'url_profile'	=> $this->tpl('profile', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", "mode=viewprofile&amp;u={$row['user_id']}", false), $row['username']),
+			'url_profile'	=> $this->tpl('profile', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", ['mode' => 'viewprofile', 'u' => $row['user_id']], false), $row['username']),
 			'url_auth'		=> ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_personal')) ? $this->tpl('auth', $row['user_id'], $row['username']) : '',
 			'url_prefs'		=> ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_personal')) ? $this->tpl('prefs', $this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $row['user_id']])) : '',
-			'url_admin'		=> ($this->auth->acl_get('a_user')) ? $this->tpl('admin', append_sid("{$this->adm_path()}index.{$this->php_ext}", "i=users&amp;mode=overview&amp;u={$row['user_id']}", true, $this->user->session_id)) : '',
-			'url_modo'		=> ($this->auth->acl_get('m_')) ? $this->tpl('modo', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", "i=notes&amp;mode=user_notes&amp;u={$row['user_id']}", true, $this->user->session_id)) : '',
-			'url_ban'		=> ($this->auth->acl_get('m_ban') && $go_founder) ? $this->tpl('ban', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", "i=ban&amp;mode=user&amp;u={$row['user_id']}", true, $this->user->session_id)) : '',
+			'url_admin'		=> ($this->auth->acl_get('a_user')) ? $this->tpl('admin', append_sid("{$this->adm_path()}index.{$this->php_ext}", ['i' => 'users', 'mode' => 'overview', 'u' => $row['user_id']], true, $this->user->session_id)) : '',
+			'url_modo'		=> ($this->auth->acl_get('m_')) ? $this->tpl('modo', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'notes', 'mode' => 'user_notes', 'u' => $row['user_id']], true, $this->user->session_id)) : '',
+			'url_ban'		=> ($this->auth->acl_get('m_ban') && $go_founder) ? $this->tpl('ban', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'ban', 'mode' => 'user', 'u' => $row['user_id']], true, $this->user->session_id)) : '',
 			'url_remove'	=> (($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_delete')) && $go_founder) ? $this->tpl('remove', $row['user_id']) : '',
 			'url_perso'		=> (($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_personal')) && $go_founder) ? $this->tpl('perso', $row['user_id']) : '',
 			'url_robot'		=> ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_robot')) ? $this->tpl('robot', $sort) : '',
@@ -1724,7 +1725,6 @@ class shoutbox
 	private function display_infos_robot($row, $info, $acp)
 	{
 		$message = '';
-		$italic = true;
 		$start = $this->language->lang('SHOUT_ROBOT_START');
 
 		switch ($info)
@@ -1777,13 +1777,12 @@ class shoutbox
 			case 37:
 			case 38:
 				$message = $this->language->lang('SHOUT_NEW_SCORE_' . $info, $row['shout_robot'], $this->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_games', ['gid' => $row['shout_info_nb']]), $row['shout_text']));
-				$message .= ($row['shout_robot_user'] && $row['shout_text2']) ? ' ' . $this->language->lang('IN') . ' ' . $this->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_list', ['cid' => $row['shout_robot_user']]), $row['shout_text2']) : '';
+				$message .= ($row['shout_robot_user'] && $row['shout_text2']) ? $this->language->lang('SHOUT_IN', $this->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_list', ['cid' => $row['shout_robot_user']]), $row['shout_text2'])) : '';
 			break;
 			case 65:
 			case 66:
 				$data = generate_text_for_display($row['shout_text'], $row['shout_bbcode_uid'], $row['shout_bbcode_bitfield'], $row['shout_bbcode_flags']);
 				$message = $this->tpl('cite', $this->language->lang(($info === 65) ? 'SHOUT_USER_POST' : 'SHOUT_ACTION_CITE_ON'), $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp), $data);
-				$italic = false;
 			break;
 			case 60:
 			case 70:
@@ -1802,19 +1801,19 @@ class shoutbox
 			break;
 		}
 
-		return ($italic) ? $this->tpl('italic', $message) : $message;
+		return $message;
 	}
 
 	/*
 	 * Display infos Robot for purge, delete messages
 	 * and enter in the private shoutbox
 	 */
-	public function post_robot_shout($user_id, $ip, $priv = false, $purge = false, $robot = false, $auto = false, $delete = false, $deleted = '')
+	public function post_robot_shout($userid, $ip, $priv = false, $purge = false, $robot = false, $auto = false, $delete = false, $deleted = '')
 	{
 		$info = 0;
 		$sort_info = 1;
 		$message = '-';
-		$userid = (int) $user_id;
+		$userid = (int) $userid;
 		$_priv = ($priv) ? '_priv' : '';
 		$shoutbox_table = ($priv) ? $this->shoutbox_priv_table : $this->shoutbox_table;
 
@@ -2773,26 +2772,26 @@ class shoutbox
 		$data = [
 			'edit'		=> $this->auth->acl_get('u_shout_edit'),
 			'delete'	=> $this->auth->acl_get('u_shout_delete_s'),
-			'info'		=> $this->auth->acl_get('u_shout_info_s'),
+			'info'		=> $this->auth->acl_get('u_shout_info_s') && $this->config['shout_see_button_ip'],
 			'edit_all'	=> false,
 			'delete_all'=> false,
 			'info_all'	=> false,
 		];
 
 		// If someone can edit all messages, he can edit its own messages :)
-		if ($this->auth->acl_get('m_shout_edit_mod') || $this->auth->acl_get("a_shout{$auth}"))
+		if ($this->auth->acl_gets(['m_shout_edit_mod', 'a_shout' . $auth]))
 		{
 			$data['edit'] = $data['edit_all'] = true;
 		}
 
 		// If someone can delete all messages, he can delete its own messages :)
-		if ($this->auth->acl_get('m_shout_delete') || $this->auth->acl_get("a_shout{$auth}"))
+		if ($this->auth->acl_gets(['m_shout_delete', 'a_shout' . $auth]))
 		{
 			$data['delete'] = $data['delete_all'] = true;
 		}
 
 		// If someone can view all ip, he can view its own ip :)
-		if ($this->auth->acl_get('m_shout_info') || $this->auth->acl_get("a_shout{$auth}"))
+		if ($this->auth->acl_gets(['m_shout_info', 'a_shout' . $auth]) && $this->config['shout_see_button_ip'])
 		{
 			$data['info'] = $data['info_all'] = true;
 		}

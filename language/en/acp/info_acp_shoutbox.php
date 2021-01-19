@@ -4,7 +4,7 @@
 * Breizh Shoutbox Extension [English]
 *
 * @package language
-* @copyright (c) 2018-2020 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -133,14 +133,20 @@ $lang = array_merge($lang, array(
 	'LOG_SHOUT_IFRAME_PRIV'			=> '<strong>Attempt to post iframe in the private shoutbox.</strong>',
 	'SHOUT_LOGS'					=> 'Post forbidden attempts',
 	'SHOUT_LOGS_EXPLAIN'			=> 'Total number of forbidden item post attempts in the shoutbox',
-	'NUMBER_LOG_TOTAL'				=> '<strong>%s</strong> attempt since %s',
-	'NUMBER_LOGS_TOTAL'				=> '<strong>%s</strong> attempts since %s',
+	'NUMBER_LOG_TOTAL'				=> [
+		1	=> '<strong>%d</strong> attempt since %s',
+		2	=> '<strong>%d</strong> attempts since %s',
+	],
 	'NO_MESSAGE'					=> 'There is no message',
 	'NO_SHOUT_LOG'					=> 'There is no entry',
-	'NUMBER_MESSAGE'				=> '<strong>%s</strong> message',
-	'NUMBER_MESSAGES'				=> '<strong>%s</strong> messages',
-	'NUMBER_LOG' 					=> '<strong>%s</strong> entry',
-	'NUMBER_LOGS' 					=> '<strong>%s</strong> entries',
+	'NUMBER_MESSAGE'				=> [
+		1	=> '<strong>%d</strong> message',
+		2	=> '<strong>%d</strong> messages',
+	],
+	'NUMBER_LOG'					=> [
+		1	=> '<strong>%d</strong> entry',
+		2	=> '<strong>%d</strong> entries',
+	],
 	'ORDER'							=> 'order',
 	'SHOUT_MESSAGES'				=> 'messages',
 
@@ -221,8 +227,10 @@ $lang = array_merge($lang, array(
 	'SHOUT_DEL_AUTO'				=> 'Number of messages deleted automatically:',
 	'SHOUT_DEL_PURGE'				=> 'Number of messages deleted during a purge:',
 	'SHOUT_DEL_USER'				=> 'Number of messages deleted by users:',
-	'SHOUT_DEL_NR'					=> '<strong>%s</strong> Deleted message',
-	'SHOUT_DEL_NRS'					=> '<strong>%s</strong> Deleted messages',
+	'SHOUT_DEL_NR'					=> [
+		1	=> '<strong>%s</strong> Deleted message',
+		2	=> '<strong>%s</strong> Deleted messages',
+	],
 	'SHOUT_DEL_TOTAL'				=> ' total',
 	'SHOUT_EDIT_RULE'				=> 'Edit this text',
 
@@ -299,7 +307,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_POSITION_END'			=> 'At the bottom of page',
 	'SHOUT_POSITION_NONE'			=> 'Do not display',
 
-	'SHOUTBOX_VERSION_ACP_COPY'		=> '<a href="%1$s" onclick="window.open(this.href);return false;">Breizh Shoutbox v%2$s</a> © 2018-2020 - Breizhcode - The Breizh Touch', // Don't translate this please ^-^
+	'SHOUTBOX_VERSION_ACP_COPY'		=> '<a href="%1$s" onclick="window.open(this.href);return false;">Breizh Shoutbox v%2$s</a> © 2018-2021 - Breizhcode - The Breizh Touch', // Don't translate this please ^-^
 	'SHOUT_TOUCH_COPY'				=> '<span style="font-size: 11px">Breizh Shoutbox © 2010, 2012 <a href="http://breizh-portal.com/index.html">The Breizh touch</a></span>',
 	'SHOUT_VERSION_UP_TO_DATE'		=> 'Your installation is up to date, no update is available for your version of Breizh Shoutbox: v%s. You do not need to update your installation.',
 	'SHOUT_NO_VERSION'				=> '<span style="color: red">Failed to obtain latest version information...</span>',
@@ -314,8 +322,10 @@ $lang = array_merge($lang, array(
 	'SHOUT_NEVER'					=> 'Never done',
 	'SHOUT_LOG_ENTRIE'				=> 'Type attempt made',
 	'SHOUT_NO_ADMIN'				=> 'You do not have administrative rights and can not access the resource',
-	'SHOUT_SERVER_HOUR'				=> 'The current server hour is: %s hour %s',
-	'SHOUT_SERVER_HOURS'			=> 'The current server hour is: %s hours %s',
+	'SHOUT_SERVER_HOUR'				=> [
+		1	=> 'The current server hour is: %d hour %s',
+		2	=> 'The current server hour is: %d hours %s',
+	],
 	'SHOUT_BAR'						=> 'Position of the post box',
 	'SHOUT_BAR_EXPLAIN'				=> 'Choose whether you want the post box at the top or bottom of the shoutbox.',
 

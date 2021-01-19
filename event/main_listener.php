@@ -2,7 +2,7 @@
 /**
 *
 * @package Breizh Shoutbox Extension
-* @copyright (c) 2018-2020 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -260,8 +260,8 @@ class main_listener implements EventSubscriberInterface
 		]);
 
 		$event['permissions'] = array_merge($event['permissions'], [
-			'a_shout_manage'		=> ['lang' => 'ACL_A_SHOUT_MANAGE', 'cat' => 'misc'],
-			'a_shout_priv'			=> ['lang' => 'ACL_A_SHOUT_PRIV', 'cat' => 'misc'],
+			'a_shout_manage'		=> ['lang' => 'ACL_A_SHOUT_MANAGE', 'cat' => 'shoutbox'],
+			'a_shout_priv'			=> ['lang' => 'ACL_A_SHOUT_PRIV', 'cat' => 'shoutbox'],
 			'm_shout_delete'		=> ['lang' => 'ACL_M_SHOUT_DELETE', 'cat' => 'shoutbox'],
 			'm_shout_edit_mod'		=> ['lang' => 'ACL_M_SHOUT_EDIT_MOD', 'cat' => 'shoutbox'],
 			'm_shout_info'			=> ['lang' => 'ACL_M_SHOUT_INFO', 'cat' => 'shoutbox'],

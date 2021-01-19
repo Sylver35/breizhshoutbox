@@ -5,7 +5,7 @@
 *
 * @package language
 * @version $Id: shout.php 100
-* @copyright (c) 2018-2020 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License 
 *
 */
@@ -90,9 +90,9 @@ $lang = array_merge($lang, array(
 	'SHOUT_COLOR'			=> 'Colorize text',
 	'SHOUT_COLOR_CLOSE'		=> 'Collapse colorizing text',
 	'SHOUT_CHARS'			=> 'Add special characters',
-	'SHOUT_CHARS_CLOSE'		=> 'Close the panel of special characters',
-	'SHOUT_BBCODES'			=> 'Open the panel of bbcodes',
-	'SHOUT_BBCODES_CLOSE'	=> 'Close the panel of bbcodes',
+	'SHOUT_CHARS_CLOSE'		=> '🔒 Close the panel of special characters',
+	'SHOUT_BBCODES'			=> '🔒 Open the panel of bbcodes',
+	'SHOUT_BBCODES_CLOSE'	=> '🔒 Close the panel of bbcodes',
 	'SMILIES'				=> 'Include Smilies', 
 	'SMILIES_CLOSE'			=> 'Collapse the Smilies panel',
 	'SHOUT_MORE_SMILIES'	=> 'More smilies',
@@ -102,14 +102,14 @@ $lang = array_merge($lang, array(
 	'SHOUT_POST_IP'			=> 'IP of the user:',
 	'SHOUTBOX'				=> '<a href="%1$s">%2$s</a>', // Don't traduct this
 	'SHOUTBOX_VER'			=> 'Breizh Shoutbox v%s', // Don't traduct this
-	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2020', // Don't traduct this
+	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2021', // Don't traduct this
 	'SHOUT_TOUCH'			=> 'The Breizh Touch', // Don't traduct this
 	'SHOUTBOX_POPUP'		=> 'Breizh Shoutbox Popup',
 	'SHOUT_POP'				=> 'Open shoutbox in a popup',
 	'SHOUT_POPUP'			=> 'Shoutbox Popup',
 	'SHOUT_RULES'			=> 'Rules for using the Shoutbox',
 	'SHOUT_RULES_PRIV'		=> 'Rules for using the Private Shoutbox',
-	'SHOUT_RULES_CLOSE'		=> 'Close the panel usage rules',
+	'SHOUT_RULES_CLOSE'		=> '🔒 Close the panel usage rules',
 	'SHOUTBOX_SECRET'		=> 'Private Shoutbox',
 	'SHOUT_PRIV'			=> 'Enter in the private shoutbox',
 	'SHOUT_PURGE'			=> 'Purge the shoutbox',
@@ -120,6 +120,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_PURGE_ROBOT_BOX'	=> ' Would you really purge the shoutbox infos robot ?  Please note, this action is irreversible…',
 	'SERVER_ERR'			=> 'There was something wrong while doing a request to the server, please refresh the page…',
 	'SHOUT_ERROR' 			=> 'Error: ',
+	'SHOUT_IN'				=> ' in %s',
 	'SHOUT_IMG_POST_ERROR'	=> 'Error: to insert an image, you must click on the icon image…',
 	'SHOUT_IMG_DIM_ERROR'	=> 'Error: image sent is corrupt or is not an image…',
 	'SHOUT_IMG_FOPEN_ERROR'	=> 'Error: unable to contact the server hosting the image…',
@@ -141,6 +142,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_SOUND_NO'		=> 'Mute the sound',
 	'SHOUT_SOUND_ECOUTE'	=> 'Play sound',
 	'SHOUT_CONFIG_OPEN'		=> 'Open the shoutbox preferences panel',
+	'SHOUT_CONFIG_OPEN_TO'	=> '☢ Change the shoutbox preferences',
 	'SHOUT_PANEL_USER'		=> 'User Settings panel',
 	'SHOUT_PANEL_TO_USER'	=> 'Settings panel for user %1$s',
 	'SHOUT_PREF_UPDATED'	=> 'Your shoutbox preferences are saved',
@@ -196,8 +198,8 @@ $lang = array_merge($lang, array(
 	'SHOUT_PHPBBCOLOR'			=> 'Phpbb pallet',
 	'SHOUT_PHPBB2COLOR'			=> 'Phpbb extended pallet',
 	'SHOUT_LATERAL'				=> 'Shoutbox in lateral panel',
-	'SHOUT_LATERAL_OPEN'		=> 'Open the Shoutbox in lateral panel',
-	'SHOUT_LATERAL_CLOSE'		=> 'Close the latéral panel',
+	'SHOUT_LATERAL_OPEN'		=> '🔓 Open the Shoutbox in lateral panel',
+	'SHOUT_LATERAL_CLOSE'		=> '🔒 Close the latéral panel',
 	'SHOUT_AFFICHE'				=> 'show password',
 	'SHOUT_CACHE'				=> 'hide password',
 
@@ -209,44 +211,45 @@ $lang = array_merge($lang, array(
 	'SHOUT_BBCODE_CLOSE'		=> 'Closing BBcodes',
 	'SHOUT_BBCODE_SUCCESS'		=> 'changes made',
 	'SHOUT_BBCODE_SUP'			=> 'Formatting removed',
-	'SHOUT_BBCODE_ERROR'		=> 'You must fill in the two fields',
-	'SHOUT_BBCODE_ERROR_COUNT'	=> 'You need to have as many openings bbcodes as closing bbcodes',
-	'SHOUT_BBCODE_ERROR_SHAME'	=> 'No changes made',
-	'SHOUT_BBCODE_ERROR_SLASH'	=> 'Error, the closing bbcode “%2$s” does not contain a closing slash “/”',
-	'SHOUT_BBCODE_ERROR_SLASHS'	=> 'Error, the %1$s closing bbcodes “%2$s” do not have a closing slash “/”',
-	'SHOUT_BBCODE_ERROR_IMB'	=> 'Error, the closing bbcode “%2$s” is poorly nested',
-	'SHOUT_BBCODE_ERROR_IMBS'	=> 'Error, the %1$s closing bbcodes “%2$s” are poorly nested',
-	'SHOUT_DIV_BBCODE_CLOSE'	=> 'Close the panel formatting messages',
-	'SHOUT_DIV_BBCODE_EXPLAIN'	=> 'You can customize the formatting of your messages in the shoutbox.<br />Enter bbcodes simple, openings in the first zone, closings in the second.<br />Caution: Observe the nesting bbcodes well and remember to close all.<br />Exemple: <em>[b][i] and [/i][/b]</em>',
+	'SHOUT_BBCODE_ERROR'		=> '❗ You must fill in the two fields',
+	'SHOUT_BBCODE_ERROR_COUNT'	=> '❗ You need to have as many openings bbcodes as closing bbcodes',
+	'SHOUT_BBCODE_ERROR_SHAME'	=> '♻ No changes made',
+	'SHOUT_BBCODE_ERROR_SLASH'	=> '❗ Error, the closing bbcode “%2$s” does not contain a closing slash “/”',
+	'SHOUT_BBCODE_ERROR_SLASHS'	=> '❗ Error, the %1$s closing bbcodes “%2$s” do not have a closing slash “/”',
+	'SHOUT_BBCODE_ERROR_IMB'	=> '❗ Error, the closing bbcode “%2$s” is poorly nested',
+	'SHOUT_BBCODE_ERROR_IMBS'	=> '❗ Error, the %1$s closing bbcodes “%2$s” are poorly nested',
+	'SHOUT_DIV_BBCODE_CLOSE'	=> '🔒 Close the panel formatting messages',
+	'SHOUT_DIV_BBCODE_EXPLAIN'	=> 'You can customize the formatting of your messages in the shoutbox.<br />Enter bbcodes simple, openings in the first zone, closings in the second.<br />❗ Caution: Observe the nesting bbcodes well and remember to close all.<br />Exemple: <em>[b][i] and [/i][/b]</em>',
 
 	// User actions panel
-	'SHOUT_ACTION_TITLE'			=> 'Actions for the user',
-	'SHOUT_ACTION_TITLE_TO'			=> 'Actions for the user %s',
-	'SHOUT_ACTION_PROFIL'			=> 'See profile of %s',
-	'SHOUT_ACTION_CITE'				=> 'Quote the user',
-	'SHOUT_ACTION_CITE_M'			=> 'Multi quote the user',
-	'SHOUT_ACTION_CITE_ON'			=> 'For ',
-	'SHOUT_ACTION_CITE_EXPLAIN'		=> 'Quote the user in a message of shoutbox',
-	'SHOUT_ACTION_CITE_M_EXPLAIN'	=> 'Multi quote the user in a message of shoutbox',
-	'SHOUT_ACTION_MSG'				=> 'Send a personal message in the shoutbox',
-	'SHOUT_ACTION_MSG_ROBOT'		=> 'Send a message as %s',
-	'SHOUT_ACTION_DELETE'			=> 'Remove my personal messages',
+	'SHOUT_ACTION_TITLE'			=> '🎯 Actions for the user',
+	'SHOUT_ACTION_TITLE_TO'			=> '🎯 Actions for the user %s',
+	'SHOUT_ACTION_PROFIL'			=> '👀 See profile of %s',
+	'SHOUT_ACTION_CITE'				=> '📩 Quote the user',
+	'SHOUT_ACTION_CITE_M'			=> '💬 Multi quote the user',
+	'SHOUT_ACTION_CITE_ON'			=> '📩 ',
+	'SHOUT_ACTION_CITE_EXPLAIN'		=> '💬 Quote the user in a message of shoutbox',
+	'SHOUT_ACTION_CITE_M_EXPLAIN'	=> '💬 Multi quote the user in a message of shoutbox',
+	'SHOUT_ACTION_MSG'				=> '🔑 Send a personal message in the shoutbox',
+	'SHOUT_ACTION_MSG_ROBOT'		=> '📣 Send a message as %s',
+	'SHOUT_ACTION_DELETE'			=> '🚽 Remove my personal messages',
 	'SHOUT_ACTION_DELETE_EXPLAIN'	=> 'Are you sure you want to delete all your personal messages?',
-	'SHOUT_ACTION_DEL_TO'			=> 'Delete personal messages sent to me',
+	'SHOUT_ACTION_DEL_TO'			=> '🚽 Delete personal messages sent to me',
 	'SHOUT_ACTION_DEL_TO_EXPLAIN'	=> 'Are you sure you want to delete all personal messages intended for you?',
 	'SHOUT_ACTION_DEL_REP'			=> 'All your personal messages were deleted',
 	'SHOUT_ACTION_DEL_NO'			=> 'Any personal message deleted',
-	'SHOUT_ACTION_MCP'				=> 'User notes',
-	'SHOUT_ACTION_BAN'				=> 'Ban of the Forum',
-	'SHOUT_ACTION_REMOVE'			=> 'Delete all shoutbox messages of the user',
+	'SHOUT_ACTION_MCP'				=> '🎫 User notes',
+	'SHOUT_ACTION_BAN'				=> '👮 Ban of the Forum',
+	'SHOUT_ACTION_AUTH'				=> '👁 Shoutbox permissions',
+	'SHOUT_ACTION_REMOVE'			=> '🗑 Delete all shoutbox messages of the user',
 	'SHOUT_ACTION_REMOVE_EXPLAIN'	=> 'Are you sure you want to delete all shoutbox messages and infos Robot of this user?',
 	'SHOUT_ACTION_REMOVE_REP'		=> 'All shoutbox messages of this user have been deleted:',
 	'SHOUT_ACTION_REMOVE_NO'		=> 'Any deleted message',
-	'SHOUT_ACTION_ADMIN'			=> 'Administer the user',
-	'SHOUT_ACTION_PERSO'			=> 'Change the formatting of user’s messages',
-	'SHOUT_USER_POST'				=> '@PM_', // Before a personnal message
+	'SHOUT_ACTION_ADMIN'			=> '⚙ Administer the user',
+	'SHOUT_ACTION_PERSO'			=> '🛠 Change the formatting of user’s messages',
+	'SHOUT_USER_POST'				=> '🔑', // Before a personnal message
 	'SHOUT_USER_IGNORE'				=> 'You have set this member to foe',
-	'SHOUT_USER_NONE'				=> 'No action possible for this member',
+	'SHOUT_USER_NONE'				=> '⛔ No action possible for this member',
 
 // Infos cookies
 	'SHOUT_COOKIES'					=> 'Information about shoutbox cookies',
@@ -263,14 +266,14 @@ $lang = array_merge($lang, array(
 // Members connected panel
 	'SHOUT_ONLINE_TITLE'		=> 'Members connected in real time',
 	'SHOUT_ONLINE'				=> 'Open the panel of connected members',
-	'SHOUT_ONLINE_CLOSE'		=> 'Close the panel of connected members',
+	'SHOUT_ONLINE_CLOSE'		=> '🔒 Close the panel of connected members',
 	'NO_ONLINE_BOTS'			=> 'No robot connected',
 
 // Post infos Robot
 	'SHOUT_ROBOT_ON'			=> 'Disable Robot infos',
 	'SHOUT_ROBOT_OFF'			=> 'Show Robot infos',
 	'SHOUT_SELECT_ROBOT'		=> 'Disable the publication by the shoutbox’s robot',
-	'SHOUT_ROBOT_START'			=> 'Info:', // At the beginning of infos robot
+	'SHOUT_ROBOT_START'			=> '🔉 ', // At the beginning of infos robot
 	'SHOUT_ROBOT_DATE'			=> 'l F j, Y', // Form of the info date
 
 // Robot info messages
@@ -318,6 +321,6 @@ $lang = array_merge($lang, array(
 	'SHOUT_NEW_RECORD_RA_EXPLAIN'	=> 'Display a message if a new record is set.',
 	'SHOUT_NEW_URECORD_RA_EXPLAIN'	=> 'Display a message if a new ultimate record is set.',
 	'SHOUT_NEW_SCORE_36'			=> 'I just set the first score of %s points to %s',
-	'SHOUT_NEW_SCORE_37'			=> 'I have just set a new ultimate record of %s points to %s',
+	'SHOUT_NEW_SCORE_37'			=> '🏆 I have just set a new ultimate record of %s points to %s',
 	'SHOUT_NEW_SCORE_38'			=> 'I just set a new record of %s points to %s',
 ));

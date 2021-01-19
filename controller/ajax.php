@@ -2,7 +2,7 @@
 /**
 *
 * @package Breizh Shoutbox Extension
-* @copyright (c) 2018-2020 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -150,6 +150,6 @@ class ajax
 
 		// Send the response to the browser now
 		$json_response = new \phpbb\json_response;
-		$json_response->send($data, true);
+		$json_response->send($data);
 	}
 }

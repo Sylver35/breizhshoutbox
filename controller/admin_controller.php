@@ -2,7 +2,7 @@
 /**
 *
 * @package Breizh Shoutbox Extension
-* @copyright (c) 2018-2020 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -423,16 +423,16 @@ class admin_controller
 				'S_DISPLAY_LOGS'			=> ($li > 0) ? true : false,
 				'S_ON_PAGE'					=> ($return['total_posts'] > $shout_number) ? true : false,
 				'TOTAL_POSTS'				=> $return['total_posts'],
-				'TOTAL_MESSAGES'			=> $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $return['total_posts']), $return['total_posts']),
-				'MESSAGES_TOTAL_NR'			=> $this->language->lang('SHOUT_MESSAGES_TOTAL_NR', $this->config['shout_nr'], $this->user->format_date($this->config['shout_time'])),
-				'PAGE_NUMBER' 				=> $this->pagination->validate_start($return['total_posts'], (int) $shout_number, $start),	
 				'LAST_SHOUT_RUN'			=> ($this->config['shout_last_run'] == $this->config['shout_time']) ? $this->language->lang('SHOUT_NEVER') : $this->user->format_date($this->config['shout_last_run']),
-				'LOGS_TOTAL_NR'				=> $this->language->lang($this->shoutbox->plural('NUMBER_LOG', $this->config['shout_nr_log'], '_TOTAL'), $this->config['shout_nr_log'], $this->user->format_date($this->config['shout_time'])),
-				'MESSAGES_DEL_TOTAL'		=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $total_del), $total_del) . $this->language->lang('SHOUT_DEL_TOTAL'),
-				'MESSAGES_DEL_ACP'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_acp']), $this->config['shout_del_acp']),
-				'MESSAGES_DEL_AUTO'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_auto']), $this->config['shout_del_auto']),
-				'MESSAGES_DEL_PURGE'		=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_purge']), $this->config['shout_del_purge']),
-				'MESSAGES_DEL_USER'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_user']), $this->config['shout_del_user']),
+				'PAGE_NUMBER' 				=> $this->pagination->validate_start($return['total_posts'], $shout_number, $start),
+				'TOTAL_MESSAGES'			=> $this->language->lang('NUMBER_MESSAGE', $return['total_posts']),
+				'MESSAGES_TOTAL_NR'			=> $this->language->lang('SHOUT_MESSAGES_TOTAL_NR', $this->config['shout_nr'], $this->user->format_date($this->config['shout_time'])),
+				'LOGS_TOTAL_NR'				=> $this->language->lang('NUMBER_LOG_TOTAL', $this->config['shout_nr_log'], $this->user->format_date($this->config['shout_time'])),
+				'MESSAGES_DEL_TOTAL'		=> $this->language->lang('SHOUT_DEL_NR', $total_del) . $this->language->lang('SHOUT_DEL_TOTAL'),
+				'MESSAGES_DEL_ACP'			=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_acp']),
+				'MESSAGES_DEL_AUTO'			=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_auto']),
+				'MESSAGES_DEL_PURGE'		=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_purge']),
+				'MESSAGES_DEL_USER'			=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_user']),
 			]);
 			$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $return['total_posts'], $shout_number, $start);
 		}
@@ -519,16 +519,16 @@ class admin_controller
 				'S_DISPLAY_MESSAGES'		=> ($return['i'] > 0) ? true : false,
 				'S_DISPLAY_LOGS'			=> ($li > 0) ? true : false,
 				'S_ON_PAGE'					=> ($return['total_posts'] > $shout_number) ? true : false,
-				'TOTAL_MESSAGES'			=> $this->language->lang($this->shoutbox->plural('NUMBER_MESSAGE', $return['total_posts']), $return['total_posts']),
+				'TOTAL_MESSAGES'			=> $this->language->lang('NUMBER_MESSAGE', $return['total_posts']),
 				'MESSAGES_TOTAL_NR'			=> $this->language->lang('SHOUT_MESSAGES_TOTAL_NR', $this->config['shout_nr_priv'], $this->user->format_date($this->config['shout_time_priv'])),
 				'PAGE_NUMBER'				=> $this->pagination->validate_start($return['total_posts'], $shout_number, $start),	
 				'LAST_SHOUT_RUN'			=> ($this->config['shout_last_run_priv'] == $this->config['shout_time_priv']) ? $this->language->lang('SHOUT_NEVER') : $this->user->format_date($this->config['shout_last_run_priv']),
-				'LOGS_TOTAL_NR'				=> $this->language->lang($this->shoutbox->plural('NUMBER_LOG', $this->config['shout_nr_log_priv'], '_TOTAL'), $this->config['shout_nr_log_priv'], $this->user->format_date($this->config['shout_time_priv'])),
-				'MESSAGES_DEL_TOTAL'		=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $total_del), $total_del) . $this->language->lang('SHOUT_DEL_TOTAL'),
-				'MESSAGES_DEL_ACP'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_acp_priv']), $this->config['shout_del_acp_priv']),
-				'MESSAGES_DEL_AUTO'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_auto_priv']), $this->config['shout_del_auto_priv']),
-				'MESSAGES_DEL_PURGE'		=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_purge_priv']), $this->config['shout_del_purge_priv']),
-				'MESSAGES_DEL_USER'			=> $this->language->lang($this->shoutbox->plural('SHOUT_DEL_NR', $this->config['shout_del_user_priv']), $this->config['shout_del_user_priv']),
+				'LOGS_TOTAL_NR'				=> $this->language->lang('NUMBER_LOG_TOTAL', $this->config['shout_nr_log_priv'], $this->user->format_date($this->config['shout_time_priv'])),
+				'MESSAGES_DEL_TOTAL'		=> $this->language->lang('SHOUT_DEL_NR', $total_del) . $this->language->lang('SHOUT_DEL_TOTAL'),
+				'MESSAGES_DEL_ACP'			=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_acp_priv']),
+				'MESSAGES_DEL_AUTO'			=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_auto_priv']),
+				'MESSAGES_DEL_PURGE'		=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_purge_priv']),
+				'MESSAGES_DEL_USER'			=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_user_priv']),
 			]);
 			$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $return['total_posts'], $shout_number, $start);
 		}
@@ -834,7 +834,7 @@ class admin_controller
 				'SHOUT_PREZ_FORM'			=> make_forum_select((int) $this->config['shout_prez_form'], false, true, true),
 				'SHOUT_EXCLUDE_FORUMS'		=> make_forum_select(explode(', ', $this->config['shout_exclude_forums']), false, false, false, false),
 				'GROUP_OPTIONS'				=> $this->functions_admin->get_group_options(),
-				'SERVER_HOUR'				=> $this->language->lang($this->shoutbox->plural('SHOUT_SERVER_HOUR', date('H')), date('H'), date('i')),
+				'SERVER_HOUR'				=> $this->language->lang('SHOUT_SERVER_HOUR', date('H'), date('i')),
 			]);
 		}
 	}
