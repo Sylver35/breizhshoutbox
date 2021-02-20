@@ -15,7 +15,7 @@ class breizhshoutbox_1_5_0 extends migration
 {
 	public function effectively_installed()
 	{
-		return phpbb_version_compare($this->config['shout_version'], '1.5.0', '>=');
+		return (bool) phpbb_version_compare($this->config['shout_version'], '1.5.0', '>=');
 	}
 
 	static public function depends_on()

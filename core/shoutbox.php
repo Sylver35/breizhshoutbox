@@ -2089,7 +2089,7 @@ class shoutbox
 	/*
 	 * Display infos Robot for new posts, subjects, topics...
 	 */
-	public function advert_post_shoutbox($event)
+	public function advert_post_shoutbox($event, $forum_id)
 	{
 		if ((!$this->config['shout_post_robot'] && !$this->config['shout_post_robot_priv']))
 		{
