@@ -170,7 +170,7 @@ class main_listener implements EventSubscriberInterface
 
 		if (($hide_robot == false) && $this->config['shout_enable_robot'])
 		{
-			$this->shoutbox->advert_post_shoutbox($event);
+			$this->shoutbox->advert_post_shoutbox($event, $forum_id);
 		}
 	}
 
