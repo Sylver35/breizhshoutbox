@@ -350,7 +350,7 @@ class shoutbox
 			'IN_SHOUT_POPUP'		=> ($sort_of === 1) ? true : false,
 			'PANEL_ALL'				=> $panel['active'],
 			'S_IN_PRIV'				=> $in_priv,
-			'ACTION_USERS_TOP'		=> ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_')) ? true : false,
+			'ACTION_USERS_TOP'		=> ($this->auth->acl_gets(['u_shout_post_inp', 'a_', 'm_'])) ? true : false,
 			'SHOUT_INDEX_POS'		=> $this->config['shout_position_index'],
 			'SHOUT_FORUM_POS'		=> $this->config['shout_position_forum'],
 			'SHOUT_TOPIC_POS'		=> $this->config['shout_position_topic'],
@@ -773,10 +773,10 @@ class shoutbox
 				OR shout_robot_user = $user_id
 				OR shout_inp = $user_id";
 		$this->db->sql_query($sql);
-		$deleted = $this->db->sql_affectedrows();
-		if ($deleted)
+		$deleted_priv = $this->db->sql_affectedrows();
+		if ($deleted_priv)
 		{
-			$this->config->increment('shout_del_auto_priv', $deleted, true);
+			$this->config->increment('shout_del_auto_priv', $deleted_priv, true);
 			$this->update_shout_messages($this->shoutbox_priv_table);
 		}
 	}
@@ -803,10 +803,10 @@ class shoutbox
 			WHERE shout_forum <> 0
 				AND shout_text2 LIKE '%&amp;t=$topic_id%'";
 		$this->db->sql_query($sql);
-		$deleted = $this->db->sql_affectedrows();
-		if ($deleted)
+		$deleted_priv = $this->db->sql_affectedrows();
+		if ($deleted_priv)
 		{
-			$this->config->increment('shout_del_auto_priv', $deleted, true);
+			$this->config->increment('shout_del_auto_priv', $deleted_priv, true);
 			$this->update_shout_messages($this->shoutbox_priv_table);
 		}
 	}
@@ -833,10 +833,10 @@ class shoutbox
 			WHERE shout_forum <> 0
 				AND shout_text2 LIKE '%&amp;p=$post_id%'";
 		$this->db->sql_query($sql);
-		$deleted = $this->db->sql_affectedrows();
-		if ($deleted)
+		$deleted_priv = $this->db->sql_affectedrows();
+		if ($deleted_priv)
 		{
-			$this->config->increment('shout_del_auto_priv', $deleted, true);
+			$this->config->increment('shout_del_auto_priv', $deleted_priv, true);
 			$this->update_shout_messages($this->shoutbox_priv_table);
 		}
 	}
@@ -844,10 +844,7 @@ class shoutbox
 	public function remove_disallowed_bbcodes($sql_ary)
 	{
 		$disallowed_bbcodes = explode(', ', $this->config['shout_bbcode']);
-		if (!empty($disallowed_bbcodes))
-		{
-			$sql_ary['WHERE'] .= ' AND ' . $this->db->sql_in_set('b.bbcode_tag', $disallowed_bbcodes, true);
-		}
+		$sql_ary['WHERE'] .= ' AND ' . $this->db->sql_in_set('b.bbcode_tag', $disallowed_bbcodes, true);
 
 		return $sql_ary;
 	}
@@ -1500,7 +1497,7 @@ class shoutbox
 		}
 		else
 		{
-			if ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_'))
+			if ($this->auth->acl_gets(['u_shout_post_inp', 'a_', 'm_']))
 			{
 				$username_full = $this->tpl('action', $id, $this->language->lang('SHOUT_ACTION_TITLE_TO', $username), get_username_string('no_profile', $id, $username, $colour));
 			}
@@ -1550,11 +1547,12 @@ class shoutbox
 	/*
 	 * protect title value for robot messages
 	 */
-	private function shout_protect_title($value)
+	private function shout_protect_title($value1, $value2)
 	{
-		$value = strip_tags($value);
-		$value = str_replace('&amp;', '&', $value);
+		$value = ($value2 !== '') ? $value2 : $value1;
+		$value = str_replace('&amp;', '&', strip_tags($value));
 		$value = preg_replace('/\&#([^>]+)\;/', '', $value);
+		$value = str_replace(['&lt;', '&gt;', '&quot;'], '', $value);
 
 		return htmlspecialchars($value, ENT_QUOTES);
 	}
@@ -1571,7 +1569,7 @@ class shoutbox
 				$data4 = $this->config['shout_color_message'];
 			break;
 			case 'url':
-				$data3 = $this->shout_protect_title($data3 ? $data3 : $data2);
+				$data3 = $this->shout_protect_title($data2, $data3);
 			break;
 			case 'italic':
 			case 'colorbot':
@@ -1641,7 +1639,7 @@ class shoutbox
 			'id'			=> (int) $row['user_id'],
 			'sort'			=> $sort,
 			'foe'			=> ($row['foe']) ? true : false,
-			'inp'			=> ($this->auth->acl_get('u_shout_post_inp') || $this->auth->acl_get('a_') || $this->auth->acl_get('m_')) ? true : false,
+			'inp'			=> ($this->auth->acl_gets(['u_shout_post_inp', 'a_', 'm_'])) ? true : false,
 			'retour'		=> ($this->auth->acl_get('a_user') || $this->auth->acl_get('m_') || ($this->auth->acl_get('m_ban') && $go_founder)) ? true : false,
 			'username'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'], '', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", 'mode=viewprofile')),
 			'avatar'		=> $this->shout_user_avatar($row, 60, true),
@@ -1666,14 +1664,14 @@ class shoutbox
 	{
 		return [
 			'url_profile'	=> $this->tpl('profile', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", ['mode' => 'viewprofile', 'u' => $row['user_id']], false), $row['username']),
-			'url_auth'		=> ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_personal')) ? $this->tpl('auth', $row['user_id'], $row['username']) : '',
-			'url_prefs'		=> ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_personal')) ? $this->tpl('prefs', $this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $row['user_id']])) : '',
+			'url_auth'		=> ($this->auth->acl_gets(['a_', 'm_shout_personal'])) ? $this->tpl('auth', $row['user_id'], $row['username']) : '',
+			'url_prefs'		=> ($this->auth->acl_gets(['a_', 'm_shout_personal'])) ? $this->tpl('prefs', $this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $row['user_id']])) : '',
 			'url_admin'		=> ($this->auth->acl_get('a_user')) ? $this->tpl('admin', append_sid("{$this->adm_path()}index.{$this->php_ext}", ['i' => 'users', 'mode' => 'overview', 'u' => $row['user_id']], true, $this->user->session_id)) : '',
 			'url_modo'		=> ($this->auth->acl_get('m_')) ? $this->tpl('modo', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'notes', 'mode' => 'user_notes', 'u' => $row['user_id']], true, $this->user->session_id)) : '',
 			'url_ban'		=> ($this->auth->acl_get('m_ban') && $go_founder) ? $this->tpl('ban', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'ban', 'mode' => 'user', 'u' => $row['user_id']], true, $this->user->session_id)) : '',
 			'url_remove'	=> (($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_delete')) && $go_founder) ? $this->tpl('remove', $row['user_id']) : '',
 			'url_perso'		=> (($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_personal')) && $go_founder) ? $this->tpl('perso', $row['user_id']) : '',
-			'url_robot'		=> ($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_robot')) ? $this->tpl('robot', $sort) : '',
+			'url_robot'		=> ($this->auth->acl_gets(['a_', 'm_shout_robot'])) ? $this->tpl('robot', $sort) : '',
 		];
 	}
 
@@ -1860,8 +1858,7 @@ class shoutbox
 			'shout_info'				=> (int) $info,
 		];
 
-		$sql = 'INSERT INTO ' . $shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-		$this->db->sql_query($sql);
+		$this->db->sql_query('INSERT INTO ' . $shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 		$this->config->increment("shout_nr{$_priv}", 1, true);
 	}
 
@@ -1916,9 +1913,10 @@ class shoutbox
 			WHERE shout_robot = 1 AND shout_robot_user = ' . $user_id . ' AND shout_time BETWEEN ' . (time() - $interval) . ' AND ' . time();
 		$result = $this->db->sql_query($sql);
 		$is_posted = $this->db->sql_fetchfield('shout_time');
+		$go_post = $is_posted ? false : true;
 		$this->db->sql_freeresult($result);
 
-		return $is_posted ? true : false;
+		return $go_post;
 	}
 
 	/*
@@ -1926,20 +1924,20 @@ class shoutbox
 	 */
 	public function post_session_shout($event)
 	{
-		if ($event['session_user_id'] == ANONYMOUS || !$event['session_viewonline'] || !$this->config['shout_enable_robot'] || !$this->config['shout_sessions'] && !$this->config['shout_sessions_priv'])
+		if (!$event['session_viewonline'] || !$this->config['shout_enable_robot'])
 		{
 			return;
 		}
 
-		$is_posted = $is_posted_priv = false;
+		$go_post = $go_post_priv = false;
 
 		if ($this->config['shout_sessions'])
 		{
-			$is_posted = $this->get_session_shout($this->shoutbox_table, (int) $event['session_user_id']);
+			$go_post = $this->get_session_shout($this->shoutbox_table, (int) $event['session_user_id']);
 		}
 		if ($this->config['shout_sessions_priv'])
 		{
-			$is_posted_priv = $this->get_session_shout($this->shoutbox_priv_table, (int) $event['session_user_id']);
+			$go_post_priv = $this->get_session_shout($this->shoutbox_priv_table, (int) $event['session_user_id']);
 		}
 
 		$sql_data = [
@@ -1956,17 +1954,15 @@ class shoutbox
 			'shout_info'				=> 1,
 		];
 
-		if ($this->config['shout_sessions'] && !$is_posted)
+		if ($go_post !== false)
 		{
-			$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-			$this->db->sql_query($sql);
+			$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 			$this->config->increment('shout_nr', 1, true);
 		}
 
-		if ($this->config['shout_sessions_priv'] && !$is_posted_priv)
+		if ($go_post_priv !== false)
 		{
-			$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-			$this->db->sql_query($sql);
+			$this->db->sql_query('INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 			$this->config->increment('shout_nr_priv', 1, true);
 		}
 	}
@@ -1976,20 +1972,20 @@ class shoutbox
 	 */
 	public function post_session_shout_bot($event)
 	{
-		if (!$this->config['shout_enable_robot'] || !$this->config['shout_sessions'] && !$this->config['shout_sessions_priv'] || !$this->config['shout_sessions_bots'] && !$this->config['shout_sessions_bots_priv'])
+		if (!$this->config['shout_enable_robot'])
 		{
 			return;
 		}
 
-		$is_posted = $is_posted_priv = false;
+		$go_post = $go_post_priv = false;
 
 		if ($this->config['shout_sessions_bots'])
 		{
-			$is_posted = $this->get_session_shout($this->shoutbox_table, (int) $event['session_user_id']);
+			$go_post = $this->get_session_shout($this->shoutbox_table, (int) $event['session_user_id']);
 		}
 		if ($this->config['shout_sessions_bots_priv'])
 		{
-			$is_posted_priv = $this->get_session_shout($this->shoutbox_priv_table, (int) $event['session_user_id']);
+			$go_post_priv = $this->get_session_shout($this->shoutbox_priv_table, (int) $event['session_user_id']);
 		}
 
 		$sql_data = [
@@ -2006,17 +2002,15 @@ class shoutbox
 			'shout_info'				=> 2,
 		];
 
-		if ($this->config['shout_sessions_bots'] && !$is_posted)
+		if ($go_post !== false)
 		{
-			$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-			$this->db->sql_query($sql);
+			$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 			$this->config->increment('shout_nr', 1, true);
 		}
 
-		if ($this->config['shout_sessions_bots_priv'] && !$is_posted_priv)
+		if ($go_post_priv !== false)
 		{
-			$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-			$this->db->sql_query($sql);
+			$this->db->sql_query('INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 			$this->config->increment('shout_nr_priv', 1, true);
 		}
 	}
@@ -2097,20 +2091,9 @@ class shoutbox
 	 */
 	public function advert_post_shoutbox($event)
 	{
-		$hide_robot = (isset($event['data']['hide_robot'])) ? $event['data']['hide_robot'] : false;
-		if ((!$this->config['shout_post_robot'] && !$this->config['shout_post_robot_priv']) || $hide_robot != false || !$this->config['shout_enable_robot'])
+		if ((!$this->config['shout_post_robot'] && !$this->config['shout_post_robot_priv']))
 		{
 			return;
-		}
-
-		$forum_id = (int) $event['data']['forum_id'];
-		if ($this->config['shout_exclude_forums'])
-		{
-			$exclude_forums = explode(',', $this->config['shout_exclude_forums']);
-			if (in_array($forum_id, $exclude_forums))
-			{
-				return;
-			}
 		}
 
 		// Parse web adress in subject to prevent bug
@@ -2141,14 +2124,12 @@ class shoutbox
 
 		if ($info['ok_shout'])
 		{
-			$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-			$this->db->sql_query($sql);
+			$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 			$this->config->increment('shout_nr', 1, true);
 		}
 		if ($info['ok_shout_priv'])
 		{
-			$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-			$this->db->sql_query($sql);
+			$this->db->sql_query('INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 			$this->config->increment('shout_nr_priv', 1, true);
 		}
 	}
@@ -2211,6 +2192,8 @@ class shoutbox
 		$is_posted = (int) $this->db->sql_fetchfield('nr');
 		$this->db->sql_freeresult($result);
 
+		$i = 0;
+		$sql_data = [];
 		$time = $this->user->create_datetime();
 		$now = phpbb_gmgetdate($time->getTimestamp() + $time->getOffset());
 
@@ -2227,7 +2210,7 @@ class shoutbox
 						continue;
 					}
 
-					$sql_data = [
+					$sql_data[] = [
 						'shout_time'			=> time(),
 						'shout_user_id'			=> 0,
 						'shout_ip'				=> $this->user->ip,
@@ -2241,19 +2224,18 @@ class shoutbox
 						'shout_info_nb'			=> $row['user_birthday'] ? max(0, $now['year'] - substr($row['user_birthday'], -4)) : 0,
 						'shout_info'			=> 11,
 					];
+					$i++;
+				}
 
-					if ($this->config['shout_birthday'])
-					{
-						$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-						$this->db->sql_query($sql);
-						$this->config->increment('shout_nr', 1, true);
-					}
-					if ($this->config['shout_birthday_priv'])
-					{
-						$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-						$this->db->sql_query($sql);
-						$this->config->increment('shout_nr_priv', 1, true);
-					}
+				if ($this->config['shout_birthday'] && $i)
+				{
+					$this->db->sql_multi_insert($this->shoutbox_table, $sql_data);
+					$this->config->increment('shout_nr', $i, true);
+				}
+				if ($this->config['shout_birthday_priv'] && $i)
+				{
+					$this->db->sql_multi_insert($this->shoutbox_priv_table, $sql_data);
+					$this->config->increment('shout_nr_priv', $i, true);
 				}
 			}
 			$this->config->set('shout_last_run_birthday', date('d-m-Y'), true);
@@ -2378,14 +2360,12 @@ class shoutbox
 
 			if ($this->config['shout_hello'])
 			{
-				$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-				$this->db->sql_query($sql);
+				$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 				$this->config->increment('shout_nr', 1, true);
 			}
 			if ($this->config['shout_hello_priv'])
 			{
-				$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-				$this->db->sql_query($sql);
+				$this->db->sql_query('INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 				$this->config->increment('shout_nr_priv', 1, true);
 			}
 			$this->config->set('shout_cron_run', date('d-m-Y'), true);
@@ -2466,14 +2446,12 @@ class shoutbox
 
 		if ($this->config['shout_newest'])
 		{
-			$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-			$this->db->sql_query($sql);
+			$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 			$this->config->increment('shout_nr', 1, true);
 		}
 		if ($this->config['shout_newest_priv'])
 		{
-			$sql = 'INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-			$this->db->sql_query($sql);
+			$this->db->sql_query('INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 			$this->config->increment('shout_nr_priv', 1, true);
 		}
 	}
@@ -2501,8 +2479,7 @@ class shoutbox
 			'shout_info'				=> 35,
 		];
 
-		$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-		$this->db->sql_query($sql);
+		$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 		$this->config->increment('shout_nr', 1, true);
 	}
 
@@ -2529,8 +2506,7 @@ class shoutbox
 			'shout_info'				=> (int) $type,
 		];
 
-		$sql = 'INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data);
-		$this->db->sql_query($sql);
+		$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 		$this->config->increment('shout_nr', 1, true);
 	}
 
@@ -2651,7 +2627,7 @@ class shoutbox
 	public function shout_check_edit($val, $shout_id)
 	{
 		// If someone can edit all messages, he can edit it's messages :) (if errors in permissions set)
-		if ($this->auth->acl_get('m_shout_edit_mod') || $this->auth->acl_get("a_shout{$val['auth']}"))
+		if ($this->auth->acl_gets(['m_shout_edit_mod', 'a_shout' . $val['auth']]))
 		{
 			return true;
 		}

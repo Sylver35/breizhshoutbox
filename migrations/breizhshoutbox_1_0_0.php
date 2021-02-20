@@ -357,7 +357,7 @@ class breizhshoutbox_1_0_0 extends migration
 
 			'add_columns' => [
 				$this->table_prefix . 'smilies' => [
-					'display_on_shout'	=> ['TINT:1', 1],
+					'display_on_shout'	=> ['BOOL', 1],
 				],
 				$this->table_prefix . 'users' => [
 					'shout_bbcode'		=> ['VCHAR:255', ''],

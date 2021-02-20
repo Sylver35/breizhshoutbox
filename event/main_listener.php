@@ -135,17 +135,19 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function charge_post_session_shout($event)
 	{
-		if ((int) $event['session_user_id'] === ANONYMOUS)
+		if ($this->user->data['is_bot'])
 		{
-			return;
+			if ($this->config['shout_sessions_bots'] || $this->config['shout_sessions_bots_priv'])
+			{
+				$this->shoutbox->post_session_shout_bot($event['session_data']);
+			}
 		}
-		else if ($this->user->data['is_bot'])
+		else if ($this->user->data['is_registered'])
 		{
-			$this->shoutbox->post_session_shout_bot($event['session_data']);
-		}
-		else
-		{
-			$this->shoutbox->post_session_shout($event['session_data']);
+			if ($this->config['shout_sessions'] || $this->config['shout_sessions_priv'])
+			{
+				$this->shoutbox->post_session_shout($event['session_data']);
+			}
 		}
 	}
 
@@ -154,7 +156,22 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function charge_advert_post($event)
 	{
-		$this->shoutbox->advert_post_shoutbox($event);
+		$hide_robot = (isset($event['data']['hide_robot'])) ? $event['data']['hide_robot'] : false;
+		$forum_id = (int) $event['data']['forum_id'];
+
+		if ($this->config['shout_exclude_forums'])
+		{
+			$exclude_forums = explode(',', $this->config['shout_exclude_forums']);
+			if (in_array($forum_id, $exclude_forums))
+			{
+				return;
+			}
+		}
+
+		if (($hide_robot == false) && $this->config['shout_enable_robot'])
+		{
+			$this->shoutbox->advert_post_shoutbox($event);
+		}
 	}
 
 	/**
@@ -170,7 +187,7 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function remove_disallowed_bbcodes($event)
 	{
-		if (!preg_match("#posting|ucp|mcp|adm#i", $this->user->page['page_name']) && !empty($this->config['shout_bbcode']))
+		if (!preg_match("#posting|adm#i", $this->user->page['page_name']) && !empty($this->config['shout_bbcode']))
 		{
 			$event->offsetSet('sql_ary', $this->shoutbox->remove_disallowed_bbcodes($event['sql_ary']));
 		}

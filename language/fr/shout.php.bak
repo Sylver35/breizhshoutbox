@@ -312,9 +312,9 @@ $lang = array_merge($lang, array(
 	'SHOUT_DELETE_AUTO_10'		=> '🗑 %1$s Délestage automatique de %2$s messages de la shoutbox privée effectué…',
 	'SHOUT_BIRTHDAY_ROBOT'		=> '✨ Toute l’équipe de %1$s souhaite un Joyeux anniversaire à %2$s',
 	'SHOUT_BIRTHDAY_ROBOT_FULL'	=> '✨ Toute l’équipe de %1$s souhaite un Joyeux anniversaire à %2$s pour ses %3$s %4$s ans !',
-	'SHOUT_HELLO_ROBOT'			=> '📆 Bonjour, nous sommes le %1$s %2$s',
+	'SHOUT_HELLO_ROBOT'			=> '🗓 Bonjour, nous sommes le %1$s %2$s',
 	'SHOUT_NEWEST_ROBOT'		=> '👁‍ Un nouveau membre vient de s’enregistrer : %1$s, toute l’équipe de %2$s lui souhaite la bienvenue…',
-	'SHOUT_SESSION_ROBOT'		=> '✔ Bonjour %s et bienvenue sur le forum…',
+	'SHOUT_SESSION_ROBOT'		=> 'Bonjour %s et bienvenue sur le forum…',
 	'SHOUT_SESSION_ROBOT_BOT'	=> '%1$s %2$s vient de se connecter sur le forum…',
 
 	'SHOUT_VIDEO'					=> 'Galerie vidéos',

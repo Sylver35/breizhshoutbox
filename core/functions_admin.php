@@ -415,8 +415,8 @@ class functions_admin
 			}
 
 			$this->update_config([
-				"shout_rules_{$iso}"		=> ($data['rules_text'] !== '') ? 1 : 0,
-				"shout_rules_priv_{$iso}"	=> ($data['rules_text_priv'] !== '') ? 1 : 0,
+				'shout_rules_' . $iso		=> ($data['rules_text'] !== '') ? 1 : 0,
+				'shout_rules_priv_' . $iso	=> ($data['rules_text_priv'] !== '') ? 1 : 0,
 			]);
 		}
 		$this->db->sql_freeresult($result);

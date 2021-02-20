@@ -1127,8 +1127,8 @@ class functions_ajax
 		{
 			// Initialize additional data
 			$row = array_merge($row, [
-				'is_user'		=> (($row['shout_user_id'] > 1) && ((int) $row['shout_user_id'] !== $val['userid'])),
-				'name'			=> ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'],
+				'is_user'	=> (($row['shout_user_id'] > 1) && ((int) $row['shout_user_id'] !== $val['userid'])),
+				'name'		=> ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'],
 			]);
 
 			// Checks permissions for delete, edit and show_ip
