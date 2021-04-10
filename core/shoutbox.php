@@ -2895,7 +2895,6 @@ class shoutbox
 			return '';
 		}
 
-		$avatar = '';
 		$popup = ($sort === 1) ? true : false;
 		if (!$row['shout_user_id'] && $row['shout_robot_user'])
 		{
