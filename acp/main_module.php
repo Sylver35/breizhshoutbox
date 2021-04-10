@@ -3,7 +3,7 @@
 *
 * @package Breizh Shoutbox Extension
 * 
-* @copyright (c) 2018-2020 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -93,7 +93,6 @@ class main_module
 
 			default:
 				trigger_error('NO_MODE', E_USER_ERROR);
-			break;
 		}
 
 		$template->assign_vars(array(
@@ -102,7 +101,7 @@ class main_module
 			'TITLE_EXPLAIN'		=> $language->lang('ACP_SHOUT_' . strtoupper($mode) . '_T_EXPLAIN'),
 			'SHOUTBOX_VERSION'	=> $language->lang('SHOUTBOX_VERSION_ACP_COPY', $meta['homepage'], $meta['version']),
 			'SHOUT_VERSION'		=> $meta['version'],
-			'IMAGE_TITLE'		=> $img_src . $mode . '.webp',
+			'IMAGE_TITLE'		=> $img_src . strtolower($mode) . '.webp',
 			'IMAGE_SUBMIT'		=> $img_src . 'submit.webp',
 			'IMAGE_MESSAGES'	=> $img_src . 'messages.webp',
 			'IMAGE_SETTINGS'	=> $img_src . 'reglages.webp',

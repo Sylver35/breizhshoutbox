@@ -81,7 +81,7 @@ class functions_ajax
 	 * @param int $other id of other user
 	 * @return array
 	 */
-	public function shout_manage($mode, $sort, $id, $other)
+	public function shout_initialize($mode, $sort, $id, $other)
 	{
 		// First initialize somes variables, protect private
 		// And select the good table for the type of shoutbox
@@ -148,10 +148,9 @@ class functions_ajax
 			$text = $rules[$iso];
 			if ($text['rules_text' . $sort])
 			{
-				$on_rules = generate_text_for_display($text['rules_text' . $sort], $text['rules_uid' . $sort], $text['rules_bitfield' . $sort], $text['rules_flags' . $sort]);
 				return [
 					'sort'	=> 1,
-					'texte'	=> $on_rules,
+					'texte'	=> generate_text_for_display($text['rules_text' . $sort], $text['rules_uid' . $sort], $text['rules_bitfield' . $sort], $text['rules_flags' . $sort]),
 				];
 			}
 		}
@@ -188,22 +187,21 @@ class functions_ajax
 			$r = $u = 0;
 			$robots = $users = '';
 			$userlist = explode(', ', str_replace($start, '', $list_online));
-			foreach ($userlist as $user)
+			foreach ($userlist as $on_user)
 			{
-				$id = $this->shoutbox->find_string($user, '&amp;u=', '" ');
+				$id = $this->shoutbox->find_string($on_user, '&amp;u=', '" ');
 				if (!$id)
 				{
-					$robots .= ($r > 0) ? ', ' : '';
-					$robots .= $user;
+					$robots .= (($r > 0) ? ', ' : '') . $on_user;
 					$r++;
 				}
 				else
 				{
-					$avatar = (strpos($user, 'class="useravatar"')) ? '<span class="useravatar">' . $this->shoutbox->find_string($user, 'class="useravatar">', '</span>') . '</span> ' : '';
-					$user = str_replace($avatar, '', $user);
+					$avatar = (strpos($on_user, 'class="useravatar"')) ? '<span class="useravatar">' . $this->shoutbox->find_string($on_user, 'class="useravatar">', '</span>') . '</span> ' : '';
+					$on_user = str_replace($avatar, '', $on_user);
 					$users .= ($u > 0) ? ', ' : '';
 					$users .= ($avatar) ? $avatar : '';
-					$users .= $this->shoutbox->construct_action_shout($id, $this->shoutbox->find_string($user, '">', '</a>'), $this->shoutbox->find_string($user, 'color: #', ';"'));
+					$users .= $this->shoutbox->construct_action_shout($id, $this->shoutbox->find_string($on_user, '">', '</a>'), $this->shoutbox->find_string($on_user, 'color: #', ';"'));
 					$u++;
 				}
 			}
@@ -1127,7 +1125,7 @@ class functions_ajax
 		{
 			// Initialize additional data
 			$row = array_merge($row, [
-				'is_user'	=> (($row['shout_user_id'] > 1) && ((int) $row['shout_user_id'] !== $val['userid'])),
+				'is_user'	=> (($row['shout_user_id'] > 1) && ((int) $row['shout_user_id'] === $val['userid'])),
 				'name'		=> ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'],
 			]);
 

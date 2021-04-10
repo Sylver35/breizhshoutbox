@@ -39,7 +39,7 @@ class ajax
 	public function construct_ajax($mode)
 	{
 		$data = [];
-		$val = $this->functions_ajax->shout_manage($mode, (int) $this->request->variable('sort', 2), (int) $this->request->variable('user', 0), (int) $this->request->variable('other', 0));
+		$val = $this->functions_ajax->shout_initialize($mode, (int) $this->request->variable('sort', 2), (int) $this->request->variable('user', 0), (int) $this->request->variable('other', 0));
 
 		switch ($mode)
 		{

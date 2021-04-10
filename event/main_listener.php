@@ -60,34 +60,36 @@ class main_listener implements EventSubscriberInterface
 		$this->language = $language;
 	}
 
-	static public function getSubscribedEvents()
+	public static function getSubscribedEvents()
 	{
 		return [
 			'core.user_setup'							=> 'load_language_on_setup',
 			'core.page_header'							=> 'add_page_header',
 			'core.session_create_after'					=> 'charge_post_session_shout',
-			'core.index_modify_page_title'				=> 'charge_shout_display',
-			'core.viewforum_modify_page_title'			=> 'charge_shout_display',
-			'core.viewtopic_modify_page_title'			=> 'charge_shout_display',
-			'core.submit_post_end'						=> 'charge_advert_post',
-			'core.user_add_after'						=> 'charge_add_newest_user',
+			'core.index_modify_page_title'				=> 'shout_display',
+			'core.viewforum_modify_page_title'			=> 'shout_display',
+			'core.viewtopic_modify_page_title'			=> 'shout_display',
+			'core.submit_post_end'						=> 'shout_advert_post',
+			'core.user_add_after'						=> 'shout_add_newest_user',
 			'core.display_custom_bbcodes_modify_sql'	=> 'remove_disallowed_bbcodes',
 			'core.posting_modify_post_data'				=> 'shout_modify_post_data',
 			'core.posting_modify_message_text'			=> 'shout_modify_post_before',
 			'core.posting_modify_submit_post_before'	=> 'shout_modify_post_before_data',
 			'core.posting_modify_submission_errors'		=> 'shout_submission_post_data',
 			'core.posting_modify_template_vars'			=> 'shout_modify_template_vars',
-			'core.permissions'							=> 'add_permissions',
+			'core.permissions'							=> 'shout_add_permissions',
 			'core.delete_user_after'					=> 'shout_delete_user',
 			'core.delete_topics_after_query'			=> 'shout_delete_topics',
 			'core.delete_posts_after'					=> 'shout_delete_posts',
+			'breizhcharts.add_song_after'				=> 'add_song_after',
+			'breizhcharts.reset_all_notes'				=> 'reset_all_notes',
 			'video.submit_new_video'					=> 'submit_new_video',
 			'arcade.submit_new_score'					=> 'submit_new_score',
 			'arcade.submit_new_urecord'					=> 'submit_new_urecord',
 			'arcade.submit_new_record'					=> 'submit_new_record',
-			'arcade.page_arcade_games'					=> 'charge_shout_display',
-			'arcade.page_arcade_list'					=> 'charge_shout_display',
-			'portal.handle'								=> 'charge_shout_display',
+			'arcade.page_arcade_games'					=> 'shout_display',
+			'arcade.page_arcade_list'					=> 'shout_display',
+			'portal.handle'								=> 'shout_display',
 		];
 	}
 
@@ -109,23 +111,14 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function add_page_header()
 	{
-		$data = $this->shoutbox->get_version();
 		$this->shoutbox->shout_panel();
-		$this->template->assign_vars([
-			'SHOUT_POPUP_H'			=> $this->config['shout_popup_width'],
-			'SHOUT_POPUP_W'			=> $this->config['shout_popup_height'],
-			'U_SHOUT_PRIV_PAGE'		=> $this->auth->acl_get('u_shout_priv') ? $this->helper->route('sylver35_breizhshoutbox_private') : '',
-			'U_SHOUT_POPUP'			=> $this->auth->acl_get('u_shout_popup') ? $this->helper->route('sylver35_breizhshoutbox_popup') : '',
-			'U_SHOUT_CONFIG'		=> $this->auth->acl_get('u_shout_post') ? $this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $this->user->data['user_id']]) : '',
-			'U_SHOUT_AJAX'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'display_smilies']),
-			'SHOUT_COPYRIGHT'		=> $this->language->lang('SHOUTBOX_VER', $data['version']),
-		]);
+		$this->shoutbox->shout_page_header();
 	}
 
 	/**
 	 * Load the shoutbox
 	 */
-	public function charge_shout_display()
+	public function shout_display()
 	{
 		$this->shoutbox->shout_display(2);
 	}
@@ -154,21 +147,21 @@ class main_listener implements EventSubscriberInterface
 	/**
 	 * @param array $event
 	 */
-	public function charge_advert_post($event)
+	public function shout_advert_post($event)
 	{
 		$hide_robot = (isset($event['data']['hide_robot'])) ? $event['data']['hide_robot'] : false;
 		$forum_id = (int) $event['data']['forum_id'];
 
-		if ($this->config['shout_exclude_forums'])
+		if (!empty($this->config['shout_exclude_forums']))
 		{
-			$exclude_forums = explode(',', $this->config['shout_exclude_forums']);
-			if (in_array($forum_id, $exclude_forums))
+			$exclude = explode(',', $this->config['shout_exclude_forums']);
+			if (in_array($forum_id, $exclude))
 			{
 				return;
 			}
 		}
 
-		if (($hide_robot == false) && $this->config['shout_enable_robot'])
+		if (!$hide_robot && $this->config['shout_enable_robot'])
 		{
 			$this->shoutbox->advert_post_shoutbox($event, $forum_id);
 		}
@@ -177,7 +170,7 @@ class main_listener implements EventSubscriberInterface
 	/**
 	 * @param array $event
 	 */
-	public function charge_add_newest_user($event)
+	public function shout_add_newest_user($event)
 	{
 		$this->shoutbox->shout_add_newest_user($event);
 	}
@@ -238,39 +231,39 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function shout_modify_template_vars($event)
 	{
-		$s_hide_robot = true;
-		$shout_hide_allowed = false;
+		$hide_robot = true;
+		$hide_allowed = false;
 		if (!empty($this->config['shout_exclude_forums']))
 		{
-			$exclude_forums = explode(',', $this->config['shout_exclude_forums']);
-			if (in_array($event['forum_id'], $exclude_forums))
+			$exclude = explode(',', $this->config['shout_exclude_forums']);
+			if (in_array($event['forum_id'], $exclude))
 			{
-				$s_hide_robot = false;
+				$hide_robot = false;
 			}
 		}
 
-		if ($this->auth->acl_get('u_shout_hide') && $s_hide_robot)
+		if ($this->auth->acl_get('u_shout_hide') && $hide_robot)
 		{
 			if ($event['mode'] == 'edit')
 			{
-				$shout_hide_allowed = ($this->config['shout_edit_robot'] || $this->config['shout_edit_robot_priv']) ? true : false;
+				$hide_allowed = ($this->config['shout_edit_robot'] || $this->config['shout_edit_robot_priv']) ? true : false;
 			}
 			else
 			{
-				$shout_hide_allowed = true;
+				$hide_allowed = true;
 			}
 		}
 
 		$event['page_data'] = array_merge($event['page_data'], [
 			'S_SHOUT_HIDE_CHECKED'		=> ($event['post_data']['hide_robot']) ? ' checked="checked"' : '',
-			'S_SHOUT_HIDE_ALLOWED'		=> $shout_hide_allowed,
+			'S_SHOUT_HIDE_ALLOWED'		=> $hide_allowed,
 		]);
 	}
 
 	/**
 	 * @param array $event
 	 */
-	public function add_permissions($event)
+	public function shout_add_permissions($event)
 	{
 		$event['categories'] = array_merge($event['categories'], [
 			'shoutbox' =>	'ACL_CAT_SHOUT',
@@ -341,6 +334,22 @@ class main_listener implements EventSubscriberInterface
 		{
 			$this->shoutbox->shout_delete_post((int) $post_id);
 		}
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function add_song_after($event)
+	{
+		$this->shoutbox->add_song_after($event);
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function reset_all_notes($event)
+	{
+		$this->shoutbox->reset_all_notes($event);
 	}
 
 	/**

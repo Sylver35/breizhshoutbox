@@ -276,7 +276,7 @@ class admin_controller
 			}
 			
 			$this->functions_admin->update_config([
-				'shout_rules'			=> $this->request->variable('shout_rules', 1),
+				'shout_rules'			=> $this->request->variable('shout_rules', 0),
 				'shout_rules_open'		=> $this->request->variable('shout_rules_open', 0),
 				'shout_rules_open_priv'	=> $this->request->variable('shout_rules_open_priv', 0),
 			]);

@@ -256,8 +256,7 @@ class functions_admin
 		$deleted = $this->db->sql_fetchfield('total', $result);
 		$this->db->sql_freeresult($result);
 
-		$sql = 'TRUNCATE ' . $shoutbox_table;
-		$this->db->sql_query($sql);
+		$this->db->sql_query('TRUNCATE ' . $shoutbox_table);
 
 		$this->config->increment('shout_del_purge' . $val_priv, $deleted, true);
 		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_PURGE_SHOUTBOX' . $val_priv_on, time());
@@ -302,9 +301,7 @@ class functions_admin
 			break;
 		}
 
-		$sql = 'DELETE FROM ' . $shoutbox_table . '
-			WHERE ' . $this->db->sql_in_set('shout_info', $shout_info, false, true);
-		$this->db->sql_query($sql);
+		$this->db->sql_query('DELETE FROM ' . $shoutbox_table . ' WHERE ' . $this->db->sql_in_set('shout_info', $shout_info, false, true));
 		$deleted = $this->db->sql_affectedrows();
 
 		if ($deleted)
@@ -404,19 +401,16 @@ class functions_admin
 
 			if (isset($row['rules_lang']) && $row['rules_lang'])
 			{
-				$sql = 'UPDATE ' . $this->shoutbox_rules_table . '
-					SET ' .  $this->db->sql_build_array('INSERT', $data) . " WHERE rules_lang = '$iso'";
-				$this->db->sql_query($sql);
+				$this->db->sql_query('UPDATE ' . $this->shoutbox_rules_table . ' SET ' .  $this->db->sql_build_array('UPDATE', $data) . " WHERE rules_lang = '$iso'");;
 			}
 			else
 			{
-				$sql = 'INSERT INTO ' . $this->shoutbox_rules_table . ' ' . $this->db->sql_build_array('INSERT', $data);
-				$this->db->sql_query($sql);
+				$this->db->sql_query('INSERT INTO ' . $this->shoutbox_rules_table . ' ' . $this->db->sql_build_array('INSERT', $data));
 			}
 
 			$this->update_config([
-				'shout_rules_' . $iso		=> ($data['rules_text'] !== '') ? 1 : 0,
-				'shout_rules_priv_' . $iso	=> ($data['rules_text_priv'] !== '') ? 1 : 0,
+				"shout_rules_{$iso}"		=> ($data['rules_text'] !== '') ? 1 : 0,
+				"shout_rules_priv_{$iso}"	=> ($data['rules_text_priv'] !== '') ? 1 : 0,
 			]);
 		}
 		$this->db->sql_freeresult($result);
@@ -479,12 +473,9 @@ class functions_admin
 		$result = $this->db->sql_query_limit($sql, $shout_number, $start);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			if ($row['shout_inp'])
+			if ($row['shout_inp'] && ($row['shout_inp'] != $this->user->data['user_id']) && ($row['shout_user_id'] != $this->user->data['user_id']))
 			{
-				if (($row['shout_inp'] != $this->user->data['user_id']) && ($row['shout_user_id'] != $this->user->data['user_id']))
-				{
-					continue;
-				}
+				continue;
 			}
 			$row['username'] = ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'];
 			$row['shout_text'] = $this->shoutbox->shout_text_for_display($row, 3, true);
@@ -544,25 +535,21 @@ class functions_admin
 
 	public function action_delete_mark($form_key, $deletemark, $sort, $u_action)
 	{
+		if (!check_form_key($form_key))
+		{
+			trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($u_action), E_USER_WARNING);
+		}
+
 		$marked = $this->request->variable('mark', [0]);
+		$priv = $private = $where_sql = '';
+		$shoutbox_table = $this->shoutbox_table;
 		if ($sort)
 		{
 			$priv = '_priv';
 			$private = '_PRIV';
 			$shoutbox_table = $this->shoutbox_priv_table;
 		}
-		else
-		{
-			$priv = $private = '';
-			$shoutbox_table = $this->shoutbox_table;
-		}
 
-		if (!check_form_key($form_key))
-		{
-			trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($u_action), E_USER_WARNING);
-		}
-
-		$where_sql = '';
 		if ($deletemark && sizeof($marked))
 		{
 			$sql_in = [];
@@ -573,10 +560,10 @@ class functions_admin
 			$where_sql = ' WHERE ' . $this->db->sql_in_set('shout_id', $sql_in);
 			unset($sql_in);
 		}
+
 		if ($where_sql)
 		{
-			$sql = 'DELETE FROM ' . $shoutbox_table . $where_sql;
-			$this->db->sql_query($sql);
+			$this->db->sql_query('DELETE FROM ' . $shoutbox_table . $where_sql);
 			$deleted = $this->db->sql_affectedrows();
 			// Reload the shoutbox for all
 			$this->shoutbox->update_shout_messages($shoutbox_table);
@@ -610,8 +597,7 @@ class functions_admin
 		}
 		if ($where_sql)
 		{
-			$sql = 'DELETE FROM ' . LOG_TABLE . $where_sql;
-			$this->db->sql_query($sql);
+			$this->db->sql_query('DELETE FROM ' . LOG_TABLE . $where_sql);
 			$deleted = $this->db->sql_affectedrows();
 
 			$message = $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX' . $private);

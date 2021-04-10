@@ -2,6 +2,9 @@ imports:
     - { resource: tables.yml }
 
 services:
+    _defaults:
+        public: true
+
     sylver35.breizhshoutbox.controller:
         class: sylver35\breizhshoutbox\controller\main
         arguments:
