@@ -1,6 +1,6 @@
 /**
 * @package		Breizh Shoutbox extension
-* @copyright(c)	2018-2020 Sylver35  https://breizhcode.com
+* @copyright(c)	2018-2021 Sylver35  https://breizhcode.com
 * @license		http://opensource.org/licenses/gpl-license.php GNU Public License
 */
 
@@ -15,28 +15,26 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 
 	shoutbox.onProgress = function(event){
 		if(event.lengthComputable){
-			shoutbox.iH('msg_txt','Progress: '+((event.loaded / event.total)*100)+'%',false);
+			var progress = (event.loaded / event.total) * 100;
+			shoutbox.iH('msg_txt','Progress: '+progress+'%',false);
 			setTimeout(shoutbox.iH('msg_txt','',false),500);
 		}
 	};
 
 	shoutbox.handle = function(e){
-		var tmp;
 		switch(e.name){
 			case'E_USER_ERROR':
 			case'E_CORE_ERROR':
 				shoutbox.message(e.message,true,false,false);
 			break;
 			default:
-				tmp = bzhLang['JS_ERR'];
+				var tmp = bzhLang['JS_ERR'];
 				tmp += e.message;
 				if(e.lineNumber){
-					tmp += '\n'+bzhLang['LINE']+': ';
-					tmp += e.lineNumber;
+					tmp += '\n'+bzhLang['LINE']+': '+e.lineNumber;
 				}
 				if(e.fileName){
-					tmp += '\n'+bzhLang['FILE']+' : ';
-					tmp += e.fileName;
+					tmp += '\n'+bzhLang['FILE']+' : '+e.fileName;
 				}
 				shoutbox.message(tmp,true,false,false);
 			break;
@@ -1365,15 +1363,15 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 					shoutbox.loadPagination(datas.number);
 				}
 				$('#shoutLast').val(datas.last);
-				var nowTime = Math.floor(new Date().getTime() / 1000),row = 1,i = 0;
+				var nowTime = Math.floor(new Date().getTime() / 1000),row = 1,listMessages = '';
 				var okDelete = okEdit = okInfo = false;
 
 				if(config.toBottom){
 					/* Loop for messages from top to bottom */
-					var listMessages = datas.messages;
+					listMessages = datas.messages;
 				}else{
 					/* Loop for messages from bottom to top */
-					var listMessages = datas.messages.reverse();
+					listMessages = datas.messages.reverse();
 				}
 
 				/* Loop for messages */
@@ -1442,7 +1440,6 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 					}
 					if(okCite){
 						citeButton = shoutbox.cE('input','citeButton'+i,'button_shout_cite button_shout_l',false,bzhLang['ACTION_CITE'],'button',false,false,post.name);
-						//citeButton.name = post.name;
 						citeButton.colour = post.colour ? post.colour : '';
 						citeButton.onclick = function(){shoutbox.citeMultiMsg(this.name,this.colour,false)};
 					}

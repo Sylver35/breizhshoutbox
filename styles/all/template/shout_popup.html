@@ -1,5 +1,5 @@
-{% if S_IN_SMILIES %}
 {% INCLUDE 'simple_header.html' %}
+{% if S_IN_SMILIES %}
 {% INCLUDECSS '@sylver35_breizhshoutbox/shoutbox.css' %}
 {% INCLUDEJS T_ASSETS_PATH ~ '/javascript/editor.js' %}
 <script>
@@ -24,17 +24,12 @@
 		<span><em>{{ SHOUTBOX_VERSION }}</em></span>
 	</div>
 </div>
-{% INCLUDE 'simple_footer.html' %}
-
 {% elseif S_IN_SHOUT_POP %}
-	{% INCLUDE 'simple_header.html' %}
 	{% if ABBC3_EXTENSION %}
 		{% INCLUDECSS '@vse_abbc3/abbc3_common.min.css' %}
 		{% INCLUDEJS '@vse_abbc3/js/abbc3.min.js' %}
 	{% endif %}
 	{% INCLUDECSS '@sylver35_breizhshoutbox/shoutbox.css' %}
-
 	{% INCLUDE 'shout_body.html' %}
-	
-	{% INCLUDE 'simple_footer.html' %}
 {% endif %}
+{% INCLUDE 'simple_footer.html' %}
