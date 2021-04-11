@@ -253,7 +253,7 @@ class functions_admin
 		$sql = 'SELECT COUNT(shout_id) as total
 			FROM ' . $shoutbox_table;
 		$result = $this->db->sql_query($sql);
-		$deleted = $this->db->sql_fetchfield('total', $result);
+		$deleted = (int) $this->db->sql_fetchfield('total');
 		$this->db->sql_freeresult($result);
 
 		$this->db->sql_query('TRUNCATE ' . $shoutbox_table);
@@ -382,8 +382,8 @@ class functions_admin
 			$iso = $row['lang_iso'];
 			$rules_flags = $rules_flags_priv = 0;
 			$rules_uid = $rules_bitfield = $rules_uid_priv = $rules_bitfield_priv = '';
-			$rules_text = $this->request->variable('rules_text_' . $iso, '', true);
-			$rules_text_priv = $this->request->variable('rules_text_priv_' . $iso, '', true);
+			$rules_text = $this->request->variable("rules_text_{$iso}", '', true);
+			$rules_text_priv = $this->request->variable("rules_text_priv_{$iso}", '', true);
 			generate_text_for_storage($rules_text, $rules_uid, $rules_bitfield, $rules_flags, true, true, true);
 			generate_text_for_storage($rules_text_priv, $rules_uid_priv, $rules_bitfield_priv, $rules_flags_priv, true, true, true);
 
@@ -451,7 +451,7 @@ class functions_admin
 				OR shout_inp = ' . $this->user->data['user_id'] . '
 				OR shout_user_id = ' . $this->user->data['user_id'];
 		$result_nr = $this->db->sql_query($sql_nr);
-		$total_posts = $this->db->sql_fetchfield('total', $result_nr);
+		$total_posts = (int) $this->db->sql_fetchfield('total');
 		$this->db->sql_freeresult($result_nr);
 
 		$sql = $this->db->sql_build_query('SELECT', [

@@ -603,7 +603,7 @@ class shoutbox
 		{
 			return;
 		}
-		$row_nb = $this->db->sql_fetchfield('total', $result);
+		$row_nb = (int) $this->db->sql_fetchfield('total');
 		$this->db->sql_freeresult($result);
 		
 		if ($row_nb > ((int) $this->config['shout_max_posts' . $val['priv']] + $nb_to_del))
@@ -3532,6 +3532,7 @@ class shoutbox
 			'popupWidth'		=> $this->config['shout_popup_width'],
 			'popupHeight'		=> $this->config['shout_popup_height'],
 			'direction'			=> $this->language->lang('SHOUT_DIRECTION'),
+			'base'				=> generate_board_url(),
 			'popupUrl'			=> $this->helper->route('sylver35_breizhshoutbox_popup'),
 			'configUrl'			=> $this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $data['user_id']]),
 			'checkUrl'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => "check{$data['sort_p']}"]),
@@ -3548,7 +3549,7 @@ class shoutbox
 		];
 		if ($data['is_user'])
 		{
-			$settings_user = [
+			$settings_string = array_merge($settings_string, [
 				'privUrl'		=> $this->helper->route('sylver35_breizhshoutbox_private'),
 				'purgeUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'purge']),
 				'purgeBotUrl'	=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'purge_robot']),
@@ -3564,8 +3565,7 @@ class shoutbox
 				'editUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'edit']),
 				'dateUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'date_format']),
 				'authUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'auth']),
-			];
-			$settings_string = array_merge($settings_string, $settings_user);
+			]);
 		}
 
 		return $settings_string;

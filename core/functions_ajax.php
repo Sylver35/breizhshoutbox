@@ -277,13 +277,13 @@ class functions_ajax
 			FROM ' . SMILIES_TABLE . '
 				WHERE display_on_shout = 0';
 		$result = $this->shoutbox->shout_sql_query($sql);
-		$row_nb = $this->db->sql_fetchfield('total', $result);
+		$row_nb = (int) $this->db->sql_fetchfield('total');
 		$this->db->sql_freeresult($result);
 
 		$content = [
 			'smilies'	=> $smilies,
 			'total'		=> $i,
-			'nb_pop'	=> (int) $row_nb,
+			'nb_pop'	=> $row_nb,
 			'url'		=> $this->root_path_web . $this->config['smilies_path'] . '/',
 		];
 
@@ -929,7 +929,7 @@ class functions_ajax
 			$sql = 'SELECT COUNT(shout_id) as total
 				FROM ' . $val['shout_table'];
 			$result = $this->db->sql_query($sql);
-			$deleted = $this->db->sql_fetchfield('total', $result);
+			$deleted = (int) $this->db->sql_fetchfield('total');
 			$this->db->sql_freeresult($result);
 
 			// And now truncate the table, new id increment to 0
