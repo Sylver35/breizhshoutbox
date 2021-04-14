@@ -376,7 +376,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.questionUrl,
+			url: config.questionUrl,
 			data: dataRun,
 			cache: false,
 			success: function(result){
@@ -415,7 +415,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.rulesUrl,
+			url: config.rulesUrl,
 			data: dataRun,
 			cache: false,
 			headers : headersContent,
@@ -441,7 +441,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.persoUrl,
+			url: config.persoUrl,
 			data: dataRun+'&other='+idUser,
 			cache: false,
 			headers : headersContent,
@@ -482,7 +482,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.deleteUrl,
+			url: config.deleteUrl,
 			data: dataRun+'&post='+post_id,
 			cache: false,
 			headers : headersContent,
@@ -508,7 +508,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+ajaxUrl,
+			url: ajaxUrl,
 			data: dataRun+'&purge_sort='+purgeSort,
 			cache: false,
 			headers : headersContent,
@@ -609,7 +609,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.ubbcodeUrl,
+			url: config.ubbcodeUrl,
 			data: dataRun+'&open='+shoutbox.encodeUtf8(value1)+'&close='+shoutbox.encodeUtf8(value2)+'&other='+value3,
 			cache: false,
 			headers : headersContent,
@@ -656,7 +656,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.onlineUrl,
+			url: config.onlineUrl,
 			data: dataRun,
 			cache: false,
 			headers : headersContent,
@@ -689,7 +689,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.actUrl,
+			url: config.actUrl,
 			data: dataRun+'&other='+other,
 			cache: false,
 			headers : headersContent,
@@ -750,7 +750,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.authUrl,
+			url: config.authUrl,
 			data: dataRun+'&other='+other+'&name='+userName,
 			cache: false,
 			headers : headersContent,
@@ -783,7 +783,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			$.ajax({
 				type: 'POST',
 				dataType: 'json',
-				url: config.base+config.actPostUrl,
+				url: config.actPostUrl,
 				data: ondata,
 				cache: false,
 				headers : headersContent,
@@ -825,7 +825,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.actRemoveUrl,
+			url: config.actRemoveUrl,
 			data: dataRun+'&other='+other,
 			cache: false,
 			headers : headersContent,
@@ -853,7 +853,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.actDelToUrl,
+			url: config.actDelToUrl,
 			data: dataRun+'&other='+other,
 			cache: false,
 			headers : headersContent,
@@ -878,7 +878,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.actDelUrl,
+			url: config.actDelUrl,
 			data: dataRun+'&other='+other,
 			cache: false,
 			headers : headersContent,
@@ -903,7 +903,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.citeUrl,
+			url: config.citeUrl,
 			data: dataRun+'&other='+$('#user_inp').val(),
 			cache: false,
 			headers : headersContent,
@@ -976,7 +976,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			$.ajax({
 				type: 'POST',
 				dataType: 'json',
-				url: config.base+config.soundUrl,
+				url: config.soundUrl,
 				data: dataRun+'&sound='+$('#onSound').val(),
 				cache: false,
 				headers : headersContent,
@@ -1002,7 +1002,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+smilUrlOn,
+			url: smilUrlOn,
 			data: dataOn,
 			success: function(data){
 				if(data.error){
@@ -1105,7 +1105,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.editUrl,
+			url: config.editUrl,
 			data: ondata,
 			cache: false,
 			headers : headersContent,
@@ -1161,7 +1161,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.postUrl,
+			url: config.postUrl,
 			data: ondata,
 			cache: false,
 			headers : headersContent,
@@ -1259,7 +1259,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.checkUrl+random,
+			url: config.checkUrl+random,
 			data: dataRun+'&on_bot='+$('#onBot').val(),
 			cache: false,
 			headers : headersContent,
@@ -1337,7 +1337,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.base+config.viewUrl,
+			url: config.viewUrl,
 			data: dataRun+'&start='+onCount+'&l='+$('#shoutLast').val()+'&on_bot='+$('#onBot').val(),
 			cache: false,
 			headers : headersContent,
