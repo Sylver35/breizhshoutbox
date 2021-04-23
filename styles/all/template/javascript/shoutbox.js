@@ -23,8 +23,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 
 	shoutbox.handle = function(e){
 		switch(e.name){
-			case'E_USER_ERROR':
-			case'E_CORE_ERROR':
+			case 'E_USER_ERROR':
+			case 'E_CORE_ERROR':
 				shoutbox.message(e.message,true,false,false);
 			break;
 			default:
@@ -1377,7 +1377,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				/* Loop for messages */
 				for(var i = 0; i < datas.total; i++){
 					var post = listMessages[i];
-					var okDelete = post.deletemsg,okEdit = post.edit,okInfo = post.showIp,okCite = (post.isUser && config.postOk && config.isUser && config.buttonCite) ? true : false;
+					var okDelete = post.deletemsg,okEdit = post.edit,okInfo = post.showIp,okCite = (post.other && config.postOk && config.isUser && config.buttonCite) ? true : false;
 					var li = shoutbox.cE('li','lishout'+i,'row row'+row+' bg'+row,false,false,false,false,false,false);
 					var dl = shoutbox.cE('dl','dlshout'+i,false,false,false,false,false,false,false);
 					row = (row === 1) ? 2 : 1;
