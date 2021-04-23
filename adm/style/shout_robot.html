@@ -169,6 +169,23 @@
 				</dd>
 			</dl>
 		</fieldset>
+		{% if SHOUT_ENABLE_BREIZHCHARTS %}
+		<fieldset>
+			<legend><img src="{{ IMAGE_BREIZHCHARTS }}" alt="{{ lang('SHOUT_ROBOT_CHARTS') }}" title="{{ lang('SHOUT_ROBOT_CHARTS') }}" /> {{ lang('SHOUT_ROBOT_CHARTS') }}</legend>
+			<dl>
+				<dt><label for="shout_breizhcharts_reset">{{ lang('SHOUT_ROBOT_CHARTS_RESET') }}:</label><br />{{ lang('SHOUT_ROBOT_CHARTS_RESET_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_BREIZHCHARTS_RESET }}</dd>
+			</dl>
+			<dl>
+				<dt>
+					<label for="shout_breizhcharts_new">{{ lang('SHOUT_ROBOT_CHARTS_NEW') }}:</label><br />{{ lang('SHOUT_ROBOT_CHARTS_NEW_EXPLAIN') }}
+					{% if SHOUT_BREIZHCHARTS_TOPIC %}<br />{{ lang('SHOUT_ROBOT_CHARTS_NEW_TOPIC') }}{% endif %}
+				</dt>
+				<dd>{{ SHOUT_BREIZHCHARTS_NEW }}</dd>
+			</dl>
+			
+		</fieldset>
+		{% endif %}
 		{% if SHOUT_ENABLE_YOUTUBE %}
 		<fieldset>
 			<legend><img src="{{ IMAGE_VIDEO }}" alt="{{ lang('ACP_VIDEO') }}" title="{{ lang('ACP_VIDEO') }}" /> {{ lang('ACP_VIDEO') }}</legend>
