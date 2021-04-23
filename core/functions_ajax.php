@@ -1122,11 +1122,7 @@ class functions_ajax
 		$result = $this->shoutbox->shout_sql_query($sql, true, (int) $this->config['shout_num' . $val['sort_on']], $start);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			// Initialize additional data
-			$row = array_merge($row, [
-				'is_user'	=> (($row['shout_user_id'] > 1) && ((int) $row['shout_user_id'] === $val['userid'])),
-				'name'		=> ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'],
-			]);
+			$name = ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'];
 
 			// Checks permissions for delete, edit and show_ip
 			$row = $this->shoutbox->get_permissions_row($row, $perm, $val);
@@ -1135,13 +1131,14 @@ class functions_ajax
 			$content['messages'][$i] = [
 				'shoutId'		=> $row['shout_id'],
 				'shoutTime'		=> $this->user->format_date($row['shout_time'], $dateformat),
-				'username'		=> $this->shoutbox->construct_action_shout($row['user_id'], $row['name'], $row['user_colour']),
+				'username'		=> $this->shoutbox->construct_action_shout($row['user_id'], $name, $row['user_colour']),
 				'avatar'		=> $this->shoutbox->get_avatar_row($row, $val['sort'], $is_mobile),
 				'shoutText'		=> $this->shoutbox->shout_text_for_display($row, $val['sort'], false),
+				'isUser'		=> (($row['shout_user_id'] > 1) && ((int) $row['shout_user_id'] === $val['userid'])),
+				'other'			=> (($row['shout_user_id'] > 1) && ((int) $row['shout_user_id'] !== $val['userid'])),
+				'name'			=> $name,
 				'msgPlain'		=> $row['msg_plain'],
 				'timeMsg'		=> $row['shout_time'],
-				'isUser'		=> $row['is_user'],
-				'name'			=> $row['name'],
 				'colour'		=> $row['user_colour'],
 				'deletemsg'		=> $row['delete'],
 				'edit'			=> $row['edit'],
