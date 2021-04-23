@@ -351,8 +351,7 @@ class functions_ajax
 	public function shout_ajax_display_smilies($smiley, $display)
 	{
 		$var_set = ($display === 1) ? 0 : 1;
-		$sql = 'UPDATE ' . SMILIES_TABLE . " SET display_on_shout = $var_set WHERE smiley_id = $smiley";
-		$this->db->sql_query($sql);
+		$this->db->sql_query('UPDATE ' . SMILIES_TABLE . " SET display_on_shout = $var_set WHERE smiley_id = $smiley");
 		$content = [
 			'type'	=> ($display === 1) ? 1 : 2,
 		];

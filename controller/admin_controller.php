@@ -795,6 +795,8 @@ class admin_controller
 				'shout_birthday_exclude'	=> implode(', ', $this->request->variable('shout_birthday_exclude', [0])),
 				'shout_robot_choice'		=> implode(', ', $this->request->variable('shout_robot_choice', [0])),
 				'shout_robot_choice_priv'	=> implode(', ', $this->request->variable('shout_robot_choice_priv', [0])),
+				'shout_breizhcharts_new'	=> $this->request->variable('shout_breizhcharts_new', 0),
+				'shout_breizhcharts_reset'	=> $this->request->variable('shout_breizhcharts_reset', 0),
 				'shout_video_new'			=> $this->request->variable('shout_video_new', 0),
 				'shout_arcade_new'			=> $this->request->variable('shout_arcade_new', 0),
 				'shout_arcade_record'		=> $this->request->variable('shout_arcade_record', 0),

@@ -320,6 +320,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_FROM_OF'					=> '%1$s de %2$s',
 	'SHOUT_SUBJECT_OF'				=> ', sujet : %s',
 	'SHOUT_CHARTS_NEW'				=> '🎼 %1$s nouvelle chanson : %2$s',
+	'SHOUT_CHARTS_SUBJECT'			=> 'Voir le sujet',
 	'SHOUT_CHARTS_RESET'			=> '🎼 Hit Parade : Résultats de la période de vote, gagnant %1$s de %2$s',
 
 	'SHOUT_VIDEO'					=> 'Galerie vidéos',

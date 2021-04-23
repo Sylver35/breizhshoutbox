@@ -344,12 +344,27 @@ class functions_admin
 			]);
 		}
 
+		if ($this->shoutbox->breizhcharts_exist())
+		{
+			$exclude = explode(',', $this->config['shout_exclude_forums']);
+			$topic = (!in_array($this->config['breizhcharts_song_forum'], $exclude) && $this->config['breizhcharts_announce_enable']) ? true : false;
+
+			$this->template->assign_vars([
+				'SHOUT_ENABLE_BREIZHCHARTS'	=> true,
+				'IMAGE_BREIZHCHARTS'		=> $this->ext_path . 'images/son.webp',
+				'SHOUT_BREIZHCHARTS_NEW'	=> $this->construct_radio('shout_breizhcharts_new', 2),
+				'SHOUT_BREIZHCHARTS_RESET'	=> $this->construct_radio('shout_breizhcharts_reset', 2),
+				'SHOUT_BREIZHCHARTS_TOPIC'	=> $topic,
+				
+			]);
+		}
+
 		if ($this->shoutbox->breizhyoutube_exist())
 		{
 			$this->template->assign_vars([
 				'SHOUT_ENABLE_YOUTUBE'	=> true,
-				'SHOUT_VIDEO_NEW'		=> $this->construct_radio('shout_video_new', 2),
 				'IMAGE_VIDEO'			=> $this->ext_path . 'images/panel/ecran.webp',
+				'SHOUT_VIDEO_NEW'		=> $this->construct_radio('shout_video_new', 2),
 			]);
 		}
 
@@ -460,7 +475,7 @@ class functions_admin
 			'LEFT_JOIN'	=> [
 				[
 					'FROM'	=> [USERS_TABLE => 'u'],
-					'ON'	=> 's.shout_user_id = u.user_id',
+					'ON'	=> 'u.user_id = s.shout_user_id',
 				],
 				[
 					'FROM'	=> [USERS_TABLE => 'v'],

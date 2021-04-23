@@ -1807,8 +1807,10 @@ class shoutbox
 				$message = $this->language->lang('SHOUT_POST_ROBOT_' . $info, $start, $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp), $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']));
 			break;
 			case 30:
+				list($title, $artist) = explode('||', $row['shout_text']);
 				$url = $this->helper->route('sylver35_breizhcharts_page_music', ['mode' => 'list_newest']);
-				$message = $this->language->lang('SHOUT_CHARTS_NEW', $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp), $this->tpl('url', $url, $this->language->lang('SHOUT_FROM_OF', $row['shout_text'], $row['shout_text2'])));
+				$message = $this->language->lang('SHOUT_CHARTS_NEW', $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp), $this->tpl('url', $url, $this->language->lang('SHOUT_FROM_OF', $title, $artist)));
+				$message .= ($row['shout_text2']) ? ' ⇒ ' . $this->tpl('url', $row['shout_text2'], $this->language->lang('SHOUT_CHARTS_SUBJECT')) : '';
 			break;
 			case 31:
 				$url = $this->helper->route('sylver35_breizhcharts_page_music', ['mode' => 'winners']);
@@ -2010,11 +2012,6 @@ class shoutbox
 	 */
 	public function post_session_shout_bot($event)
 	{
-		if (!$this->config['shout_enable_robot'])
-		{
-			return;
-		}
-
 		$go_post = $go_post_priv = false;
 
 		if ($this->config['shout_sessions_bots'])
@@ -2045,9 +2042,9 @@ class shoutbox
 
 	private function sort_info($mode, $prez_form, $prez_poster)
 	{
-		$ok_shout = 'post';
 		$info = 0;
 		$sort_info = 3;
+		$sort = 'post';
 
 		switch ($mode)
 		{
@@ -2099,18 +2096,18 @@ class shoutbox
 
 		if (strpos($mode, 'edit') !== false)
 		{
-			$ok_shout = 'edit';
+			$sort = 'edit';
 		}
 		else if (strpos($mode, 'quote') !== false || strpos($mode, 'reply') !== false)
 		{
-			$ok_shout = 'rep';
+			$sort = 'rep';
 		}
 
 		return [
 			'info'			=> $info,
 			'sort_info'		=> $sort_info,
-			'ok_shout'		=> $this->config["shout_{$ok_shout}_robot"],
-			'ok_shout_priv'	=> $this->config["shout_{$ok_shout}_robot_priv"],
+			'ok_shout'		=> $this->config["shout_{$sort}_robot"],
+			'ok_shout_priv'	=> $this->config["shout_{$sort}_robot_priv"],
 		];
 	}
 
@@ -2148,8 +2145,13 @@ class shoutbox
 		$this->insert_message_robot($sql_data, $info['ok_shout'], $info['ok_shout_priv']);
 	}
 
-	private function insert_message_robot($sql_data, $ok, $ok_priv)
+	private function insert_message_robot($sql_data, $ok, $ok_priv = false)
 	{
+		if (!$this->config['shout_enable_robot'])
+		{
+			return;
+		}
+
 		if ($ok)
 		{
 			$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
@@ -2192,7 +2194,7 @@ class shoutbox
 			{
 				$mode = ((int) $event['topic_type'] === 3) ? 'global' : 'annoucement';
 			}
-			$prez_poster = ($prez_form && ($row['topic_poster'] == $this->user->data['user_id'])) ? true : false;
+			$prez_poster = ($prez_form && ((int) $row['topic_poster'] === (int) $this->user->data['user_id'])) ? true : false;
 		}
 
 		return [
@@ -2451,11 +2453,6 @@ class shoutbox
 	 */
 	public function shout_add_newest_user($event)
 	{
-		if (!$this->config['shout_enable_robot'] || !$this->config['shout_newest'] && !$this->config['shout_newest_priv'])
-		{
-			return;
-		}
-
 		$sql_data = [
 			'shout_time'				=> time(),
 			'shout_user_id'				=> 0,
@@ -2475,11 +2472,6 @@ class shoutbox
 
 	public function add_song_after($event)
 	{
-		if (!$this->config['shout_enable_robot'] || !$this->config['shout_breizhcharts_new'])
-		{
-			return;
-		}
-
 		$sql_data = [
 			'shout_time'				=> time(),
 			'shout_user_id'				=> 0,
@@ -2489,22 +2481,16 @@ class shoutbox
 			'shout_bbcode_uid'			=> '',
 			'shout_bbcode_bitfield'		=> '',
 			'shout_bbcode_flags'		=> 0,
+			'shout_robot'				=> 1,
 			'shout_robot_user'			=> (int) $this->user->data['user_id'],
-			'shout_forum'				=> (int) $event['data']['topic_id'],
 			'shout_info'				=> 30,
 		];
 
-		$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
-		$this->config->increment('shout_nr', 1, true);
+		$this->insert_message_robot($sql_data, $this->config['shout_breizhcharts_new']);
 	}
 
 	public function reset_all_notes($event)
 	{
-		if (!$this->config['shout_enable_robot'] || !$this->config['shout_breizhcharts_reset'])
-		{
-			return;
-		}
-
 		$sql_data = [
 			'shout_time'				=> time(),
 			'shout_user_id'				=> 0,
@@ -2514,22 +2500,17 @@ class shoutbox
 			'shout_bbcode_uid'			=> '',
 			'shout_bbcode_bitfield'		=> '',
 			'shout_bbcode_flags'		=> 0,
+			'shout_robot'				=> 1,
 			'shout_robot_user'			=> (int) $event['winner']['poster_id'],
 			'shout_info_nb'				=> (int) $event['winner']['song_id'],
 			'shout_info'				=> 31,
 		];
 
-		$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
-		$this->config->increment('shout_nr', 1, true);
+		$this->insert_message_robot($sql_data, $this->config['shout_breizhcharts_reset']);
 	}
 
 	public function submit_new_video($event)
 	{
-		if (!$this->config['shout_enable_robot'] || !$this->config['shout_video_new'])
-		{
-			return;
-		}
-
 		$sql_data = [
 			'shout_time'				=> time(),
 			'shout_user_id'				=> (int) $this->user->data['user_id'],
@@ -2546,17 +2527,11 @@ class shoutbox
 			'shout_info'				=> 35,
 		];
 
-		$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
-		$this->config->increment('shout_nr', 1, true);
+		$this->insert_message_robot($sql_data, $this->config['shout_video_new']);
 	}
 
 	public function submit_arcade_score($event, $type)
 	{
-		if (!$this->config['shout_enable_robot'])
-		{
-			return;
-		}
-
 		$sql_data = [
 			'shout_time'				=> time(),
 			'shout_user_id'				=> (int) $this->user->data['user_id'],
@@ -2573,8 +2548,7 @@ class shoutbox
 			'shout_info'				=> (int) $type,
 		];
 
-		$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
-		$this->config->increment('shout_nr', 1, true);
+		$this->insert_message_robot($sql_data, true);
 	}
 
 	public function list_auth_options()
