@@ -1139,8 +1139,8 @@ class functions_ajax
 				'colour'		=> $row['user_colour'],
 				'deletemsg'		=> $row['delete'],
 				'edit'			=> $row['edit'],
-				'showIp'		=> $row['show_ip'],
-				'shoutIp'		=> $row['on_ip'],
+				'showIp'		=> $this->config['shout_see_button_ip'] && $row['show_ip'],
+				'shoutIp'		=> $this->config['shout_see_button_ip'] ? $row['on_ip'] : '',
 			];
 			$content['total']++;
 		}
