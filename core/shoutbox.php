@@ -2756,7 +2756,7 @@ class shoutbox
 				$row['msg_plain'] = $row['shout_text'];
 				decode_message($row['msg_plain'], $row['shout_bbcode_uid']);
 			}
-			if (($perm['info_all'] || ($id === $val['userid']) && $perm['info']) && $this->config['shout_see_button_ip'])
+			if (($perm['info_all'] && $this->config['shout_see_button_ip'] || ($id === $val['userid']) && $perm['info'] && $this->config['shout_see_button_ip'])
 			{
 				$row['show_ip'] = true;
 				$row['on_ip'] = $row['shout_ip'];
