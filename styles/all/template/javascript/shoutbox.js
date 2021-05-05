@@ -194,11 +194,17 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 	shoutbox.message = function(msg, red, clearOn, reload){
 		var colorMsg = red ? 'red' : 'green',tempsMsg = red ? 5000 : 3000,align = 'center',msgDisplay = '',span = '<span style="color:black;font-weight:bold;">',endSpan = ' : </span>',bR = '<br />';
 		if(typeof msg === 'object'){
-			msgDisplay = span+bzhLang['ERROR']+endSpan+msg['message'];
+			msgDisplay = span+bzhLang['ERROR']+endSpan;
+			msgDisplay += msg['message'] ? msg['message'] : '';
 			msgDisplay += msg['line'] ? bR+span+bzhLang['LINE']+endSpan+msg['line'] : '';
 			msgDisplay += msg['file'] ? bR+span+bzhLang['FILE']+endSpan+msg['file'] : '';
 			msgDisplay += msg['content'] ? bR+span+bzhLang['DETAILS']+endSpan+msg['content'] : '';
+			msgDisplay += msg['MESSAGE_TITLE'] ? msg['MESSAGE_TITLE'] : '';
+			msgDisplay += msg['MESSAGE_TEXT'] ? bR+msg['MESSAGE_TEXT'] : '';
 			align = config.direction;
+			if(msg['S_USER_NOTICE'] !== false || msg['S_USER_WARNING'] !== false){
+				clearInterval(timerIn);
+			}
 		}else{
 			msgDisplay = msg;
 		}
@@ -1263,23 +1269,25 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			data: dataRun+'&on_bot='+$('#onBot').val(),
 			cache: false,
 			headers : headersContent,
-			success: function(update){
-				if(update.error){
-					shoutbox.message(update,true,5000,false);
-				}else if(update.t === 1){
-					shoutbox.message(update,true,4000,false);
+			success: function(result){
+				if(result.error || result.message){
+					shoutbox.message(result,true,5000,false);
+				}else if(result.S_USER_NOTICE || result.S_USER_WARNING){
+					shoutbox.message(result,true,0,false);
+				}else if(result.t === 1){
+					shoutbox.message(result,true,4000,false);
 					shoutbox.reloadAll(true,false);
-				}else if(update.t !== $onShoutLast){
+				}else if(result.t !== $onShoutLast){
 					if($onShoutLast !== 0){
 						/* A new message... */
 						shoutbox.playSound(1,false);
 					}
-					$('#shoutLast').val(update.t);
+					$('#shoutLast').val(result.t);
 					shoutbox.reloadAll(false,true);
 				}
 				/* else nothing to do, continue your work... */
 			},
-			error: function(update,statut,erreur){
+			error: function(result,statut,erreur){
 				/* Just add nb errors and continue with silence */
 				shoutbox.setError($('#nBErrors').val());
 			}
