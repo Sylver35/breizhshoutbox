@@ -492,7 +492,7 @@ class functions_admin
 			{
 				continue;
 			}
-			$row['username'] = ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'];
+			$row['username'] = $this->shoutbox->get_shout_name($row['shout_user_id'], $row['username'], $row['shout_text2']);
 			$row['shout_text'] = $this->shoutbox->shout_text_for_display($row, 3, true);
 
 			$this->template->assign_block_vars('messages', [

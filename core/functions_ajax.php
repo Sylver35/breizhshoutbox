@@ -1084,18 +1084,17 @@ class functions_ajax
 	{
 		$this->shoutbox->shout_run_robot(true);
 		$sql_where = $this->shoutbox->shout_sql_where($val['is_user'], $val['userid'], $on_bot);
-		$last_time = $this->shoutbox->get_shout_time($sql_where, $val['shout_table']);
 
 		return [
-			't'	=> $last_time,
+			't'	=> $this->shoutbox->get_shout_time($val['shout_table'], $sql_where),
 		];
 	}
 
 	public function shout_ajax_view($val, $on_bot, $start)
 	{
-		$i = 0;
 		$content = [
 			'messages'	=> [],
+			'total'		=> 0,
 		];
 
 		$perm = $this->shoutbox->extract_permissions($val['auth']);
@@ -1122,37 +1121,34 @@ class functions_ajax
 		$result = $this->shoutbox->shout_sql_query($sql, true, (int) $this->config['shout_num' . $val['sort_on']], $start);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$name = ($row['shout_user_id'] == ANONYMOUS) ? $row['shout_text2'] : $row['username'];
-
-			// Checks permissions for delete, edit and show_ip
-			$row = $this->shoutbox->get_permissions_row($row, $perm, $val);
+			// Get additional data
+			$row = $this->shoutbox->get_additional_data($row, $perm, $val);
 
 			// Construct the content of loop
-			$content['messages'][$i] = [
+			$content['messages'][$content['total']] = [
 				'shoutId'		=> $row['shout_id'],
 				'shoutTime'		=> $this->user->format_date($row['shout_time'], $dateformat),
-				'username'		=> $this->shoutbox->construct_action_shout($row['user_id'], $name, $row['user_colour']),
-				'avatar'		=> $this->shoutbox->get_avatar_row($row, $val['sort'], $is_mobile),
+				'username'		=> $this->shoutbox->construct_action_shout($row['user_id'], $row['username'], $row['user_colour']),
+				'avatar'		=> $this->shoutbox->get_shout_avatar($row, $val['sort'], $is_mobile),
 				'shoutText'		=> $this->shoutbox->shout_text_for_display($row, $val['sort'], false),
-				'isUser'		=> (($row['shout_user_id'] > 1) && ((int) $row['shout_user_id'] === $val['userid'])),
-				'other'			=> (($row['shout_user_id'] > 1) && ((int) $row['shout_user_id'] !== $val['userid'])),
-				'name'			=> $name,
+				'isUser'		=> $row['is_user'],
+				'other'			=> $row['other'],
+				'name'			=> $row['username'],
 				'msgPlain'		=> $row['msg_plain'],
 				'timeMsg'		=> $row['shout_time'],
 				'colour'		=> $row['user_colour'],
 				'deletemsg'		=> $row['delete'],
 				'edit'			=> $row['edit'],
 				'showIp'		=> $row['show_ip'],
-				'shoutIp'		=> $this->config['shout_see_button_ip'] ? $row['on_ip'] : '',
+				'shoutIp'		=> $row['on_ip'],
 			];
-			$i++;
+			$content['total']++;
 		}
 		$this->db->sql_freeresult($result);
 
 		$content = array_merge($content, [
-			'total'		=> $i,
 			// Get the last message time
-			'last'		=> $this->shoutbox->get_shout_time($sql_where, $val['shout_table']),
+			'last'		=> $this->shoutbox->get_shout_time($val['shout_table'], $sql_where),
 			// The number of total messages for pagination
 			'number'	=> $this->shoutbox->shout_pagination($sql_where, $val['shout_table'], $val['priv']),
 		]);

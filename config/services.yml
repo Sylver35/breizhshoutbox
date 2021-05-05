@@ -114,3 +114,6 @@ services:
         arguments:
             - '@sylver35.breizhshoutbox.functions_ajax'
             - '@request'
+
+    _defaults:
+        public: true

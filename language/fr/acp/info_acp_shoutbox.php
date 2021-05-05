@@ -438,7 +438,7 @@ $lang = array_merge($lang, array(
 // Installation
 	'SHOUT_WELCOME'						=> 'Ceci est votre premier message. Bienvenue dans la Breizh Shoutbox… de la part de Sylver35… ',
 
-// Add new formats
+// Add new date formats
 	'dateformats'	=> array_merge($lang['dateformats'], array(
 		'|d M| H:i'						=> '[Jours relatifs], 13:37 / 01 janv. 13:37',
 		'|M jS| g:i a'					=> '[Jours relatifs], 1:37 pm / janv. 1er 1:37 pm',
