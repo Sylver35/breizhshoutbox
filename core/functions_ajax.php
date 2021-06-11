@@ -712,12 +712,9 @@ class functions_ajax
 				}
 			}
 
-			$message = $this->shoutbox->parse_shout_message($message, $val['on_priv'], 'post', $robot);
+			$message = $this->shoutbox->parse_shout_message($message, $val['priv'], $val['privat'], 'post', $robot);
 			// Personalize message
-			if ($val['other'] !== 0)
-			{
-				$message = $this->shoutbox->personalize_shout_message($message);
-			}
+			$message = ($val['other'] !== 0) ? $this->shoutbox->personalize_shout_message($message) : $message;
 
 			// will be modified by generate_text_for_storage
 			$options = 0;
@@ -986,7 +983,7 @@ class functions_ajax
 		}
 
 		// Multi protections at this time...
-		$message = $this->shoutbox->parse_shout_message($message, $val['on_priv'], 'edit', false);
+		$message = $this->shoutbox->parse_shout_message($message, $val['priv'], $val['privat'], 'edit', false);
 
 		// will be modified by generate_text_for_storage
 		$options = 0;
@@ -1036,7 +1033,7 @@ class functions_ajax
 		}
 
 		// Multi protections at this time...
-		$message = $this->shoutbox->parse_shout_message($message, $val['on_priv'], 'post', false);
+		$message = $this->shoutbox->parse_shout_message($message, $val['priv'], $val['privat'], 'post', false);
 
 		// Personalize message
 		$message = $this->shoutbox->personalize_shout_message($message);

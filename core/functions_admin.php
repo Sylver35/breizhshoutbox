@@ -8,6 +8,7 @@
 */
 
 namespace sylver35\breizhshoutbox\core;
+
 use sylver35\breizhshoutbox\core\shoutbox;
 use phpbb\json_response;
 use phpbb\exception\http_exception;
@@ -161,7 +162,6 @@ class functions_admin
 			foreach ($soundlist as $key => $sounds)
 			{
 				$sounds = str_replace('.mp3', '', $sounds);
-				natcasesort($sounds);
 				foreach ($sounds as $sound)
 				{
 					$selected = ($sound === $actual) ? ' selected="selected"' : '';
@@ -204,7 +204,6 @@ class functions_admin
 		$imglist = $this->shoutbox->filelist_all($rootdir, $path, $type, true);
 		foreach ($imglist as $key => $image)
 		{
-			natcasesort($image);
 			foreach ($image as $img)
 			{
 				$on_img = $img;
@@ -225,7 +224,6 @@ class functions_admin
 		$imglist = $this->shoutbox->filelist_all($rootdir, $path, '', true);
 		foreach ($imglist as $key => $image)
 		{
-			natcasesort($image);
 			foreach ($image as $img)
 			{
 				$selected = ($this->config[$config] == $img) ? ' selected="selected"' : '';
