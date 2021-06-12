@@ -418,6 +418,7 @@ class functions_ajax
 	public function shout_ajax_question()
 	{
 		$guest_can_post = $this->auth->acl_get_list(ANONYMOUS, 'u_shout_post');
+
 		return [
 			'title'	=> $this->language->lang('SHOUT_COOKIES'),
 			'info'	=> $this->language->lang('SHOUT_COOKIES_INFO', ($guest_can_post ? 3 : 2)),

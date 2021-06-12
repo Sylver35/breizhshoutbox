@@ -3496,121 +3496,47 @@ class shoutbox
 
 	private function lang_to_javascript($data)
 	{
-		if ($data['creator'])
-		{
-			$this->language->add_lang('smilie_creator', 'sylver35/smilecreator');
-		}
 		$this->config['shout_title'] = (!$this->config['shout_title']) ? $this->language->lang('SHOUT_START') : $this->config['shout_title'];
 		$this->config['shout_title_priv'] = (!$this->config['shout_title_priv']) ? $this->language->lang('SHOUTBOX_SECRET') : $this->config['shout_title_priv'];
 
 		$lang_shout = [
-			'LOADING'				=> $this->language->lang('SHOUT_LOADING'),
-			'TITLE'					=> $this->config['shout_title' . $data['sort']],
-			'SERVER_ERR'			=> $this->language->lang('SERVER_ERR'),
-			'JS_ERR'				=> $this->language->lang('JS_ERR'),
-			'ERROR'					=> $this->language->lang('ERROR'),
-			'LINE'					=> $this->language->lang('LINE'),
-			'FILE'					=> $this->language->lang('FILE'),
-			'DETAILS'				=> $this->language->lang('POST_DETAILS'),
-			'PRINT_VER'				=> $this->language->lang('SHOUTBOX_VER', $data['version']),
-			'MESSAGE'				=> $this->language->lang('SHOUT_MESSAGE'),
-			'MESSAGES'				=> $this->language->lang('SHOUT_MESSAGES'),
-			'SEPARATOR'				=> $this->language->lang('COMMA_SEPARATOR'),
-			'SHOUT_SEP'				=> $this->language->lang('SHOUT_SEP'),
-			'MSG_DEL_DONE'			=> $this->language->lang('MSG_DEL_DONE'),
-			'NO_MESSAGE'			=> $this->language->lang('SHOUT_NO_MESSAGE'),
-			'PAGE'					=> $this->language->lang('SHOUT_PAGE'),
-			'NO_EDIT'				=> $this->language->lang('NO_SHOUT_EDIT'),
-			'CANCEL'				=> $this->language->lang('CANCEL'),
-			'NEXT'					=> $this->language->lang('NEXT'),
-			'PREVIOUS'				=> $this->language->lang('PREVIOUS'),
-			'AUTO'					=> $this->language->lang('SHOUT_AUTO'),
-			'BBCODE_CLOSE'			=> $this->language->lang('SHOUT_DIV_BBCODE_CLOSE'),
-			'ACTION_MSG'			=> $this->language->lang('SHOUT_ACTION_MSG'),
-			'OUT_TIME'				=> $this->language->lang('SHOUT_OUT_TIME'),
-			'NO_SHOUT_DEL'			=> $this->language->lang('NO_SHOUT_DEL'),
-			'NO_IP_PERM'			=> $this->language->lang('NO_SHOW_IP_PERM'),
-			'SOUND'					=> $this->language->lang('SHOUT_CLICK_SOUND_ON'),
-			'SOUND_OFF'				=> $this->language->lang('SHOUT_CLICK_SOUND_OFF'),
-			'MESSAGE_EMPTY'			=> $this->language->lang('MESSAGE_EMPTY'),
-			'DIV_CLOSE'				=> $this->language->lang('SHOUT_DIV_CLOSE'),
-			'NO_POST_PERM'			=> $this->language->lang('NO_POST_PERM'),
-			'NO_POP'				=> $this->language->lang('NO_SHOUT_POP'),
-			'POST_MESSAGE'			=> $this->language->lang('POST_MESSAGE'),
-			'POST_MESSAGE_ALT'		=> $this->language->lang('POST_MESSAGE_ALT'),
-			'POSTED'				=> $this->language->lang('POSTED'),
-			'POP'					=> $this->language->lang('SHOUT_POP'),
-			'ONLINE'				=> $this->language->lang('SHOUT_ONLINE'),
-			'ONLINE_CLOSE'			=> $this->language->lang('SHOUT_ONLINE_CLOSE'),
-			'COLOR'					=> $this->language->lang('SHOUT_COLOR'),
-			'NO_COLOR'				=> $this->language->lang('NO_SHOUT_COLOR'),
-			'COLOR_CLOSE'			=> $this->language->lang('SHOUT_COLOR_CLOSE'),
-			'SMILIES'				=> $this->language->lang('SMILIES'),
-			'NO_SMILIES'			=> $this->language->lang('NO_SMILIES'),
-			'SMILIES_CLOSE'			=> $this->language->lang('SMILIES_CLOSE'),
-			'CHARS'					=> $this->language->lang('SHOUT_CHARS'),
-			'CHARS_CLOSE'			=> $this->language->lang('SHOUT_CHARS_CLOSE'),
-			'NO_CHARS'				=> $this->language->lang('NO_SHOUT_CHARS'),
-			'RULES'					=> $this->language->lang('SHOUT_RULES'),
-			'RULES_PRIV'			=> $this->language->lang('SHOUT_RULES_PRIV'),
-			'RULES_CLOSE'			=> $this->language->lang('SHOUT_RULES_CLOSE'),
-			'MORE_SMILIES'			=> $this->language->lang('SHOUT_MORE_SMILIES'),
-			'MORE_SMILIES_ALT'		=> $this->language->lang('SHOUT_MORE_SMILIES_ALT'),
-			'LESS_SMILIES'			=> $this->language->lang('SHOUT_LESS_SMILIES'),
-			'LESS_SMILIES_ALT'		=> $this->language->lang('SHOUT_LESS_SMILIES_ALT'),
-			'TOO_BIG'				=> $this->language->lang('SHOUT_TOO_BIG'),
-			'TOO_BIG2'				=> $this->language->lang('SHOUT_TOO_BIG2'),
-			'ACTION_CITE'			=> $this->language->lang('SHOUT_ACTION_CITE_M'),
-			'CITE_ON'				=> $this->language->lang('SHOUT_ACTION_CITE_ON'),
-			'SHOUT_CLOSE'			=> $this->language->lang('SHOUT_CLOSE'),
-			'BBCODES'				=> $this->language->lang('SHOUT_BBCODES'),
-			'BBCODES_CLOSE'			=> $this->language->lang('SHOUT_BBCODES_CLOSE'),
-			'NO_BBCODE'				=> $this->language->lang('NO_SHOUT_BBCODE'),
-			'SENDING'				=> $this->language->lang('SENDING'),
-			'DATETIME_0'			=> $this->language->lang(['datetime', 'AGO', 0]),
-			'DATETIME_1'			=> $this->language->lang(['datetime', 'AGO', 1]),
-			'DATETIME_2'			=> $this->language->lang(['datetime', 'AGO', 2]),
-			'DATETIME_3'			=> $this->language->lang(['datetime', 'TODAY']),
-			'ROBOT_ON'				=> $this->language->lang('SHOUT_ROBOT_ON'),
-			'ROBOT_OFF'				=> $this->language->lang('SHOUT_ROBOT_OFF'),
-			'SHOUT_COOKIES'			=> $this->language->lang('SHOUT_COOKIES'),
-			'CREATOR'				=> ($data['creator']) ? $this->language->lang('SMILIE_CREATOR') : '',
+			'TITLE'			=> $this->config['shout_title' . $data['sort']],
+			'PRINT_VER'		=> $this->language->lang('SHOUTBOX_VER', $data['version']),
+			'DATETIME_0'	=> $this->language->lang(['datetime', 'AGO', 0]),
+			'DATETIME_1'	=> $this->language->lang(['datetime', 'AGO', 1]),
+			'DATETIME_2'	=> $this->language->lang(['datetime', 'AGO', 2]),
+			'DATETIME_3'	=> $this->language->lang(['datetime', 'TODAY']),
 		];
+
+		$lang_array = ['SHOUT_LOADING', 'SERVER_ERR', 'JS_ERR', 'ERROR', 'LINE', 'FILE', 'POST_DETAILS', 'SHOUT_MESSAGE', 'SHOUT_MESSAGES', 'COMMA_SEPARATOR', 'SHOUT_SEP', 'MSG_DEL_DONE', 'SHOUT_NO_MESSAGE', 'SHOUT_PAGE', 'NO_SHOUT_EDIT', 'CANCEL', 'NEXT', 'PREVIOUS', 'SHOUT_AUTO', 'SHOUT_DIV_BBCODE_CLOSE', 'SHOUT_ACTION_MSG', 'SHOUT_OUT_TIME', 'NO_SHOUT_DEL', 'NO_SHOW_IP_PERM', 'SHOUT_CLICK_SOUND_ON', 'SHOUT_CLICK_SOUND_OFF', 'MESSAGE_EMPTY', 'SHOUT_DIV_CLOSE', 'NO_POST_PERM', 'NO_SHOUT_POP', 'POST_MESSAGE', 'POST_MESSAGE_ALT', 'POSTED', 'SHOUT_POP', 'SHOUT_ONLINE', 'SHOUT_ONLINE_CLOSE', 'SHOUT_COLOR', 'NO_SHOUT_COLOR', 'SHOUT_COLOR_CLOSE', 'SMILIES', 'NO_SMILIES', 'SMILIES_CLOSE', 'SHOUT_CHARS', 'SHOUT_CHARS_CLOSE', 'NO_SHOUT_CHARS', 'SHOUT_RULES', 'SHOUT_RULES_PRIV', 'SHOUT_RULES_CLOSE', 'SHOUT_MORE_SMILIES', 'SHOUT_MORE_SMILIES_ALT', 'SHOUT_LESS_SMILIES', 'SHOUT_LESS_SMILIES_ALT', 'SHOUT_TOO_BIG', 'SHOUT_TOO_BIG2', 'SHOUT_ACTION_CITE_M', 'SHOUT_ACTION_CITE_ON', 'SHOUT_CLOSE', 'SHOUT_BBCODES', 'SHOUT_BBCODES_CLOSE', 'NO_SHOUT_BBCODE', 'SENDING', 'SHOUT_ROBOT_ON', 'SHOUT_ROBOT_OFF', 'SHOUT_COOKIES'];
+		for ($i = 0, $nb = sizeof($lang_array); $i < $nb; $i++)
+		{
+			$lang_shout[str_replace('SHOUT_', '', $lang_array[$i])] = $this->language->lang($lang_array[$i]);
+		}
+
+		if ($data['creator'])
+		{
+			$this->language->add_lang('smilie_creator', 'sylver35/smilecreator');
+			$lang_shout['CREATOR'] = $this->language->lang('SMILIE_CREATOR');
+		}
+
 		if (!$this->user->data['is_registered'])
 		{
-			$lang_shout = array_merge($lang_shout, [
-				'CLICK_HERE'			=> $this->language->lang('SHOUT_CLICK_HERE'),
-				'CHOICE_NAME'			=> $this->language->lang('SHOUT_CHOICE_NAME'),
-				'CHOICE_YES'			=> $this->language->lang('SHOUT_CHOICE_YES'),
-				'AFFICHE'				=> $this->language->lang('SHOUT_AFFICHE'),
-				'CACHE'					=> $this->language->lang('SHOUT_CACHE'),
-				'CHOICE_NAME_ERROR'		=> $this->language->lang('SHOUT_CHOICE_NAME_ERROR'),
-				'USERNAME_EXPLAIN'		=> $this->language->lang($this->config['allow_name_chars'] . '_EXPLAIN', $this->language->lang('CHARACTERS', (int) $this->config['min_name_chars']), $this->language->lang('CHARACTERS', (int) $this->config['max_name_chars'])),
-			]);
+			$lang_array_bis = ['SHOUT_CLICK_HERE', 'SHOUT_CHOICE_NAME', 'SHOUT_CHOICE_YES', 'SHOUT_AFFICHE', 'SHOUT_CACHE', 'SHOUT_CHOICE_NAME_ERROR'];
+			$lang_shout['USERNAME_EXPLAIN'] = $this->language->lang($this->config['allow_name_chars'] . '_EXPLAIN', $this->language->lang('CHARACTERS', (int) $this->config['min_name_chars']), $this->language->lang('CHARACTERS', (int) $this->config['max_name_chars']));
 		}
 		else if (!$this->user->data['is_bot'])
 		{
+			$lang_array_bis = ['SHOUT_PERSO', 'SENDING_EDIT', 'EDIT_DONE', 'SHOUT_DEL', 'DEL_SHOUT', 'SHOUT_IP', 'SHOUT_POST_IP', 'ONLY_ONE_OPEN', 'SHOUT_EDIT', 'SHOUT_PRIV', 'SHOUT_CONFIG_OPEN', 'SHOUT_USER_IGNORE', 'SHOUT_PURGE_ROBOT_ALT', 'SHOUT_PURGE_ROBOT_BOX', 'SHOUT_PURGE_ALT', 'SHOUT_PURGE_BOX', 'PURGE_PROCESS'];
 			$lang_shout = array_merge($lang_shout, [
-				'MSG_ROBOT'				=> $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->construct_action_shout(0)),
-				'PERSO'					=> $this->language->lang('SHOUT_PERSO'),
-				'SENDING_EDIT'			=> $this->language->lang('SENDING_EDIT'),
-				'EDIT_DONE'				=> $this->language->lang('EDIT_DONE'),
-				'SHOUT_DEL'				=> $this->language->lang('SHOUT_DEL'),
-				'DEL_SHOUT'				=> $this->language->lang('DEL_SHOUT'),
-				'IP'					=> $this->language->lang('SHOUT_IP'),
-				'POST_IP'				=> $this->language->lang('SHOUT_POST_IP'),
-				'ONE_OPEN'				=> $this->language->lang('ONLY_ONE_OPEN'),
-				'EDIT'					=> $this->language->lang('EDIT'),
-				'SHOUT_EDIT'			=> $this->language->lang('SHOUT_EDIT'),
-				'PRIV'					=> $this->language->lang('SHOUT_PRIV'),
-				'CONFIG_OPEN'			=> $this->language->lang('SHOUT_CONFIG_OPEN'),
-				'USER_IGNORE'			=> $this->language->lang('SHOUT_USER_IGNORE'),
-				'PURGE_ROBOT_ALT'		=> $this->language->lang('SHOUT_PURGE_ROBOT_ALT'),
-				'PURGE_ROBOT_BOX'		=> $this->language->lang('SHOUT_PURGE_ROBOT_BOX'),
-				'PURGE_ALT'				=> $this->language->lang('SHOUT_PURGE_ALT'),
-				'PURGE_BOX'				=> $this->language->lang('SHOUT_PURGE_BOX'),
-				'PURGE_PROCESS'			=> $this->language->lang('PURGE_PROCESS'),
+				'MSG_ROBOT'		=> $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->construct_action_shout(0)),
+				'EDIT_MSG'		=> $this->language->lang('EDIT'),
 			]);
+		}
+
+		for ($i = 0, $nb = sizeof($lang_array_bis); $i < $nb; $i++)
+		{
+			$lang_shout[str_replace('SHOUT_', '', $lang_array_bis[$i])] = $this->language->lang($lang_array_bis[$i]);
 		}
 
 		return $lang_shout;
