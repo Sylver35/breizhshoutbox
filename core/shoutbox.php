@@ -3137,8 +3137,6 @@ class shoutbox
 			throw new http_exception(403, 'NOT_AUTHORISED');
 		}
 
-		$auth_pop = $other ? $this->auth->acl_get_list($user_id, 'u_shout_popup') : $this->auth->acl_get('u_shout_popup');
-		$auth_priv = $other ? $this->auth->acl_get_list($user_id, 'u_shout_priv') : $this->auth->acl_get('u_shout_priv');
 		$user_shout->user = $this->set_user_option($user_shout->user, 'shout_sound_on', 4);
 		$user_shout->new = $this->set_user_option($user_shout->new, 'shout_sound_new', 1);
 		$user_shout->new_priv = $this->set_user_option($user_shout->new_priv, 'shout_sound_new_priv', 1);
@@ -3153,8 +3151,6 @@ class shoutbox
 			'USER_ID'				=> $this->user->data['user_id'],
 			'USERNAME'				=> $other,
 			'TITLE_PANEL'			=> ($other) ? $this->language->lang('SHOUT_PANEL_TO_USER', $username) : $this->language->lang('SHOUT_PANEL_USER'),
-			'S_POP'					=> $auth_pop,
-			'S_PRIVATE'				=> $auth_priv,
 			'SOUND_NEW_DISP'		=> $user_shout->user && $user_shout->new !== '1',
 			'SOUND_NEW_PRIV_DISP'	=> $user_shout->user && $user_shout->new_priv !== '1',
 			'SOUND_DEL_DISP'		=> $user_shout->user && $user_shout->del !== '1',
@@ -3185,14 +3181,16 @@ class shoutbox
 			'SELECT_ON_INDEX'		=> $this->build_select_position($this->set_user_option($user_shout->index, 'shout_position_index', 2), true),
 			'SELECT_ON_FORUM'		=> $this->build_select_position($this->set_user_option($user_shout->forum, 'shout_position_forum', 2)),
 			'SELECT_ON_TOPIC'		=> $this->build_select_position($this->set_user_option($user_shout->topic, 'shout_position_topic', 2)),
-			'SHOUT_EXT_PATH'		=> $this->ext_path_web,
 			'DATE_FORMAT'			=> $this->set_user_option($user_shoutbox->dateformat, 'shout_dateformat', 5),
 			'DATE_FORMAT_EX'		=> $this->user->format_date(time() - 60 * 61, $user_shoutbox->dateformat),
 			'DATE_FORMAT_EX2'		=> $this->user->format_date(time() - 60 * 60 * 60, $user_shoutbox->dateformat),
 			'S_DATEFORMAT_OPTIONS'	=> $this->build_dateformat_option($user_shoutbox->dateformat),
+			'S_POP'					=> ($other) ? $this->auth->acl_get_list($user_id, 'u_shout_popup') : $this->auth->acl_get('u_shout_popup'),
+			'S_PRIVATE'				=> ($other) ? $this->auth->acl_get_list($user_id, 'u_shout_priv') : $this->auth->acl_get('u_shout_priv'),
 			'U_SHOUT_ACTION'		=> $this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $user_id]),
 			'U_DATE_URL' 			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'date_format']),
 			'SHOUTBOX_VERSION'		=> $this->language->lang('SHOUTBOX_VERSION_ACP_COPY', $version['homepage'], $version['version']),
+			'SHOUT_EXT_PATH'		=> $this->ext_path_web,
 		]);
 	}
 
@@ -3210,17 +3208,15 @@ class shoutbox
 			break;
 
 			case 3:
-				$value = (bool) (($option === 2) ? $this->config[$conf] : $option);
-			break;
-
 			case 4:
-				$value = (int) (($option === 2) ? $this->config[$conf] : $option);
+				$value = (bool) (($option === 2) ? $this->config[$conf] : $option);
 			break;
 
 			case 5:
 				$value = (string) (($option === '') ? $this->config[$conf] : $option);
 			break;
 		}
+
 		return $value;
 	}
 
@@ -3286,7 +3282,7 @@ class shoutbox
 				'shout_defil'				=> $this->set_user_option($user_shoutbox->defil, 'shout_defil', 3),
 				'shout_defil_pop'			=> $this->set_user_option($user_shoutbox->defil_pop, 'shout_defil_pop', 3),
 				'shout_defil_priv'			=> $this->set_user_option($user_shoutbox->defil_priv, 'shout_defil_priv', 3),
-				'active'					=> $this->set_user_option($user_shout->user, 'shout_sound_on', 4) === 1,
+				'active'					=> $this->set_user_option($user_shout->user, 'shout_sound_on', 4),
 				'new_priv'					=> $this->set_user_option($user_shout->new_priv, 'shout_sound_new_priv', 1),
 				'new'						=> $this->set_user_option($user_shout->new, 'shout_sound_new', 1),
 				'error'						=> $this->set_user_option($user_shout->error, 'shout_sound_error', 1),
@@ -3515,7 +3511,7 @@ class shoutbox
 			$lang_array = array_merge($lang_array, ['SHOUT_CLICK_HERE', 'SHOUT_CHOICE_NAME', 'SHOUT_CHOICE_YES', 'SHOUT_AFFICHE', 'SHOUT_CACHE', 'SHOUT_CHOICE_NAME_ERROR']);
 			$lang_shout['USERNAME_EXPLAIN'] = $this->language->lang($this->config['allow_name_chars'] . '_EXPLAIN', $this->language->lang('CHARACTERS', (int) $this->config['min_name_chars']), $this->language->lang('CHARACTERS', (int) $this->config['max_name_chars']));
 		}
-		else if (!$this->user->data['is_bot'])
+		else if ($data['is_user'])
 		{
 			$lang_array = array_merge($lang_array, ['SHOUT_PERSO', 'SENDING_EDIT', 'EDIT_DONE', 'SHOUT_DEL', 'DEL_SHOUT', 'SHOUT_IP', 'SHOUT_POST_IP', 'ONLY_ONE_OPEN', 'SHOUT_EDIT', 'SHOUT_PRIV', 'SHOUT_CONFIG_OPEN', 'SHOUT_USER_IGNORE', 'SHOUT_PURGE_ROBOT_ALT', 'SHOUT_PURGE_ROBOT_BOX', 'SHOUT_PURGE_ALT', 'SHOUT_PURGE_BOX', 'PURGE_PROCESS']);
 			$lang_shout = array_merge($lang_shout, [
