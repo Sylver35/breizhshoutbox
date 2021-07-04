@@ -1990,24 +1990,18 @@ class shoutbox
 		], $go_post, $go_post_priv);
 	}
 
-	private function sort_info($mode, $prez_form, $prez_poster, $sort)
+	private function sort_info($mode, $prez_form, $prez_poster, $sort, $info)
 	{
-		$info = 0;
-		$sort_info = 3;
-
 		switch ($mode)
 		{
 			case 'global':
 				$info = 14;
-				$sort_info = 2;
 			break;
 			case 'annoucement':
 				$info = 15;
-				$sort_info = 2;
 			break;
 			case 'post':
 				$info = ($prez_form) ? 60 : 16;
-				$sort_info = 2;
 			break;
 			case 'edit':
 				$info = 17;
@@ -2045,7 +2039,7 @@ class shoutbox
 
 		return [
 			'info'			=> $info,
-			'sort_info'		=> $sort_info,
+			'sort_info'		=> ($info < 70) ? 2 : 3,
 			'ok_shout'		=> $this->config["shout_{$sort}_robot"],
 			'ok_shout_priv'	=> $this->config["shout_{$sort}_robot_priv"],
 		];
@@ -2058,10 +2052,10 @@ class shoutbox
 	{
 		// Parse web adress in subject to prevent bug
 		$subject = str_replace(['http://www.', 'http://', 'https://www.', 'https://', 'www.', 'Re: ', "'"], ['', '', '', '', '', '', $this->language->lang('SHOUT_PROTECT')], (string) $event['subject']);
-		$sort = (strpos($mode, 'edit') !== false) ? 'edit' : 'post';
-		$sort = (strpos($mode, 'quote') !== false || strpos($mode, 'reply') !== false) ? 'rep' : $sort;
 		$data = $this->get_topic_data($event, $forum_id);
-		$info = $this->sort_info($data['mode'], $data['prez_form'], $data['prez_poster'], $sort);
+		$sort = (strpos($data['mode'], 'edit') !== false) ? 'edit' : 'post';
+		$sort = (strpos($data['mode'], 'quote') !== false || strpos($data['mode'], 'reply') !== false) ? 'rep' : $sort;
+		$info = $this->sort_info($data['mode'], $data['prez_form'], $data['prez_poster'], $sort, 0);
 
 		$this->insert_message_robot([
 			'shout_time'				=> (string) time(),
