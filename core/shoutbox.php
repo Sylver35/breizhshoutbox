@@ -155,13 +155,14 @@ class shoutbox
 			{
 				$message = $this->language->lang($message, $on1, $on2, $on3);
 			}
+			$message = preg_replace("#<b>(.*?)<br />#i", '', $message);
 		}
 
 		$response = new json_response();
 		$response->send([
 			'type'		=> 10,
 			'error'		=> true,
-			'message'	=> preg_replace("#<b>(.*?)<br />#i", '', $message),
+			'message'	=> $message,
 		], true);
 	}
 
@@ -212,8 +213,8 @@ class shoutbox
 	 */
 	private function shout_sql_error($sql, $line, $file)
 	{
-		$response = new json_response();
 		$err = preg_replace("#<b>(.*?)<br />#i", '', $this->db->sql_error());
+		$response = new json_response();
 
 		$response->send([
 			'message'	=> $err['message'],
@@ -461,7 +462,7 @@ class shoutbox
 
 	private function shout_enable_posting($sort_of, $page, $is_mobile)
 	{
-		if ($this->auth->acl_get('u_shout_post') && $this->auth->acl_get('u_shout_bbcode'))
+		if ($this->auth->acl_gets(['u_shout_post', 'u_shout_bbcode']))
 		{
 			if ($page == 'viewtopic')
 			{
@@ -484,9 +485,9 @@ class shoutbox
 			]);
 
 			// Build custom bbcodes array if needed
+			$mode = 'inline';
 			$this->active_custom_bbcodes($sort_of, $is_mobile);
 
-			$mode = 'inline';
 			/**
 			 * You can use this event to add something in the posting form.
 			 *
@@ -970,7 +971,7 @@ class shoutbox
 
 	private function in_excluded_page()
 	{
-		if ($this->config['shout_page_exclude'] != '')
+		if ($this->config['shout_page_exclude'] !== '')
 		{
 			$is_param = $_page = $param = false;
 			$on_page = ($this->user->page['page_dir'] ? $this->user->page['page_dir'] . '/' : '') . $this->user->page['page_name'] . ($this->user->page['query_string'] ? '?' . $this->user->page['query_string'] : '');
@@ -1099,6 +1100,23 @@ class shoutbox
 			];
 		}
 
+		$second = $this->second_parse_bbcodes($open, $close, $array_open, $array_close, $shout_bbcode);
+		if ($second['sort'] !== 1)
+		{
+			return [
+				'sort'		=> $second['sort'],
+				'message'	=> $second['message'],
+			];
+		}
+
+		// If all is ok, return 3
+		return [
+			'sort'	=> 3,
+		];
+	}
+
+	private function second_parse_bbcodes($open, $close, $array_open, $array_close, $shout_bbcode)
+	{
 		$verify = $this->verify_imbrication($open, $close, $array_open, $array_close, $shout_bbcode);
 		if ($verify['sort'] !== 1)
 		{
@@ -1126,9 +1144,8 @@ class shoutbox
 			];
 		}
 
-		// If all is ok, return 3
 		return [
-			'sort'	=> 3,
+			'sort'	=> 1,
 		];
 	}
 
@@ -1343,7 +1360,7 @@ class shoutbox
 		$this->config['min_post_chars'] = 1;
 
 		// Never post an empty message (with bbcode or not)
-		if (empty($message) || empty(preg_replace("(\[.+?\])is", '', $message)))
+		if (empty(preg_replace("(\[.+?\])is", '', $message)))
 		{
 			$this->shout_error('MESSAGE_EMPTY');
 			return;
@@ -1363,25 +1380,12 @@ class shoutbox
 		}
 		$message = str_replace(['/]', '&amp;amp;'], [']', '&'], $message);
 
-		if (!$this->verify_message_length($message))
+		if (!$this->verify_message_length($message) || !$this->parse_bbcode_video_message($message) || !$this->parse_unautorized_content($message, $priv, $on_priv))
 		{
 			return;
 		}
 
-		if (!$this->parse_bbcode_video_message($message))
-		{
-			return;
-		}
-
-		if (!$this->parse_unautorized_content($message, $priv, $on_priv))
-		{
-			return;
-		}
-
-		if ($robot)
-		{
-			$message = $this->tpl('colorbot', $message);
-		}
+		$message = ($robot) ? $this->tpl('colorbot', $message) : $message;
 
 		return $this->shout_url_free_sid($message);
 	}
@@ -1395,7 +1399,8 @@ class shoutbox
 			$message_length = mb_strlen(preg_replace('#\[\/?[a-z\*\+\-]+(=[\S]+)?\]#ius', ' ', $message), 'utf-8');
 			if ($message_length > $this->config['shout_max_post_chars'])
 			{
-				$this->shout_error('TOO_MANY_CHARS_POST', $message_length, $this->config['shout_max_post_chars']);
+				$this->language->add_lang('posting');
+				$this->shout_error($this->language->lang('TOO_MANY_CHARS', (int) $this->config['shout_max_post_chars']) . ' (' . $message_length . ')');
 				return false;
 			}
 		}
@@ -1941,27 +1946,25 @@ class shoutbox
 	 */
 	public function post_session_shout($event)
 	{
-		if (!$event['session_viewonline'])
+		if ($event['session_viewonline'])
 		{
-			return;
+			$go_post = $this->get_session_shout($this->shoutbox_table, 'shout_sessions', (int) $event['session_user_id']);
+			$go_post_priv = $this->get_session_shout($this->shoutbox_priv_table, 'shout_sessions_priv', (int) $event['session_user_id']);
+
+			$this->insert_message_robot([
+				'shout_time'				=> time(),
+				'shout_user_id'				=> 0,
+				'shout_ip'					=> (string) $this->user->ip,
+				'shout_text'				=> (string) ($event['session_viewonline']) ? 'view' : 'hide',
+				'shout_bbcode_uid'			=> '',
+				'shout_bbcode_bitfield'		=> '',
+				'shout_bbcode_flags'		=> 0,
+				'shout_robot'				=> 1,
+				'shout_robot_user'			=> (int) $event['session_user_id'],
+				'shout_forum'				=> 0,
+				'shout_info'				=> 1,
+			], $go_post, $go_post_priv);
 		}
-
-		$go_post = $this->get_session_shout($this->shoutbox_table, 'shout_sessions', (int) $event['session_user_id']);
-		$go_post_priv = $this->get_session_shout($this->shoutbox_priv_table, 'shout_sessions_priv', (int) $event['session_user_id']);
-
-		$this->insert_message_robot([
-			'shout_time'				=> time(),
-			'shout_user_id'				=> 0,
-			'shout_ip'					=> (string) $this->user->ip,
-			'shout_text'				=> (string) ($event['session_viewonline']) ? 'view' : 'hide',
-			'shout_bbcode_uid'			=> '',
-			'shout_bbcode_bitfield'		=> '',
-			'shout_bbcode_flags'		=> 0,
-			'shout_robot'				=> 1,
-			'shout_robot_user'			=> (int) $event['session_user_id'],
-			'shout_forum'				=> 0,
-			'shout_info'				=> 1,
-		], $go_post, $go_post_priv);
 	}
 	
 	/*
@@ -1991,21 +1994,22 @@ class shoutbox
 	{
 		$info = 0;
 		$sort_info = 3;
-		$sort = 'post';
+		$sort = (strpos($mode, 'edit') !== false) ? 'edit' : 'post';
+		$sort = (strpos($mode, 'quote') !== false || strpos($mode, 'reply') !== false) ? 'rep' : $sort;
 
 		switch ($mode)
 		{
 			case 'global':
-				$sort_info = 2;
 				$info = 14;
+				$sort_info = 2;
 			break;
 			case 'annoucement':
-				$sort_info = 2;
 				$info = 15;
+				$sort_info = 2;
 			break;
 			case 'post':
-				$sort_info = 2;
 				$info = ($prez_form) ? 60 : 16;
+				$sort_info = 2;
 			break;
 			case 'edit':
 				$info = 17;
@@ -2039,15 +2043,6 @@ class shoutbox
 					$info = ($prez_poster) ? 77 : 76;
 				}
 			break;
-		}
-
-		if (strpos($mode, 'edit') !== false)
-		{
-			$sort = 'edit';
-		}
-		else if (strpos($mode, 'quote') !== false || strpos($mode, 'reply') !== false)
-		{
-			$sort = 'rep';
 		}
 
 		return [
@@ -2092,21 +2087,19 @@ class shoutbox
 
 	private function insert_message_robot($sql_data, $ok, $ok_priv = false)
 	{
-		if (!$this->config['shout_enable_robot'])
+		if ($this->config['shout_enable_robot'])
 		{
-			return;
-		}
+			if ($ok)
+			{
+				$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
+				$this->config->increment('shout_nr', 1, true);
+			}
 
-		if ($ok)
-		{
-			$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
-			$this->config->increment('shout_nr', 1, true);
-		}
-
-		if ($ok_priv)
-		{
-			$this->db->sql_query('INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
-			$this->config->increment('shout_nr_priv', 1, true);
+			if ($ok_priv)
+			{
+				$this->db->sql_query('INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
+				$this->config->increment('shout_nr_priv', 1, true);
+			}
 		}
 	}
 
@@ -2135,11 +2128,11 @@ class shoutbox
 			{
 				$mode = 'edit_last_post';
 			}
-			else if ($mode === 'post' && $event['topic_type'] > 1)
-			{
-				$mode = ((int) $event['topic_type'] === 3) ? 'global' : 'annoucement';
-			}
 			$prez_poster = ($prez_form && ((int) $row['topic_poster'] === (int) $this->user->data['user_id'])) ? true : false;
+		}
+		else if ($mode === 'post' && $event['topic_type'] > 1)
+		{
+			$mode = ((int) $event['topic_type'] === 3) ? 'global' : 'annoucement';
 		}
 
 		return [
@@ -2158,11 +2151,11 @@ class shoutbox
 		{
 			return;
 		}
-
-		if ($sleep)
+		else if ($sleep)
 		{
 			usleep(mt_rand(500000, 2000000));
 		}
+
 		$shoutbox_table = ($this->config['shout_birthday']) ? $this->shoutbox_table : $this->shoutbox_priv_table;
 		$sql = $this->db->sql_build_query('SELECT', [
 			'SELECT'	=> 'COUNT(shout_id) as nr',
@@ -2209,15 +2202,18 @@ class shoutbox
 					$i++;
 				}
 
-				if ($this->config['shout_birthday'] && $i)
+				if ($i > 0)
 				{
-					$this->db->sql_multi_insert($this->shoutbox_table, $sql_data);
-					$this->config->increment('shout_nr', $i, true);
-				}
-				if ($this->config['shout_birthday_priv'] && $i)
-				{
-					$this->db->sql_multi_insert($this->shoutbox_priv_table, $sql_data);
-					$this->config->increment('shout_nr_priv', $i, true);
+					if ($this->config['shout_birthday'])
+					{
+						$this->db->sql_multi_insert($this->shoutbox_table, $sql_data);
+						$this->config->increment('shout_nr', $i, true);
+					}
+					if ($this->config['shout_birthday_priv'])
+					{
+						$this->db->sql_multi_insert($this->shoutbox_priv_table, $sql_data);
+						$this->config->increment('shout_nr_priv', $i, true);
+					}
 				}
 			}
 			$this->config->set('shout_last_run_birthday', date('d-m-Y'), true);
@@ -2309,11 +2305,11 @@ class shoutbox
 		{
 			return;
 		}
-
-		if ($sleep)
+		else if ($sleep)
 		{
 			usleep(mt_rand(500000, 2000000));
 		}
+
 		$shoutbox_table = ($this->config['shout_hello']) ? $this->shoutbox_table : $this->shoutbox_priv_table;
 		$sql = $this->db->sql_build_query('SELECT', [
 			'SELECT'	=> 'COUNT(shout_id) as nr',
@@ -2654,7 +2650,7 @@ class shoutbox
 		return true;
 	}
 
-	public function get_shout_name($id, $username, $shout_text2)
+	public function get_shout_name($id, $username, $text)
 	{
 		if (!$id)
 		{
@@ -2662,7 +2658,7 @@ class shoutbox
 		}
 		else if ($id == ANONYMOUS)
 		{
-			$name = $shout_text2;
+			$name = $text;
 		}
 		else
 		{
@@ -2832,8 +2828,7 @@ class shoutbox
 		{
 			return '';
 		}
-
-		if (!$row['shout_user_id'] && $row['shout_robot_user'])
+		else if (!$row['shout_user_id'] && $row['shout_robot_user'])
 		{
 			return $this->shout_user_avatar([
 				'user_id'				=> $row['x_user_id'],
@@ -3304,12 +3299,12 @@ class shoutbox
 				'shout_defil_pop'			=> $this->config['shout_defil_pop'],
 				'shout_defil_priv'			=> $this->config['shout_defil_priv'],
 				'active'					=> ($this->user->data['is_bot']) ? false : $this->config['shout_sound_on'],
-				'new_priv'					=> '',
 				'new'						=> $this->config['shout_sound_new'],
 				'error'						=> $this->config['shout_sound_error'],
 				'del'						=> $this->config['shout_sound_del'],
 				'add'						=> $this->config['shout_sound_add'],
 				'edit'						=> $this->config['shout_sound_edit'],
+				'new_priv'					=> '',
 			]);
 		}
 		$data['style'] = 'styles/' . (file_exists($this->ext_path . 'styles/' . rawurlencode($this->user->style['style_path']) . '/') ? rawurlencode($this->user->style['style_path']) : 'all') . '/theme/images/background/';
@@ -3320,22 +3315,24 @@ class shoutbox
 
 	private function get_settings($data)
 	{
+		$i = $j = $k = 0;
 		$data = $this->create_user_preferences($data);
 		$list_auth = $this->settings_auth_to_javascript($data);
-		$i = $j = $k = 0;
+		$list_string = $this->settings_to_javascript($data);
+		$list_lang = $this->lang_to_javascript($data);
+
 		$settings_auth = "var config = {\n		";
 		foreach ($list_auth as $key => $value)
 		{
+			$settings_auth .= $key . ':' . $value . ', ';
 			if ($i > 18)
 			{
 				$settings_auth .= "\n		";
 				$i = 0;
 			}
-			$settings_auth .= $key . ':' . $value . ', ';
 			$i++;
 		}
 
-		$list_string = $this->settings_to_javascript($data);
 		$settings_string = "	";
 		foreach ($list_string as $key => $value)
 		{
@@ -3349,7 +3346,6 @@ class shoutbox
 		}
 		$settings_string .= "\n	};";
 
-		$list_lang = $this->lang_to_javascript($data);
 		$settings_lang = "var bzhLang = {\n		";
 		foreach ($list_lang as $key => $value)
 		{
@@ -3370,7 +3366,7 @@ class shoutbox
 		];
 	}
 
-	public function settings_auth_to_javascript($data)
+	private function settings_auth_to_javascript($data)
 	{
 		// Display the rules if wanted
 		$rules = $rules_open = false;
@@ -3496,12 +3492,12 @@ class shoutbox
 		$this->config['shout_title_priv'] = (!$this->config['shout_title_priv']) ? $this->language->lang('SHOUTBOX_SECRET') : $this->config['shout_title_priv'];
 
 		$lang_shout = [
-			'TITLE'			=> $this->config['shout_title' . $data['sort']],
-			'PRINT_VER'		=> $this->language->lang('SHOUTBOX_VER', $data['version']),
 			'DATETIME_0'	=> $this->language->lang(['datetime', 'AGO', 0]),
 			'DATETIME_1'	=> $this->language->lang(['datetime', 'AGO', 1]),
 			'DATETIME_2'	=> $this->language->lang(['datetime', 'AGO', 2]),
 			'DATETIME_3'	=> $this->language->lang(['datetime', 'TODAY']),
+			'PRINT_VER'		=> $this->language->lang('SHOUTBOX_VER', $data['version']),
+			'TITLE'			=> $this->config['shout_title' . $data['sort']],
 		];
 
 		$lang_array = ['SHOUT_LOADING', 'SERVER_ERR', 'JS_ERR', 'ERROR', 'LINE', 'FILE', 'POST_DETAILS', 'SHOUT_MESSAGE', 'SHOUT_MESSAGES', 'COMMA_SEPARATOR', 'SHOUT_SEP', 'MSG_DEL_DONE', 'SHOUT_NO_MESSAGE', 'SHOUT_PAGE', 'NO_SHOUT_EDIT', 'CANCEL', 'NEXT', 'PREVIOUS', 'SHOUT_AUTO', 'SHOUT_DIV_BBCODE_CLOSE', 'SHOUT_ACTION_MSG', 'SHOUT_OUT_TIME', 'NO_SHOUT_DEL', 'NO_SHOW_IP_PERM', 'SHOUT_CLICK_SOUND_ON', 'SHOUT_CLICK_SOUND_OFF', 'MESSAGE_EMPTY', 'SHOUT_DIV_CLOSE', 'NO_POST_PERM', 'NO_SHOUT_POP', 'POST_MESSAGE', 'POST_MESSAGE_ALT', 'POSTED', 'SHOUT_POP', 'SHOUT_ONLINE', 'SHOUT_ONLINE_CLOSE', 'SHOUT_COLOR', 'NO_SHOUT_COLOR', 'SHOUT_COLOR_CLOSE', 'SMILIES', 'NO_SMILIES', 'SMILIES_CLOSE', 'SHOUT_CHARS', 'SHOUT_CHARS_CLOSE', 'NO_SHOUT_CHARS', 'SHOUT_RULES', 'SHOUT_RULES_PRIV', 'SHOUT_RULES_CLOSE', 'SHOUT_MORE_SMILIES', 'SHOUT_MORE_SMILIES_ALT', 'SHOUT_LESS_SMILIES', 'SHOUT_LESS_SMILIES_ALT', 'SHOUT_TOO_BIG', 'SHOUT_TOO_BIG2', 'SHOUT_ACTION_CITE_M', 'SHOUT_ACTION_CITE_ON', 'SHOUT_CLOSE', 'SHOUT_BBCODES', 'SHOUT_BBCODES_CLOSE', 'NO_SHOUT_BBCODE', 'SENDING', 'SHOUT_ROBOT_ON', 'SHOUT_ROBOT_OFF', 'SHOUT_COOKIES'];
@@ -3514,10 +3510,8 @@ class shoutbox
 		else if ($data['is_user'])
 		{
 			$lang_array = array_merge($lang_array, ['SHOUT_PERSO', 'SENDING_EDIT', 'EDIT_DONE', 'SHOUT_DEL', 'DEL_SHOUT', 'SHOUT_IP', 'SHOUT_POST_IP', 'ONLY_ONE_OPEN', 'SHOUT_EDIT', 'SHOUT_PRIV', 'SHOUT_CONFIG_OPEN', 'SHOUT_USER_IGNORE', 'SHOUT_PURGE_ROBOT_ALT', 'SHOUT_PURGE_ROBOT_BOX', 'SHOUT_PURGE_ALT', 'SHOUT_PURGE_BOX', 'PURGE_PROCESS']);
-			$lang_shout = array_merge($lang_shout, [
-				'MSG_ROBOT'		=> $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->construct_action_shout(0)),
-				'EDIT_MSG'		=> $this->language->lang('EDIT'),
-			]);
+			$lang_shout['MSG_ROBOT'] = $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->construct_action_shout(0));
+			$lang_shout['EDIT_MSG'] = $this->language->lang('EDIT');
 		}
 
 		for ($i = 0, $nb = sizeof($lang_array); $i < $nb; $i++)
