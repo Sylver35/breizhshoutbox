@@ -1990,9 +1990,10 @@ class shoutbox
 		], $go_post, $go_post_priv);
 	}
 
-	private function sort_info($mode, $prez_form, $prez_poster, $sort, $info)
+	private function sort_info($data)
 	{
-		switch ($mode)
+		$info = 0;
+		switch ($data['mode'])
 		{
 			case 'global':
 				$info = 14;
@@ -2001,38 +2002,38 @@ class shoutbox
 				$info = 15;
 			break;
 			case 'post':
-				$info = ($prez_form) ? 60 : 16;
+				$info = ($data['prez_form']) ? 60 : 16;
 			break;
 			case 'edit':
 				$info = 17;
-				if ($prez_form)
+				if ($data['prez_form'])
 				{
-					$info = ($prez_poster) ? 71 : 70;
+					$info = ($data['prez_poster']) ? 71 : 70;
 				}
 			break;
 			case 'edit_topic':
 			case 'edit_first_post':
 				$info = 18;
-				if ($prez_form)
+				if ($data['prez_form'])
 				{
-					$info = ($prez_poster) ? 73 : 72;
+					$info = ($data['prez_poster']) ? 73 : 72;
 				}
 			break;
 			case 'edit_last_post':
 				$info = 19;
-				if ($prez_form)
+				if ($data['prez_form'])
 				{
-					$info = ($prez_poster) ? 75 : 74;
+					$info = ($data['prez_poster']) ? 75 : 74;
 				}
 			break;
 			case 'quote':
-				$info = ($prez_form) ? 80 : 20;
+				$info = ($data['prez_form']) ? 80 : 20;
 			break;
 			case 'reply':
 				$info = 21;
-				if ($prez_form)
+				if ($data['prez_form'])
 				{
-					$info = ($prez_poster) ? 77 : 76;
+					$info = ($data['prez_poster']) ? 77 : 76;
 				}
 			break;
 		}
@@ -2040,8 +2041,8 @@ class shoutbox
 		return [
 			'info'			=> $info,
 			'sort_info'		=> ($info < 70) ? 2 : 3,
-			'ok_shout'		=> $this->config["shout_{$sort}_robot"],
-			'ok_shout_priv'	=> $this->config["shout_{$sort}_robot_priv"],
+			'ok_shout'		=> $this->config['shout_' . $data['sort'] . '_robot'],
+			'ok_shout_priv'	=> $this->config['shout_' . $data['sort'] . '}_robot_priv'],
 		];
 	}
 
@@ -2053,9 +2054,7 @@ class shoutbox
 		// Parse web adress in subject to prevent bug
 		$subject = str_replace(['http://www.', 'http://', 'https://www.', 'https://', 'www.', 'Re: ', "'"], ['', '', '', '', '', '', $this->language->lang('SHOUT_PROTECT')], (string) $event['subject']);
 		$data = $this->get_topic_data($event, $forum_id);
-		$sort = (strpos($data['mode'], 'edit') !== false) ? 'edit' : 'post';
-		$sort = (strpos($data['mode'], 'quote') !== false || strpos($data['mode'], 'reply') !== false) ? 'rep' : $sort;
-		$info = $this->sort_info($data['mode'], $data['prez_form'], $data['prez_poster'], $sort, 0);
+		$info = $this->sort_info($data);
 
 		$this->insert_message_robot([
 			'shout_time'				=> (string) time(),
@@ -2094,6 +2093,7 @@ class shoutbox
 
 	private function get_topic_data($event, $forum_id)
 	{
+		$sort = 'post';
 		$mode = (string) $event['mode'];
 		$prez_poster = false;
 		$prez_form = ((int) $this->config['shout_prez_form'] === $forum_id) ? true : false;
@@ -2101,6 +2101,7 @@ class shoutbox
 
 		if (strpos($mode, 'edit') !== false)
 		{
+			$sort = 'edit';
 			$sql = $this->db->sql_build_query('SELECT', [
 				'SELECT'	=> 'topic_poster, topic_first_post_id, topic_last_post_id',
 				'FROM'		=> [TOPICS_TABLE => ''],
@@ -2124,10 +2125,13 @@ class shoutbox
 			$mode = ((int) $event['topic_type'] === 3) ? 'global' : 'annoucement';
 		}
 
+		$sort = (strpos($mode, 'quote') !== false || strpos($mode, 'reply') !== false) ? 'rep' : $sort;
+
 		return [
 			'prez_form'		=> $prez_form,
 			'prez_poster'	=> $prez_poster,
 			'mode'			=> $mode,
+			'sort'			=> $sort,
 		];
 	}
 
