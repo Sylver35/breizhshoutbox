@@ -1990,12 +1990,10 @@ class shoutbox
 		], $go_post, $go_post_priv);
 	}
 
-	private function sort_info($mode, $prez_form, $prez_poster)
+	private function sort_info($mode, $prez_form, $prez_poster, $sort)
 	{
 		$info = 0;
 		$sort_info = 3;
-		$sort = (strpos($mode, 'edit') !== false) ? 'edit' : 'post';
-		$sort = (strpos($mode, 'quote') !== false || strpos($mode, 'reply') !== false) ? 'rep' : $sort;
 
 		switch ($mode)
 		{
@@ -2058,15 +2056,12 @@ class shoutbox
 	 */
 	public function advert_post_shoutbox($event, $forum_id)
 	{
-		if ((!$this->config['shout_post_robot'] && !$this->config['shout_post_robot_priv']))
-		{
-			return;
-		}
-
 		// Parse web adress in subject to prevent bug
 		$subject = str_replace(['http://www.', 'http://', 'https://www.', 'https://', 'www.', 'Re: ', "'"], ['', '', '', '', '', '', $this->language->lang('SHOUT_PROTECT')], (string) $event['subject']);
+		$sort = (strpos($mode, 'edit') !== false) ? 'edit' : 'post';
+		$sort = (strpos($mode, 'quote') !== false || strpos($mode, 'reply') !== false) ? 'rep' : $sort;
 		$data = $this->get_topic_data($event, $forum_id);
-		$info = $this->sort_info($data['mode'], $data['prez_form'], $data['prez_poster']);
+		$info = $this->sort_info($data['mode'], $data['prez_form'], $data['prez_poster'], $sort);
 
 		$this->insert_message_robot([
 			'shout_time'				=> (string) time(),
