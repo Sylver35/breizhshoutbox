@@ -1955,7 +1955,7 @@ class shoutbox
 				'shout_time'				=> time(),
 				'shout_user_id'				=> 0,
 				'shout_ip'					=> (string) $this->user->ip,
-				'shout_text'				=> (string) ($event['session_viewonline']) ? 'view' : 'hide',
+				'shout_text'				=> 'view',
 				'shout_bbcode_uid'			=> '',
 				'shout_bbcode_bitfield'		=> '',
 				'shout_bbcode_flags'		=> 0,
@@ -1979,7 +1979,7 @@ class shoutbox
 			'shout_time'				=> time(),
 			'shout_user_id'				=> 0,
 			'shout_ip'					=> (string) $this->user->ip,
-			'shout_text'				=> (string) 'view',
+			'shout_text'				=> 'view',
 			'shout_bbcode_uid'			=> '',
 			'shout_bbcode_bitfield'		=> '',
 			'shout_bbcode_flags'		=> 0,
@@ -2042,7 +2042,7 @@ class shoutbox
 			'info'			=> $info,
 			'sort_info'		=> ($info < 70) ? 2 : 3,
 			'ok_shout'		=> $this->config['shout_' . $data['sort'] . '_robot'],
-			'ok_shout_priv'	=> $this->config['shout_' . $data['sort'] . '}_robot_priv'],
+			'ok_shout_priv'	=> $this->config['shout_' . $data['sort'] . '_robot_priv'],
 		];
 	}
 
@@ -2052,7 +2052,7 @@ class shoutbox
 	public function advert_post_shoutbox($event, $forum_id)
 	{
 		// Parse web adress in subject to prevent bug
-		$subject = str_replace(['http://www.', 'http://', 'https://www.', 'https://', 'www.', 'Re: ', "'"], ['', '', '', '', '', '', $this->language->lang('SHOUT_PROTECT')], (string) $event['subject']);
+		$subject = str_replace(['http://www.', 'http://', 'https://www.', 'https://', 'www.', 'Re: ', "'"], ['', '', '', '', '', '', $this->language->lang('SHOUT_PROTECT')], $event['subject']);
 		$data = $this->get_topic_data($event, $forum_id);
 		$info = $this->sort_info($data);
 
@@ -2073,7 +2073,7 @@ class shoutbox
 		], $info['ok_shout'], $info['ok_shout_priv']);
 	}
 
-	private function insert_message_robot($sql_data, $ok, $ok_priv = false)
+	private function insert_message_robot($sql_data, $ok, $ok_priv)
 	{
 		if ($this->config['shout_enable_robot'])
 		{
@@ -2415,7 +2415,7 @@ class shoutbox
 			'shout_robot'				=> 1,
 			'shout_robot_user'			=> (int) $this->user->data['user_id'],
 			'shout_info'				=> 30,
-		], $this->config['shout_breizhcharts_new']);
+		], $this->config['shout_breizhcharts_new'], false);
 	}
 
 	public function reset_all_notes($event)
@@ -2433,7 +2433,7 @@ class shoutbox
 			'shout_robot_user'			=> 0,
 			'shout_info_nb'				=> (int) $event['winner']['song_id'],
 			'shout_info'				=> 31,
-		], $this->config['shout_breizhcharts_reset']);
+		], $this->config['shout_breizhcharts_reset'], false);
 	}
 
 	public function submit_new_video($event)
@@ -2452,7 +2452,7 @@ class shoutbox
 			'shout_forum'				=> 0,
 			'shout_info_nb'				=> (int) $event['video_id'],
 			'shout_info'				=> 35,
-		], $this->config['shout_video_new']);
+		], $this->config['shout_video_new'], false);
 	}
 
 	public function submit_arcade_score($event, $type)
@@ -2471,7 +2471,7 @@ class shoutbox
 			'shout_forum'				=> 0,
 			'shout_info_nb'				=> (int) $event['gid'],
 			'shout_info'				=> (int) $type,
-		], true);
+		], $this->config['shout_arcade_new'], false);
 	}
 
 	public function list_auth_options()
