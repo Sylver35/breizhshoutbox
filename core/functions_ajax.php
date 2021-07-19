@@ -8,7 +8,9 @@
 */
 
 namespace sylver35\breizhshoutbox\core;
+
 use sylver35\breizhshoutbox\core\shoutbox;
+use phpbb\request\request;
 use phpbb\config\config;
 use phpbb\db\driver\driver_interface as db;
 use phpbb\auth\auth;
@@ -20,6 +22,9 @@ class functions_ajax
 {
 	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
+
+	/** @var \phpbb\request\request */
+	protected $request;
 
 	/** @var \phpbb\config\config */
 	protected $config;
@@ -58,9 +63,10 @@ class functions_ajax
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path, $shoutbox_table, $shoutbox_priv_table)
+	public function __construct(shoutbox $shoutbox, request $request, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path, $shoutbox_table, $shoutbox_priv_table)
 	{
 		$this->shoutbox = $shoutbox;
+		$this->request = $request;
 		$this->config = $config;
 		$this->db = $db;
 		$this->auth = $auth;
@@ -214,11 +220,32 @@ class functions_ajax
 		return $this->shoutbox->replace_shout_url($content);
 	}
 
+	public function get_var($sort, $default)
+	{
+		$multibyte = ($default === '') ? true : false;
+		$content = $this->request->variable($sort, $default, $multibyte);
+
+		if ($multibyte)
+		{
+			$content = (string) $content;
+		}
+		else if (is_numeric($default))
+		{
+			$content = (int) $content;
+		}
+		else
+		{
+			$content = (bool) $content;
+		}
+
+		return $content;
+	}
+
 	public function shout_ajax_auth($user_id, $username)
 	{
 		$this->language->add_lang('acp/common');
 		$this->language->add_lang('permissions_shoutbox', 'sylver35/breizhshoutbox');
-		$list = $this->shoutbox->list_auth_options();
+
 		$first = '';
 		$title = $data = [];
 		$sort = [
@@ -226,6 +253,7 @@ class functions_ajax
 			'm'	=> 'ACP_VIEW_GLOBAL_MOD_PERMISSIONS',
 			'u'	=> 'ACP_VIEW_USER_PERMISSIONS',
 		];
+		$list = $this->shoutbox->list_auth_options();
 
 		for ($i = 0, $nb = sizeof($list); $i < $nb; $i++)
 		{
