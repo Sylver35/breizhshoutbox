@@ -1740,6 +1740,7 @@ class shoutbox
 	 */
 	private function display_infos_robot($row, $info, $acp)
 	{
+		$message = '';
 		$start = $this->language->lang('SHOUT_ROBOT_START');
 
 		switch ($info)
