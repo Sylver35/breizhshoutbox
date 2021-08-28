@@ -486,18 +486,11 @@ class functions_admin
 		$result = $this->db->sql_query_limit($sql, $shout_number, $start);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			if ($row['shout_inp'] && ($row['shout_inp'] != $this->user->data['user_id']) && ($row['shout_user_id'] != $this->user->data['user_id']))
-			{
-				continue;
-			}
-			$row['username'] = $this->shoutbox->get_shout_name($row['shout_user_id'], $row['username'], $row['shout_text2']);
-			$row['shout_text'] = $this->shoutbox->shout_text_for_display($row, 3, true);
-
 			$this->template->assign_block_vars('messages', [
 				'TIME'				=> $this->user->format_date($row['shout_time']),
-				'POSTER'			=> $this->shoutbox->construct_action_shout($row['shout_user_id'], $row['username'], $row['user_colour'], true),
+				'POSTER'			=> $this->shoutbox->construct_action_shout($row['shout_user_id'], $this->shoutbox->get_shout_name($row['shout_user_id'], $row['username'], $row['shout_text2']), $row['user_colour'], true),
 				'ID'				=> $row['shout_id'],
-				'MESSAGE'			=> $row['shout_text'],
+				'MESSAGE'			=> $this->shoutbox->shout_text_for_display($row, 3, true),
 				'ROW_NUMBER'		=> $i + ($start + 1),
 			]);
 			$i++;

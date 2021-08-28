@@ -270,33 +270,114 @@ class main_listener implements EventSubscriberInterface
 		]);
 
 		$event['permissions'] = array_merge($event['permissions'], [
-			'a_shout_manage'		=> ['lang' => 'ACL_A_SHOUT_MANAGE', 'cat' => 'shoutbox'],
-			'a_shout_priv'			=> ['lang' => 'ACL_A_SHOUT_PRIV', 'cat' => 'shoutbox'],
-			'm_shout_delete'		=> ['lang' => 'ACL_M_SHOUT_DELETE', 'cat' => 'shoutbox'],
-			'm_shout_edit_mod'		=> ['lang' => 'ACL_M_SHOUT_EDIT_MOD', 'cat' => 'shoutbox'],
-			'm_shout_info'			=> ['lang' => 'ACL_M_SHOUT_INFO', 'cat' => 'shoutbox'],
-			'm_shout_personal'		=> ['lang' => 'ACL_M_SHOUT_PERSONAL', 'cat' => 'shoutbox'],
-			'm_shout_robot'			=> ['lang' => 'ACL_M_SHOUT_ROBOT', 'cat' => 'shoutbox'],
-			'u_shout_bbcode'		=> ['lang' => 'ACL_U_SHOUT_BBCODE', 'cat' => 'shoutbox'],
-			'u_shout_bbcode_custom'	=> ['lang' => 'ACL_U_SHOUT_BBCODE_CUSTOM', 'cat' => 'shoutbox'],
-			'u_shout_bbcode_change'	=> ['lang' => 'ACL_U_SHOUT_BBCODE_CHANGE', 'cat' => 'shoutbox'],
-			'u_shout_chars'			=> ['lang' => 'ACL_U_SHOUT_CHARS', 'cat' => 'shoutbox'],
-			'u_shout_color'			=> ['lang' => 'ACL_U_SHOUT_COLOR', 'cat' => 'shoutbox'],
-			'u_shout_delete_s'		=> ['lang' => 'ACL_U_SHOUT_DELETE_S', 'cat' => 'shoutbox'],
-			'u_shout_edit'			=> ['lang' => 'ACL_U_SHOUT_EDIT', 'cat' => 'shoutbox'],
-			'u_shout_hide'			=> ['lang' => 'ACL_U_SHOUT_HIDE', 'cat' => 'shoutbox'],
-			'u_shout_ignore_flood'	=> ['lang' => 'ACL_U_SHOUT_IGNORE_FLOOD', 'cat' => 'shoutbox'],
-			'u_shout_image'			=> ['lang' => 'ACL_U_SHOUT_IMAGE', 'cat' => 'shoutbox'],
-			'u_shout_inactiv'		=> ['lang' => 'ACL_U_SHOUT_INACTIV', 'cat' => 'shoutbox'],
-			'u_shout_info_s'		=> ['lang' => 'ACL_U_SHOUT_INFO_S', 'cat' => 'shoutbox'],
-			'u_shout_lateral'		=> ['lang' => 'ACL_U_SHOUT_LATERAL', 'cat' => 'shoutbox'],
-			'u_shout_limit_post'	=> ['lang' => 'ACL_U_SHOUT_LIMIT_POST', 'cat' => 'shoutbox'],
-			'u_shout_popup'			=> ['lang' => 'ACL_U_SHOUT_POPUP', 'cat' => 'shoutbox'],
-			'u_shout_post'			=> ['lang' => 'ACL_U_SHOUT_POST', 'cat' => 'shoutbox'],
-			'u_shout_post_inp'		=> ['lang' => 'ACL_U_SHOUT_POST_INP', 'cat' => 'shoutbox'],
-			'u_shout_priv'			=> ['lang' => 'ACL_U_SHOUT_PRIV', 'cat' => 'shoutbox'],
-			'u_shout_smilies'		=> ['lang' => 'ACL_U_SHOUT_SMILIES', 'cat' => 'shoutbox'],
-			'u_shout_view'			=> ['lang' => 'ACL_U_SHOUT_VIEW', 'cat' => 'shoutbox'],
+			'a_shout_manage'	=> [
+				'lang' => 'ACL_A_SHOUT_MANAGE',
+				'cat' => 'shoutbox',
+			],
+			'a_shout_priv'			=> [
+				'lang' => 'ACL_A_SHOUT_PRIV',
+				'cat' => 'shoutbox',
+			],
+			'm_shout_delete'		=> [
+				'lang' => 'ACL_M_SHOUT_DELETE',
+				'cat' => 'shoutbox',
+			],
+			'm_shout_edit_mod'		=> [
+				'lang' => 'ACL_M_SHOUT_EDIT_MOD',
+				'cat' => 'shoutbox',
+			],
+			'm_shout_info'			=> [
+				'lang' => 'ACL_M_SHOUT_INFO',
+				'cat' => 'shoutbox',
+			],
+			'm_shout_personal'		=> [
+				'lang' => 'ACL_M_SHOUT_PERSONAL',
+				'cat' => 'shoutbox',
+			],
+			'm_shout_robot'			=> [
+				'lang' => 'ACL_M_SHOUT_ROBOT',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_bbcode'		=> [
+				'lang' => 'ACL_U_SHOUT_BBCODE',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_bbcode_custom'	=> [
+				'lang' => 'ACL_U_SHOUT_BBCODE_CUSTOM',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_bbcode_change'	=> [
+				'lang' => 'ACL_U_SHOUT_BBCODE_CHANGE',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_chars'			=> [
+				'lang' => 'ACL_U_SHOUT_CHARS',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_color'			=> [
+				'lang' => 'ACL_U_SHOUT_COLOR',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_delete_s'		=> [
+				'lang' => 'ACL_U_SHOUT_DELETE_S',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_edit'			=> [
+				'lang' => 'ACL_U_SHOUT_EDIT',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_hide'			=> [
+				'lang' => 'ACL_U_SHOUT_HIDE',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_ignore_flood'	=> [
+				'lang' => 'ACL_U_SHOUT_IGNORE_FLOOD',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_image'			=> [
+				'lang' => 'ACL_U_SHOUT_IMAGE',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_inactiv'		=> [
+				'lang' => 'ACL_U_SHOUT_INACTIV',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_info_s'		=> [
+				'lang' => 'ACL_U_SHOUT_INFO_S',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_lateral'		=> [
+				'lang' => 'ACL_U_SHOUT_LATERAL',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_limit_post'	=> [
+				'lang' => 'ACL_U_SHOUT_LIMIT_POST',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_popup'			=> [
+				'lang' => 'ACL_U_SHOUT_POPUP',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_post'			=> [
+				'lang' => 'ACL_U_SHOUT_POST',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_post_inp'		=> [
+				'lang' => 'ACL_U_SHOUT_POST_INP',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_priv'			=> [
+				'lang' => 'ACL_U_SHOUT_PRIV',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_smilies'		=> [
+				'lang' => 'ACL_U_SHOUT_SMILIES',
+				'cat' => 'shoutbox',
+			],
+			'u_shout_view'			=> [
+				'lang' => 'ACL_U_SHOUT_VIEW',
+				'cat' => 'shoutbox',
+			],
 		]);
 	}
 
@@ -367,12 +448,8 @@ class main_listener implements EventSubscriberInterface
 	{
 		if ($this->config['shout_arcade_new'])
 		{
-			if ((($event['game_scoretype'] == 0) && ($event['gamescore'] > $event['mscore']))
-				 || (($event['game_scoretype'] == 1) && ($event['gamescore'] < $event['mscore']))
-				 || is_null($event['mscore']) || $event['muserid'] == 0)
-			{
-				$this->shoutbox->submit_arcade_score($event, 36);
-			}
+			$muser = ((int) $event['muserid'] === 0) ? true : false;
+			$this->shoutbox->submit_arcade_score($event, 36, $muser);
 		}
 	}
 
@@ -383,12 +460,8 @@ class main_listener implements EventSubscriberInterface
 	{
 		if ($this->config['shout_arcade_urecord'] && $event['gamescore'] > 0)
 		{
-			if ((($event['game_scoretype'] == 0) && ($event['gamescore'] > $event['mscore']))
-				 || (($event['game_scoretype'] == 1) && ($event['gamescore'] < $event['mscore']))
-				 || is_null($event['mscore']) || $event['muserid'] == 0)
-			{
-				$this->shoutbox->submit_arcade_score($event, 37);
-			}
+			$muser = ((int) $event['muserid'] === 0) ? true : false;
+			$this->shoutbox->submit_arcade_score($event, 37, $muser);
 		}
 	}
 
@@ -399,11 +472,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		if ($this->config['shout_arcade_record'])
 		{
-			if ((($event['game_scoretype'] == 0) && ($event['gamescore'] > $event['highscore']))
-				 || (($event['game_scoretype'] == 1) && ($event['gamescore'] < $event['highscore'])) || is_null($event['highscore']))
-			{
-				$this->shoutbox->submit_arcade_score($event, 38);
-			}
+			$this->shoutbox->submit_arcade_score($event, 38, false);
 		}
 	}
 }
