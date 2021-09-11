@@ -10,8 +10,7 @@
 	shoutbox.writeShoutbox();
 })(jQuery);
 </script>
-{% endif %}
-{% if IN_SHOUT_CONFIG %}
+{% elseif IN_SHOUT_CONFIG %}
 <script>
 var configs = {
 	extensionUrl: '{{ SHOUT_EXT_PATH }}',

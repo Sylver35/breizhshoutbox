@@ -358,7 +358,7 @@ var picolor = {
 		this.pickerPosition='top';
 		this.pickerButtonHeight=22;
 		this.pickClose=false;
-		this.pickerCloseText=bzhLang['SHOUT_CLOSE'];
+		this.pickerCloseText=bzhLang['CLOSE'];
 		this.pickerButtonColor='ButtonText';
 		this.pickerFace=12;
 		this.pickerFaceColor='ThreeDFace';
@@ -493,7 +493,7 @@ var picolor = {
 				return [ v,v,v ];
 			};
 			var i=Math.floor(h);
-			var f=i%2?h-i : 1-(h-i);
+			var f=i%2 ? h-i : 1-(h-i);
 			var m=v*(1-s);
 			var n=v*(1-s*f);
 			switch(i){
@@ -528,6 +528,7 @@ var picolor = {
 					seg.style.lineHeight='0';
 					picolor.pick.sld.appendChild(seg);
 				};
+				picolor.pick.btnS.setAttribute('title', THIS.pickerCloseText);
 				picolor.pick.sldB.appendChild(picolor.pick.sld);
 				picolor.pick.box.appendChild(picolor.pick.sldB);
 				picolor.pick.box.appendChild(picolor.pick.sldM);

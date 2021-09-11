@@ -10,7 +10,7 @@
 				<div id="div_config_shout" class="div_config_shout">
 					<h3{% if USERNAME %} style="color: red;"{% endif %}><img src="{{ SHOUT_EXT_PATH }}images/reglages.webp" width="35px" alt="{{ lang('SHOUT_PANEL_USER') }}" title="{{ lang('SHOUT_PANEL_USER') }}" /> {{ TITLE_PANEL }}</h3>
 					<div id="info_new" name="info" class="centered {% if SOUND_NEW_DISP %}displayblock{% else %}no_display{% endif %}">
-						<span class="shout_display_green">{{ lang('CHOOSE_NEW_YES') }} {{ lang('SHOUT_PRINCIPAL') }}: </span><strong>&ldquo;<span id="sound_new">{{ USER_SOUND_INFO }}</span>&rdquo;</strong>
+						<span class="shout_display_green">{{ lang('CHOOSE_NEW_YES') }} {{ lang('SHOUT_PRINCIPAL') }}: </span>&ldquo;<strong><span id="sound_new">{{ USER_SOUND_INFO }}</span></strong>&rdquo;
 					</div>
 					<div id="info_no_new" name="info_no" class="centered {% if SOUND_NEW_DISP %}no_display{% else %}displayblock{% endif %}">
 						<span class="shout_display_red">{{ lang('CHOOSE_NEW_NO') }} {{ lang('SHOUT_PRINCIPAL') }}</span><br />
@@ -18,7 +18,7 @@
 					{% if S_PRIVATE %}
 					<hr class="shout_hr" />
 					<div id="info_new_priv" name="info" class="centered {% if SOUND_NEW_PRIV_DISP %}displayblock{% else %}no_display{% endif %}">
-						<span class="shout_display_green">{{ lang('CHOOSE_NEW_YES') }} {{ lang('SHOUT_PRIVATE') }}: </span><strong>&ldquo;<span id="sound_new_priv">{{ USER_SOUND_INFO_PRIV }}</span>&rdquo;</strong>
+						<span class="shout_display_green">{{ lang('CHOOSE_NEW_YES') }} {{ lang('SHOUT_PRIVATE') }}: </span>&ldquo;<strong><span id="sound_new_priv">{{ USER_SOUND_INFO_PRIV }}</span></strong>&rdquo;
 					</div>
 					<div id="info_no_new_priv" name="info_no" class="centered {% if SOUND_NEW_PRIV_DISP %}no_display{% else %}displayblock{% endif %}">
 						<span class="shout_display_red">{{ lang('CHOOSE_NEW_NO') }} {{ lang('SHOUT_PRIVATE') }}</span><br />
@@ -26,28 +26,28 @@
 					{% endif %}
 					<hr class="shout_hr" />
 					<div id="info_error" class="centered {% if SOUND_ERROR_DISP %}displayblock{% else %}no_display{% endif %}">
-						<span class="shout_display_green">{{ lang('CHOOSE_ERROR_YES') }}: </span><strong>&ldquo;<span id="sound_error">{{ USER_SOUND_INFO_E }}</span>&rdquo;</strong>
+						<span class="shout_display_green">{{ lang('CHOOSE_ERROR_YES') }}: </span>&ldquo;<strong><span id="sound_error">{{ USER_SOUND_INFO_E }}</span></strong>&rdquo;
 					</div>
 					<div id="info_no_error" class="centered {% if SOUND_ERROR_DISP %}no_display{% else %}displayblock{% endif %}">
 						<span class="shout_display_red">{{ lang('CHOOSE_ERROR_NO') }}</span>
 					</div>
 					<hr class="shout_hr" />
 					<div id="info_del" name="info" class="centered {% if SOUND_DEL_DISP %}displayblock{% else %}no_display{% endif %}">
-						<span class="shout_display_green">{{ lang('CHOOSE_DELETE_YES') }}: </span><strong>&ldquo;<span id="sound_del">{{ USER_SOUND_INFO_D }}</span>&rdquo;</strong>
+						<span class="shout_display_green">{{ lang('CHOOSE_DELETE_YES') }}: </span>&ldquo;<strong><span id="sound_del">{{ USER_SOUND_INFO_D }}</span></strong>&rdquo;
 					</div>
 					<div id="info_no_del" name="info_no" class="centered {% if SOUND_DEL_DISP %}no_display{% else %}displayblock{% endif %}" >
 						<span class="shout_display_red">{{ lang('CHOOSE_DELETE_NO') }}</span>
 					</div>
 					<hr class="shout_hr" />
 					<div id="info_add" name="info" class="centered {% if SOUND_ADD_DISP %}displayblock{% else %}no_display{% endif %}">
-						<span class="shout_display_green">{{ lang('CHOOSE_ADD_YES') }}: </span><strong>&ldquo;<span id="sound_add">{{ USER_SOUND_INFO_A }}</span>&rdquo;</strong>
+						<span class="shout_display_green">{{ lang('CHOOSE_ADD_YES') }}: </span>&ldquo;<strong><span id="sound_add">{{ USER_SOUND_INFO_A }}</span></strong>&rdquo;
 					</div>
 					<div id="info_no_add" name="info_no" class="centered {% if SOUND_ADD_DISP %}no_display{% else %}displayblock{% endif %}">
 						<span class="shout_display_red">{{ lang('CHOOSE_ADD_NO') }}</span>
 					</div>
 					<hr class="shout_hr" />
 					<div id="info_edit" name="info" class="centered {% if SOUND_EDIT_DISP %}displayblock{% else %}no_display{% endif %}">
-						<span class="shout_display_green">{{ lang('CHOOSE_EDIT_YES') }}: </span><strong>&ldquo;<span id="sound_edit">{{ USER_SOUND_INFO_ED }}</span>&rdquo;</strong>
+						<span class="shout_display_green">{{ lang('CHOOSE_EDIT_YES') }}: </span>&ldquo;<strong><span id="sound_edit">{{ USER_SOUND_INFO_ED }}</span></strong>&rdquo;
 					</div>
 					<div id="info_no_edit" name="info_no" class="centered {% if SOUND_EDIT_DISP %}no_display{% else %}displayblock{% endif %}">
 						<span class="shout_display_red">{{ lang('CHOOSE_EDIT_NO') }}</span>

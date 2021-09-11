@@ -576,6 +576,11 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$('#user_inp_sort').val('');
 	};
 
+	shoutbox.closeColour = function(){
+		shoutbox.sE('colour_shoutbox',2);
+		$('#color_shout1').attr('title', bzhLang['COLOR']);
+	};
+
 	shoutbox.closeAll = function(){
 		if($('#colour_shoutbox').length && $('#colour_shoutbox').is(':visible')){
 			shoutbox.sE('colour_shoutbox',2);
@@ -1004,12 +1009,12 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 
 	shoutbox.runSmileys = function(smilSort,categorie){
 		$('#smilies').html('<div style="text-align:center;margin:25px auto;">'+imgLoadOn+bzhLang['LOADING']+'</div>').show();
-		var smilUrlOn = smilSort ? config.smilUrl : config.smilPopUrl, dataOn = (categorie !== false) ? dataRun+'&cat='+categorie: dataRun;
+		var smilUrlOn = smilSort ? config.smilUrl : config.smilPopUrl;
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
 			url: smilUrlOn,
-			data: dataOn,
+			data: dataRun+'&cat='+categorie,
 			success: function(data){
 				if(data.error){
 					shoutbox.message(data,true,5000,true);
@@ -1032,9 +1037,9 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				}
 				listeSmilies += '<div class="more-smiley"> ... ';
 				if(data.nb_pop > 0 && smilSort){
-					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.runSmileys(false,false);" style="margin:5px;" title="'+bzhLang['MORE_SMILIES_ALT']+'"><span title="">'+bzhLang['MORE_SMILIES']+'</span></a> ... ';
+					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.runSmileys(false,-1);" style="margin:5px;" title="'+bzhLang['MORE_SMILIES_ALT']+'"><span title="">'+bzhLang['MORE_SMILIES']+'</span></a> ... ';
 				}else if(!smilSort){
-					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.runSmileys(true,false);" style="margin:5px;" title="'+bzhLang['LESS_SMILIES_ALT']+'"><span title="">'+bzhLang['LESS_SMILIES']+'</span></a> ... ';
+					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.runSmileys(true,-1);" style="margin:5px;" title="'+bzhLang['LESS_SMILIES_ALT']+'"><span title="">'+bzhLang['LESS_SMILIES']+'</span></a> ... ';
 				}
 				if(config.creator){
 					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.shoutPopup(config.creatorUrl,\'550\',\'570\',\'_phpbbsmiliescreate\');shoutbox.suppText();" style="margin: 5px;" title="'+bzhLang['CREATOR']+'"><span title="">'+bzhLang['CREATOR']+'</span></a> ... ';
@@ -1597,7 +1602,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 							$('#iconSmilies').attr('title', bzhLang['SMILIES_CLOSE']);
 							$('#smilies_ul').show();
 							shoutbox.suppText();
-							shoutbox.runSmileys(true,false);
+							shoutbox.runSmileys(true,-1);
 						}
 					};
 					postingBox.appendChild(smiliesInput);
@@ -1847,8 +1852,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 
 	shoutbox.specialCharShout = function(nbCols){
 		var chars = [['&euro;','&#8364;','euro sign'],['&cent;','&#162;','cent sign'],['&pound;','&#163;','pound sign'],['&curren;','&#164;','currency sign'],['&yen;','&#165;','yen sign'],['&copy;','&#169;','copyright sign'],['&reg;','&#174;','registered sign'],['&trade;','&#8482;','trade mark sign'],['&permil;','&#8240;','per mille sign'],['&micro;','&#181;','micro sign'],['&middot;','&#183;','middle dot'],['&bull;','&#8226;','bullet'],['&hellip;','&#8230;','three dot leader'],['&prime;','&#8242;','minutes / feet'],['&Prime;','&#8243;','seconds / inches'],['&sect;','&#167;','section sign'],['&para;','&#182;','paragraph sign'],['&szlig;','&#223;','sharp s / ess-zed'],['&lsaquo;','&#8249;','single left-pointing angle quotation mark'],['&rsaquo;','&#8250;','single right-pointing angle quotation mark'],['&laquo;','&#171;','left pointing guillemet'],['&raquo;','&#187;','right pointing guillemet'],['&lsquo;','&#8216;','left single quotation mark'],['&rsquo;','&#8217;','right single quotation mark'],['&ldquo;','&#8220;','left double quotation mark'],['&rdquo;','&#8221;','right double quotation mark'],['&bdquo;','&#8222;','double low-9 quotation mark'],['&le;','&#8804;','less-than or equal to'],['&ge;','&#8805;','greater-than or equal to'],['&ndash;','&#8211;','en dash'],['&mdash;','&#8212;','em dash'],['&macr;','&#175;','macron'],['&oline;','&#8254;','overline'],['&brvbar;','&#166;','broken bar'],['&iexcl;','&#161;','inverted exclamation mark'],['&iquest;','&#191;','turned question mark'],['&#9658;','&#9658;','triangle pointer'],['&tilde;','&#732;','small tilde'],['&deg;','&#176;','degree sign'],['&minus;','&#8722;','minus sign'],['&plusmn;','&#177;','plus-minus sign'],['&divide;','&#247;','division sign'],['&sup1;','&#185;','superscript one'],['&sup2;','&#178;','superscript two'],['&sup3;','&#179;','superscript three'],['&frac14;','&#188;','fraction one quarter'],['&frac12;','&#189;','fraction one half'],['&frac34;','&#190;','fraction three quarters'],['&fnof;','&#402;','function / florin'],['&int;','&#8747;','integral'],['&sum;','&#8721;','n-ary sumation'],['&infin;','&#8734;','infinity'],['&radic;','&#8730;','square root'],['&asymp;','&#8776;','almost equal to'],['&ne;','&#8800;','not equal to'],['&equiv;','&#8801;','identical to'],['&prod;','&#8719;','n-ary product'],['&not;','&#172;','not sign'],['&cap;','&#8745;','intersection'],['&part;','&#8706;','partial differential'],['&acute;','&#180;','acute accent'],['&ordf;','&#170;','feminine ordinal indicator'],['&ordm;','&#186;','masculine ordinal indicator'],['&dagger;','&#8224;','dagger'],['&Dagger;','&#8225;','double dagger'],['&Agrave;','&#192;','A - grave'],['&Aacute;','&#193;','A - acute'],['&Acirc;','&#194;','A - circumflex'],['&Atilde;','&#195;','A - tilde'],['&Auml;','&#196;','A - diaeresis'],['&Aring;','&#197;','A - ring above'],['&AElig;','&#198;','ligature AE'],['&Ccedil;','&#199;','C - cedilla'],['&Egrave;','&#200;','E - grave'],['&Eacute;','&#201;','E - acute'],['&Ecirc;','&#202;','E - circumflex'],['&Euml;','&#203;','E - diaeresis'],['&Igrave;','&#204;','I - grave'],['&Iacute;','&#205;','I - acute'],['&Icirc;','&#206;','I - circumflex'],['&Iuml;','&#207;','I - diaeresis'],['&ETH;','&#208;','ETH'],['&Ntilde;','&#209;','N - tilde'],['&Ograve;','&#210;','O - grave'],['&Oacute;','&#211;','O - acute'],['&Ocirc;','&#212;','O - circumflex'],['&Otilde;','&#213;','O - tilde'],['&Ouml;','&#214;','O - diaeresis'],['&Oslash;','&#216;','O - slash'],['&OElig;','&#338;','ligature OE'],['&Scaron;','&#352;','S - caron'],['&Ugrave;','&#217;','U - grave'],['&Uacute;','&#218;','U - acute'],['&Ucirc;','&#219;','U - circumflex'],['&Uuml;','&#220;','U - diaeresis'],['&Yacute;','&#221;','Y - acute'],['&Yuml;','&#376;','Y - diaeresis'],['&THORN;','&#222;','THORN'],['&atilde;','&#227;','a - tilde'],['&auml;','&#228;','a - diaeresis'],['&aring;','&#229;','a - ring above'],['&aelig;','&#230;','ligature ae'],['&ccedil;','&#231;','c - cedilla'],['&euml;','&#235;','e - diaeresis'],['&igrave;','&#236;','i - grave'],['&iacute;','&#237;','i - acute'],['&icirc;','&#238;','i - circumflex'],['&iuml;','&#239;','i - diaeresis'],['&eth;','&#240;','eth'],['&ntilde;','&#241;','n - tilde'],['&ograve;','&#242;','o - grave'],['&oacute;','&#243;','o - acute'],['&ocirc;','&#244;','o - circumflex'],['&otilde;','&#245;','o - tilde'],['&ouml;','&#246;','o - diaeresis'],['&oslash;','&#248;','o slash'],['&oelig;','&#339;','ligature oe'],['&scaron;','&#353;','s - caron'],['&ugrave;','&#249;','u - grave'],['&uacute;','&#250;','u - acute'],['&ucirc;','&#251;','u - circumflex'],['&uuml;','&#252;','u - diaeresis'],['&yacute;','&#253;','y - acute'],['&thorn;','&#254;','thorn'],['&yuml;','&#255;','y - diaeresis'],['&Beta;','&#914;','Beta'],['&Gamma;','&#915;','Gamma'],['&Delta;','&#916;','Delta'],['&Epsilon;','&#917;','Epsilon'],['&Zeta;','&#918;','Zeta'],['&Eta;','&#919;','Eta'],['&Theta;','&#920;','Theta'],['&Iota;','&#921;','Iota'],['&Kappa;','&#922;','Kappa'],['&Lambda;','&#923;','Lambda'],['&Mu;','&#924;','Mu'],['&Nu;','&#925;','Nu'],['&Xi;','&#926;','Xi'],['&Omicron;','&#927;','Omicron'],['&Pi;','&#928;','Pi'],['&Rho;','&#929;','Rho'],['&Sigma;','&#931;','Sigma'],['&Tau;','&#932;','Tau'],['&Upsilon;','&#933;','Upsilon'],['&Phi;','&#934;','Phi'],['&Chi;','&#935;','Chi'],['&Psi;','&#936;','Psi'],['&Omega;','&#937;','Omega'],['&alpha;','&#945;','alpha'],['&beta;','&#946;','beta'],['&gamma;','&#947;','gamma'],['&delta;','&#948;','delta'],['&epsilon;','&#949;','epsilon'],['&zeta;','&#950;','zeta'],['&eta;','&#951;','eta'],['&theta;','&#952;','theta'],['&iota;','&#953;','iota'],['&kappa;','&#954;','kappa'],['&lambda;','&#955;','lambda'],['&mu;','&#956;','mu'],['&nu;','&#957;','nu'],['&xi;','&#958;','xi'],['&omicron;','&#959;','omicron'],['&pi;','&#960;','pi'],['&rho;','&#961;','rho'],['&sigmaf;','&#962;','final sigma'],['&sigma;','&#963;','sigma'],['&tau;','&#964;','tau'],['&upsilon;','&#965;','upsilon'],['&phi;','&#966;','phi'],['&chi;','&#967;','chi'],['&psi;','&#968;','psi'],['&omega;','&#969;','omega'],['&larr;','&#8592;','leftwards arrow'],['&uarr;','&#8593;','upwards arrow'],['&rarr;','&#8594;','rightwards arrow'],['&darr;','&#8595;','downwards arrow'],['&harr;','&#8596;','left right arrow'],['&loz;','&#9674;','lozenge'],['&spades;','&#9824;','black spade suit'],['&clubs;','&#9827;','black club suit'],['&hearts;','&#9829;','black heart suit'],['&diams;','&#9830;','black diamond suit'],['&cong;','&#8773;','approximately equal to'],['&sim;','&#8764;','similar to'],['&isin;','&#8712;','element of'],['&notin;','&#8713;','not an element of'],['&ni;','&#8715;','contains as member'],['&and;','&#8743;','logical and'],['&or;','&#8744;','logical or'],['&cup;','&#8746;','union'],['&forall;','&#8704;','for all'],['&exist;','&#8707;','there exists'],['&empty;','&#8709;','diameter'],['&nabla;','&#8711;','backward difference'],['&lowast;','&#8727;','asterisk operator'],['&prop;','&#8733;','proportional to'],['&ang;','&#8736;','angle'],['&Alpha;','&#913;','Alpha'],['&alefsym;','&#8501;','alef symbol'],['&piv;','&#982;','pi symbol'],['&real;','&#8476;','real part symbol'],['&thetasym;','&#977;','theta symbol'],['&upsih;','&#978;','upsilon - hook symbol'],['&weierp;','&#8472;','Weierstrass p'],['&image;','&#8465;','imaginary part'],['&crarr;','&#8629;','carriage return'],['&lArr;','&#8656;','leftwards double arrow'],['&uArr;','&#8657;','upwards double arrow'],['&rArr;','&#8658;','rightwards double arrow'],['&dArr;','&#8659;','downwards double arrow'],['&hArr;','&#8660;','left right double arrow'],['&there4;','&#8756;','therefore'],['&sub;','&#8834;','subset of'],['&sup;','&#8835;','superset of'],['&nsub;','&#8836;','not a subset of'],['&sube;','&#8838;','subset of or equal to'],['&supe;','&#8839;','superset of or equal to'],['&oplus;','&#8853;','circled plus'],['&otimes;','&#8855;','circled times'],['&perp;','&#8869;','perpendicular'],['&sdot;','&#8901;','dot operator'],['&lceil;','&#8968;','left ceiling'],['&rceil;','&#8969;','right ceiling'],['&lfloor;','&#8970;','left floor'],['&rfloor;','&#8971;','right floor'],['&lang;','&#9001;','left-pointing angle bracket'],['&rang;','&#9002;','right-pointing angle bracket']];
-		var i = 0, cols = 0,dataChars = '<div id="table-chars"><div class="row-chars">';
-		for(i; i < chars.length; i++){
+		var cols = 0,dataChars = '<div id="table-chars"><div class="row-chars">';
+		for(var i = 0; i < chars.length; i++){
 			if(cols == nbCols){
 				dataChars += '</div><div class="row-chars">';
 				cols = 0;
@@ -1857,7 +1862,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			cols++;
 		}
 		dataChars += '</div></div>';
-		
+
 		return dataChars;
 	};
 

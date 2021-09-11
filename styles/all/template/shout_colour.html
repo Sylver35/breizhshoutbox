@@ -1,8 +1,11 @@
 <ul id="colour_shoutbox" class="topiclist forums">
 	<li>
-		<div id="shoutcolor1" class="{% if COLOR_PANEL eq 1 %}displayblock{% else %}no_display{% endif %}"></div>
-		<div id="shoutcolor2" class="{% if COLOR_PANEL eq 2 %}displayblock{% else %}no_display{% endif %}"></div>
-		<div id="shoutcolor3" class="{% if COLOR_PANEL eq 3 %}displayblock{% else %}no_display{% endif %}">
+		<div id="onText">{{ lang('SHOUT_COLOR') }}</div>
+		<hr class="dotted" />
+		<img class="img_shout_close" src="{{ SHOUT_EXT_PATH }}images/shout_no.png" alt="{{ lang('SHOUT_DIV_CLOSE') }}" title="{{ lang('SHOUT_DIV_CLOSE') }}" onclick="shoutbox.closeColour();return false;" onmouseout="shoutbox.iH('onText','{{ lang('SHOUT_COLOR') }}',false);" onmouseover="shoutbox.iH('onText',this.title,false);" />
+		<div id="shoutcolor1" class="no_display"></div>
+		<div id="shoutcolor2" class="no_display"></div>
+		<div id="shoutcolor3" class="displayblock">
 			<div class="choose-pic-color">{{ lang('PICK_COLOR') }}:</div>
 			<div id="pickdt">
 				<input id="pick" class="pick color {pickClose:true}" value="0000BF" title="{{ lang('PICK_COLOR') }}" />
@@ -13,9 +16,9 @@
 			{{ lang('SHOUT_CHOICE_COLOR') }}: 
 			<select id="select_div_color" name="select_div_color" onchange="activeColor('shoutcolor'+this.value);">
 				<option value="0" title="{{ lang('SHOUT_COLOR') }}">{{ lang('SHOUT_COLOR') }}</option>
-				<option value="3" title="{{ lang('SHOUT_PICOLOR') }}"{% if COLOR_PANEL eq 3 %} selected="selected"{% endif %}>{{ lang('SHOUT_PICOLOR') }}</option>
-				<option value="1" title="{{ lang('SHOUT_PHPBBCOLOR') }}"{% if COLOR_PANEL eq 1 %} selected="selected"{% endif %}>{{ lang('SHOUT_PHPBBCOLOR') }}</option>
-				<option value="2" title="{{ lang('SHOUT_PHPBB2COLOR') }}"{% if COLOR_PANEL eq 2 %} selected="selected"{% endif %}>{{ lang('SHOUT_PHPBB2COLOR') }}</option>
+				<option value="1" title="{{ lang('SHOUT_PHPBBCOLOR') }}">{{ lang('SHOUT_PHPBBCOLOR') }}</option>
+				<option value="2" title="{{ lang('SHOUT_PHPBB2COLOR') }}">{{ lang('SHOUT_PHPBB2COLOR') }}</option>
+				<option value="3" title="{{ lang('SHOUT_PICOLOR') }}" selected="selected">{{ lang('SHOUT_PICOLOR') }}</option>
 			</select>
 		</div>
 	</li>
