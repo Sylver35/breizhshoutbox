@@ -370,7 +370,6 @@ class shoutbox
 
 		$this->template->assign_vars([
 			'S_DISPLAY_SHOUTBOX'	=> true,
-			'COLOR_PANEL'			=> 3,
 			'IN_SHOUT_POPUP'		=> $sort_of === 1,
 			'PANEL_ALL'				=> $panel['active'],
 			'S_IN_PRIV'				=> $in_priv,
@@ -388,7 +387,7 @@ class shoutbox
 		$this->javascript_shout($sort_of);
 
 		// Do the shoutbox Prune thang
-		if ($this->config['shout_on_cron' . $priv] && ($this->config['shout_max_posts' . $priv] == 0))
+		if ($this->config['shout_on_cron' . $priv] && ((int) $this->config['shout_max_posts' . $priv] === 0))
 		{
 			$this->execute_shout_cron($in_priv);
 		}
@@ -397,8 +396,8 @@ class shoutbox
 
 	private function verify_display_shout($in_priv)
 	{
-		$private = ($in_priv) ? '_priv' : '_view';
-		if (!$this->auth->acl_get('u_shout' . $private))
+		$sort = ($in_priv) ? '_priv' : '_view';
+		if (!$this->auth->acl_get('u_shout' . $sort))
 		{
 			$this->template->assign_vars([
 				'S_DISPLAY_SHOUTBOX'	=> false,
@@ -1059,7 +1058,7 @@ class shoutbox
 	 * Personalize message before submit
 	 * Return string
 	 */
-	public function personalize_shout_message($message)
+	public function personalize_message($message)
 	{
 		if ($this->user->data['shout_bbcode'] && $this->auth->acl_get('u_shout_bbcode_change'))
 		{
@@ -1103,7 +1102,7 @@ class shoutbox
 		// for this user or an another?
 		$shout_bbcode = $this->get_shout_bbcode($other);
 
-		$first = $this->first_parse_bbcodes($open, $close, $array_open, $array_close, $shout_bbcode);
+		$first = $this->first_parse($open, $close, $array_open, $array_close, $shout_bbcode);
 		if ($first['sort'] !== 3)
 		{
 			return [
@@ -1112,7 +1111,7 @@ class shoutbox
 			];
 		}
 
-		$second = $this->second_parse_bbcodes($open, $close, $array_open, $array_close, $shout_bbcode);
+		$second = $this->second_parse($open, $close, $array_open, $array_close, $shout_bbcode);
 		if ($second['sort'] !== 1)
 		{
 			return [
@@ -1127,60 +1126,7 @@ class shoutbox
 		];
 	}
 
-	private function second_parse_bbcodes($open, $close, $array_open, $array_close, $shout_bbcode)
-	{
-		$verify = $this->verify_imbrication($open, $close, $array_open, $array_close, $shout_bbcode);
-		if ($verify['sort'] !== 1)
-		{
-			return [
-				'sort'		=> $verify['sort'],
-				'message'	=> $verify['message'],
-			];
-		}
-
-		$unautorised = $this->verify_unautorised_and_size($open, $close);
-		if ($unautorised['sort'] !== 1)
-		{
-			return [
-				'sort'		=> $unautorised['sort'],
-				'message'	=> $unautorised['message'],
-			];
-		}
-
-		$video = $this->verify_video_bbcode($open);
-		if ($video['sort'] !== 1)
-		{
-			return [
-				'sort'		=> $video['sort'],
-				'message'	=> $video['message'],
-			];
-		}
-
-		return [
-			'sort'	=> 1,
-		];
-	}
-
-	private function get_shout_bbcode($other)
-	{
-		if ($other > 0)
-		{
-			$sql = 'SELECT shout_bbcode
-				FROM ' . USERS_TABLE . '
-					WHERE user_id = ' . $other;
-			$result = $this->db->sql_query($sql);
-			$shout_bbcode = $this->db->sql_fetchfield('shout_bbcode');
-			$this->db->sql_freeresult($result);
-		}
-		else
-		{
-			$shout_bbcode = $this->user->data['shout_bbcode'];
-		}
-
-		return (string) $shout_bbcode;
-	}
-
-	private function first_parse_bbcodes($open, $close, $array_open, $array_close, $shout_bbcode)
+	private function first_parse($open, $close, $array_open, $array_close, $shout_bbcode)
 	{
 		// Any modification
 		if ($open == 1 && $close == 1)
@@ -1229,6 +1175,40 @@ class shoutbox
 		];
 	}
 
+	private function second_parse($open, $close, $array_open, $array_close, $shout_bbcode)
+	{
+		$verify = $this->verify_imbrication($open, $close, $array_open, $array_close, $shout_bbcode);
+		if ($verify['sort'] !== 1)
+		{
+			return [
+				'sort'		=> $verify['sort'],
+				'message'	=> $verify['message'],
+			];
+		}
+
+		$unautorised = $this->verify_unautorised_and_size($open, $close);
+		if ($unautorised['sort'] !== 1)
+		{
+			return [
+				'sort'		=> $unautorised['sort'],
+				'message'	=> $unautorised['message'],
+			];
+		}
+
+		$video = $this->verify_video_bbcode($open);
+		if ($video['sort'] !== 1)
+		{
+			return [
+				'sort'		=> $video['sort'],
+				'message'	=> $video['message'],
+			];
+		}
+
+		return [
+			'sort'	=> 1,
+		];
+	}
+
 	private function verify_imbrication($open, $close, $array_open, $array_close, $shout_bbcode)
 	{
 		// Initalise closing of bbcodes and correct imbrication
@@ -1259,7 +1239,7 @@ class shoutbox
 			$slash = implode(', ', $slash);
 			return [
 				'sort'		=> 2,
-				'message'	=> $this->language->lang($this->plural('SHOUT_BBCODE_ERROR_SLASH', $s), $s, $slash),
+				'message'	=> $this->plural('SHOUT_BBCODE_ERROR_SLASH', $s, '', $slash),
 			];
 		}
 		// Check the correct imbrication of bbcodes
@@ -1268,7 +1248,7 @@ class shoutbox
 			$sort = implode(', ', $sort);
 			return [
 				'sort'		=> 2,
-				'message'	=> $this->language->lang($this->plural('SHOUT_BBCODE_ERROR_IMB', $n), $n, $sort),
+				'message'	=> $this->plural('SHOUT_BBCODE_ERROR_IMB', $n, '', $sort),
 			];
 		}
 
@@ -1288,6 +1268,25 @@ class shoutbox
 		return [
 			'sort'	=> 1,
 		];
+	}
+
+	private function get_shout_bbcode($other)
+	{
+		if ($other > 0)
+		{
+			$sql = 'SELECT shout_bbcode
+				FROM ' . USERS_TABLE . '
+					WHERE user_id = ' . $other;
+			$result = $this->db->sql_query($sql);
+			$shout_bbcode = (string) $this->db->sql_fetchfield('shout_bbcode');
+			$this->db->sql_freeresult($result);
+		}
+		else
+		{
+			$shout_bbcode = (string) $this->user->data['shout_bbcode'];
+		}
+
+		return $shout_bbcode;
 	}
 
 	private function verify_unautorised_and_size($open, $close)
@@ -1398,9 +1397,9 @@ class shoutbox
 
 		$message = ($robot) ? $this->tpl('colorbot', $message) : $message;
 		// Personalize message if needed
-		$message = ($personalize) ? $this->personalize_shout_message($message) : $message;
+		$message = ($personalize) ? $this->personalize_message($message) : $message;
 
-		return $this->shout_url_free_sid($message);
+		return $this->url_free_sid($message);
 	}
 
 	private function verify_message_length($message)
@@ -1525,14 +1524,14 @@ class shoutbox
 			}
 		}
 
-		return $this->replace_shout_url($username_full);
+		return $this->shout_url($username_full);
 	}
 
 	/* 
 	 * Construct url whithout sid
 	 * Because urls must be construct for all and use append_sid() after
 	 */
-	private function shout_url_free_sid($content)
+	private function url_free_sid($content)
 	{
 		if (strpos($content, 'sid=') !== false)
 		{
@@ -1557,9 +1556,9 @@ class shoutbox
 	/*
 	 * Replace relatives urls with complete urls
 	 */
-	public function replace_shout_url($url)
+	public function shout_url($url)
 	{
-		return str_replace(['./../../../', './../../', './../', './'], generate_board_url() . '/', $url);
+		return str_replace(['./../../../../', './../../../', './../../', './../', './'], generate_board_url() . '/', $url);
 	}
 
 	/*
@@ -1650,7 +1649,7 @@ class shoutbox
 	{
 		// Founders protection
 		$go_founder = ($row['user_type'] != USER_FOUNDER || $this->user->data['user_type'] == USER_FOUNDER) ? true : false;
-		$action = $this->create_urls_action_user($row, $sort, $go_founder);
+		$action = $this->create_action_user($row, $sort, $go_founder);
 
 		return [
 			'type'			=> 3,
@@ -1678,7 +1677,7 @@ class shoutbox
 		];
 	}
 
-	private function create_urls_action_user($row, $sort, $go_founder)
+	private function create_action_user($row, $sort, $go_founder)
 	{
 		return [
 			'url_profile'	=> $this->tpl('profile', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", ['mode' => 'viewprofile', 'u' => $row['user_id']], false), $row['username']),
@@ -1702,16 +1701,14 @@ class shoutbox
 		else
 		{
 			$row['shout_text'] = generate_text_for_display($row['shout_text'], $row['shout_bbcode_uid'], $row['shout_bbcode_bitfield'], $row['shout_bbcode_flags']);
-		}
-
-		// Limit the max height for images
-		$row['shout_text'] = str_replace('class="postimage"', 'class="postimage" style="max-height:200px;"', $row['shout_text']);
-
-		// Transform video iframe in link
-		if (preg_match('/<iframe/i', $row['shout_text']))
-		{
-			preg_match('/src="([^"]+)"/', $row['shout_text'], $match);
-			$row['shout_text'] = '<a href="' . $match[1] . '" class="postlink">' . $match[1] . '</a>';
+			// Limit the max height for images
+			$row['shout_text'] = str_replace('class="postimage"', 'class="postimage" style="max-height:200px;"', $row['shout_text']);
+			// Transform video iframe in link
+			if (preg_match('/<iframe/i', $row['shout_text']))
+			{
+				preg_match('/src="([^"]+)"/', $row['shout_text'], $match);
+				$row['shout_text'] = '<a href="' . $match[1] . '" class="postlink">' . $match[1] . '</a>';
+			}
 		}
 
 		// Active external links for all links in popup and private shoutbox
@@ -1731,7 +1728,7 @@ class shoutbox
 			$row['shout_text'] = str_replace('class="postlink', 'onclick="window.open(this.href);return false;" class="postlink', $row['shout_text']);
 		}
 
-		return $this->replace_shout_url($row['shout_text']);
+		return $this->shout_url($row['shout_text']);
 	}
 
 	/*
@@ -1782,7 +1779,7 @@ class shoutbox
 			case 19:
 			case 20:
 			case 21:
-				$message = $this->language->lang('SHOUT_POST_ROBOT_' . $info, $start, $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp), $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']));
+				$message = $this->language->lang('SHOUT_POST_ROBOT_' . $info, $start, $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp), $this->tpl('url', append_sid($this->shout_url($row['shout_text2']), false), $row['shout_text']));
 			break;
 			case 30:
 				list($title, $artist) = explode('||', $row['shout_text']);
@@ -1820,7 +1817,7 @@ class shoutbox
 			case 76:
 			case 77:
 			case 80:
-				$message = $this->language->lang('SHOUT_PREZ_ROBOT_' . $info, $start, $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp), $this->tpl('url', append_sid($this->replace_shout_url($row['shout_text2']), false), $row['shout_text']));
+				$message = $this->language->lang('SHOUT_PREZ_ROBOT_' . $info, $start, $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp), $this->tpl('url', append_sid($this->shout_url($row['shout_text2']), false), $row['shout_text']));
 			break;
 			case 99:
 				$message = $this->language->lang('SHOUT_WELCOME');
@@ -1980,7 +1977,7 @@ class shoutbox
 	/*
 	 * Display infos Robot for bots connections
 	 */
-	public function post_session_shout_bot($event)
+	public function post_session_bot($event)
 	{
 		$go_post = $this->get_session_shout($this->shoutbox_table, 'shout_sessions_bots', (int) $event['session_user_id']);
 		$go_post_priv = $this->get_session_shout($this->shoutbox_priv_table, 'shout_sessions_bots_priv', (int) $event['session_user_id']);
@@ -2071,7 +2068,7 @@ class shoutbox
 			'shout_user_id'				=> 0,
 			'shout_ip'					=> (string) $this->user->ip,
 			'shout_text'				=> (string) $subject,
-			'shout_text2'				=> (string) $this->shout_url_free_sid($event['url']),
+			'shout_text2'				=> (string) $this->url_free_sid($event['url']),
 			'shout_bbcode_uid'			=> '',
 			'shout_bbcode_bitfield'		=> '',
 			'shout_bbcode_flags'		=> 0,
@@ -2523,7 +2520,7 @@ class shoutbox
 		];
 	}
 
-	public function shout_is_foe($userid, $id)
+	public function user_is_foe($userid, $id)
 	{
 		$sql = $this->db->sql_build_query('SELECT', [
 			'SELECT'	=> 'u.user_id, u.user_type, z.friend, z.foe',
@@ -2869,7 +2866,7 @@ class shoutbox
 			$avatar_height = ($row['user_avatar_height'] > $height) ? $height : $row['user_avatar_height'];
 			$row['user_avatar_width'] = round($avatar_height / $row['user_avatar_height'] * $row['user_avatar_width']);
 			$row['user_avatar_height'] = $avatar_height;
-			$avatar = $this->replace_shout_url(phpbb_get_user_avatar($row, $this->language->lang('SHOUT_AVATAR_TITLE', $row['username'])));
+			$avatar = $this->shout_url(phpbb_get_user_avatar($row, $this->language->lang('SHOUT_AVATAR_TITLE', $row['username'])));
 			$avatar = str_replace('alt="', 'title="' . $this->language->lang('SHOUT_AVATAR_TITLE', $row['username']) . '" alt="', $avatar);
 			$avatar = ($popup) ? str_replace('class="avatar', 'class="avatar popup-avatar', $avatar) : $avatar;
 
@@ -2889,7 +2886,7 @@ class shoutbox
 		$avatar = str_replace(['./download/file.php?avatar=', 'alt="'], ['', 'title="' . $val['alt'] . '" alt="'], phpbb_get_user_avatar($row, $val['alt']));
 		$avatar = ($popup) ? str_replace('class="avatar', 'class="avatar popup-avatar', $avatar) : $avatar;
 
-		return $this->replace_shout_url($avatar);
+		return $this->shout_url($avatar);
 	}
 
 	private function build_additional_avatar($row)
@@ -2945,11 +2942,15 @@ class shoutbox
 		return $sound_select;
 	}
 
-	public function plural($lang, $nr, $second = '')
+	public function plural($lang, $nr, $second, $content = '')
 	{
 		$text = $lang;
 		$text .= ($nr > 1) ? 'S' : '';
-		$text .= ($second) ? $second : '';
+		$text .= $second;
+		if ($content !== '')
+		{
+			$text = $this->language->lang($text, $nr, $content);
+		}
 
 		return $text;
 	}
@@ -3429,7 +3430,7 @@ class shoutbox
 			'cookieDomain'		=> '; domain=' . $this->config['cookie_domain'] . ($this->config['cookie_secure'] ? '; secure' : ''),
 			'cookiePath'		=> '; path=' . $this->config['cookie_path'],
 			'enableSound'		=> ($data['active']) ? '1' : '0',
-			'extensionUrl'		=> $this->replace_shout_url($this->ext_path_web),
+			'extensionUrl'		=> $this->shout_url($this->ext_path_web),
 			'userTimezone'		=> phpbb_format_timezone_offset($this->user->create_datetime()->getOffset()),
 			'dateDefault'		=> $this->config['shout_dateformat'],
 			'dateFormat'		=> $data['dateformat'],

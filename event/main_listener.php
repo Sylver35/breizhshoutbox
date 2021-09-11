@@ -132,7 +132,7 @@ class main_listener implements EventSubscriberInterface
 		{
 			if ($this->config['shout_sessions_bots'] || $this->config['shout_sessions_bots_priv'])
 			{
-				$this->shoutbox->post_session_shout_bot($event['session_data']);
+				$this->shoutbox->post_session_bot($event['session_data']);
 			}
 		}
 		else if ($this->user->data['is_registered'])

@@ -120,10 +120,15 @@ class functions_ajax
 			break;
 			// Private shoutbox
 			case 3:
-				$val['on_priv'] = true;
-				$val['sort_on'] = $val['perm'] = $val['priv'] = $val['auth'] = '_priv';
-				$val['privat'] = '_PRIV';
-				$val['shout_table'] = $this->shoutbox_priv_table;
+				$val = [
+					'on_priv'		=> true,
+					'sort_on'		=> '_priv',
+					'perm'			=> '_priv',
+					'priv'			=> '_priv',
+					'auth'			=> '_priv',
+					'privat'		=> '_PRIV',
+					'shout_table'	=> $this->shoutbox_priv_table,
+				];
 			break;
 		}
 
@@ -217,7 +222,7 @@ class functions_ajax
 			$data['list'] .= ($r > 0) ? $robots : $this->language->lang('NO_ONLINE_BOTS');
 		}
 
-		return $this->shoutbox->replace_shout_url($data);
+		return $this->shoutbox->shout_url($data);
 	}
 
 	public function get_var($var, $default)
@@ -496,7 +501,7 @@ class functions_ajax
 
 		return [
 			'id'		=> $id,
-			'name'		=> $this->shoutbox->replace_shout_url(get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'])),
+			'name'		=> $this->shoutbox->shout_url(get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'])),
 			'before'	=> $on_bbcode[0],
 			'after'		=> $on_bbcode[1],
 			'message'	=> $message,
@@ -508,7 +513,7 @@ class functions_ajax
 		$options = 0;
 		$uid = $bitfield = '';
 		generate_text_for_storage($rules, $uid, $bitfield, $options, true, false, true);
-		$rules = $this->shoutbox->replace_shout_url(generate_text_for_display($rules, $uid, $bitfield, $options));
+		$rules = $this->shoutbox->shout_url(generate_text_for_display($rules, $uid, $bitfield, $options));
 
 		return [
 			'content'	=> $rules,
@@ -631,7 +636,7 @@ class functions_ajax
 			{
 				return [
 					'type'		=> 2,
-					'username'	=> $this->shoutbox->replace_shout_url(get_username_string('no_profile', $row['user_id'], $row['username'], $row['user_colour'])),
+					'username'	=> $this->shoutbox->shout_url(get_username_string('no_profile', $row['user_id'], $row['username'], $row['user_colour'])),
 					'message'	=> $this->language->lang('SHOUT_USER_NONE'),
 				];
 			}
@@ -671,7 +676,7 @@ class functions_ajax
 			else if ($val['other'] > 1)
 			{
 				// post a personal message
-				$data = $this->shoutbox->shout_is_foe($val['userid'], $val['other']);
+				$data = $this->shoutbox->user_is_foe($val['userid'], $val['other']);
 				if ($data['type'] > 0)
 				{
 					return [
