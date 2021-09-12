@@ -502,7 +502,7 @@ class functions_admin
 			'total_posts'	=> $total_posts,
 		];
 	}
-	
+
 	public function get_logs($sort)
 	{
 		$li = $start_log = 0;
