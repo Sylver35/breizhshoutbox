@@ -1071,6 +1071,111 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		shoutbox.reloadAll(false,false);
 	};
 
+	shoutbox.openClosePerm = function(){
+		if($('#shout_connect').is(':hidden')){
+			$('#shout_connect').show();
+			$('#printPerm').attr('title', bzhLang['DIV_CLOSE']);
+		}else{
+			$('#shout_connect').hide();
+			$('#printPerm').attr('title', bzhLang['CLICK_HERE']);
+		}
+	};
+
+	shoutbox.openCloseSmilies = function(){
+		if($('#smilies').is(':visible')){
+			$('#smilies_ul').hide();
+			$('#smilies').html('').hide();
+			$('#iconSmilies').attr('title', bzhLang['SMILIES']);
+			shoutbox.addText();
+		}else{
+			$('#iconSmilies').attr('title', bzhLang['SMILIES_CLOSE']);
+			$('#smilies_ul').show();
+			shoutbox.suppText();
+			shoutbox.runSmileys(true,-1);
+		}
+	};
+
+	shoutbox.openCloseColor = function(){
+		if($('#colour_shoutbox').is(':visible')){
+			$('#colour_shoutbox').hide();
+			$('#color_shout1').attr('title', bzhLang['COLOR']);
+			shoutbox.addText();
+		}else{
+			$('#colour_shoutbox').show();
+			$('#color_shout1').attr('title', bzhLang['COLOR_CLOSE']);
+			shoutbox.suppText();
+		}
+	};
+
+	shoutbox.openCloseChars = function(){
+		if($('#shout_chars').is(':visible')){
+			$('#shout_chars').hide();
+			$('#char_shout1').html('');
+			$('#chars01').attr('title', bzhLang['CHARS']);
+		}else{
+			var nbCols = (config.isMobile) ? 25 : ((config.sortShoutNb === 1) ? 29 : 38);
+			$('#shout_chars').show();
+			$('#char_shout1').html(shoutbox.specialCharShout(nbCols));
+			shoutbox.mouseChar();
+			$('#chars01').attr('title', bzhLang['CHARS_CLOSE']);
+		}
+	};
+
+	shoutbox.openCloseBbcode = function(){
+		if($('#shoutbox_posting').is(':visible')){
+			$('#shoutbox_posting').hide();
+			$('#bbcodebutton').attr('title', bzhLang['BBCODES']);
+		}else{
+			$('#shoutbox_posting').show();
+			$('#bbcodebutton').attr('title', bzhLang['BBCODES_CLOSE']);
+		}
+	};
+
+	shoutbox.openCloseRules = function(rulesTitle){
+		if($('#shout_rules').is(':visible')){
+			$('#rules_on').html('');
+			$('#shout_rules').hide();
+			$('#buttonRules').attr('title', rulesTitle);
+		}else{
+			shoutbox.shoutRules();
+			$('#buttonRules').attr('title', bzhLang['RULES_CLOSE']);
+		}
+	};
+
+	shoutbox.openCloseOnline = function(){
+		if($('#shout_online').is(':visible')){
+			$('#shout_online').hide();
+			$('#buttonOnline').attr('title', bzhLang['ONLINE']);
+			clearTimeout(timerOnline);
+		}else{
+			$('#shout_online').show();
+			$('#buttonOnline').attr('title', bzhLang['ONLINE_CLOSE']);
+			shoutbox.shoutOnline();
+			timerOnline = setInterval(shoutbox.shoutOnline, 30000);
+		}
+	};
+
+	shoutbox.openCloseConnect = function(){
+		if($('#shout_connect').is(':hidden')){
+			$('#shout_connect').show();
+			$('#iconConnect').attr({'class':'button_shout_connect_on button_shout', 'title':bzhLang['DIV_CLOSE']});
+		}else{
+			$('#shout_connect').hide();
+			$('#iconConnect').attr({'class':'button_shout_connect button_shout', 'title':bzhLang['CLICK_HERE']});
+		}
+	};
+
+	shoutbox.openCloseName = function(){
+		if($('#shout_name').is(':hidden')){
+			$('#shout_name').show();
+			$('#iconName').attr({'class':'button_shout_name_on button_shout', 'title':bzhLang['DIV_CLOSE']});
+		}else{
+			$('#shout_name').hide();
+			$('#iconName').attr({'class':'button_shout_name button_shout', 'title':bzhLang['CHOICE_NAME']});
+		}
+		shoutbox.sE('shoutnameyes',2);
+	};
+
 	shoutbox.openEdit = function(thisId){
 		if($('#openEdit').val() == 1){
 			shoutbox.playSound(2,true);
@@ -1567,15 +1672,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				var printPermTitle = config.isGuest ? bzhLang['CLICK_HERE'] : bzhLang['NO_POST_PERM'];
 				var printPerm = shoutbox.cE('a','printPerm','pointer',false,printPermTitle,false,printPermTitle,false,false);
 				if(config.isGuest){
-					printPerm.onclick = function(){
-						if($('#shout_connect').is(':hidden')){
-							$('#shout_connect').show();
-							$('#printPerm').attr('title', bzhLang['DIV_CLOSE']);
-						}else{
-							$('#shout_connect').hide();
-							$('#printPerm').attr('title', bzhLang['CLICK_HERE']);
-						}
-					};
+					printPerm.onclick = function(){shoutbox.openClosePerm()};
 				}
 				postingForm.appendChild(postingBox);
 				dl.appendChild(postingForm);
@@ -1592,19 +1689,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				postingBox.appendChild(postUser);
 				if(config.smiliesOk){
 					var smiliesInput = shoutbox.cE('input','iconSmilies','button_shout_smile button_shout','margin-'+config.direction+':4px;',bzhLang['SMILIES'],'button',false,false,'iconSmilies');
-					smiliesInput.onclick = function(){
-						if($('#smilies').is(':visible')){
-							$('#smilies_ul').hide();
-							$('#smilies').html('').hide();
-							$('#iconSmilies').attr('title', bzhLang['SMILIES']);
-							shoutbox.addText();
-						}else{
-							$('#iconSmilies').attr('title', bzhLang['SMILIES_CLOSE']);
-							$('#smilies_ul').show();
-							shoutbox.suppText();
-							shoutbox.runSmileys(true,-1);
-						}
-					};
+					smiliesInput.onclick = function(){shoutbox.openCloseSmilies()};
 					postingBox.appendChild(smiliesInput);
 				}else if(config.seeButtons){
 					var smiliesInput = shoutbox.cE('input',false,'button_shout_smile_no button_shout','',bzhLang['NO_SMILIES'],'button',false,false,false);
@@ -1613,17 +1698,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				}
 				if(config.colorOk){
 					var colored = shoutbox.cE('input','color_shout1','button_shout_color button_shout','',bzhLang['COLOR'],'button',false,false,false);
-					colored.onclick = function(){
-						if($('#colour_shoutbox').is(':visible')){
-							$('#colour_shoutbox').hide();
-							$('#color_shout1').attr('title', bzhLang['COLOR']);
-							shoutbox.addText();
-						}else{
-							$('#colour_shoutbox').show();
-							$('#color_shout1').attr('title', bzhLang['COLOR_CLOSE']);
-							shoutbox.suppText();
-						}
-					};
+					colored.onclick = function(){shoutbox.openCloseColor()};
 					postingBox.appendChild(colored);
 				}else if(config.seeButtons){
 					var colored = shoutbox.cE('input','color_shout1','button_shout_color_no button_shout','',bzhLang['NO_COLOR'],'button',false,false,false);
@@ -1632,19 +1707,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				}
 				if(config.charsOk){
 					var chars = shoutbox.cE('input','chars01','button_shout_chars button_shout','',bzhLang['CHARS'],'button',false,false,false);
-					chars.onclick = function(){
-						if($('#shout_chars').is(':visible')){
-							$('#shout_chars').hide();
-							$('#char_shout1').html('');
-							$('#chars01').attr('title', bzhLang['CHARS']);
-						}else{
-							var nbCols = (config.isMobile) ? 25 : ((config.sortShoutNb === 1) ? 29 : 38);
-							$('#shout_chars').show();
-							$('#char_shout1').html(shoutbox.specialCharShout(nbCols));
-							shoutbox.mouseChar();
-							$('#chars01').attr('title', bzhLang['CHARS_CLOSE']);
-						}
-					};
+					chars.onclick = function(){shoutbox.openCloseChars()};
 					postingBox.appendChild(chars);
 				}else if(config.seeButtons){
 					var chars = shoutbox.cE('input','chars01','button_shout_chars_no button_shout','',bzhLang['NO_CHARS'],'button',false,false,false);
@@ -1653,15 +1716,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				}
 				if(config.bbcodeOk){
 					var bbcode = shoutbox.cE('input','bbcodebutton','button_shout_img button_shout','',bzhLang['BBCODES'],'button',false,false,false);
-					bbcode.onclick = function(){
-						if($('#shoutbox_posting').is(':visible')){
-							$('#shoutbox_posting').hide();
-							$('#bbcodebutton').attr('title', bzhLang['BBCODES']);
-						}else{
-							$('#shoutbox_posting').show();
-							$('#bbcodebutton').attr('title', bzhLang['BBCODES_CLOSE']);
-						}
-					};
+					bbcode.onclick = function(){shoutbox.openCloseBbcode()};
 					postingBox.appendChild(bbcode);
 				}else if(config.seeButtons){
 					var bbcode = shoutbox.cE('input','bbcodebutton','button_shout_img_no button_shout','',bzhLang['NO_BBCODES'],'button',false,false,false);
@@ -1710,56 +1765,19 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				if(config.rulesOk){
 					var rulesTitle = config.isPriv ? bzhLang['RULES_PRIV'] : bzhLang['RULES'],rulesTitleOn = config.rulesOpen ? bzhLang['RULES_CLOSE'] : rulesTitle;
 					var div_rules = shoutbox.cE('input','buttonRules','button_shout_rules button_shout','',rulesTitleOn,'button',false,false,false);
-					div_rules.onclick = function(){
-						if($('#shout_rules').is(':visible')){
-							$('#rules_on').html('');
-							$('#shout_rules').hide();
-							$('#buttonRules').attr('title', rulesTitle);
-						}else{
-							shoutbox.shoutRules();
-							$('#buttonRules').attr('title', bzhLang['RULES_CLOSE']);
-						}
-					};
+					div_rules.onclick = function(){shoutbox.openCloseRules(rulesTitle)};
 					postingBox.appendChild(div_rules);
 				}
 				if(config.onlineOk){
 					var button_online = shoutbox.cE('input','buttonOnline','button_shout_online button_shout','',bzhLang['ONLINE'],'button',false,false,false);
-					button_online.onclick = function(){
-						if($('#shout_online').is(':visible')){
-							$('#shout_online').hide();
-							$('#buttonOnline').attr('title', bzhLang['ONLINE']);
-							clearTimeout(timerOnline);
-						}else{
-							$('#shout_online').show();
-							$('#buttonOnline').attr('title', bzhLang['ONLINE_CLOSE']);
-							shoutbox.shoutOnline();
-							timerOnline = setInterval(shoutbox.shoutOnline, 30000);
-						}
-					};
+					button_online.onclick = function(){shoutbox.openCloseOnline()};
 					postingBox.appendChild(button_online);
 				}
 				if(config.isGuest){
 					var buttonConnect = shoutbox.cE('input','iconConnect','button_shout_connect button_shout','',bzhLang['CLICK_HERE'],'button',false,false,false);
-					buttonConnect.onclick = function(){
-						if($('#shout_connect').is(':hidden')){
-							$('#shout_connect').show();
-							$('#iconConnect').attr({'class':'button_shout_connect_on button_shout', 'title':bzhLang['DIV_CLOSE']});
-						}else{
-							$('#shout_connect').hide();
-							$('#iconConnect').attr({'class':'button_shout_connect button_shout', 'title':bzhLang['CLICK_HERE']});
-						}
-					};
+					buttonConnect.onclick = function(){shoutbox.openCloseConnect()};
 					var button_name = shoutbox.cE('input','iconName','button_shout_name button_shout','',bzhLang['CHOICE_NAME'],'button',false,false,false);
-					button_name.onclick = function(){
-						if($('#shout_name').is(':hidden')){
-							$('#shout_name').show();
-							$('#iconName').attr({'class':'button_shout_name_on button_shout', 'title':bzhLang['DIV_CLOSE']});
-						}else{
-							$('#shout_name').hide();
-							$('#iconName').attr({'class':'button_shout_name button_shout', 'title':bzhLang['CHOICE_NAME']});
-						}
-						shoutbox.sE('shoutnameyes',2);
-					};
+					button_name.onclick = function(){shoutbox.openCloseName()};
 					postingBox.appendChild(buttonConnect);
 					postingBox.appendChild(button_name);
 				}

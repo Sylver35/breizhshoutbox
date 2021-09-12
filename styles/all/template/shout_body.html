@@ -25,6 +25,9 @@
 		{% INCLUDE '@sylver35_breizhshoutbox/shout_bbcode.html' %}
 	{% endif %}
 		<ul id="smilies_ul" class="topiclist forums">
+			<div id="onTextSmilies">{{ lang('SMILIES') }}</div>
+			<hr class="dotted" />
+			<img class="img_shout_close" src="{{ SHOUT_EXT_PATH }}images/shout_no.png" alt="{{ lang('SMILIES_CLOSE') }}" title="{{ lang('SMILIES_CLOSE') }}" onclick="shoutbox.openCloseSmilies();return false;" onmouseout="shoutbox.iH('onTextSmilies','{{ lang('SMILIES') }}',false);" onmouseover="shoutbox.iH('onTextSmilies',this.title,false);" />
 			<li>
 				<div id="smilies"></div>
 			</li>
@@ -45,7 +48,7 @@
 			<div id="shoutbox"></div>
 			{{ S_FORM_TOKEN }}
 		</form>
-		
+
 		<div id="shout-fields" class="no_display">
 			<fieldset>
 				<input id="sortShoutNb" type="hidden" value="0" />
