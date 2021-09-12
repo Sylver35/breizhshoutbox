@@ -22,6 +22,7 @@
 	padding: 0;
 	font-size: 1em;
 	background-color: transparent !important;
+	background-image: none;
 	/* uncomment the line below to abort the lines between messages */
 	/*border: none;*/
 }
@@ -79,6 +80,9 @@ span.avatar-shout > img.popup-avatar {
 #shout_messages > li > dl > dd > span.msg_shout > div {
 	display: inline;
 }
+#shout_messages > li > dl > dd > span.msg_shout > div.hidebox {
+	display: block;
+}
 #shout_messages > li > dl > dd > input{
 	margin: 3px;
 }
@@ -93,7 +97,7 @@ span.avatar-shout > img.popup-avatar {
 #url_more {
 	white-space: nowrap;
 }
-#onText, #onText2 {
+#onText, #onText2, #onTextSmilies {
 	display: inline-block;
 	float: right;
 	margin-right: 8px;
@@ -221,7 +225,7 @@ input#chat_message, input#shout_user1, input#shout_text1, input#shout_text2 {
 	color: green;
 }
 #questionCookies {
-	vertical-align: bottom;
+	vertical-align: middle;
 }
 div.message-text {
 	border-bottom: 1px solid darkgray;
@@ -867,7 +871,7 @@ hr.dashed {
 	border-bottom: dashed #CCCCCC 1px;
 }
 ul#shoutbox_posting > div#abbc3_buttons > div.abbc3_buttons_row {
-	width: 99.3%;
+	width: 99.5%;
 }
 a:hover span, a:focus span{
 	opacity:1.5;
