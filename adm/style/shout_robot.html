@@ -141,6 +141,15 @@
 			</dl>
 			<span class="separation"></span>
 			<dl>
+				<dt><label for="shout_update_username">{{ lang('SHOUT_ROBOT_USERNAME') }}:</label><br />{{ lang('SHOUT_ROBOT_USERNAME_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_UPDATE_USERNAME }}</dd>
+			</dl>
+			<dl>
+				<dt><label for="shout_update_username_priv">{{ lang('SHOUT_ROBOT_USERNAME_PRIV') }}:</label><br />{{ lang('SHOUT_ROBOT_USERNAME_PRIV_EXPLAIN') }}</dt>
+				<dd>{{ SHOUT_UPDATE_USERNAME_PRIV }}</dd>
+			</dl>
+			<span class="separation"></span>
+			<dl>
 				<dt><label>{{ lang('SHOUT_ROBOT_CHOICE') }}:</label><br />{{ lang('SHOUT_ROBOT_CHOICE_EXPLAIN') }}</dt>
 				<dd>
 					<label><input type="checkbox" name="shout_robot_choice[]" value="1"{{ CHOICE_1 }} /> {{ lang('SHOUT_ON_CONNECT') }}</label>

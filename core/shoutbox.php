@@ -1781,6 +1781,9 @@ class shoutbox
 			case 21:
 				$message = $this->language->lang('SHOUT_POST_ROBOT_' . $info, $start, $this->construct_action_shout($row['x_user_id'], $row['x_username'], $row['x_user_colour'], $acp), $this->tpl('url', append_sid($this->shout_url($row['shout_text2']), false), $row['shout_text']));
 			break;
+			case 22:
+				$message = $this->language->lang('SHOUT_UPDATE_USERNAME', $this->construct_action_shout($row['x_user_id'], $row['shout_text'], $row['x_user_colour'], $acp), $this->construct_action_shout($row['x_user_id'], $row['shout_text2'], $row['x_user_colour'], $acp));
+			break;
 			case 30:
 				list($title, $artist) = explode('||', $row['shout_text']);
 				$url = $this->helper->route('sylver35_breizhcharts_page_music', ['mode' => 'list_newest']);
@@ -2080,17 +2083,17 @@ class shoutbox
 		], $info['ok_shout'], $info['ok_shout_priv']);
 	}
 
-	private function insert_message_robot($sql_data, $ok, $ok_priv)
+	private function insert_message_robot($sql_data, $insert, $insert_priv)
 	{
 		if ($this->config['shout_enable_robot'])
 		{
-			if ($ok)
+			if ($insert)
 			{
 				$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 				$this->config->increment('shout_nr', 1, true);
 			}
 
-			if ($ok_priv)
+			if ($insert_priv)
 			{
 				$this->db->sql_query('INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
 				$this->config->increment('shout_nr_priv', 1, true);
@@ -2388,6 +2391,34 @@ class shoutbox
 		}
 	}
 
+	/**
+	 * Update a username when it is changed
+	 */
+	public function shout_update_username($event)
+	{
+		$sql = 'SELECT user_id
+			FROM ' . USERS_TABLE . "
+				WHERE username = '" . $this->db->sql_escape($event['new_name']) . "'";
+		$result = $this->db->sql_query($sql);
+		$id = $this->db->sql_fetchfield('user_id');
+		$this->db->sql_freeresult($result);
+
+		$this->insert_message_robot([
+			'shout_time'				=> time(),
+			'shout_user_id'				=> (int) $this->user->data['user_id'],
+			'shout_ip'					=> (string) $this->user->ip,
+			'shout_text'				=> (string) $event['old_name'],
+			'shout_text2'				=> (string) $event['new_name'],
+			'shout_bbcode_uid'			=> '',
+			'shout_bbcode_bitfield'		=> '',
+			'shout_bbcode_flags'		=> 0,
+			'shout_robot'				=> 1,
+			'shout_robot_user'			=> (int) $id,
+			'shout_forum'				=> 0,
+			'shout_info'				=> 22,
+		], $this->config['shout_update_username'], $this->config['shout_update_username_priv']);
+	}
+
 	/*
 	 * Display first connection for new users
 	 */
@@ -2591,8 +2622,8 @@ class shoutbox
 		}
 
 		return [
-			'message'	=> $message,
 			'result'	=> $result,
+			'message'	=> $message,
 		];
 	}
 

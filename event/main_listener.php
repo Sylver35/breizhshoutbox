@@ -70,6 +70,7 @@ class main_listener implements EventSubscriberInterface
 			'core.viewforum_modify_page_title'			=> 'shout_display',
 			'core.viewtopic_modify_page_title'			=> 'shout_display',
 			'core.submit_post_end'						=> 'shout_advert_post',
+			'core.update_username'						=> 'shout_update_username',
 			'core.user_add_after'						=> 'shout_add_newest_user',
 			'core.display_custom_bbcodes_modify_sql'	=> 'remove_disallowed_bbcodes',
 			'core.posting_modify_post_data'				=> 'shout_modify_post_data',
@@ -165,6 +166,14 @@ class main_listener implements EventSubscriberInterface
 		{
 			$this->shoutbox->advert_post_shoutbox($event, $forum_id);
 		}
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function shout_update_username($event)
+	{
+		$this->shoutbox->shout_update_username($event);
 	}
 
 	/**

@@ -315,7 +315,8 @@ $lang = array_merge($lang, array(
 	'SHOUT_HELLO_ROBOT'				=> '📆 Bonjour, nous sommes le %1$s %2$s',
 	'SHOUT_NEWEST_ROBOT'			=> '👁‍ Un nouveau membre vient de s’enregistrer : %1$s, toute l’équipe de %2$s lui souhaite la bienvenue…',
 	'SHOUT_SESSION_ROBOT'			=> '✔ Bonjour %s et bienvenue sur le forum…',
-	'SHOUT_SESSION_ROBOT_BOT'		=> '%1$s %2$s vient de se connecter sur le forum…',
+	'SHOUT_SESSION_ROBOT_BOT'		=> '✔ %1$s %2$s vient de se connecter sur le forum…',
+	'SHOUT_UPDATE_USERNAME'			=> '♻ Modification du nom d’utilisateur de %1$s vers %2$s',
 
 	'SHOUT_FROM_OF'					=> '%1$s de %2$s',
 	'SHOUT_SUBJECT_OF'				=> ', sujet : %s',

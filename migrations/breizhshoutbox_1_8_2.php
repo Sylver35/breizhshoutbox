@@ -32,6 +32,8 @@ class breizhshoutbox_1_8_2 extends migration
 			// Config add
 			['config.add', ['shout_breizhcharts_new', 1]],
 			['config.add', ['shout_breizhcharts_reset', 1]],
+			['config.add', ['shout_update_username', 1]],
+			['config.add', ['shout_update_username_priv', 1]],
 		];
 	}
 }

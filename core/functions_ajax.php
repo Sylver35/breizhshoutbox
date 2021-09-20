@@ -117,10 +117,11 @@ class functions_ajax
 			break;
 			// Normal shoutbox
 			case 2:
+				// Nothing to add here
 			break;
 			// Private shoutbox
 			case 3:
-				$val = [
+				$val = array_merge($val, [
 					'on_priv'		=> true,
 					'sort_on'		=> '_priv',
 					'perm'			=> '_priv',
@@ -128,7 +129,7 @@ class functions_ajax
 					'auth'			=> '_priv',
 					'privat'		=> '_PRIV',
 					'shout_table'	=> $this->shoutbox_priv_table,
-				];
+				]);
 			break;
 		}
 
@@ -419,8 +420,7 @@ class functions_ajax
 		{
 			// Remove the bbcodes
 			case 1:
-				$sql = 'UPDATE ' . USERS_TABLE . " SET shout_bbcode = '' WHERE user_id = $on_user";
-				$this->shoutbox->shout_sql_query($sql);
+				$this->shoutbox->shout_sql_query('UPDATE ' . USERS_TABLE . " SET shout_bbcode = '' WHERE user_id = $on_user");
 				$message = $this->language->lang('SHOUT_BBCODE_SUP');
 				$text = $this->language->lang('SHOUT_EXEMPLE');
 			break;
@@ -434,8 +434,7 @@ class functions_ajax
 				$options = 0;
 				$uid = $bitfield = '';
 				// Change it in the db
-				$sql = 'UPDATE ' . USERS_TABLE . " SET shout_bbcode = '" . $this->db->sql_escape($ok_bbcode) . "' WHERE user_id = $on_user";
-				$this->shoutbox->shout_sql_query($sql);
+				$this->shoutbox->shout_sql_query('UPDATE ' . USERS_TABLE . " SET shout_bbcode = '" . $this->db->sql_escape($ok_bbcode) . "' WHERE user_id = $on_user");
 				$text = $open . $this->language->lang('SHOUT_EXEMPLE') . $close;
 				generate_text_for_storage($text, $uid, $bitfield, $options, true, false, true);
 				$text = generate_text_for_display($text, $uid, $bitfield, $options);
@@ -493,7 +492,7 @@ class functions_ajax
 			$options = 0;
 			$uid = $bitfield = '';
 			$on_bbcode = explode('||', $row['shout_bbcode']);
-			$message = $on_bbcode[0] . $this->language->lang('SHOUT_EXEMPLE') . $on_bbcode[1];
+			$message = $on_bbcode[0] . $message . $on_bbcode[1];
 			generate_text_for_storage($message, $uid, $bitfield, $options, true, false, true);
 			$message = generate_text_for_display($message, $uid, $bitfield, $options);
 		}
