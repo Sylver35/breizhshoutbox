@@ -1051,7 +1051,7 @@ class functions_ajax
 		$this->shoutbox->shout_run_robot(true);
 		$sql_where = $this->shoutbox->shout_sql_where($val['is_user'], $val['userid'], $on_bot);
 
-		return ['t' => $this->get_shout_time($val['shout_table'], $sql_where)];
+		return ['t' => $this->get_time($val['shout_table'], $sql_where)];
 	}
 
 	public function ajax_view($val, $on_bot, $start)
@@ -1112,15 +1112,15 @@ class functions_ajax
 
 		$data = array_merge($data, [
 			// Get the last message time
-			'last'		=> $this->get_shout_time($val['shout_table'], $sql_where),
+			'last'		=> $this->get_time($val['shout_table'], $sql_where),
 			// The number of total messages for pagination
-			'number'	=> $this->shout_pagination($sql_where, $val['shout_table'], $val['priv']),
+			'number'	=> $this->get_pagination($sql_where, $val['shout_table'], $val['priv']),
 		]);
 
 		return $data;
 	}
 
-	private function shout_pagination($sql_where, $table, $priv)
+	private function get_pagination($sql_where, $table, $priv)
 	{
 		$sql = $this->db->sql_build_query('SELECT', [
 			'SELECT'	=> 'COUNT(s.shout_id) as nr',
@@ -1138,7 +1138,7 @@ class functions_ajax
 		return $nb;
 	}
 
-	private function get_shout_time($table, $sql_where)
+	private function get_time($table, $sql_where)
 	{
 		$sql = $this->db->sql_build_query('SELECT', [
 			'SELECT'	=> 's.shout_time',
