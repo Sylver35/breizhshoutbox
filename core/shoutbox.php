@@ -2754,22 +2754,6 @@ class shoutbox
 		return $row;
 	}
 
-	public function get_shout_time($table, $sql_where)
-	{
-		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 's.shout_time',
-			'FROM'		=> [$table => 's'],
-			'WHERE'		=> $sql_where,
-			'ORDER_BY'	=> 's.shout_id DESC',
-		]);
-		$result = $this->shout_sql_query($sql, true, 1);
-		// check just with the last 4 numbers
-		$last_time = (string) substr($this->db->sql_fetchfield('shout_time'), 6, 4);
-		$this->db->sql_freeresult($result);
-
-		return $last_time;
-	}
-
 	public function extract_dateformat($is_user)
 	{
 		$dateformat = $this->config['shout_dateformat'];
@@ -2814,24 +2798,6 @@ class shoutbox
 		}
 
 		return $data;
-	}
-
-	public function shout_pagination($sql_where, $table, $priv)
-	{
-		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 'COUNT(s.shout_id) as nr',
-			'FROM'		=> [$table => 's'],
-			'WHERE'		=> $sql_where,
-		]);
-		$result = $this->db->sql_query($sql);
-		$nb = (int) $this->db->sql_fetchfield('nr');
-		$this->db->sql_freeresult($result);
-
-		// Limit the number of messages to display
-		$max_number = (int) $this->config['shout_max_posts_on' . $priv];
-		$nb = (($max_number > 0) && ($nb > $max_number)) ? $max_number : $nb;
-
-		return $nb;
 	}
 
 	public function shout_sql_where($is_user, $userid, $on_bot)
