@@ -146,6 +146,25 @@ class functions_ajax
 		return $val;
 	}
 
+	public function get_var($var, $default)
+	{
+		$multibyte = ($default === '') ? true : false;
+		$variable = $this->request->variable($var, $default, $multibyte);
+
+		if ($multibyte)
+		{
+			return (string) $variable;
+		}
+		else if (is_bool($default))
+		{
+			return (bool) $variable;
+		}
+		else
+		{
+			return (int) $variable;
+		}
+	}
+
 	/**
 	 * Displays the rules with apropriate language
 	 * @param $sort string sort of shoutbox 
@@ -226,25 +245,6 @@ class functions_ajax
 		return $this->shoutbox->shout_url($data);
 	}
 
-	public function get_var($var, $default)
-	{
-		$multibyte = ($default === '') ? true : false;
-		$variable = $this->request->variable($var, $default, $multibyte);
-
-		if ($multibyte)
-		{
-			return (string) $variable;
-		}
-		else if (is_bool($default))
-		{
-			return (bool) $variable;
-		}
-		else
-		{
-			return (int) $variable;
-		}
-	}
-
 	public function ajax_auth($user_id, $username)
 	{
 		$this->language->add_lang('acp/common');
@@ -263,11 +263,10 @@ class functions_ajax
 		{
 			$second = substr($list[$i], 0, 1);
 			$active = $this->auth->acl_get_list($user_id, $list[$i]);
-			$title_auth = $this->language->lang($sort[$second]);
-			$lang_auth = $this->language->lang('ACL_' . strtoupper($list[$i]));
 			$class = ($active) ? 'auth_yes' : 'auth_no';
-			$title[$i] = ($second !== $first) ? $title_auth : '';
-			$data[$i] = $this->language->lang('SHOUT_OPTION_' . ($active ? 'YES' : 'NO'), $lang_auth, $class);
+			$title[$i] = ($second !== $first) ? $this->language->lang($sort[$second]) : '';
+			$data[$i] = $this->language->lang('SHOUT_OPTION_' . ($active ? 'YES' : 'NO'), $this->language->lang('ACL_' . strtoupper($list[$i])), $class);
+			// Keep this value in memory
 			$first = $second;
 		}
 
@@ -480,11 +479,9 @@ class functions_ajax
 		];
 		$message = $this->language->lang('SHOUT_EXEMPLE');
 
-		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 'user_id, user_type, username, user_colour, shout_bbcode',
-			'FROM'		=> [USERS_TABLE => ''],
-			'WHERE'		=> 'user_id = ' . $id,
-		]);
+		$sql = 'SELECT user_id, user_type, username, user_colour, shout_bbcode
+			FROM ' . USERS_TABLE . '
+				WHERE user_id = ' . $id;
 		$result = $this->shoutbox->shout_sql_query($sql, true, 1);
 		$row = $this->db->sql_fetchrow($result);
 		if ($row['shout_bbcode'])
@@ -718,6 +715,7 @@ class functions_ajax
 		}
 		else
 		{
+			// no perm, out...
 			return [
 				'type'		=> 0,
 				'message'	=> $this->language->lang('NO_ACTION_PERM'),
@@ -1118,6 +1116,19 @@ class functions_ajax
 		]);
 
 		return $data;
+	}
+
+	public function exclude($mode)
+	{
+		$exclude = ['smilies', 'smilies_popup', 'display_smilies', 'online', 'question', 'preview_rules', 'date_format', 'action_sound'];
+		if (!in_array($mode, $exclude))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	private function get_pagination($sql_where, $table, $priv)

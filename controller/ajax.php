@@ -34,7 +34,10 @@ class ajax
 	public function construct_ajax($mode)
 	{
 		$data = [];
-		$val = $this->functions_ajax->shout_initialize($mode, $this->functions_ajax->get_var('sort', 2), $this->functions_ajax->get_var('user', 0), $this->functions_ajax->get_var('other', 0));
+		if ($this->functions_ajax->exclude($mode))
+		{
+			$val = $this->functions_ajax->shout_initialize($mode, $this->get_var('sort', 2), $this->get_var('user', 0), $this->get_var('other', 0));
+		}
 
 		switch ($mode)
 		{
@@ -43,15 +46,15 @@ class ajax
 			break;
 
 			case 'smilies_popup':
-				$data = $this->functions_ajax->ajax_smilies_popup($this->functions_ajax->get_var('cat', -1));
+				$data = $this->functions_ajax->ajax_smilies_popup($this->get_var('cat', -1));
 			break;
 
 			case 'display_smilies':
-				$data = $this->functions_ajax->ajax_display_smilies($this->functions_ajax->get_var('smiley', 0), $this->functions_ajax->get_var('display', 3));
+				$data = $this->functions_ajax->ajax_display_smilies($this->get_var('smiley', 0), $this->get_var('display', 3));
 			break;
 
 			case 'user_bbcode':
-				$data = $this->functions_ajax->ajax_user_bbcode($val, $this->functions_ajax->get_var('open', ''), $this->functions_ajax->get_var('close', ''));
+				$data = $this->functions_ajax->ajax_user_bbcode($val, $this->get_var('open', ''), $this->get_var('close', ''));
 			break;
 
 			case 'charge_bbcode':
@@ -67,7 +70,7 @@ class ajax
 			break;
 
 			case 'auth':
-				$data = $this->functions_ajax->ajax_auth($val['other'], $this->functions_ajax->get_var('name', ''));
+				$data = $this->functions_ajax->ajax_auth($val['other'], $this->get_var('name', ''));
 			break;
 
 			case 'rules':
@@ -75,15 +78,15 @@ class ajax
 			break;
 
 			case 'preview_rules':
-				$data = $this->functions_ajax->ajax_preview_rules($this->functions_ajax->get_var('content', ''));
+				$data = $this->functions_ajax->ajax_preview_rules($this->get_var('content', ''));
 			break;
 
 			case 'date_format':
-				$data = $this->functions_ajax->ajax_date_format($this->functions_ajax->get_var('date', ''));
+				$data = $this->functions_ajax->ajax_date_format($this->get_var('date', ''));
 			break;
 
 			case 'action_sound':
-				$data = $this->functions_ajax->ajax_action_sound($this->functions_ajax->get_var('sound', 1));
+				$data = $this->functions_ajax->ajax_action_sound($this->get_var('sound', 1));
 			break;
 
 			case 'cite':
@@ -95,7 +98,7 @@ class ajax
 			break;
 
 			case 'action_post':
-				$data = $this->functions_ajax->ajax_action_post($val, $this->functions_ajax->get_var('message', ''));
+				$data = $this->functions_ajax->ajax_action_post($val, $this->get_var('message', ''));
 			break;
 
 			case 'action_del':
@@ -111,7 +114,7 @@ class ajax
 			break;
 
 			case 'delete':
-				$data = $this->functions_ajax->ajax_delete($val, $this->functions_ajax->get_var('post', 0));
+				$data = $this->functions_ajax->ajax_delete($val, $this->get_var('post', 0));
 			break;
 
 			case 'purge':
@@ -123,28 +126,29 @@ class ajax
 			break;
 
 			case 'edit':
-				$data = $this->functions_ajax->ajax_edit($val, $this->functions_ajax->get_var('shout_id', 0), $this->functions_ajax->get_var('message', ''));
+				$data = $this->functions_ajax->ajax_edit($val, $this->get_var('shout_id', 0), $this->get_var('message', ''));
 			break;
 
 			case 'post':
-				$data = $this->functions_ajax->ajax_post($val, $this->functions_ajax->get_var('message', ''), $this->functions_ajax->get_var('name', ''), $this->functions_ajax->get_var('cite', 0));
+				$data = $this->functions_ajax->ajax_post($val, $this->get_var('message', ''), $this->get_var('name', ''), $this->get_var('cite', 0));
 			break;
 
 			case 'check':
-			case 'check_pop':
-			case 'check_priv':
-				$data = $this->functions_ajax->ajax_check($val, $this->functions_ajax->get_var('on_bot', true));
+				$data = $this->functions_ajax->ajax_check($val, $this->get_var('on_bot', true));
 			break;
 
 			case 'view':
-			case 'view_pop':
-			case 'view_priv':
-				$data = $this->functions_ajax->ajax_view($val, $this->functions_ajax->get_var('on_bot', true), $this->functions_ajax->get_var('start', 0));
+				$data = $this->functions_ajax->ajax_view($val, $this->get_var('on_bot', true), $this->get_var('start', 0));
 			break;
 		}
 
 		// Send the response to the browser now
 		$json_response = new \phpbb\json_response;
 		$json_response->send($data, true);
+	}
+
+	private function get_var($var, $default)
+	{
+		return $this->functions_ajax->get_var($var, $default);
 	}
 }
