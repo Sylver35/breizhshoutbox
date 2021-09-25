@@ -33,7 +33,7 @@ class ajax
 	 */
 	public function construct_ajax($mode)
 	{
-		$data = [];
+		$data = $val = [];
 		if ($this->functions_ajax->exclude($mode))
 		{
 			$val = $this->functions_ajax->shout_initialize($mode, $this->get_var('sort', 2), $this->get_var('user', 0), $this->get_var('other', 0));
