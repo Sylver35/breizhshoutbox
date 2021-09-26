@@ -240,21 +240,21 @@ class functions_admin
 		{
 			$val_priv = '_priv';
 			$val_priv_on = '_PRIV';
-			$shoutbox_table = $this->shoutbox_priv_table;
+			$table = $this->shoutbox_priv_table;
 		}
 		else
 		{
 			$val_priv = $val_priv_on = '';
-			$shoutbox_table = $this->shoutbox_table;
+			$table = $this->shoutbox_table;
 		}
 
 		$sql = 'SELECT COUNT(shout_id) as total
-			FROM ' . $shoutbox_table;
+			FROM ' . $table;
 		$result = $this->db->sql_query($sql);
 		$deleted = (int) $this->db->sql_fetchfield('total');
 		$this->db->sql_freeresult($result);
 
-		$this->db->sql_query('TRUNCATE ' . $shoutbox_table);
+		$this->db->sql_query('TRUNCATE ' . $table);
 
 		$this->config->increment('shout_del_purge' . $val_priv, $deleted, true);
 		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_PURGE_SHOUTBOX' . $val_priv_on, time());
@@ -269,12 +269,12 @@ class functions_admin
 		{
 			$val_priv = '_priv';
 			$val_priv_on = '_PRIV';
-			$shoutbox_table = $this->shoutbox_priv_table;
+			$table = $this->shoutbox_priv_table;
 		}
 		else
 		{
 			$val_priv = $val_priv_on = '';
-			$shoutbox_table = $this->shoutbox_table;
+			$table = $this->shoutbox_table;
 		}
 
 		switch ($sort)
@@ -299,7 +299,7 @@ class functions_admin
 			break;
 		}
 
-		$this->db->sql_query('DELETE FROM ' . $shoutbox_table . ' WHERE ' . $this->db->sql_in_set('shout_info', $shout_info, false, true));
+		$this->db->sql_query('DELETE FROM ' . $table . ' WHERE ' . $this->db->sql_in_set('shout_info', $shout_info, false, true));
 		$deleted = $this->db->sql_affectedrows();
 
 		if ($deleted)
@@ -457,9 +457,9 @@ class functions_admin
 	public function get_messages($start, $shout_number, $sort)
 	{
 		$i = 0;
-		$shoutbox_table = ($sort) ? $this->shoutbox_table : $this->shoutbox_priv_table;
+		$table = ($sort) ? $this->shoutbox_table : $this->shoutbox_priv_table;
 		$sql_nr = 'SELECT COUNT(DISTINCT shout_id) as total
-			FROM ' . $shoutbox_table . '
+			FROM ' . $table . '
 			WHERE shout_inp = 0
 				OR shout_inp = ' . $this->user->data['user_id'] . '
 				OR shout_user_id = ' . $this->user->data['user_id'];
@@ -468,8 +468,8 @@ class functions_admin
 		$this->db->sql_freeresult($result_nr);
 
 		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 's.*, u.user_id, u.username, u.user_colour, v.user_id as x_user_id, v.username as x_username, v.user_colour as x_user_colour',
-			'FROM'		=> [$shoutbox_table => 's'],
+			'SELECT'	=> 's.*, u.user_id, u.username, u.user_colour, v.user_id as v_user_id, v.username as v_username, v.user_colour as v_user_colour',
+			'FROM'		=> [$table => 's'],
 			'LEFT_JOIN'	=> [
 				[
 					'FROM'	=> [USERS_TABLE => 'u'],
@@ -548,12 +548,12 @@ class functions_admin
 
 		$marked = $this->request->variable('mark', [0]);
 		$priv = $private = $where_sql = '';
-		$shoutbox_table = $this->shoutbox_table;
+		$table = $this->shoutbox_table;
 		if ($sort)
 		{
 			$priv = '_priv';
 			$private = '_PRIV';
-			$shoutbox_table = $this->shoutbox_priv_table;
+			$table = $this->shoutbox_priv_table;
 		}
 
 		if ($deletemark && sizeof($marked))
@@ -569,10 +569,10 @@ class functions_admin
 
 		if ($where_sql)
 		{
-			$this->db->sql_query('DELETE FROM ' . $shoutbox_table . $where_sql);
+			$this->db->sql_query('DELETE FROM ' . $table . $where_sql);
 			$deleted = $this->db->sql_affectedrows();
 			// Reload the shoutbox for all
-			$this->shoutbox->update_shout_messages($shoutbox_table);
+			$this->shoutbox->update_shout_messages($table);
 
 			$message = $this->shoutbox->plural('LOG_SELECT', $deleted, '_SHOUTBOX' . $private);
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), [$deleted]);
@@ -630,6 +630,31 @@ class functions_admin
 			$deleted = $this->purge_shout_admin($action, $sort);
 			trigger_error($this->language->lang("LOG_PURGE_SHOUTBOX{$private}_ROBOT", $deleted) . adm_back_link($u_action));
 		}
+	}
+
+	public function list_smilies($sort)
+	{
+		$block = ($sort === 1) ? 'smilies' : 'smilies_popup';
+		$sql = $this->db->sql_build_query('SELECT', [
+			'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
+			'FROM'		=> [SMILIES_TABLE => ''],
+			'WHERE'		=> 'display_on_shout = ' . $sort,
+			'GROUP_BY'	=> 'smiley_url',
+			'ORDER_BY'	=> 'min_smiley_order ASC',
+		]);
+		$result = $this->db->sql_query($sql);
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$this->template->assign_block_vars($block , [
+				'SRC'		=> $row['smiley_url'],
+				'ID'		=> $row['smiley_id'],
+				'CODE'		=> $row['code'],
+				'EMOTION'	=> $row['emotion'],
+				'WIDTH'		=> $row['smiley_width'],
+				'HEIGHT'	=> $row['smiley_height'],
+			]);
+		}
+		$this->db->sql_freeresult($result);
 	}
 
 	public function update_config($data)

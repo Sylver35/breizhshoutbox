@@ -105,7 +105,7 @@ class functions_ajax
 			'privat'		=> '',
 			'sort_on'		=> '',
 			'board'			=> $this->root_path_web,
-			'shout_table'	=> $this->shoutbox_table,
+			'table'			=> $this->shoutbox_table,
 			'viewonline'	=> $this->auth->acl_get('u_viewonline'),
 		];
 
@@ -122,13 +122,13 @@ class functions_ajax
 			// Private shoutbox
 			case 3:
 				$val = array_merge($val, [
-					'on_priv'		=> true,
-					'sort_on'		=> '_priv',
-					'perm'			=> '_priv',
-					'priv'			=> '_priv',
-					'auth'			=> '_priv',
-					'privat'		=> '_PRIV',
-					'shout_table'	=> $this->shoutbox_priv_table,
+					'on_priv'	=> true,
+					'sort_on'	=> '_priv',
+					'perm'		=> '_priv',
+					'priv'		=> '_priv',
+					'auth'		=> '_priv',
+					'privat'	=> '_PRIV',
+					'table'		=> $this->shoutbox_priv_table,
 				]);
 			break;
 		}
@@ -146,22 +146,19 @@ class functions_ajax
 		return $val;
 	}
 
-	public function get_var($var, $default)
+	public function get_var($value, $default)
 	{
-		$multibyte = ($default === '') ? true : false;
-		$variable = $this->request->variable($var, $default, $multibyte);
-
-		if ($multibyte)
+		if ($default === '')
 		{
-			return (string) $variable;
+			return (string) $this->request->variable($value, '', true);
 		}
 		else if (is_bool($default))
 		{
-			return (bool) $variable;
+			return (bool) $this->request->variable($value, $default);
 		}
 		else
 		{
-			return (int) $variable;
+			return (int) $this->request->variable($value, $default);
 		}
 	}
 
@@ -170,7 +167,7 @@ class functions_ajax
 	 * @param $sort string sort of shoutbox 
 	 * Return array
 	 */
-	public function ajax_rules($sort)
+	public function rules($sort)
 	{
 		$iso = $this->shoutbox->check_shout_rules($sort);
 		if ($iso !== '')
@@ -197,7 +194,7 @@ class functions_ajax
 	 * Replace urls for users actions shout
 	 * Return array
 	 */
-	public function ajax_online()
+	public function online()
 	{
 		$online = obtain_users_online();
 		$online_strings = obtain_users_online_string($online);
@@ -245,7 +242,7 @@ class functions_ajax
 		return $this->shoutbox->shout_url($data);
 	}
 
-	public function ajax_auth($user_id, $username)
+	public function auth($user_id, $username)
 	{
 		$this->language->add_lang('acp/common');
 		$this->language->add_lang('permissions_shoutbox', 'sylver35/breizhshoutbox');
@@ -278,7 +275,7 @@ class functions_ajax
 		];
 	}
 
-	public function ajax_smilies()
+	public function smilies()
 	{
 		$smilies = $this->extact_list_smilies(1);
 
@@ -309,7 +306,7 @@ class functions_ajax
 		return $content;
 	}
 
-	public function ajax_smilies_popup($cat)
+	public function smilies_popup($cat)
 	{
 		$smilies = $this->extact_list_smilies(0);
 
@@ -335,7 +332,7 @@ class functions_ajax
 		return $content;
 	}
 
-	public function ajax_display_smilies($smiley, $display)
+	public function display_smilies($smiley, $display)
 	{
 		$var_set = ($display === 1) ? 0 : 1;
 		$data = [
@@ -395,7 +392,7 @@ class functions_ajax
 		];
 	}
 
-	public function ajax_question()
+	public function question()
 	{
 		$guest_can_post = $this->auth->acl_get_list(ANONYMOUS, 'u_shout_post');
 
@@ -408,7 +405,7 @@ class functions_ajax
 		];
 	}
 
-	public function ajax_user_bbcode($val, $open, $close)
+	public function user_bbcode($val, $open, $close)
 	{
 		$text = $message = '';
 		$on_user = ($val['other'] > 0) ? $val['other'] : $val['userid'];
@@ -471,7 +468,7 @@ class functions_ajax
 		];
 	}
 
-	public function ajax_charge_bbcode($id)
+	public function charge_bbcode($id)
 	{
 		$on_bbcode = [
 			0	=> '',
@@ -504,7 +501,7 @@ class functions_ajax
 		];
 	}
 
-	public function ajax_preview_rules($rules)
+	public function preview_rules($rules)
 	{
 		$options = 0;
 		$uid = $bitfield = '';
@@ -516,7 +513,7 @@ class functions_ajax
 		];
 	}
 
-	public function ajax_date_format($date)
+	public function date_format($date)
 	{
 		$date = ($date == 'custom') ? $this->config['shout_dateformat'] : $date;
 
@@ -527,7 +524,7 @@ class functions_ajax
 		];
 	}
 
-	public function ajax_action_sound($on_sound)
+	public function action_sound($on_sound)
 	{
 		$data = [];
 		$user_shout = json_decode($this->user->data['user_shout']);
@@ -575,7 +572,7 @@ class functions_ajax
 		return $data;
 	}
 
-	public function ajax_cite($id)
+	public function cite($id)
 	{
 		$sql = 'SELECT user_id, user_type
 			FROM ' . USERS_TABLE . '
@@ -599,7 +596,7 @@ class functions_ajax
 		}
 	}
 
-	public function ajax_action_user($val)
+	public function action_user($val)
 	{
 		if (!$val['is_user'] || !$val['other'] || $val['other'] == ANONYMOUS)
 		{
@@ -643,7 +640,7 @@ class functions_ajax
 		}
 	}
 
-	public function ajax_action_post($val, $message)
+	public function action_post($val, $message)
 	{
 		if ($this->auth->acl_gets(['u_shout_post_inp', 'm_shout_robot', 'a_', 'm_']))
 		{
@@ -704,7 +701,7 @@ class functions_ajax
 				'shout_info'				=> (int) $info,
 				'shout_inp'					=> (int) $val['other'],
 			];
-			$sql = 'INSERT INTO ' . $val['shout_table'] . ' ' . $this->db->sql_build_array('INSERT', $sql_ary);
+			$sql = 'INSERT INTO ' . $val['table'] . ' ' . $this->db->sql_build_array('INSERT', $sql_ary);
 			$this->db->sql_query($sql);
 			$this->config->increment('shout_nr' . $val['priv'], 1, true);
 
@@ -723,7 +720,7 @@ class functions_ajax
 		}
 	}
 
-	public function ajax_action_del($val)
+	public function action_del($val)
 	{
 		if ($val['other'] !== $val['userid'])
 		{
@@ -735,7 +732,7 @@ class functions_ajax
 		else
 		{
 			// Delete all personnal messages of this user
-			$sql = 'DELETE FROM ' . $val['shout_table'] . '
+			$sql = 'DELETE FROM ' . $val['table'] . '
 				WHERE shout_user_id = ' . $val['other'] . '
 					AND shout_inp <> 0';
 			$this->shoutbox->shout_sql_query($sql);
@@ -750,7 +747,7 @@ class functions_ajax
 			else
 			{
 				// For reload the message to everybody
-				$this->shoutbox->update_shout_messages($val['shout_table']);
+				$this->shoutbox->update_shout_messages($val['table']);
 				$this->config->increment('shout_del_user' . $val['priv'], $deleted, true);
 				return [
 					'type'		=> 1,
@@ -760,7 +757,7 @@ class functions_ajax
 		}
 	}
 
-	public function ajax_action_del_to($val)
+	public function action_del_to($val)
 	{
 		if ($val['other'] !== $val['userid'])
 		{
@@ -772,7 +769,7 @@ class functions_ajax
 		else
 		{
 			// Delete all personnal messages to this user
-			$sql = 'DELETE FROM ' . $val['shout_table'] . '
+			$sql = 'DELETE FROM ' . $val['table'] . '
 				WHERE shout_inp = ' . $val['other'] . '
 					AND shout_user_id <> ' . $val['other'];
 			$this->shoutbox->shout_sql_query($sql);
@@ -786,7 +783,7 @@ class functions_ajax
 			}
 			else
 			{
-				$this->shoutbox->update_shout_messages($val['shout_table']);
+				$this->shoutbox->update_shout_messages($val['table']);
 				$this->config->increment('shout_del_user' . $val['priv'], $deleted, true);
 				return [
 					'type'		=> 1,
@@ -796,12 +793,12 @@ class functions_ajax
 		}
 	}
 
-	public function ajax_action_remove($val)
+	public function action_remove($val)
 	{
 		if ($this->auth->acl_gets(['a_shout_manage', 'm_shout_delete']))
 		{
 			// Delete all messages of this user
-			$sql = 'DELETE FROM ' . $val['shout_table'] . '
+			$sql = 'DELETE FROM ' . $val['table'] . '
 				WHERE shout_user_id = ' . $val['other'] . '
 					OR shout_robot_user = ' . $val['other'] . '
 					OR shout_inp = ' . $val['other'];
@@ -809,7 +806,7 @@ class functions_ajax
 			$deleted = $this->db->sql_affectedrows();
 			if ($deleted)
 			{
-				$this->shoutbox->update_shout_messages($val['shout_table']);
+				$this->shoutbox->update_shout_messages($val['table']);
 				$this->config->increment('shout_del_user' . $val['priv'], $deleted, true);
 				return [
 					'type'		=> 1,
@@ -833,7 +830,7 @@ class functions_ajax
 		}
 	}
 
-	public function ajax_delete($val, $post)
+	public function delete($val, $post)
 	{
 		if (!$post)
 		{
@@ -848,7 +845,7 @@ class functions_ajax
 		$can_delete = $can_delete_all ? true : $this->auth->acl_get('u_shout_delete_s');
 
 		$sql = 'SELECT shout_user_id
-			FROM ' . $val['shout_table'] . "
+			FROM ' . $val['table'] . "
 				WHERE shout_id = $post";
 		$result = $this->shoutbox->shout_sql_query($sql, true, 1);
 		$on_id = $this->db->sql_fetchfield('shout_user_id');
@@ -866,11 +863,11 @@ class functions_ajax
 		else
 		{
 			// Lets delete this post :D
-			$sql = 'DELETE FROM ' . $val['shout_table'] . '
+			$sql = 'DELETE FROM ' . $val['table'] . '
 				WHERE shout_id = ' . $post;
 			$this->db->sql_query($sql);
 
-			$this->shoutbox->update_shout_messages($val['shout_table']);
+			$this->shoutbox->update_shout_messages($val['table']);
 			$this->config->increment('shout_del_user' . $val['priv'], 1, true);
 			return [
 				'type'	=> 1,
@@ -880,7 +877,7 @@ class functions_ajax
 		}
 	}
 
-	public function ajax_purge($val)
+	public function purge($val)
 	{
 		if (!$this->auth->acl_get('a_shout' . $val['auth']))
 		{
@@ -893,13 +890,13 @@ class functions_ajax
 		{
 			// First count total id
 			$sql = 'SELECT COUNT(shout_id) as total
-				FROM ' . $val['shout_table'];
+				FROM ' . $val['table'];
 			$result = $this->db->sql_query($sql);
 			$deleted = (int) $this->db->sql_fetchfield('total');
 			$this->db->sql_freeresult($result);
 
 			// And now truncate the table, new id increment to 0
-			$sql = 'TRUNCATE ' . $val['shout_table'];
+			$sql = 'TRUNCATE ' . $val['table'];
 			$this->db->sql_query($sql);
 
 			$this->config->increment('shout_del_purge' . $val['priv'], $deleted, true);
@@ -912,7 +909,7 @@ class functions_ajax
 		}
 	}
 
-	public function ajax_purge_robot($val)
+	public function purge_robot($val)
 	{
 		if (!$this->auth->acl_get('a_shout' . $val['auth']))
 		{
@@ -925,7 +922,7 @@ class functions_ajax
 		{
 			$sort_on = explode(', ', $this->config['shout_robot_choice' . $val['priv']] . ', 4');
 
-			$sql = 'DELETE FROM ' . $val['shout_table'] . '
+			$sql = 'DELETE FROM ' . $val['table'] . '
 				WHERE ' . $this->db->sql_in_set('shout_info', $sort_on, false, true);
 			$this->shoutbox->shout_sql_query($sql);
 			$deleted = $this->db->sql_affectedrows();
@@ -940,7 +937,7 @@ class functions_ajax
 		}
 	}
 
-	public function ajax_edit($val, $shout_id, $message)
+	public function edit($val, $shout_id, $message)
 	{
 		if (!$this->shoutbox->shout_check_edit($val, $shout_id))
 		{
@@ -967,13 +964,13 @@ class functions_ajax
 			'shout_bbcode_flags'	=> $options,
 		];
 
-		$sql = 'UPDATE ' . $val['shout_table'] . '
+		$sql = 'UPDATE ' . $val['table'] . '
 			SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
 				WHERE shout_id = ' . $shout_id;
 		$this->shoutbox->shout_sql_query($sql);
 
 		// For reload the message to everybody
-		$this->shoutbox->update_shout_messages($val['shout_table']);
+		$this->shoutbox->update_shout_messages($val['table']);
 		$message = generate_text_for_display($message, $uid, $bitfield, $options);
 
 		return [
@@ -985,7 +982,7 @@ class functions_ajax
 		];
 	}
 
-	public function ajax_post($val, $message, $name, $cite)
+	public function post($val, $message, $name, $cite)
 	{
 		if (!$this->auth->acl_get('u_shout_post'))
 		{
@@ -1031,7 +1028,7 @@ class functions_ajax
 			'shout_info'			=> ($cite > 1) ? 66 : 0,
 		];
 
-		$sql = 'INSERT INTO ' . $val['shout_table'] . ' ' . $this->db->sql_build_array('INSERT', $sql_ary);
+		$sql = 'INSERT INTO ' . $val['table'] . ' ' . $this->db->sql_build_array('INSERT', $sql_ary);
 		$this->shoutbox->shout_sql_query($sql);
 		$this->config->increment('shout_nr' . $val['priv'], 1, true);
 		$this->shoutbox->delete_shout_posts($val);
@@ -1044,15 +1041,15 @@ class functions_ajax
 		];
 	}
 
-	public function ajax_check($val, $on_bot)
+	public function check($val, $on_bot)
 	{
 		$this->shoutbox->shout_run_robot(true);
 		$sql_where = $this->shoutbox->shout_sql_where($val['is_user'], $val['userid'], $on_bot);
 
-		return ['t' => $this->get_time($val['shout_table'], $sql_where)];
+		return ['t' => $this->get_time($val['table'], $sql_where)];
 	}
 
-	public function ajax_view($val, $on_bot, $start)
+	public function view($val, $on_bot, $start)
 	{
 		$data = [
 			'messages'	=> [],
@@ -1065,8 +1062,8 @@ class functions_ajax
 		$is_mobile = $this->shoutbox->shout_is_mobile();
 
 		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 's.*, u.user_id, u.username, u.user_colour, u.user_avatar, u.user_avatar_type, u.user_avatar_width, u.user_avatar_height, u.user_type, v.user_id as x_user_id, v.username as x_username, v.user_colour as x_user_colour, v.user_avatar as x_user_avatar, v.user_avatar_type as x_user_avatar_type, v.user_avatar_width as x_user_avatar_width, v.user_avatar_height as x_user_avatar_height, v.user_type as x_user_type',
-			'FROM'		=> [$val['shout_table'] => 's'],
+			'SELECT'	=> 's.*, u.user_id, u.username, u.user_colour, u.user_avatar, u.user_avatar_type, u.user_avatar_width, u.user_avatar_height, u.user_type, v.user_id as v_user_id, v.username as v_username, v.user_colour as v_user_colour, v.user_avatar as v_user_avatar, v.user_avatar_type as v_user_avatar_type, v.user_avatar_width as v_user_avatar_width, v.user_avatar_height as v_user_avatar_height, v.user_type as v_user_type',
+			'FROM'		=> [$val['table'] => 's'],
 			'LEFT_JOIN'	=> [
 				[
 					'FROM'	=> [USERS_TABLE => 'u'],
@@ -1110,9 +1107,9 @@ class functions_ajax
 
 		$data = array_merge($data, [
 			// Get the last message time
-			'last'		=> $this->get_time($val['shout_table'], $sql_where),
+			'last'		=> $this->get_time($val['table'], $sql_where),
 			// The number of total messages for pagination
-			'number'	=> $this->get_pagination($sql_where, $val['shout_table'], $val['priv']),
+			'number'	=> $this->get_pagination($sql_where, $val['table'], $val['priv']),
 		]);
 
 		return $data;
@@ -1133,11 +1130,9 @@ class functions_ajax
 
 	private function get_pagination($sql_where, $table, $priv)
 	{
-		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 'COUNT(s.shout_id) as nr',
-			'FROM'		=> [$table => 's'],
-			'WHERE'		=> $sql_where,
-		]);
+		$sql = 'SELECT COUNT(s.shout_id) as nr
+			FROM ' . $table . ' s
+				WHERE ' . $sql_where;
 		$result = $this->shoutbox->shout_sql_query($sql);
 		$nb = (int) $this->db->sql_fetchfield('nr');
 		$this->db->sql_freeresult($result);
@@ -1151,12 +1146,10 @@ class functions_ajax
 
 	private function get_time($table, $sql_where)
 	{
-		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 's.shout_time',
-			'FROM'		=> [$table => 's'],
-			'WHERE'		=> $sql_where,
-			'ORDER_BY'	=> 's.shout_id DESC',
-		]);
+		$sql = 'SELECT s.shout_time
+			FROM ' . $table . " s
+				WHERE $sql_where
+				ORDER BY s.shout_id DESC";
 		$result = $this->shoutbox->shout_sql_query($sql, true, 1);
 		// check just with the last 4 numbers
 		$last_time = (string) substr($this->db->sql_fetchfield('shout_time'), 6, 4);

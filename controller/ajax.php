@@ -36,109 +36,109 @@ class ajax
 		$data = $val = [];
 		if ($this->functions_ajax->exclude($mode))
 		{
-			$val = $this->functions_ajax->shout_initialize($mode, $this->get_var('sort', 2), $this->get_var('user', 0), $this->get_var('other', 0));
+			$val = $this->functions_ajax->shout_initialize($mode, $this->value('sort', 2), $this->value('user', 0), $this->value('other', 0));
 		}
 
 		switch ($mode)
 		{
 			case 'smilies':
-				$data = $this->functions_ajax->ajax_smilies();
+				$data = $this->functions_ajax->smilies();
 			break;
 
 			case 'smilies_popup':
-				$data = $this->functions_ajax->ajax_smilies_popup($this->get_var('cat', -1));
+				$data = $this->functions_ajax->smilies_popup($this->value('cat', -1));
 			break;
 
 			case 'display_smilies':
-				$data = $this->functions_ajax->ajax_display_smilies($this->get_var('smiley', 0), $this->get_var('display', 3));
+				$data = $this->functions_ajax->display_smilies($this->value('smiley', 0), $this->value('display', 3));
 			break;
 
 			case 'user_bbcode':
-				$data = $this->functions_ajax->ajax_user_bbcode($val, $this->get_var('open', ''), $this->get_var('close', ''));
+				$data = $this->functions_ajax->user_bbcode($val, $this->value('open', ''), $this->value('close', ''));
 			break;
 
 			case 'charge_bbcode':
-				$data = $this->functions_ajax->ajax_charge_bbcode($val['other']);
+				$data = $this->functions_ajax->charge_bbcode($val['other']);
 			break;
 
 			case 'online':
-				$data = $this->functions_ajax->ajax_online();
+				$data = $this->functions_ajax->online();
 			break;
 
 			case 'question':
-				$data = $this->functions_ajax->ajax_question();
+				$data = $this->functions_ajax->question();
 			break;
 
 			case 'auth':
-				$data = $this->functions_ajax->ajax_auth($val['other'], $this->get_var('name', ''));
+				$data = $this->functions_ajax->auth($val['other'], $this->value('name', ''));
 			break;
 
 			case 'rules':
-				$data = $this->functions_ajax->ajax_rules($val['priv']);
+				$data = $this->functions_ajax->rules($val['priv']);
 			break;
 
 			case 'preview_rules':
-				$data = $this->functions_ajax->ajax_preview_rules($this->get_var('content', ''));
+				$data = $this->functions_ajax->preview_rules($this->value('content', ''));
 			break;
 
 			case 'date_format':
-				$data = $this->functions_ajax->ajax_date_format($this->get_var('date', ''));
+				$data = $this->functions_ajax->date_format($this->value('date', ''));
 			break;
 
 			case 'action_sound':
-				$data = $this->functions_ajax->ajax_action_sound($this->get_var('sound', 1));
+				$data = $this->functions_ajax->action_sound($this->value('sound', 1));
 			break;
 
 			case 'cite':
-				$data = $this->functions_ajax->ajax_cite($val['other']);
+				$data = $this->functions_ajax->cite($val['other']);
 			break;
 
 			case 'action_user':
-				$data = $this->functions_ajax->ajax_action_user($val);
+				$data = $this->functions_ajax->action_user($val);
 			break;
 
 			case 'action_post':
-				$data = $this->functions_ajax->ajax_action_post($val, $this->get_var('message', ''));
+				$data = $this->functions_ajax->action_post($val, $this->value('message', ''));
 			break;
 
 			case 'action_del':
-				$data = $this->functions_ajax->ajax_action_del($val);
+				$data = $this->functions_ajax->action_del($val);
 			break;
 
 			case 'action_del_to':
-				$data = $this->functions_ajax->ajax_action_del_to($val);
+				$data = $this->functions_ajax->action_del_to($val);
 			break;
 
 			case 'action_remove':
-				$data = $this->functions_ajax->ajax_action_remove($val);
+				$data = $this->functions_ajax->action_remove($val);
 			break;
 
 			case 'delete':
-				$data = $this->functions_ajax->ajax_delete($val, $this->get_var('post', 0));
+				$data = $this->functions_ajax->delete($val, $this->value('post', 0));
 			break;
 
 			case 'purge':
-				$data = $this->functions_ajax->ajax_purge($val);
+				$data = $this->functions_ajax->purge($val);
 			break;
 
 			case 'purge_robot':
-				$data = $this->functions_ajax->ajax_purge_robot($val);
+				$data = $this->functions_ajax->purge_robot($val);
 			break;
 
 			case 'edit':
-				$data = $this->functions_ajax->ajax_edit($val, $this->get_var('shout_id', 0), $this->get_var('message', ''));
+				$data = $this->functions_ajax->edit($val, $this->value('shout_id', 0), $this->value('message', ''));
 			break;
 
 			case 'post':
-				$data = $this->functions_ajax->ajax_post($val, $this->get_var('message', ''), $this->get_var('name', ''), $this->get_var('cite', 0));
+				$data = $this->functions_ajax->post($val, $this->value('message', ''), $this->value('name', ''), $this->value('cite', 0));
 			break;
 
 			case 'check':
-				$data = $this->functions_ajax->ajax_check($val, $this->get_var('on_bot', true));
+				$data = $this->functions_ajax->check($val, $this->value('on_bot', true));
 			break;
 
 			case 'view':
-				$data = $this->functions_ajax->ajax_view($val, $this->get_var('on_bot', true), $this->get_var('start', 0));
+				$data = $this->functions_ajax->view($val, $this->value('on_bot', true), $this->value('start', 0));
 			break;
 		}
 
@@ -147,8 +147,8 @@ class ajax
 		$json_response->send($data, true);
 	}
 
-	private function get_var($var, $default)
+	private function value($value, $default)
 	{
-		return $this->functions_ajax->get_var($var, $default);
+		return $this->functions_ajax->get_var($value, $default);
 	}
 }

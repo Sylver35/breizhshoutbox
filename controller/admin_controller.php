@@ -412,7 +412,6 @@ class admin_controller
 		}
 		else
 		{
-			$start = $this->request->variable('start', 0);
 			$shout_number = (int) $this->config['shout_nr_acp'];
 			$return = $this->functions_admin->get_messages($start, $shout_number, true);
 			$li = $this->functions_admin->get_logs(false);
@@ -508,7 +507,6 @@ class admin_controller
 		}
 		else
 		{
-			$start = $this->request->variable('start', 0);
 			$shout_number = (int) $this->config['shout_nr_acp'];
 			$return = $this->functions_admin->get_messages($start, $shout_number, false);
 			$li = $this->functions_admin->get_logs(true);
@@ -703,47 +701,10 @@ class admin_controller
 
 	public function acp_shoutbox_smilies()
 	{
-		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url,  MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
-			'FROM'		=> [SMILIES_TABLE => ''],
-			'WHERE'		=> 'display_on_shout = 1',
-			'GROUP_BY'	=> 'smiley_url',
-			'ORDER_BY'	=> 'min_smiley_order ASC',
-		]);
-		$result = $this->db->sql_query($sql);
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$this->template->assign_block_vars('smilies', [
-				'SRC'		=> $row['smiley_url'],
-				'ID'		=> $row['smiley_id'],
-				'CODE'		=> $row['code'],
-				'EMOTION'	=> $row['emotion'],
-				'WIDTH'		=> $row['smiley_width'],
-				'HEIGHT'	=> $row['smiley_height'],
-			]);
-		}
-		$this->db->sql_freeresult($result);
-
-		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url,  MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
-			'FROM'		=> [SMILIES_TABLE => ''],
-			'WHERE'		=> 'display_on_shout = 0',
-			'GROUP_BY'	=> 'smiley_url',
-			'ORDER_BY'	=> 'min_smiley_order ASC',
-		]);
-		$result = $this->db->sql_query($sql);
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$this->template->assign_block_vars('smilies_popup', [
-				'SRC'		=> $row['smiley_url'],
-				'ID'		=> $row['smiley_id'],
-				'CODE'		=> $row['code'],
-				'EMOTION'	=> $row['emotion'],
-				'WIDTH'		=> $row['smiley_width'],
-				'HEIGHT'	=> $row['smiley_height'],
-			]);
-		}
-		$this->db->sql_freeresult($result);
+		// List of smilies
+		$this->functions_admin->list_smilies(1);
+		// List of smilies popup
+		$this->functions_admin->list_smilies(0);
 
 		$this->template->assign_vars([
 			'SHOUT_USER_ID'			=> $this->user->data['user_id'],
