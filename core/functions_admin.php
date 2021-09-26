@@ -427,6 +427,7 @@ class functions_admin
 			]);
 		}
 		$this->db->sql_freeresult($result);
+
 		$this->cache->destroy('_shout_rules');
 	}
 
@@ -645,7 +646,7 @@ class functions_admin
 		$result = $this->db->sql_query($sql);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$this->template->assign_block_vars($block , [
+			$this->template->assign_block_vars($block, [
 				'SRC'		=> $row['smiley_url'],
 				'ID'		=> $row['smiley_id'],
 				'CODE'		=> $row['code'],
