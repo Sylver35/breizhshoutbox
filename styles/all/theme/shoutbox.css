@@ -97,7 +97,7 @@ span.avatar-shout > img.popup-avatar {
 #url_more {
 	white-space: nowrap;
 }
-#onText, #onText2, #onTextSmilies {
+#onText, #onTextUser, #onText2, #onTextSmilies {
 	display: inline-block;
 	float: right;
 	margin-right: 8px;

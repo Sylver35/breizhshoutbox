@@ -413,18 +413,18 @@ class admin_controller
 		else
 		{
 			$shout_number = (int) $this->config['shout_nr_acp'];
-			$return = $this->functions_admin->get_messages($start, $shout_number, true);
+			$messges = $this->functions_admin->get_messages($start, $shout_number, true);
 			$li = $this->functions_admin->get_logs(false);
 			$total_del = $this->config['shout_del_acp'] + $this->config['shout_del_auto'] + $this->config['shout_del_purge'] + $this->config['shout_del_user'];
 
 			$this->template->assign_vars([
-				'S_DISPLAY_MESSAGES'		=> ($return['i'] > 0) ? true : false,
+				'S_DISPLAY_MESSAGES'		=> ($messges['i'] > 0) ? true : false,
 				'S_DISPLAY_LOGS'			=> ($li > 0) ? true : false,
-				'S_ON_PAGE'					=> ($return['total_posts'] > $shout_number) ? true : false,
-				'TOTAL_POSTS'				=> $return['total_posts'],
+				'S_ON_PAGE'					=> ($messges['total_posts'] > $shout_number) ? true : false,
+				'TOTAL_POSTS'				=> $messges['total_posts'],
 				'LAST_SHOUT_RUN'			=> ($this->config['shout_last_run'] == $this->config['shout_time']) ? $this->language->lang('SHOUT_NEVER') : $this->user->format_date($this->config['shout_last_run']),
-				'PAGE_NUMBER' 				=> $this->pagination->validate_start($return['total_posts'], $shout_number, $start),
-				'TOTAL_MESSAGES'			=> $this->language->lang('NUMBER_MESSAGE', $return['total_posts']),
+				'PAGE_NUMBER' 				=> $this->pagination->validate_start($messges['total_posts'], $shout_number, $start),
+				'TOTAL_MESSAGES'			=> $this->language->lang('NUMBER_MESSAGE', $messges['total_posts']),
 				'MESSAGES_TOTAL_NR'			=> $this->language->lang('SHOUT_MESSAGES_TOTAL_NR', $this->config['shout_nr'], $this->user->format_date($this->config['shout_time'])),
 				'LOGS_TOTAL_NR'				=> $this->language->lang('NUMBER_LOG_TOTAL', $this->config['shout_nr_log'], $this->user->format_date($this->config['shout_time'])),
 				'MESSAGES_DEL_TOTAL'		=> $this->language->lang('SHOUT_DEL_NR', $total_del) . $this->language->lang('SHOUT_DEL_TOTAL'),
@@ -433,7 +433,7 @@ class admin_controller
 				'MESSAGES_DEL_PURGE'		=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_purge']),
 				'MESSAGES_DEL_USER'			=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_user']),
 			]);
-			$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $return['total_posts'], $shout_number, $start);
+			$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $messges['total_posts'], $shout_number, $start);
 		}
 	}
 
@@ -508,18 +508,18 @@ class admin_controller
 		else
 		{
 			$shout_number = (int) $this->config['shout_nr_acp'];
-			$return = $this->functions_admin->get_messages($start, $shout_number, false);
+			$messges = $this->functions_admin->get_messages($start, $shout_number, false);
 			$li = $this->functions_admin->get_logs(true);
 			$total_del = $this->config['shout_del_acp_priv'] + $this->config['shout_del_auto_priv'] + $this->config['shout_del_purge_priv'] + $this->config['shout_del_user_priv'];
 
 			$this->template->assign_vars([
-				'TOTAL_POSTS'				=> $return['total_posts'],
-				'S_DISPLAY_MESSAGES'		=> ($return['i'] > 0) ? true : false,
+				'TOTAL_POSTS'				=> $messges['total_posts'],
+				'S_DISPLAY_MESSAGES'		=> ($messges['i'] > 0) ? true : false,
 				'S_DISPLAY_LOGS'			=> ($li > 0) ? true : false,
-				'S_ON_PAGE'					=> ($return['total_posts'] > $shout_number) ? true : false,
-				'TOTAL_MESSAGES'			=> $this->language->lang('NUMBER_MESSAGE', $return['total_posts']),
+				'S_ON_PAGE'					=> ($messges['total_posts'] > $shout_number) ? true : false,
+				'TOTAL_MESSAGES'			=> $this->language->lang('NUMBER_MESSAGE', $messges['total_posts']),
 				'MESSAGES_TOTAL_NR'			=> $this->language->lang('SHOUT_MESSAGES_TOTAL_NR', $this->config['shout_nr_priv'], $this->user->format_date($this->config['shout_time_priv'])),
-				'PAGE_NUMBER'				=> $this->pagination->validate_start($return['total_posts'], $shout_number, $start),	
+				'PAGE_NUMBER'				=> $this->pagination->validate_start($messges['total_posts'], $shout_number, $start),	
 				'LAST_SHOUT_RUN'			=> ($this->config['shout_last_run_priv'] == $this->config['shout_time_priv']) ? $this->language->lang('SHOUT_NEVER') : $this->user->format_date($this->config['shout_last_run_priv']),
 				'LOGS_TOTAL_NR'				=> $this->language->lang('NUMBER_LOG_TOTAL', $this->config['shout_nr_log_priv'], $this->user->format_date($this->config['shout_time_priv'])),
 				'MESSAGES_DEL_TOTAL'		=> $this->language->lang('SHOUT_DEL_NR', $total_del) . $this->language->lang('SHOUT_DEL_TOTAL'),
@@ -528,7 +528,7 @@ class admin_controller
 				'MESSAGES_DEL_PURGE'		=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_purge_priv']),
 				'MESSAGES_DEL_USER'			=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_user_priv']),
 			]);
-			$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $return['total_posts'], $shout_number, $start);
+			$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $messges['total_posts'], $shout_number, $start);
 		}
 	}
 

@@ -434,7 +434,7 @@ class functions_admin
 	public function get_shout_smilies()
 	{
 		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url,  MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
+			'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
 			'FROM'		=> [SMILIES_TABLE => ''],
 			'WHERE'		=> 'display_on_shout = 1',
 			'GROUP_BY'	=> 'smiley_url',
