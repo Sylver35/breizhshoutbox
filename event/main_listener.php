@@ -86,8 +86,8 @@ class main_listener implements EventSubscriberInterface
 			'breizhcharts.reset_all_notes'				=> 'reset_all_notes',
 			'video.submit_new_video'					=> 'submit_new_video',
 			'arcade.submit_new_score'					=> 'submit_new_score',
-			'arcade.submit_new_urecord'					=> 'submit_new_urecord',
 			'arcade.submit_new_record'					=> 'submit_new_record',
+			'arcade.submit_new_urecord'					=> 'submit_new_urecord',
 			'arcade.page_arcade_games'					=> 'shout_display',
 			'arcade.page_arcade_list'					=> 'shout_display',
 			'portal.handle'								=> 'shout_display',
@@ -240,28 +240,7 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function shout_modify_template_vars($event)
 	{
-		$hide_robot = true;
-		$hide_allowed = false;
-		if (!empty($this->config['shout_exclude_forums']))
-		{
-			$exclude = explode(',', $this->config['shout_exclude_forums']);
-			if (in_array($event['forum_id'], $exclude))
-			{
-				$hide_robot = false;
-			}
-		}
-
-		if ($this->auth->acl_get('u_shout_hide') && $hide_robot)
-		{
-			if ($event['mode'] == 'edit')
-			{
-				$hide_allowed = ($this->config['shout_edit_robot'] || $this->config['shout_edit_robot_priv']) ? true : false;
-			}
-			else
-			{
-				$hide_allowed = true;
-			}
-		}
+		$hide_allowed = $this->shoutbox->modify_template_vars($event);
 
 		$event['page_data'] = array_merge($event['page_data'], [
 			'S_SHOUT_HIDE_CHECKED'		=> ($event['post_data']['hide_robot']) ? ' checked="checked"' : '',
@@ -457,20 +436,8 @@ class main_listener implements EventSubscriberInterface
 	{
 		if ($this->config['shout_arcade_new'])
 		{
-			$muser = ((int) $event['muserid'] === 0) ? true : false;
-			$this->shoutbox->submit_arcade_score($event, 36, $muser);
-		}
-	}
-
-	/**
-	 * @param array $event
-	 */
-	public function submit_new_urecord($event)
-	{
-		if ($this->config['shout_arcade_urecord'] && $event['gamescore'] > 0)
-		{
-			$muser = ((int) $event['muserid'] === 0) ? true : false;
-			$this->shoutbox->submit_arcade_score($event, 37, $muser);
+			$muser = ($event['muserid'] == 0) ? true : false;
+			$this->shoutbox->submit_arcade_score($event, $muser);
 		}
 	}
 
@@ -481,7 +448,18 @@ class main_listener implements EventSubscriberInterface
 	{
 		if ($this->config['shout_arcade_record'])
 		{
-			$this->shoutbox->submit_arcade_score($event, 38, false);
+			$this->shoutbox->submit_arcade_record($event);
+		}
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function submit_new_urecord($event)
+	{
+		if ($event['gamescore'] > 0)
+		{
+			$this->shoutbox->submit_arcade_urecord($event);
 		}
 	}
 }
