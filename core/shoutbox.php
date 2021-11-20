@@ -840,6 +840,34 @@ class shoutbox
 		return $sql_ary;
 	}
 
+	public function modify_template_vars($event)
+	{
+		$hide_robot = true;
+		$hide_allowed = false;
+		if (!empty($this->config['shout_exclude_forums']))
+		{
+			$exclude = explode(',', $this->config['shout_exclude_forums']);
+			if (in_array($event['forum_id'], $exclude))
+			{
+				$hide_robot = false;
+			}
+		}
+
+		if ($this->auth->acl_get('u_shout_hide') && $hide_robot)
+		{
+			if ($event['mode'] == 'edit')
+			{
+				$hide_allowed = ($this->config['shout_edit_robot'] || $this->config['shout_edit_robot_priv']) ? true : false;
+			}
+			else
+			{
+				$hide_allowed = true;
+			}
+		}
+
+		return $hide_allowed;
+	}
+
 	/**
 	 * Search compatibles browsers
 	 * To display correctly the shout
@@ -2493,7 +2521,7 @@ class shoutbox
 		], $this->config['shout_video_new'], false);
 	}
 
-	public function submit_arcade_score($event, $type, $muser)
+	public function submit_arcade_score($event, $muser)
 	{
 		$sup = ((int) $event['game_scoretype'] === 0) && ($event['gamescore'] > $event['mscore']);
 		$inf = ((int) $event['game_scoretype'] === 1) && ($event['gamescore'] < $event['mscore']);
@@ -2513,9 +2541,47 @@ class shoutbox
 				'shout_robot_user'			=> (int) $event['row']['ra_cat_id'],
 				'shout_forum'				=> 0,
 				'shout_info_nb'				=> (int) $event['gid'],
-				'shout_info'				=> (int) $type,
+				'shout_info'				=> 36,
 			], $this->config['shout_arcade_new'], false);
 		}
+	}
+
+	public function submit_arcade_record($event)
+	{
+		$this->insert_message_robot([
+			'shout_time'				=> time(),
+			'shout_user_id'				=> (int) $this->user->data['user_id'],
+			'shout_ip'					=> (string) $this->user->ip,
+			'shout_text'				=> (string) $event['row']['game_name'],
+			'shout_text2'				=> (string) (isset($event['row']['ra_cat_title'])) ? $event['row']['ra_cat_title'] : '',
+			'shout_bbcode_uid'			=> '',
+			'shout_bbcode_bitfield'		=> '',
+			'shout_bbcode_flags'		=> 0,
+			'shout_robot'				=> (int) $event['gamescore'],
+			'shout_robot_user'			=> (int) $event['row']['ra_cat_id'],
+			'shout_forum'				=> 0,
+			'shout_info_nb'				=> (int) $event['gid'],
+			'shout_info'				=> 38,
+		], $this->config['shout_arcade_record'], false);
+	}
+
+	public function submit_arcade_urecord($event)
+	{
+		$this->insert_message_robot([
+			'shout_time'				=> time(),
+			'shout_user_id'				=> (int) $this->user->data['user_id'],
+			'shout_ip'					=> (string) $this->user->ip,
+			'shout_text'				=> (string) $event['row']['game_name'],
+			'shout_text2'				=> (string) (isset($event['row']['ra_cat_title'])) ? $event['row']['ra_cat_title'] : '',
+			'shout_bbcode_uid'			=> '',
+			'shout_bbcode_bitfield'		=> '',
+			'shout_bbcode_flags'		=> 0,
+			'shout_robot'				=> (int) $event['gamescore'],
+			'shout_robot_user'			=> (int) $event['row']['ra_cat_id'],
+			'shout_forum'				=> 0,
+			'shout_info_nb'				=> (int) $event['gid'],
+			'shout_info'				=> 37,
+		], $this->config['shout_arcade_urecord'], false);
 	}
 
 	public function list_auth_options()
@@ -3223,6 +3289,7 @@ class shoutbox
 			'sort_perm'	=> '_manage',
 			'sort_of'	=> $sort_of,
 			'private'	=> false,
+			'popup'		=> false,
 			'creator'	=> $this->smiliecreator_exist(),
 			'category'	=> $this->smiliescategory_exist(),
 			'is_mobile'	=> $this->shout_is_mobile(),
@@ -3237,6 +3304,7 @@ class shoutbox
 			// Popup shoutbox
 			case 1:
 				$data['sort_p'] = '_pop';
+				$data['popup'] = true;
 			break;
 			// Normal shoutbox
 			case 2:
@@ -3390,6 +3458,7 @@ class shoutbox
 			'isGuest'			=> $this->return_bool($data['user_id'] === ANONYMOUS),
 			'isRobot'			=> $this->return_bool($this->user->data['is_bot']),
 			'isPriv'			=> $this->return_bool($data['private']),
+			'isPopup'			=> $this->return_bool($data['popup']),
 			'rulesOk'			=> $this->return_bool($rules),
 			'rulesOpen'			=> $this->return_bool($rules_open),
 			'isMobile'			=> $this->return_bool($data['is_mobile']),
@@ -3426,11 +3495,11 @@ class shoutbox
 			'cookieName'		=> $this->config['cookie_name'] . '_',
 			'cookieDomain'		=> '; domain=' . $this->config['cookie_domain'] . ($this->config['cookie_secure'] ? '; secure' : ''),
 			'cookiePath'		=> '; path=' . $this->config['cookie_path'],
-			'enableSound'		=> ($data['active']) ? '1' : '0',
 			'extensionUrl'		=> $this->shout_url($this->ext_path_web),
 			'userTimezone'		=> phpbb_format_timezone_offset($this->user->create_datetime()->getOffset()),
 			'dateDefault'		=> $this->config['shout_dateformat'],
 			'dateFormat'		=> $data['dateformat'],
+			'enableSound'		=> ($data['active']) ? '1' : '0',
 			'newSound'			=> $data['new' . $data['sort']],
 			'errorSound'		=> $data['error'],
 			'delSound'			=> $data['del'],
