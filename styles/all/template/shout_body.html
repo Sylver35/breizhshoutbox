@@ -1,5 +1,5 @@
 <!-- shout_body.html $version v{{ S_SHOUT_VERSION }} //-->
-<div class="forabg" id="all_shout">
+<div id="all_shout" class="forabg">
 	<div class="inner">
 		<ul class="topiclist">
 			<li class="header">
@@ -17,24 +17,28 @@
 	{% if not S_USER_LOGGED_IN %}
 		{% INCLUDE '@sylver35_breizhshoutbox/shout_connect.html' %}
 	{% endif %}
-	{% if SHOUT_POSTING %}
-		{% INCLUDE '@sylver35_breizhshoutbox/shout_colour.html' %}
-		{% INCLUDE '@sylver35_breizhshoutbox/shout_chars.html' %}
-	{% endif %}
 	{% if TEXT_USER_TOP %}
 		{% INCLUDE '@sylver35_breizhshoutbox/shout_bbcode.html' %}
 	{% endif %}
+	{% if SHOUT_POSTING %}
+		{% INCLUDE '@sylver35_breizhshoutbox/shout_colour.html' %}
+		{% INCLUDE '@sylver35_breizhshoutbox/shout_chars.html' %}
 		<ul id="smilies_ul" class="topiclist forums">
-			<div id="onTextSmilies">{{ lang('SMILIES') }}</div>
-			<hr class="dotted" />
-			<img class="img_shout_close" src="{{ SHOUT_EXT_PATH }}images/shout_no.png" alt="{{ lang('SMILIES_CLOSE') }}" title="{{ lang('SMILIES_CLOSE') }}" onclick="shoutbox.openCloseSmilies();return false;" onmouseout="shoutbox.iH('onTextSmilies','{{ lang('SMILIES') }}',false);" onmouseover="shoutbox.iH('onTextSmilies',this.title,false);" />
+			<li>
+				<div id="onTextSmilies">{{ lang('SMILIES') }}</div>
+				<hr class="dotted" />
+				<img class="img_shout_close" src="{{ SHOUT_EXT_PATH }}images/shout_no.png" alt="{{ lang('SMILIES_CLOSE') }}" title="{{ lang('SMILIES_CLOSE') }}" onclick="shoutbox.openCloseSmilies();return false;" onmouseout="shoutbox.iH('onTextSmilies','{{ lang('SMILIES') }}',false);" onmouseover="shoutbox.iH('onTextSmilies',this.title,false);" />
+			</li>
 			<li>
 				<div id="smilies"></div>
 			</li>
 		</ul>
+	{% endif %}
 		<ul id="shout_online" class="topiclist forums">
 			<li>
+				<div id="onTextOnline"></div>
 				<h3 class="h3_online">{{ lang('SHOUT_ONLINE_TITLE') }}</h3>
+				<img class="img_shout_close" src="{{ SHOUT_EXT_PATH }}images/shout_no.png" alt="{{ lang('SHOUT_ONLINE_CLOSE') }}" title="{{ lang('SHOUT_ONLINE_CLOSE') }}" onclick="shoutbox.openCloseOnline();return false;" onmouseout="shoutbox.iH('onTextOnline','',false);" onmouseover="shoutbox.iH('onTextOnline',this.title,false);" />
 				<div id="online_shout"></div>
 			</li>
 		</ul>
