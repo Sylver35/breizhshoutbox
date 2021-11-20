@@ -97,7 +97,7 @@ span.avatar-shout > img.popup-avatar {
 #url_more {
 	white-space: nowrap;
 }
-#onText, #onTextUser, #onText2, #onTextSmilies {
+#onText, #onTextUser, #onText2, #onTextSmilies, #onTextOnline {
 	display: inline-block;
 	float: right;
 	margin-right: 8px;
@@ -120,6 +120,9 @@ span.avatar-shout > img.popup-avatar {
 #shoutbar {
 	border-top: 1px solid darkgray;
 	border-bottom: 1px solid darkgray;
+}
+#msg_txt {
+	text-align: center;
 }
 #shout_div_bbcode {
 	margin-bottom: 15px;
@@ -174,6 +177,7 @@ span.avatar-shout > img.popup-avatar {
 }
 input#chat_message, input#shout_user1, input#shout_text1, input#shout_text2 {
 	background: white none no-repeat 0 0;
+	padding: 2px;
 }
 #shout_user1 {
 	margin-right: 15px;
@@ -211,6 +215,7 @@ input#chat_message, input#shout_user1, input#shout_text1, input#shout_text2 {
 	width: 100%;
 	color: black;
 }
+
 #shout_online > li {
 	padding: 3px;
 }
@@ -258,12 +263,23 @@ span.shout-pagin {
 	display: inline;
 	vertical-align: middle;
 	padding-left: 8px;
+	font-size: 1.1em;
 }
 span.pagin_red, a.pagin_red {
 	color: red;
 	font-size: 1.1em;
 	cursor: help;
 	font-weight: bold;
+}
+.temp_span_right {
+	float: right;
+	margin-right: 5px;
+	opacity: 0.2;
+}
+.temp_span_left {
+	float: left;
+	margin-left: 5px;
+	opacity: 0.2;
 }
 .li.row strong, text-strong {
 	font-weight: bold;
@@ -597,7 +613,6 @@ input.button_shout_connect_on {
 input.button_shout_connect:hover, input.button_shout_connect_on:hover {
 	background-position: 0 -40px;
 }
-
 input.button_shout_ip_no:hover, input.button_shout_del_no:hover, input.button_shout_edit_no:hover, 
 input.button_shout_purge, input.button_shout_purge_no, input.button_shout_purge:hover, 
 input.button_shout_chars, input.button_shout_chars_no, input.button_shout_chars:hover, 
@@ -624,7 +639,6 @@ input.button_shout_sound, input.button_shout_sound:hover, input.button_shout_sou
 	height: 20px;
 	width: 20px;
 }
-
 /* Left side icons */
 input.button_shout_del, input.button_shout_del_no, input.button_shout_del:hover, 
 input.button_shout_ip, input.button_shout_ip_no, input.button_shout_ip:hover, 
