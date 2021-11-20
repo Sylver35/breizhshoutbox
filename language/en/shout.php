@@ -233,18 +233,18 @@ $lang = array_merge($lang, array(
 	'SHOUT_ACTION_MSG'				=> '🔑 Send a personal message in the shoutbox',
 	'SHOUT_ACTION_MSG_ROBOT'		=> '📣 Send a message as %s',
 	'SHOUT_ACTION_DELETE'			=> '🚽 Remove my personal messages',
-	'SHOUT_ACTION_DELETE_EXPLAIN'	=> 'Are you sure you want to delete all your personal messages?',
+	'SHOUT_ACTION_DELETE_EXPLAIN'	=> '❗ Are you sure you want to delete all your personal messages?',
 	'SHOUT_ACTION_DEL_TO'			=> '🚽 Delete personal messages sent to me',
-	'SHOUT_ACTION_DEL_TO_EXPLAIN'	=> 'Are you sure you want to delete all personal messages intended for you?',
-	'SHOUT_ACTION_DEL_REP'			=> 'All your personal messages were deleted',
-	'SHOUT_ACTION_DEL_NO'			=> 'Any personal message deleted',
+	'SHOUT_ACTION_DEL_TO_EXPLAIN'	=> '❗ Are you sure you want to delete all personal messages intended for you?',
+	'SHOUT_ACTION_DEL_REP'			=> '✔ All your personal messages were deleted',
+	'SHOUT_ACTION_DEL_NO'			=> '✔ Any personal message deleted',
 	'SHOUT_ACTION_MCP'				=> '🎫 User notes',
 	'SHOUT_ACTION_BAN'				=> '👮 Ban of the Forum',
 	'SHOUT_ACTION_AUTH'				=> '👁 Shoutbox permissions',
 	'SHOUT_ACTION_REMOVE'			=> '🗑 Delete all shoutbox messages of the user',
-	'SHOUT_ACTION_REMOVE_EXPLAIN'	=> 'Are you sure you want to delete all shoutbox messages and infos Robot of this user?',
-	'SHOUT_ACTION_REMOVE_REP'		=> 'All shoutbox messages of this user have been deleted:',
-	'SHOUT_ACTION_REMOVE_NO'		=> 'Any deleted message',
+	'SHOUT_ACTION_REMOVE_EXPLAIN'	=> '❗ Are you sure you want to delete all shoutbox messages and infos Robot of this user?',
+	'SHOUT_ACTION_REMOVE_REP'		=> '✔ All shoutbox messages of this user have been deleted:',
+	'SHOUT_ACTION_REMOVE_NO'		=> '✔ Any deleted message',
 	'SHOUT_ACTION_ADMIN'			=> '⚙ Administer the user',
 	'SHOUT_ACTION_PERSO'			=> '🛠 Change the formatting of user’s messages',
 	'SHOUT_USER_POST'				=> '🔑', // Before a personnal message
@@ -252,7 +252,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_USER_NONE'				=> '⛔ No action possible for this member',
 
 // Infos cookies
-	'SHOUT_COOKIES'					=> 'Information about shoutbox cookies',
+	'SHOUT_COOKIES'					=> '🍪 Information about shoutbox cookies',
 	'SHOUT_COOKIES_INFO'			=> 'This shoutbox uses 3 cookies to be able to function properly',
 	'SHOUT_COOKIES_ROBOT'			=> 'Allows to display or not the robot info',
 	'SHOUT_COOKIES_NAME'			=> 'Allows you to keep the username as a guest',
@@ -272,7 +272,7 @@ $lang = array_merge($lang, array(
 // Post infos Robot
 	'SHOUT_ROBOT_ON'			=> 'Disable Robot infos',
 	'SHOUT_ROBOT_OFF'			=> 'Show Robot infos',
-	'SHOUT_SELECT_ROBOT'		=> 'Disable the publication by the shoutbox’s robot',
+	'SHOUT_SELECT_ROBOT'		=> '❌ Disable the publication by the shoutbox’s robot',
 	'SHOUT_ROBOT_START'			=> '🔉 ', // At the beginning of infos robot
 	'SHOUT_ROBOT_DATE'			=> 'l F j, Y', // Form of the info date
 
@@ -318,7 +318,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_CHARTS_RESET'			=> '🎼 Charts : Results of the voting period, winner %1$s of %2$s',
 
 	'SHOUT_VIDEO'					=> 'Videos galery',
-	'SHOUT_NEW_VIDEO'				=> 'New video: %1$s in: %2$s',
+	'SHOUT_NEW_VIDEO'				=> '🎥 New video: %1$s in: %2$s',
 
 	'RELAXARCADE'					=> 'Relax-Arcade',
 	'SHOUT_NEW_SCORE_RA'			=> 'New score ',
@@ -327,7 +327,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_NEW_SCORE_RA_EXPLAIN'	=> 'Display a message if a very first score is set.',
 	'SHOUT_NEW_RECORD_RA_EXPLAIN'	=> 'Display a message if a new record is set.',
 	'SHOUT_NEW_URECORD_RA_EXPLAIN'	=> 'Display a message if a new ultimate record is set.',
-	'SHOUT_NEW_SCORE_36'			=> 'I just set the first score of %s points to %s',
+	'SHOUT_NEW_SCORE_36'			=> '🏆 I just set the first score of %s points to %s',
 	'SHOUT_NEW_SCORE_37'			=> '🏆 I have just set a new ultimate record of %s points to %s',
-	'SHOUT_NEW_SCORE_38'			=> 'I just set a new record of %s points to %s',
+	'SHOUT_NEW_SCORE_38'			=> '🏆 I just set a new record of %s points to %s',
 ));
