@@ -240,26 +240,26 @@ $lang = array_merge($lang, array(
 	'SHOUT_ACTION_MSG'				=> '🔑 Envoyer un message personnel dans la shoutbox',
 	'SHOUT_ACTION_MSG_ROBOT'		=> '📣 Envoyer un message en tant que %s',
 	'SHOUT_ACTION_DELETE'			=> '🚽 Supprimer mes messages personnels',
-	'SHOUT_ACTION_DELETE_EXPLAIN'	=> 'Êtes vous sûr de vouloir supprimer tous vos messages personnels ?',
+	'SHOUT_ACTION_DELETE_EXPLAIN'	=> '❗ Êtes vous sûr de vouloir supprimer tous vos messages personnels ?',
 	'SHOUT_ACTION_DEL_TO'			=> '🚽 Supprimer les messages personnels qui me sont destinés',
-	'SHOUT_ACTION_DEL_TO_EXPLAIN'	=> 'Êtes vous sûr de vouloir supprimer tous les messages personnels qui vous sont destinés ?',
-	'SHOUT_ACTION_DEL_REP'			=> 'Tous vos messages personnels ont bien été supprimés :',
-	'SHOUT_ACTION_DEL_NO'			=> 'Aucun message personnel supprimé',
+	'SHOUT_ACTION_DEL_TO_EXPLAIN'	=> '❗ Êtes vous sûr de vouloir supprimer tous les messages personnels qui vous sont destinés ?',
+	'SHOUT_ACTION_DEL_REP'			=> '✔Tous vos messages personnels ont bien été supprimés :',
+	'SHOUT_ACTION_DEL_NO'			=> '✔ Aucun message personnel supprimé',
 	'SHOUT_ACTION_MCP'				=> '🎫 Fiche de suivi',
 	'SHOUT_ACTION_BAN'				=> '👮 Bannir du forum',
 	'SHOUT_ACTION_AUTH'				=> '👁 Permissions shoutbox',
 	'SHOUT_ACTION_REMOVE'			=> '🗑 Supprimer tous les messages shoutbox de l’utilisateur',
-	'SHOUT_ACTION_REMOVE_EXPLAIN'	=> 'Êtes vous sûr de vouloir supprimer tous les messages shoutbox et infos Robot de cet utilisateur ?',
-	'SHOUT_ACTION_REMOVE_REP'		=> 'Tous les messages shoutbox de cet utilisateur ont bien été supprimés :',
-	'SHOUT_ACTION_REMOVE_NO'		=> 'Aucun message supprimé',
+	'SHOUT_ACTION_REMOVE_EXPLAIN'	=> '❗ Êtes vous sûr de vouloir supprimer tous les messages shoutbox et infos Robot de cet utilisateur ?',
+	'SHOUT_ACTION_REMOVE_REP'		=> '✔ Tous les messages shoutbox de cet utilisateur ont bien été supprimés :',
+	'SHOUT_ACTION_REMOVE_NO'		=> '✔ Aucun message supprimé',
 	'SHOUT_ACTION_ADMIN'			=> '⚙ Administrer l’utilisateur',
 	'SHOUT_ACTION_PERSO'			=> '🛠 Modifier la mise en forme des messages de l’utilisateur',
-	'SHOUT_USER_POST'				=> '🔑', // Before a private message
+	'SHOUT_USER_POST'				=> '🔑', // Before a personnal message
 	'SHOUT_USER_IGNORE'				=> 'Vous avez défini ce membre en ignoré',
 	'SHOUT_USER_NONE'				=> '⛔ Aucune action possible pour ce membre',
 
 // Infos cookies
-	'SHOUT_COOKIES'					=> 'Informations concernant les cookies de la shoutbox',
+	'SHOUT_COOKIES'					=> '🍪 Informations concernant les cookies de la shoutbox',
 	'SHOUT_COOKIES_INFO'			=> 'Cette shoutbox utilise %s cookies pour pouvoir bien fonctionner',
 	'SHOUT_COOKIES_ROBOT'			=> 'Permet de faire afficher ou non les infos robot',
 	'SHOUT_COOKIES_NAME'			=> 'Permet de conserver le nom d’utilisateur en invité',
@@ -273,13 +273,13 @@ $lang = array_merge($lang, array(
 // Members connected panel
 	'SHOUT_ONLINE_TITLE'			=> 'Membres connectés en temps réel',
 	'SHOUT_ONLINE'					=> 'Ouvrir le panneau des membres connectés',
-	'SHOUT_ONLINE_CLOSE'			=> 'Fermer le panneau des membres connectés',
+	'SHOUT_ONLINE_CLOSE'			=> '🔒 Refermer le panneau des membres connectés',
 	'NO_ONLINE_BOTS'				=> 'Aucun robot connecté',
 
 // Post infos Robot
 	'SHOUT_ROBOT_ON'				=> 'Désactiver les infos Robot',
 	'SHOUT_ROBOT_OFF'				=> 'Afficher les infos Robot',
-	'SHOUT_SELECT_ROBOT'			=> 'Désactiver la publication par le robot de la shoutbox',
+	'SHOUT_SELECT_ROBOT'			=> '❌ Désactiver la publication par le robot de la shoutbox',
 	'SHOUT_ROBOT_START'				=> '🔉 ', // Au début des infos robot
 	'SHOUT_ROBOT_DATE'				=> 'l j F Y', // Forme de la date du jour
 
@@ -325,7 +325,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_CHARTS_RESET'			=> '🎼 Hit Parade : Résultats de la période de vote, gagnant %1$s de %2$s',
 
 	'SHOUT_VIDEO'					=> 'Galerie vidéos',
-	'SHOUT_NEW_VIDEO'				=> 'Nouvelle vidéo : %1$s dans : %2$s',
+	'SHOUT_NEW_VIDEO'				=> '🎥 Nouvelle vidéo : %1$s dans : %2$s',
 
 	'RELAXARCADE'					=> 'Relax-Arcade',
 	'SHOUT_NEW_SCORE_RA'			=> 'Nouveau score',
