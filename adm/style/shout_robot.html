@@ -1,20 +1,20 @@
 
 	<form id="shout_robot" method="post" action="{{ U_ACTION }}">
 		<fieldset>
-		<legend><img src="{{ IMAGE_SETTINGS }}" alt="{{ lang('GENERAL_SETTINGS') }}" title="{{ lang('GENERAL_SETTINGS') }}" /> {{ lang('GENERAL_SETTINGS') }}</legend>
+		<legend><img src="{{ IMAGE_SETTINGS }}" alt="{{ lang('GENERAL_SETTINGS') }}" title="{{ lang('GENERAL_SETTINGS') }}"/> {{ lang('GENERAL_SETTINGS') }}</legend>
 			<dl>
-				<dt><label for="shout_enable_robot">{{ lang('SHOUT_ROBOT_ACTIVATE') }}:</label><br />{{ lang('SHOUT_ROBOT_ACTIVATE_EXPLAIN') }}</dt>
+				<dt><label for="shout_enable_robot">{{ lang('SHOUT_ROBOT_ACTIVATE') }}:</label><br/>{{ lang('SHOUT_ROBOT_ACTIVATE_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_ENABLE_ROBOT }}</dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label for="shout_name_robot">{{ lang('SHOUT_NAME_ROBOT') }}:</label><br />{{ lang('SHOUT_NAME_ROBOT_EXPLAIN') }}</dt>
-				<dd><input class="text small" type="text" id="shout_name_robot" name="shout_name_robot" value="{{ SHOUT_NAME_ROBOT }}" style="color: #{{ SHOUT_COLOR_ROBOT }};font-weight:bold;font-size:1em;" size="20" maxlength="25" /></dd>
+				<dt><label for="shout_name_robot">{{ lang('SHOUT_NAME_ROBOT') }}:</label><br/>{{ lang('SHOUT_NAME_ROBOT_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_name_robot" name="shout_name_robot" value="{{ SHOUT_NAME_ROBOT }}" style="color: #{{ SHOUT_COLOR_ROBOT }};font-weight:bold;font-size:1em;" size="20" maxlength="25"></dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_color_robot">{{ lang('SHOUT_ROBOT_COLOR') }}:</label><br /></dt>
+				<dt><label for="shout_color_robot">{{ lang('SHOUT_ROBOT_COLOR') }}:</label><br/></dt>
 				<dd>
-					<input class="text small" type="text" id="shout_color_robot" name="shout_color_robot" value="{{ SHOUT_COLOR_ROBOT }}" onclick="shoutbox.colorPalette('robot');return false;" style="color: #{{ SHOUT_COLOR_ROBOT }};" size="6" maxlength="6" />
+					<input class="text small" type="text" id="shout_color_robot" name="shout_color_robot" value="{{ SHOUT_COLOR_ROBOT }}" onclick="shoutbox.colorPalette('robot');return false;" style="color: #{{ SHOUT_COLOR_ROBOT }};" size="6" maxlength="6">
 					<span id="color_robot" style="color: #{{ SHOUT_COLOR_ROBOT }};font-weight:bold;">{{ SHOUT_NAME_ROBOT }}</span>&nbsp;
 					{% if SHOUT_COLOR_ROBOT %}&nbsp;<span id="span_color_robot" style="background-color: #{{ SHOUT_COLOR_ROBOT }}">&nbsp; &nbsp;</span>{% endif %}
 					&nbsp;&nbsp;<span>[ <a href="#" onclick="shoutbox.colorPalette('robot');return false;">{{ lang('COLOUR_SWATCH') }}</a> ]</span>
@@ -23,9 +23,9 @@
 				</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_color_message">{{ lang('SHOUT_ROBOT_COLOR_INFO') }}</label><br /></dt>
+				<dt><label for="shout_color_message">{{ lang('SHOUT_ROBOT_COLOR_INFO') }}</label><br/></dt>
 				<dd>
-					<input class="text small" type="text" id="shout_color_message" name="shout_color_message" value="{{ SHOUT_COLOR_MESSAGE }}" onclick="shoutbox.colorPalette('message');return false;" style="color: #{{ SHOUT_COLOR_MESSAGE }};" size="6" maxlength="6" />
+					<input class="text small" type="text" id="shout_color_message" name="shout_color_message" value="{{ SHOUT_COLOR_MESSAGE }}" onclick="shoutbox.colorPalette('message');return false;" style="color: #{{ SHOUT_COLOR_MESSAGE }};" size="6" maxlength="6">
 					<span id="color_message" style="color: #{{ SHOUT_COLOR_MESSAGE }};font-weight:bold;">{{ lang('SHOUT_MESSAGE') }}</span>&nbsp;
 					{% if SHOUT_COLOR_MESSAGE %}&nbsp;<span id="span_color_message" style="background-color: #{{ SHOUT_COLOR_MESSAGE }}">&nbsp; &nbsp;</span>{% endif %}
 					&nbsp;&nbsp;<span>[ <a href="#" onclick="shoutbox.colorPalette('message');return false;">{{ lang('COLOUR_SWATCH') }}</a> ]</span>
@@ -34,33 +34,33 @@
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label for="shout_post_robot">{{ lang('SHOUT_ROBOT_MESSAGE') }}:</label><br />{{ lang('SHOUT_ROBOT_MESSAGE_EXPLAIN') }}</dt>
+				<dt><label for="shout_post_robot">{{ lang('SHOUT_ROBOT_MESSAGE') }}:</label><br/>{{ lang('SHOUT_ROBOT_MESSAGE_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_POST_ROBOT }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_rep_robot">{{ lang('SHOUT_ROBOT_REP') }}:</label><br />{{ lang('SHOUT_ROBOT_REP_EXPLAIN') }}</dt>
+				<dt><label for="shout_rep_robot">{{ lang('SHOUT_ROBOT_REP') }}:</label><br/>{{ lang('SHOUT_ROBOT_REP_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_REP_ROBOT }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_edit_robot">{{ lang('SHOUT_ROBOT_EDIT') }}:</label><br />{{ lang('SHOUT_ROBOT_EDIT_EXPLAIN') }}</dt>
+				<dt><label for="shout_edit_robot">{{ lang('SHOUT_ROBOT_EDIT') }}:</label><br/>{{ lang('SHOUT_ROBOT_EDIT_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_EDIT_ROBOT }}</dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label for="shout_post_robot_priv">{{ lang('SHOUT_ROBOT_MES_PRIV') }}:</label><br />{{ lang('SHOUT_ROBOT_MES_PRIV_EXPLAIN') }}</dt>
+				<dt><label for="shout_post_robot_priv">{{ lang('SHOUT_ROBOT_MES_PRIV') }}:</label><br/>{{ lang('SHOUT_ROBOT_MES_PRIV_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_POST_ROBOT_PRIV }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_rep_robot_priv">{{ lang('SHOUT_ROBOT_REP_PRIV') }}:</label><br />{{ lang('SHOUT_ROBOT_REP_PRIV_EXPLAIN') }}</dt>
+				<dt><label for="shout_rep_robot_priv">{{ lang('SHOUT_ROBOT_REP_PRIV') }}:</label><br/>{{ lang('SHOUT_ROBOT_REP_PRIV_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_REP_ROBOT_PRIV }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_edit_robot_priv">{{ lang('SHOUT_ROBOT_EDIT_PRIV') }}:</label><br />{{ lang('SHOUT_ROBOT_EDIT_PRIV_EXPLAIN') }}</dt>
+				<dt><label for="shout_edit_robot_priv">{{ lang('SHOUT_ROBOT_EDIT_PRIV') }}:</label><br/>{{ lang('SHOUT_ROBOT_EDIT_PRIV_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_EDIT_ROBOT_PRIV }}</dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label for="shout_prez_form">{{ lang('SHOUT_ROBOT_PREZ') }}:</label><br />{{ lang('SHOUT_ROBOT_PREZ_EXPLAIN') }}</dt>
+				<dt><label for="shout_prez_form">{{ lang('SHOUT_ROBOT_PREZ') }}:</label><br/>{{ lang('SHOUT_ROBOT_PREZ_EXPLAIN') }}</dt>
 				<dd>
 					<select id="shout_prez_form" name="shout_prez_form">
 						<option value="0">{{ lang('SELECT_FORUM') }}</option>
@@ -70,125 +70,125 @@
 				</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_exclude_forums">{{ lang('SHOUT_ROBOT_EXCLU') }}:</label><br />{{ lang('SHOUT_ROBOT_EXCLU_EXPLAIN') }}<br /><br />{{ lang('LOOK_UP_FORUMS_EXPLAIN') }}</dt>
+				<dt><label for="shout_exclude_forums">{{ lang('SHOUT_ROBOT_EXCLU') }}:</label><br/>{{ lang('SHOUT_ROBOT_EXCLU_EXPLAIN') }}<br/><br/>{{ lang('LOOK_UP_FORUMS_EXPLAIN') }}</dt>
 				<dd><select id="shout_exclude_forums" name="shout_exclude_forums[]" multiple="multiple" size="10">{{ SHOUT_EXCLUDE_FORUMS }}</select></dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label for="shout_delete_robot">{{ lang('SHOUT_ROBOT_DEL') }}:</label><br />{{ lang('SHOUT_ROBOT_DEL_EXPLAIN') }}</dt>
+				<dt><label for="shout_delete_robot">{{ lang('SHOUT_ROBOT_DEL') }}:</label><br/>{{ lang('SHOUT_ROBOT_DEL_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_DELETE_ROBOT }}</dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label for="shout_sessions">{{ lang('SHOUT_ROBOT_SESSION') }}:</label><br />{{ lang('SHOUT_ROBOT_SESSION_EXPLAIN') }}</dt>
+				<dt><label for="shout_sessions">{{ lang('SHOUT_ROBOT_SESSION') }}:</label><br/>{{ lang('SHOUT_ROBOT_SESSION_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_SESSIONS }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_sessions_priv">{{ lang('SHOUT_ROBOT_SESSION_PRIV') }}:</label><br />{{ lang('SHOUT_ROBOT_SESSION_PRIV_EXPLAIN') }}</dt>
+				<dt><label for="shout_sessions_priv">{{ lang('SHOUT_ROBOT_SESSION_PRIV') }}:</label><br/>{{ lang('SHOUT_ROBOT_SESSION_PRIV_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_SESSIONS_PRIV }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_sessions_time">{{ lang('SHOUT_ROBOT_TIME') }}</label><br />{{ lang('SHOUT_ROBOT_TIME_EXPLAIN') }}</dt>
-				<dd><input class="text small" type="text" id="shout_sessions_time" name="shout_sessions_time" size="6" maxlength="6" value="{{ SHOUT_SESSIONS_TIME }}" />&nbsp;&nbsp;{{ lang('MINUTES') }}
+				<dt><label for="shout_sessions_time">{{ lang('SHOUT_ROBOT_TIME') }}</label><br/>{{ lang('SHOUT_ROBOT_TIME_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_sessions_time" name="shout_sessions_time" size="6" maxlength="6" value="{{ SHOUT_SESSIONS_TIME }}">&nbsp;&nbsp;{{ lang('MINUTES') }}
 				</dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label for="shout_sessions_bots">{{ lang('SHOUT_ROBOT_SESSION_R') }}:</label><br />{{ lang('SHOUT_ROBOT_SESSION_R_EXPLAIN') }}</dt>
+				<dt><label for="shout_sessions_bots">{{ lang('SHOUT_ROBOT_SESSION_R') }}:</label><br/>{{ lang('SHOUT_ROBOT_SESSION_R_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_SESSIONS_BOTS }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_sessions_bots_priv">{{ lang('SHOUT_ROBOT_SESSION_R_PRIV') }}:</label><br />{{ lang('SHOUT_ROBOT_SESSION_R_PRIV_EXPLAIN') }}</dt>
+				<dt><label for="shout_sessions_bots_priv">{{ lang('SHOUT_ROBOT_SESSION_R_PRIV') }}:</label><br/>{{ lang('SHOUT_ROBOT_SESSION_R_PRIV_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_SESSIONS_BOTS_PRIV }}</dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label for="shout_newest">{{ lang('SHOUT_ROBOT_NEWEST') }}:</label><br />{{ lang('SHOUT_ROBOT_NEWEST_EXPLAIN') }}</dt>
+				<dt><label for="shout_newest">{{ lang('SHOUT_ROBOT_NEWEST') }}:</label><br/>{{ lang('SHOUT_ROBOT_NEWEST_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_NEWEST }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_newest_priv">{{ lang('SHOUT_ROBOT_NEWEST_PRIV') }}:</label><br />{{ lang('SHOUT_ROBOT_NEWEST_PRIV_EXPLAIN') }}</dt>
+				<dt><label for="shout_newest_priv">{{ lang('SHOUT_ROBOT_NEWEST_PRIV') }}:</label><br/>{{ lang('SHOUT_ROBOT_NEWEST_PRIV_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_NEWEST_PRIV }}</dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label for="shout_hello">{{ lang('SHOUT_ROBOT_HELLO') }}:</label><br />{{ lang('SHOUT_ROBOT_HELLO_EXPLAIN') }}</dt>
+				<dt><label for="shout_hello">{{ lang('SHOUT_ROBOT_HELLO') }}:</label><br/>{{ lang('SHOUT_ROBOT_HELLO_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_HELLO }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_hello_priv">{{ lang('SHOUT_ROBOT_HELLO_PRIV') }}:</label><br />{{ lang('SHOUT_ROBOT_HELLO_PRIV_EXPLAIN') }}</dt>
+				<dt><label for="shout_hello_priv">{{ lang('SHOUT_ROBOT_HELLO_PRIV') }}:</label><br/>{{ lang('SHOUT_ROBOT_HELLO_PRIV_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_HELLO_PRIV }}</dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label for="shout_birthday">{{ lang('SHOUT_ROBOT_BIRTHDAY') }}:</label><br />{{ lang('SHOUT_ROBOT_BIRTHDAY_EXPLAIN') }}</dt>
+				<dt><label for="shout_birthday">{{ lang('SHOUT_ROBOT_BIRTHDAY') }}:</label><br/>{{ lang('SHOUT_ROBOT_BIRTHDAY_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_BIRTHDAY }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_birthday_priv">{{ lang('SHOUT_ROBOT_BIRTHDAY_PRIV') }}:</label><br />{{ lang('SHOUT_ROBOT_BIRTHDAY_PRIV_EXPLAIN') }}</dt>
+				<dt><label for="shout_birthday_priv">{{ lang('SHOUT_ROBOT_BIRTHDAY_PRIV') }}:</label><br/>{{ lang('SHOUT_ROBOT_BIRTHDAY_PRIV_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_BIRTHDAY_PRIV }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_birthday_exclude">{{ lang('SHOUT_BIRTHDAY_EXCLUDE') }}:</label><br />{{ lang('SHOUT_BIRTHDAY_EXCLUDE_EXPLAIN') }}</dt>
+				<dt><label for="shout_birthday_exclude">{{ lang('SHOUT_BIRTHDAY_EXCLUDE') }}:</label><br/>{{ lang('SHOUT_BIRTHDAY_EXCLUDE_EXPLAIN') }}</dt>
 				<dd>
 					<select style="width:250px;" id="shout_birthday_exclude" name="shout_birthday_exclude[]" multiple="multiple" size="5">{{ GROUP_OPTIONS }}</select>
 				</dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label for="shout_cron_hour">{{ lang('SHOUT_ROBOT_CRON_H') }}:</label><br />{{ lang('SHOUT_ROBOT_CRON_H_EXPLAIN') }}</dt>
+				<dt><label for="shout_cron_hour">{{ lang('SHOUT_ROBOT_CRON_H') }}:</label><br/>{{ lang('SHOUT_ROBOT_CRON_H_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_CRON_HOUR }} {{ lang('SHOUT_HOURS') }} - {{ SERVER_HOUR }}</dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label for="shout_update_username">{{ lang('SHOUT_ROBOT_USERNAME') }}:</label><br />{{ lang('SHOUT_ROBOT_USERNAME_EXPLAIN') }}</dt>
+				<dt><label for="shout_update_username">{{ lang('SHOUT_ROBOT_USERNAME') }}:</label><br/>{{ lang('SHOUT_ROBOT_USERNAME_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_UPDATE_USERNAME }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_update_username_priv">{{ lang('SHOUT_ROBOT_USERNAME_PRIV') }}:</label><br />{{ lang('SHOUT_ROBOT_USERNAME_PRIV_EXPLAIN') }}</dt>
+				<dt><label for="shout_update_username_priv">{{ lang('SHOUT_ROBOT_USERNAME_PRIV') }}:</label><br/>{{ lang('SHOUT_ROBOT_USERNAME_PRIV_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_UPDATE_USERNAME_PRIV }}</dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label>{{ lang('SHOUT_ROBOT_CHOICE') }}:</label><br />{{ lang('SHOUT_ROBOT_CHOICE_EXPLAIN') }}</dt>
+				<dt><label>{{ lang('SHOUT_ROBOT_CHOICE') }}:</label><br/>{{ lang('SHOUT_ROBOT_CHOICE_EXPLAIN') }}</dt>
 				<dd>
-					<label><input type="checkbox" name="shout_robot_choice[]" value="1"{{ CHOICE_1 }} /> {{ lang('SHOUT_ON_CONNECT') }}</label>
-					<label><input type="checkbox" name="shout_robot_choice[]" value="3"{{ CHOICE_3 }} /> {{ lang('SHOUT_ON_REPONSE') }}</label>
-					<br /><br />
-					<label><input type="checkbox" name="shout_robot_choice[]" value="2"{{ CHOICE_2 }} /> {{ lang('SHOUT_ON_SUBJET') }}</label>
-					<label><input type="checkbox" name="shout_robot_choice[]" value="4"{{ CHOICE_4 }} /> {{ lang('SHOUT_ON_DAY') }}</label>
-					<br /><br />
-					<label><input type="checkbox" name="shout_robot_choice[]" value="5"{{ CHOICE_5 }} /> {{ lang('SHOUT_ON_BIRTHDAY') }}</label>
-					<label><input type="checkbox" name="shout_robot_choice[]" value="6"{{ CHOICE_6 }} /> {{ lang('SHOUT_ON_NEWS') }}</label>
+					<label><input type="checkbox" name="shout_robot_choice[]" value="1"{{ CHOICE_1 }}> {{ lang('SHOUT_ON_CONNECT') }}</label>
+					<label><input type="checkbox" name="shout_robot_choice[]" value="3"{{ CHOICE_3 }}> {{ lang('SHOUT_ON_REPONSE') }}</label>
+					<br/><br/>
+					<label><input type="checkbox" name="shout_robot_choice[]" value="2"{{ CHOICE_2 }}> {{ lang('SHOUT_ON_SUBJET') }}</label>
+					<label><input type="checkbox" name="shout_robot_choice[]" value="4"{{ CHOICE_4 }}> {{ lang('SHOUT_ON_DAY') }}</label>
+					<br/><br/>
+					<label><input type="checkbox" name="shout_robot_choice[]" value="5"{{ CHOICE_5 }}> {{ lang('SHOUT_ON_BIRTHDAY') }}</label>
+					<label><input type="checkbox" name="shout_robot_choice[]" value="6"{{ CHOICE_6 }}> {{ lang('SHOUT_ON_NEWS') }}</label>
 				</dd>
 			</dl>
 			<span class="separation"></span>
 			<dl>
-				<dt><label>{{ lang('SHOUT_ROBOT_CHOICE_PRIV') }}:</label><br />{{ lang('SHOUT_ROBOT_CHOICE_PRIV_EXPLAIN') }}</dt>
+				<dt><label>{{ lang('SHOUT_ROBOT_CHOICE_PRIV') }}:</label><br/>{{ lang('SHOUT_ROBOT_CHOICE_PRIV_EXPLAIN') }}</dt>
 				<dd>
-					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="1"{{ CHOICE_PRIV_1 }} /> {{ lang('SHOUT_ON_CONNECT') }}</label>
-					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="2"{{ CHOICE_PRIV_2 }} /> {{ lang('SHOUT_ON_SUBJET') }}</label>
-					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="3"{{ CHOICE_PRIV_3 }} /> {{ lang('SHOUT_ON_REPONSE') }}</label>
-					<br /><br />
-					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="4"{{ CHOICE_PRIV_4 }} /> {{ lang('SHOUT_ON_DAY') }}</label>
-					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="5"{{ CHOICE_PRIV_5 }} /> {{ lang('SHOUT_ON_BIRTHDAY') }}</label>
-					<br /><br />
-					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="6"{{ CHOICE_PRIV_6 }} /> {{ lang('SHOUT_ON_NEWS') }}</label>
-					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="8"{{ CHOICE_PRIV_8 }} /> {{ lang('SHOUT_ON_PRIV') }}</label>
+					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="1"{{ CHOICE_PRIV_1 }}> {{ lang('SHOUT_ON_CONNECT') }}</label>
+					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="2"{{ CHOICE_PRIV_2 }}> {{ lang('SHOUT_ON_SUBJET') }}</label>
+					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="3"{{ CHOICE_PRIV_3 }}> {{ lang('SHOUT_ON_REPONSE') }}</label>
+					<br/><br/>
+					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="4"{{ CHOICE_PRIV_4 }}> {{ lang('SHOUT_ON_DAY') }}</label>
+					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="5"{{ CHOICE_PRIV_5 }}> {{ lang('SHOUT_ON_BIRTHDAY') }}</label>
+					<br/><br/>
+					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="6"{{ CHOICE_PRIV_6 }}> {{ lang('SHOUT_ON_NEWS') }}</label>
+					<label><input type="checkbox" name="shout_robot_choice_priv[]" value="8"{{ CHOICE_PRIV_8 }}> {{ lang('SHOUT_ON_PRIV') }}</label>
 				</dd>
 			</dl>
 		</fieldset>
 		{% if SHOUT_ENABLE_BREIZHCHARTS %}
 		<fieldset>
-			<legend><img src="{{ IMAGE_BREIZHCHARTS }}" alt="{{ lang('SHOUT_ROBOT_CHARTS') }}" title="{{ lang('SHOUT_ROBOT_CHARTS') }}" /> {{ lang('SHOUT_ROBOT_CHARTS') }}</legend>
+			<legend><img src="{{ IMAGE_BREIZHCHARTS }}" alt="{{ lang('SHOUT_ROBOT_CHARTS') }}" title="{{ lang('SHOUT_ROBOT_CHARTS') }}"/> {{ lang('SHOUT_ROBOT_CHARTS') }}</legend>
 			<dl>
-				<dt><label for="shout_breizhcharts_reset">{{ lang('SHOUT_ROBOT_CHARTS_RESET') }}:</label><br />{{ lang('SHOUT_ROBOT_CHARTS_RESET_EXPLAIN') }}</dt>
+				<dt><label for="shout_breizhcharts_reset">{{ lang('SHOUT_ROBOT_CHARTS_RESET') }}:</label><br/>{{ lang('SHOUT_ROBOT_CHARTS_RESET_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_BREIZHCHARTS_RESET }}</dd>
 			</dl>
 			<dl>
 				<dt>
-					<label for="shout_breizhcharts_new">{{ lang('SHOUT_ROBOT_CHARTS_NEW') }}:</label><br />{{ lang('SHOUT_ROBOT_CHARTS_NEW_EXPLAIN') }}
-					{% if SHOUT_BREIZHCHARTS_TOPIC %}<br />{{ lang('SHOUT_ROBOT_CHARTS_NEW_TOPIC') }}{% endif %}
+					<label for="shout_breizhcharts_new">{{ lang('SHOUT_ROBOT_CHARTS_NEW') }}:</label><br/>{{ lang('SHOUT_ROBOT_CHARTS_NEW_EXPLAIN') }}
+					{% if SHOUT_BREIZHCHARTS_TOPIC %}<br/>{{ lang('SHOUT_ROBOT_CHARTS_NEW_TOPIC') }}{% endif %}
 				</dt>
 				<dd>{{ SHOUT_BREIZHCHARTS_NEW }}</dd>
 			</dl>
@@ -197,35 +197,35 @@
 		{% endif %}
 		{% if SHOUT_ENABLE_YOUTUBE %}
 		<fieldset>
-			<legend><img src="{{ IMAGE_VIDEO }}" alt="{{ lang('ACP_VIDEO') }}" title="{{ lang('ACP_VIDEO') }}" /> {{ lang('ACP_VIDEO') }}</legend>
+			<legend><img src="{{ IMAGE_VIDEO }}" alt="{{ lang('ACP_VIDEO') }}" title="{{ lang('ACP_VIDEO') }}"/> {{ lang('ACP_VIDEO') }}</legend>
 			<dl>
-				<dt><label for="shout_video_new">{{ lang('SHOUT_ROBOT_NEW_VIDEO') }}:</label><br />{{ lang('SHOUT_ROBOT_NEW_VIDEO_EXPLAIN') }}</dt>
+				<dt><label for="shout_video_new">{{ lang('SHOUT_ROBOT_NEW_VIDEO') }}:</label><br/>{{ lang('SHOUT_ROBOT_NEW_VIDEO_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_VIDEO_NEW }}</dd>
 			</dl>
 		</fieldset>
 		{% endif %}
 		{% if SHOUT_ENABLE_ROBOT_RA %}
 		<fieldset>
-			<legend><img src="{{ IMAGE_SETTINGS }}" alt="{{ lang('RELAXARCADE') }}" title="{{ lang('RELAXARCADE') }}" width="37" /> {{ lang('RELAXARCADE') }}</legend>
+			<legend><img src="{{ IMAGE_SETTINGS }}" alt="{{ lang('RELAXARCADE') }}" title="{{ lang('RELAXARCADE') }}" width="37"/> {{ lang('RELAXARCADE') }}</legend>
 			<dl>
-				<dt><label for="shout_arcade_new">{{ lang('SHOUT_NEW_SCORE_RA') }}:</label><br />{{ lang('SHOUT_NEW_SCORE_RA_EXPLAIN') }}</dt>
+				<dt><label for="shout_arcade_new">{{ lang('SHOUT_NEW_SCORE_RA') }}:</label><br/>{{ lang('SHOUT_NEW_SCORE_RA_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_NEW_SCORE }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_arcade_record">{{ lang('SHOUT_NEW_RECORD_RA') }}:</label><br />{{ lang('SHOUT_NEW_RECORD_RA_EXPLAIN') }}</dt>
+				<dt><label for="shout_arcade_record">{{ lang('SHOUT_NEW_RECORD_RA') }}:</label><br/>{{ lang('SHOUT_NEW_RECORD_RA_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_NEW_RECORD }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_arcade_urecord">{{ lang('SHOUT_NEW_URECORD_RA') }}:</label><br />{{ lang('SHOUT_NEW_URECORD_RA_EXPLAIN') }}</dt>
+				<dt><label for="shout_arcade_urecord">{{ lang('SHOUT_NEW_URECORD_RA') }}:</label><br/>{{ lang('SHOUT_NEW_URECORD_RA_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_NEW_URECORD }}</dd>
 			</dl>
 		</fieldset>
 		{% endif %}
 
 		<fieldset class="centered">
-			<legend class="left"><img src="{{ IMAGE_SUBMIT }}" alt="{{ lang('SUBMIT') }}" title="{{ lang('SUBMIT') }}" width="37" /> {{ lang('SUBMIT') }}</legend>
-			<input class="button1" type="submit" id="submit" name="update" value="{{ lang('SUBMIT') }}" />&nbsp;
-			<input class="button2" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" />
+			<legend class="left"><img src="{{ IMAGE_SUBMIT }}" alt="{{ lang('SUBMIT') }}" title="{{ lang('SUBMIT') }}" width="37"/> {{ lang('SUBMIT') }}</legend>
+			<input class="button1" type="submit" id="submit" name="update" value="{{ lang('SUBMIT') }}">&nbsp;
+			<input class="button2" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}">
 			{{ S_FORM_TOKEN }}
 		</fieldset>
 	</form>

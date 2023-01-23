@@ -1,58 +1,58 @@
 
 	<form id="popup" method="post" action="{{ U_ACTION }}">								
 		<fieldset>
-			<legend><img src="{{ IMAGE_SETTINGS }}" alt="{{ lang('SHOUT_PANEL') }}" title="{{ lang('SHOUT_PANEL') }}" /> {{ lang('SHOUT_PANEL') }}</legend>
+			<legend><img src="{{ IMAGE_SETTINGS }}" alt="{{ lang('SHOUT_PANEL') }}" title="{{ lang('SHOUT_PANEL') }}"/> {{ lang('SHOUT_PANEL') }}</legend>
 			<dl>
 				<dt style="border-right:none;">{{ lang('SHOUT_PANEL_PERMISSIONS') }}</dt>
 			</dl>
 			<dl>
-				<dt><label for="shout_panel">{{ lang('SHOUT_PANEL') }}:</label><br />{{ lang('SHOUT_PANEL_EXPLAIN') }}</dt>
+				<dt><label for="shout_panel">{{ lang('SHOUT_PANEL') }}:</label><br/>{{ lang('SHOUT_PANEL_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_PANEL }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_panel_all">{{ lang('SHOUT_PANEL_ALL') }}:</label><br />{{ lang('SHOUT_PANEL_ALL_EXPLAIN') }}</dt>
+				<dt><label for="shout_panel_all">{{ lang('SHOUT_PANEL_ALL') }}:</label><br/>{{ lang('SHOUT_PANEL_ALL_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_PANEL_ALL }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_panel_auto">{{ lang('SHOUT_PANEL_AUTO') }}:</label><br />{{ lang('SHOUT_PANEL_AUTO_EXPLAIN') }}</dt>
+				<dt><label for="shout_panel_auto">{{ lang('SHOUT_PANEL_AUTO') }}:</label><br/>{{ lang('SHOUT_PANEL_AUTO_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_PANEL_AUTO }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_page_exclude">{{ lang('SHOUT_PANEL_KILL') }}:</label><br />{{ lang('SHOUT_PANEL_KILL_EXPLAIN') }}</dt>
+				<dt><label for="shout_page_exclude">{{ lang('SHOUT_PANEL_KILL') }}:</label><br/>{{ lang('SHOUT_PANEL_KILL_EXPLAIN') }}</dt>
 				<dd><textarea name="shout_page_exclude" id="shout_page_exclude" rows="7" cols="25" style="width:300px;">{{ SHOUT_PAGE_EXCLUDE }}</textarea></dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_panel_float">{{ lang('SHOUT_PANEL_FLOAT') }}:</label><br />{{ lang('SHOUT_PANEL_FLOAT_EXPLAIN') }}</dt>
+				<dt><label for="shout_panel_float">{{ lang('SHOUT_PANEL_FLOAT') }}:</label><br/>{{ lang('SHOUT_PANEL_FLOAT_EXPLAIN') }}</dt>
 				<dd>{{ SHOUT_PANEL_FLOAT }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_panel_img">{{ lang('SHOUT_PANEL_IMG') }}:</label><br />{{ lang('SHOUT_PANEL_IMG_EXPLAIN') }}</dt>
+				<dt><label for="shout_panel_img">{{ lang('SHOUT_PANEL_IMG') }}:</label><br/>{{ lang('SHOUT_PANEL_IMG_EXPLAIN') }}</dt>
 				<dd>
 					<select id="shout_panel_img" onchange="shoutbox.updatePanel(this.options[selectedIndex].value, this.options[selectedIndex].title, 'panel_img');" name="shout_panel_img" title="{{ OPTION_OPEN_TITLE }}">{{ PANEL_OPEN_OPTION }}</select>
-					 {{ lang('SHOUT_APERCU') }}<img src="{{ PANEL_PATH }}{{ PANEL_OPEN_IMAGE }}" id="panel_img" alt="{{ lang('SHOUT_PANEL_IMG') }}" title="{{ lang('SHOUT_PANEL_IMG') }}" style="vertical-align:middle;" />
+					 {{ lang('SHOUT_APERCU') }}<img src="{{ PANEL_PATH }}{{ PANEL_OPEN_IMAGE }}" id="panel_img" alt="{{ lang('SHOUT_PANEL_IMG') }}" title="{{ lang('SHOUT_PANEL_IMG') }}" style="vertical-align:middle;"/>
 				</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_panel_exit_img">{{ lang('SHOUT_PANEL_EXIT_IMG') }}:</label><br />{{ lang('SHOUT_PANEL_EXIT_IMG_EXPLAIN') }}</dt>
+				<dt><label for="shout_panel_exit_img">{{ lang('SHOUT_PANEL_EXIT_IMG') }}:</label><br/>{{ lang('SHOUT_PANEL_EXIT_IMG_EXPLAIN') }}</dt>
 				<dd>
 					<select id="shout_panel_exit_img" onchange="shoutbox.updatePanel(this.options[selectedIndex].value, this.options[selectedIndex].title, 'panel_exit_img');" name="shout_panel_exit_img" title="{{ OPTION_EXIT_TITLE }}">{{ PANEL_EXIT_OPTION }}</select>
-					 {{ lang('SHOUT_APERCU') }}<img src="{{ PANEL_PATH }}{{ PANEL_EXIT_IMAGE }}" id="panel_exit_img" alt="{{ lang('SHOUT_PANEL_EXIT_IMG') }}" title="{{ lang('SHOUT_PANEL_EXIT_IMG') }}" style="vertical-align:middle;" />
+					 {{ lang('SHOUT_APERCU') }}<img src="{{ PANEL_PATH }}{{ PANEL_EXIT_IMAGE }}" id="panel_exit_img" alt="{{ lang('SHOUT_PANEL_EXIT_IMG') }}" title="{{ lang('SHOUT_PANEL_EXIT_IMG') }}" style="vertical-align:middle;"/>
 				</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_panel_width">{{ lang('SHOUT_PANEL_WIDTH') }}:</label><br />{{ lang('SHOUT_PANEL_WIDTH_EXPLAIN') }}</dt>
-				<dd><input class="text small" type="text" id="shout_panel_width" name="shout_panel_width" value="{{ SHOUT_PANEL_WIDTH }}" maxlength="4" size="5" />&nbsp;{{ lang('SHOUT_PIXELS') }}</dd>
+				<dt><label for="shout_panel_width">{{ lang('SHOUT_PANEL_WIDTH') }}:</label><br/>{{ lang('SHOUT_PANEL_WIDTH_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_panel_width" name="shout_panel_width" value="{{ SHOUT_PANEL_WIDTH }}" maxlength="4" size="5">&nbsp;{{ lang('SHOUT_PIXELS') }}</dd>
 			</dl>
 			<dl>
-				<dt><label for="shout_panel_height">{{ lang('SHOUT_PANEL_HEIGHT') }}:</label><br />{{ lang('SHOUT_PANEL_HEIGHT_EXPLAIN') }}</dt>
-				<dd><input class="text small" type="text" id="shout_panel_height" name="shout_panel_height" value="{{ SHOUT_PANEL_HEIGHT }}" maxlength="4" size="5" />&nbsp;{{ lang('SHOUT_PIXELS') }}</dd>
+				<dt><label for="shout_panel_height">{{ lang('SHOUT_PANEL_HEIGHT') }}:</label><br/>{{ lang('SHOUT_PANEL_HEIGHT_EXPLAIN') }}</dt>
+				<dd><input class="text small" type="text" id="shout_panel_height" name="shout_panel_height" value="{{ SHOUT_PANEL_HEIGHT }}" maxlength="4" size="5">&nbsp;{{ lang('SHOUT_PIXELS') }}</dd>
 			</dl>
 		</fieldset>
 
 		<fieldset class="centered">
-			<legend class="left"><img src="{{ IMAGE_SUBMIT }}" alt="{{ lang('SUBMIT') }}" title="{{ lang('SUBMIT') }}" /> {{ lang('SUBMIT') }}</legend>
+			<legend class="left"><img src="{{ IMAGE_SUBMIT }}" alt="{{ lang('SUBMIT') }}" title="{{ lang('SUBMIT') }}"/> {{ lang('SUBMIT') }}</legend>
 			{{ S_FORM_TOKEN }}
-			<input class="button1" type="submit" id="submit" name="update" value="{{ lang('SUBMIT') }}" />&nbsp;
-			<input class="button2" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" />
+			<input class="button1" type="submit" id="submit" name="update" value="{{ lang('SUBMIT') }}">&nbsp;
+			<input class="button2" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}">
 		</fieldset>
 	</form>

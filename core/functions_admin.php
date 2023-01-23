@@ -2,7 +2,7 @@
 /**
 *
 * @package Breizh Shoutbox Extension
-* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
+* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -126,9 +126,9 @@ class functions_admin
 		$check1 = ($this->config->offsetGet($name)) ? ' checked="checked" id="' . $name . '"' : '';
 		$check2 = (!$this->config->offsetGet($name)) ? ' checked="checked" id="' . $name . '"' : '';
 
-		$data = '<label title="' . $title1 . '"><input type="radio" class="radio" name="' . $name . '" value="1"' . $check1 . ' /> ' . $title1 . '</label>';
-		$data .= ($outline) ? '<br /><br />' : '';
-		$data .= '<label title="' . $title2 . '"><input type="radio" class="radio" name="' . $name . '" value="0"' . $check2 . ' /> ' . $title2 . '</label>';
+		$data = '<label title="' . $title1 . '"><input type="radio" class="radio" name="' . $name . '" value="1"' . $check1 . '> ' . $title1 . '</label>';
+		$data .= ($outline) ? '<br/><br/>' : '';
+		$data .= '<label title="' . $title2 . '"><input type="radio" class="radio" name="' . $name . '" value="0"' . $check2 . '> ' . $title2 . '</label>';
 
 		return $data;
 	}

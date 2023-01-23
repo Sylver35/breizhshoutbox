@@ -92,6 +92,28 @@ services:
             - '%core.root_path%'
             - '%sylver35.breizhshoutbox.tables.shoutbox%'
             - '%sylver35.breizhshoutbox.tables.shoutbox_priv%'
+
+    sylver35.breizhshoutbox.smilies:
+        class: sylver35\breizhshoutbox\core\smilies
+        arguments:
+            - '@sylver35.breizhshoutbox.shoutbox'
+            - '@config'
+            - '@dbal.conn'
+            - '@dispatcher'
+            - '%core.root_path%'
+
+    sylver35.breizhshoutbox.actions:
+        class: sylver35\breizhshoutbox\core\actions
+        arguments:
+            - '@sylver35.breizhshoutbox.shoutbox'
+            - '@config'
+            - '@dbal.conn'
+            - '@auth'
+            - '@user'
+            - '@language'
+            - '@dispatcher'
+            - '%core.root_path%'
+
     sylver35.breizhshoutbox.functions_admin:
         class: sylver35\breizhshoutbox\core\functions_admin
         arguments:
@@ -114,6 +136,8 @@ services:
         class: sylver35\breizhshoutbox\controller\ajax
         arguments:
             - '@sylver35.breizhshoutbox.functions_ajax'
+            - '@sylver35.breizhshoutbox.smilies'
+            - '@sylver35.breizhshoutbox.actions'
 
     _defaults:
         public: true

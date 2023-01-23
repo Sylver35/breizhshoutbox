@@ -77,7 +77,7 @@
 	/** Update the date format  **/
 	shoutbox.changeDateFormat = function(value){
 		$('#shout_dateformat2').css('background', 'white url('+config.imgPath+'"ajax_loader.gif") no-repeat 90% 50%');
-		$('#shout_dateformat3').html('<img src="'+config.imgPath+'ajax_loader_2.gif" alt="loader" />');
+		$('#shout_dateformat3').html('<img src="'+config.imgPath+'ajax_loader_2.gif" alt="loader"/>');
 		$('#shout_dateformat4').html('');
 		$.ajax({
 			type: 'POST',
@@ -107,12 +107,12 @@
 				for(var i = 0; i < update.total; i++){
 					var smilie = update.smilies[i];
 					listeSmilies += '<a onclick="shoutbox.displaySmiley('+smilie.id+',1);return false;" class="smilies-none" title="'+smilie.emotion+'">';
-					listeSmilies += '<img src="'+update.url+smilie.image+'" alt="'+smilie.code+'" title="'+smilie.emotion+'" class="smilies" width="'+smilie.width+'" height="'+smilie.height+'"></a> ';
+					listeSmilies += '<img src="'+update.url+smilie.image+'" alt="'+smilie.code+'" title="'+smilie.emotion+'" class="smilies" width="'+smilie.width+'" height="'+smilie.height+'"/></a> ';
 				}
 				for(var j = 0; j < update.totalPop; j++){
 					var smilie = update.smiliesPop[j];
 					listeSmiliesPop += '<a onclick="shoutbox.displaySmiley('+smilie.id+',0);return false;" class="smilies-none" title="'+smilie.emotion+'">';
-					listeSmiliesPop += '<img src="'+update.url+smilie.image+'" alt="'+smilie.code+'" title="'+smilie.emotion+'" class="smilies" width="'+smilie.width+'" height="'+smilie.height+'"></a> ';
+					listeSmiliesPop += '<img src="'+update.url+smilie.image+'" alt="'+smilie.code+'" title="'+smilie.emotion+'" class="smilies" width="'+smilie.width+'" height="'+smilie.height+'"/></a> ';
 				}
 				$('#smil').html(listeSmilies);
 				$('#smil_pop').html(listeSmiliesPop);

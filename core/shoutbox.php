@@ -2,7 +2,7 @@
 /**
 *
 * @package Breizh Shoutbox Extension
-* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
+* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -154,7 +154,8 @@ class shoutbox
 			{
 				$message = $this->language->lang($message, $on1, $on2, $on3);
 			}
-			$message = preg_replace("#<b>(.*?)<br />#i", '', $message);
+			$message = str_replace(' />', '/>', $message);
+			$message = preg_replace("#<b>(.*?)<br/>#i", '', $message);
 		}
 
 		$response = new \phpbb\json_response;
@@ -213,7 +214,8 @@ class shoutbox
 	 */
 	private function shout_sql_error($sql, $line, $file)
 	{
-		$err = preg_replace("#<b>(.*?)<br />#i", '', $this->db->sql_error());
+		$err = str_replace(' />', '/>', $this->db->sql_error());
+		$err = preg_replace("#<b>(.*?)<br/>#i", '', $err);
 		$response = new \phpbb\json_response;
 
 		$response->send([
@@ -763,31 +765,35 @@ class shoutbox
 	public function delete_user_messages($user_id)
 	{
 		// Phase 1 delete messages in shoutbox table
-		$this->db->sql_query('DELETE FROM ' . $this->shoutbox_table . " WHERE shout_user_id = $user_id OR shout_robot_user = $user_id OR shout_inp = $user_id");
-		$deleted = $this->db->sql_affectedrows();
-		if ($deleted)
-		{
-			$this->config->increment('shout_del_auto', $deleted, true);
-			$this->update_shout_messages($this->shoutbox_table);
-		}
+		$this->delete_all_user_messages($user_id, $this->shoutbox_table, 'shout_del_auto');
 
 		// Phase 2 delete messages in private shoutbox table
-		$this->db->sql_query('DELETE FROM ' . $this->shoutbox_priv_table . " WHERE shout_user_id = $user_id OR shout_robot_user = $user_id OR shout_inp = $user_id");
-		$deleted_priv = $this->db->sql_affectedrows();
-		if ($deleted_priv)
+		$this->delete_all_user_messages($user_id, $this->shoutbox_priv_table, 'shout_del_auto_priv');
+	}
+
+	private function delete_all_user_messages($user_id, $table, $sort_of)
+	{ 
+		$this->db->sql_query('DELETE FROM ' . $table . " WHERE shout_user_id = $user_id");
+		$deleted = $this->db->sql_affectedrows();
+		$this->db->sql_query('DELETE FROM ' . $table . " WHERE shout_robot_user = $user_id");
+		$deleted += $this->db->sql_affectedrows();
+		$this->db->sql_query('DELETE FROM ' . $table . " WHERE shout_inp = $user_id");
+		$deleted += $this->db->sql_affectedrows();
+		if ($deleted)
 		{
-			$this->config->increment('shout_del_auto_priv', $deleted_priv, true);
-			$this->update_shout_messages($this->shoutbox_priv_table);
+			$this->config->increment($sort_of, $deleted, true);
+			$this->update_shout_messages($table);
 		}
 	}
 
 	/**
-	 * Delete all robot messages of a topic
+	 * Delete all robot messages of a topic or of a post
 	 */
-	public function shout_delete_topic($topic_id)
+	public function shout_delete_topic_or_post($id, $sort)
 	{
-		// Phase 1 delete messages in shoutbox table
-		$this->db->sql_query('DELETE FROM ' . $this->shoutbox_table . " WHERE shout_forum <> 0 AND shout_text2 LIKE '%&amp;t=$topic_id%'");
+		$sort_id = ($sort) ? "'%&amp;t=$id%'" : "'%&amp;p=$id%'";
+		// Phase 1 delete in shoutbox table
+		$this->db->sql_query('DELETE FROM ' . $this->shoutbox_table . ' WHERE shout_forum <> 0 AND shout_text2 LIKE ' . $sort_id);
 		$deleted = $this->db->sql_affectedrows();
 		if ($deleted)
 		{
@@ -795,32 +801,8 @@ class shoutbox
 			$this->update_shout_messages($this->shoutbox_table);
 		}
 
-		// Phase 2 delete messages in private shoutbox table
-		$this->db->sql_query('DELETE FROM ' . $this->shoutbox_priv_table . " WHERE shout_forum <> 0 AND shout_text2 LIKE '%&amp;t=$topic_id%'");
-		$deleted_priv = $this->db->sql_affectedrows();
-		if ($deleted_priv)
-		{
-			$this->config->increment('shout_del_auto_priv', $deleted_priv, true);
-			$this->update_shout_messages($this->shoutbox_priv_table);
-		}
-	}
-
-	/**
-	 * Delete all robot messages of a post
-	 */
-	public function shout_delete_post($post_id)
-	{
-		// Phase 1 delete messages in shoutbox table
-		$this->db->sql_query('DELETE FROM ' . $this->shoutbox_table . " WHERE shout_forum <> 0 AND shout_text2 LIKE '%&amp;p=$post_id%'");
-		$deleted = $this->db->sql_affectedrows();
-		if ($deleted)
-		{
-			$this->config->increment('shout_del_auto', $deleted, true);
-			$this->update_shout_messages($this->shoutbox_table);
-		}
-
-		// Phase 2 delete messages in private shoutbox table
-		$this->db->sql_query('DELETE FROM ' . $this->shoutbox_priv_table . " WHERE shout_forum <> 0 AND shout_text2 LIKE '%&amp;p=$post_id%'");
+		// Phase 2 delete in private shoutbox table
+		$this->db->sql_query('DELETE FROM ' . $this->shoutbox_priv_table . ' WHERE shout_forum <> 0 AND shout_text2 LIKE ' . $sort_id);
 		$deleted_priv = $this->db->sql_affectedrows();
 		if ($deleted_priv)
 		{
@@ -1586,7 +1568,7 @@ class shoutbox
 	 */
 	public function shout_url($url)
 	{
-		return str_replace(['./../../../../', './../../../', './../../', './../', './'], generate_board_url() . '/', $url);
+		return str_replace(['./../../../../', './../../../', './../../', './../', './'], $this->root_path_web, $url);
 	}
 
 	/*
@@ -1671,6 +1653,12 @@ class shoutbox
 		}
 
 		return sprintf($this->config['shout_tpl_' . $sort], $data1, $data2, $data3, $data4);
+		//return sprintf($this->clean_tpl('shout_tpl_' . $sort), $data1, $data2, $data3, $data4);
+	}
+
+	private function clean_tpl($tpl)
+	{
+		return str_replace(['\\', '&quot;', '""'], ['', '"', '"'], $this->config[$tpl]);
 	}
 
 	public function action_user($row, $id, $sort)
@@ -2930,8 +2918,8 @@ class shoutbox
 			$row['user_avatar_width'] = round($avatar_height / $row['user_avatar_height'] * $row['user_avatar_width']);
 			$row['user_avatar_height'] = $avatar_height;
 			$avatar = $this->shout_url(phpbb_get_user_avatar($row, $this->language->lang('SHOUT_AVATAR_TITLE', $row['username'])));
-			$avatar = str_replace('alt="', 'title="' . $this->language->lang('SHOUT_AVATAR_TITLE', $row['username']) . '" alt="', $avatar);
-			$avatar = ($popup) ? str_replace('class="avatar', 'class="avatar popup-avatar', $avatar) : $avatar;
+			$avatar = strtr($avatar, ['alt="' => 'title="' . $this->language->lang('SHOUT_AVATAR_TITLE', $row['username']) . '" alt="']);
+			$avatar = ($popup) ? strtr($avatar, ['class="avatar' => 'class="avatar popup-avatar']) : $avatar;
 
 			return $avatar;
 		}
@@ -2946,8 +2934,8 @@ class shoutbox
 			'avatar_height'	=> $height,
 			'avatar_width'	=> '',
 		];
-		$avatar = str_replace(['./download/file.php?avatar=', 'alt="'], ['', 'title="' . $val['alt'] . '" alt="'], phpbb_get_user_avatar($row, $val['alt']));
-		$avatar = ($popup) ? str_replace('class="avatar', 'class="avatar popup-avatar', $avatar) : $avatar;
+		$avatar = strtr(phpbb_get_user_avatar($row, $val['alt']), ['./download/file.php?avatar=' => '', 'alt="' => 'title="' . $val['alt'] . '" alt="']);
+		$avatar = ($popup) ? strtr($avatar, ['class="avatar' => 'class="avatar popup-avatar']) : $avatar;
 
 		return $this->shout_url($avatar);
 	}
@@ -2995,7 +2983,7 @@ class shoutbox
 		{
 			foreach ($sounds as $sound)
 			{
-				$sound = str_replace('.mp3', '', $sound);
+				$sound = strtr($sound, ['.mp3' => '']);
 				$selected = ($sound === $actual) ? ' selected="selected"' : '';
 				$sound_select .= '<option title="' . $sound . '" value="' . $sound . '"' . $selected . '>' . $sound . '</option>';
 			}
@@ -3585,7 +3573,7 @@ class shoutbox
 
 		for ($i = 0, $nb = sizeof($lang_array); $i < $nb; $i++)
 		{
-			$lang_shout[str_replace('SHOUT_', '', $lang_array[$i])] = $this->language->lang($lang_array[$i]);
+			$lang_shout[strtr($lang_array[$i], ['SHOUT_' => ''])] = $this->language->lang($lang_array[$i]);
 		}
 
 		if ($data['creator'])

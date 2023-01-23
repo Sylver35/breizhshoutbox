@@ -2,7 +2,7 @@
 /**
 *
 * @package Breizh Shoutbox Extension
-* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
+* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -10,18 +10,28 @@
 namespace sylver35\breizhshoutbox\controller;
 
 use sylver35\breizhshoutbox\core\functions_ajax;
+use sylver35\breizhshoutbox\core\smilies;
+use sylver35\breizhshoutbox\core\actions;
 
 class ajax
 {
 	/* @var \sylver35\breizhshoutbox\core\functions_ajax */
 	protected $functions_ajax;
 
+	/* @var \sylver35\breizhshoutbox\core\smilies */
+	protected $smilies;
+
+	/* @var \sylver35\breizhshoutbox\core\actions */
+	protected $actions;
+
 	/**
 	 * Constructor
 	 */
-	public function __construct(functions_ajax $functions_ajax)
+	public function __construct(functions_ajax $functions_ajax, smilies $smilies, actions $actions)
 	{
 		$this->functions_ajax = $functions_ajax;
+		$this->smilies = $smilies;
+		$this->actions = $actions;
 	}
 
 	/**
@@ -42,15 +52,15 @@ class ajax
 		switch ($mode)
 		{
 			case 'smilies':
-				$data = $this->functions_ajax->smilies();
+				$data = $this->smilies->smilies();
 			break;
 
 			case 'smilies_popup':
-				$data = $this->functions_ajax->smilies_popup($this->value('cat', -1));
+				$data = $this->smilies->smilies_popup($this->value('cat', -1));
 			break;
 
 			case 'display_smilies':
-				$data = $this->functions_ajax->display_smilies($this->value('smiley', 0), $this->value('display', 3));
+				$data = $this->smilies->display_smilies($this->value('smiley', 0), $this->value('display', 3));
 			break;
 
 			case 'user_bbcode':
@@ -74,55 +84,55 @@ class ajax
 			break;
 
 			case 'rules':
-				$data = $this->functions_ajax->rules($val['priv']);
+				$data = $this->actions->rules($val['priv']);
 			break;
 
 			case 'preview_rules':
-				$data = $this->functions_ajax->preview_rules($this->value('content', ''));
+				$data = $this->actions->preview_rules($this->value('content', ''));
 			break;
 
 			case 'date_format':
-				$data = $this->functions_ajax->date_format($this->value('date', ''));
+				$data = $this->actions->date_format($this->value('date', ''));
 			break;
 
 			case 'action_sound':
-				$data = $this->functions_ajax->action_sound($this->value('sound', 1));
+				$data = $this->actions->action_sound($this->value('sound', 1));
 			break;
 
 			case 'cite':
-				$data = $this->functions_ajax->cite($val['other']);
+				$data = $this->actions->cite($val['other']);
 			break;
 
 			case 'action_user':
-				$data = $this->functions_ajax->action_user($val);
+				$data = $this->actions->action_user($val);
 			break;
 
 			case 'action_post':
-				$data = $this->functions_ajax->action_post($val, $this->value('message', ''));
+				$data = $this->actions->action_post($val, $this->value('message', ''));
 			break;
 
 			case 'action_del':
-				$data = $this->functions_ajax->action_del($val);
+				$data = $this->actions->action_del($val);
 			break;
 
 			case 'action_del_to':
-				$data = $this->functions_ajax->action_del_to($val);
+				$data = $this->actions->action_del_to($val);
 			break;
 
 			case 'action_remove':
-				$data = $this->functions_ajax->action_remove($val);
+				$data = $this->actions->action_remove($val);
 			break;
 
 			case 'delete':
-				$data = $this->functions_ajax->delete($val, $this->value('post', 0));
+				$data = $this->actions->delete($val, $this->value('post', 0));
 			break;
 
 			case 'purge':
-				$data = $this->functions_ajax->purge($val);
+				$data = $this->actions->purge($val);
 			break;
 
 			case 'purge_robot':
-				$data = $this->functions_ajax->purge_robot($val);
+				$data = $this->actions->purge_robot($val);
 			break;
 
 			case 'edit':

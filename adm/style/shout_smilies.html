@@ -4,7 +4,7 @@
 		<div id="smil">
 		{% for smiley in smilies %}
 			<a onclick="shoutbox.displaySmiley('{{ smiley.ID }}',1);" class="smilies-none">
-				<img src="{{ SMILIES_URL }}{{ smiley.SRC }}" alt="{{ smiley.CODE }}" title="{{ smiley.EMOTION }}" width="{{ smiley.WIDTH }}" height="{{ smiley.HEIGHT }}" />
+				<img src="{{ SMILIES_URL }}{{ smiley.SRC }}" alt="{{ smiley.CODE }}" title="{{ smiley.EMOTION }}" width="{{ smiley.WIDTH }}" height="{{ smiley.HEIGHT }}"/>
 			</a> 
 		{% endfor %}
 		</div>
@@ -14,7 +14,7 @@
 		<div id="smil_pop">
 		{% for smiley_popup in smilies_popup %}
 			<a onclick="shoutbox.displaySmiley('{{ smiley_popup.ID }}',0);" class="smilies-none">
-				<img src="{{ SMILIES_URL }}{{ smiley_popup.SRC }}" alt="{{ smiley_popup.CODE }}" title="{{ smiley_popup.EMOTION }}" width="{{ smiley_popup.WIDTH }}" height="{{ smiley_popup.HEIGHT }}" />
+				<img src="{{ SMILIES_URL }}{{ smiley_popup.SRC }}" alt="{{ smiley_popup.CODE }}" title="{{ smiley_popup.EMOTION }}" width="{{ smiley_popup.WIDTH }}" height="{{ smiley_popup.HEIGHT }}"/>
 			</a>
 		{% endfor %}
 		</div>

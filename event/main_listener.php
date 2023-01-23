@@ -2,7 +2,7 @@
 /**
 *
 * @package Breizh Shoutbox Extension
-* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
+* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -248,6 +248,100 @@ class main_listener implements EventSubscriberInterface
 		]);
 	}
 
+		/**
+	 * @param array $event
+	 */
+	public function shout_delete_user($event)
+	{
+		if ($event['mode'] == 'remove')
+		{
+			foreach ($event['user_ids'] as $user_id)
+			{
+				$this->shoutbox->delete_user_messages((int) $user_id);
+			}
+		}
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function shout_delete_topics($event)
+	{
+		foreach ($event['topic_ids'] as $topic_id)
+		{
+			$this->shoutbox->shout_delete_topic_or_post((int) $topic_id, true);
+		}
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function shout_delete_posts($event)
+	{
+		foreach ($event['post_ids'] as $post_id)
+		{
+			$this->shoutbox->shout_delete_topic_or_post((int) $post_id, false);
+		}
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function add_song_after($event)
+	{
+		$this->shoutbox->add_song_after($event);
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function reset_all_notes($event)
+	{
+		$this->shoutbox->reset_all_notes($event);
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function submit_new_video($event)
+	{
+		$this->shoutbox->submit_new_video($event);
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function submit_new_score($event)
+	{
+		if ($this->config['shout_arcade_new'])
+		{
+			$muser = ($event['muserid'] == 0) ? true : false;
+			$this->shoutbox->submit_arcade_score($event, $muser);
+		}
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function submit_new_record($event)
+	{
+		if ($this->config['shout_arcade_record'])
+		{
+			$this->shoutbox->submit_arcade_record($event);
+		}
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function submit_new_urecord($event)
+	{
+		if ($event['gamescore'] > 0)
+		{
+			$this->shoutbox->submit_arcade_urecord($event);
+		}
+	}
+
 	/**
 	 * @param array $event
 	 */
@@ -367,99 +461,5 @@ class main_listener implements EventSubscriberInterface
 				'cat' => 'shoutbox',
 			],
 		]);
-	}
-
-	/**
-	 * @param array $event
-	 */
-	public function shout_delete_user($event)
-	{
-		if ($event['mode'] == 'remove')
-		{
-			foreach ($event['user_ids'] as $user_id)
-			{
-				$this->shoutbox->delete_user_messages((int) $user_id);
-			}
-		}
-	}
-
-	/**
-	 * @param array $event
-	 */
-	public function shout_delete_topics($event)
-	{
-		foreach ($event['topic_ids'] as $topic_id)
-		{
-			$this->shoutbox->shout_delete_topic((int) $topic_id);
-		}
-	}
-
-	/**
-	 * @param array $event
-	 */
-	public function shout_delete_posts($event)
-	{
-		foreach ($event['post_ids'] as $post_id)
-		{
-			$this->shoutbox->shout_delete_post((int) $post_id);
-		}
-	}
-
-	/**
-	 * @param array $event
-	 */
-	public function add_song_after($event)
-	{
-		$this->shoutbox->add_song_after($event);
-	}
-
-	/**
-	 * @param array $event
-	 */
-	public function reset_all_notes($event)
-	{
-		$this->shoutbox->reset_all_notes($event);
-	}
-
-	/**
-	 * @param array $event
-	 */
-	public function submit_new_video($event)
-	{
-		$this->shoutbox->submit_new_video($event);
-	}
-
-	/**
-	 * @param array $event
-	 */
-	public function submit_new_score($event)
-	{
-		if ($this->config['shout_arcade_new'])
-		{
-			$muser = ($event['muserid'] == 0) ? true : false;
-			$this->shoutbox->submit_arcade_score($event, $muser);
-		}
-	}
-
-	/**
-	 * @param array $event
-	 */
-	public function submit_new_record($event)
-	{
-		if ($this->config['shout_arcade_record'])
-		{
-			$this->shoutbox->submit_arcade_record($event);
-		}
-	}
-
-	/**
-	 * @param array $event
-	 */
-	public function submit_new_urecord($event)
-	{
-		if ($event['gamescore'] > 0)
-		{
-			$this->shoutbox->submit_arcade_urecord($event);
-		}
 	}
 }
