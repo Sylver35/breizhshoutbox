@@ -772,7 +772,7 @@ class shoutbox
 	}
 
 	private function delete_all_user_messages($user_id, $table, $sort_of)
-	{ 
+	{
 		$this->db->sql_query('DELETE FROM ' . $table . " WHERE shout_user_id = $user_id");
 		$deleted = $this->db->sql_affectedrows();
 		$this->db->sql_query('DELETE FROM ' . $table . " WHERE shout_robot_user = $user_id");
@@ -1695,17 +1695,49 @@ class shoutbox
 
 	private function create_action_user($row, $sort, $go_founder)
 	{
+		$get_auths = $this->get_auths();
+		$get_urls = $this->get_urls($row);
+
 		return [
-			'url_profile'	=> $this->tpl('profile', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", ['mode' => 'viewprofile', 'u' => $row['user_id']], false), $row['username']),
-			'url_auth'		=> ($this->auth->acl_gets(['a_', 'm_shout_personal'])) ? $this->tpl('auth', $row['user_id'], $row['username']) : '',
-			'url_prefs'		=> ($this->auth->acl_gets(['a_', 'm_shout_personal'])) ? $this->tpl('prefs', $this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $row['user_id']])) : '',
-			'url_admin'		=> ($this->auth->acl_get('a_user')) ? $this->tpl('admin', append_sid("{$this->adm_path()}index.{$this->php_ext}", ['i' => 'users', 'mode' => 'overview', 'u' => $row['user_id']], true, $this->user->session_id)) : '',
-			'url_modo'		=> ($this->auth->acl_get('m_')) ? $this->tpl('modo', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'notes', 'mode' => 'user_notes', 'u' => $row['user_id']], true, $this->user->session_id)) : '',
-			'url_ban'		=> ($this->auth->acl_get('m_ban') && $go_founder) ? $this->tpl('ban', append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'ban', 'mode' => 'user', 'u' => $row['user_id']], true, $this->user->session_id)) : '',
-			'url_remove'	=> (($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_delete')) && $go_founder) ? $this->tpl('remove', $row['user_id']) : '',
-			'url_perso'		=> (($this->auth->acl_get('a_') || $this->auth->acl_get('m_shout_personal')) && $go_founder) ? $this->tpl('perso', $row['user_id']) : '',
-			'url_robot'		=> ($this->auth->acl_gets(['a_', 'm_shout_robot'])) ? $this->tpl('robot', $sort) : '',
+			'url_profile'	=> $this->tpl('profile', $get_urls[1], $row['username']),
+			'url_auth'		=> $get_auths[7] ? $this->tpl('auth', $row['user_id'], $row['username']) : '',
+			'url_prefs'		=> $get_auths[7] ? $this->tpl('prefs', $get_urls[5]) : '',
+			'url_admin'		=> $get_auths[2] ? $this->tpl('admin', $get_urls[2]) : '',
+			'url_modo'		=> $get_auths[3] ? $this->tpl('modo', $get_urls[3]) : '',
+			'url_ban'		=> ($get_auths[4] && $go_founder) ? $this->tpl('ban', $get_urls[4]) : '',
+			'url_remove'	=> (($get_auths[1] || $get_auths[5]) && $go_founder) ? $this->tpl('remove', $row['user_id']) : '',
+			'url_perso'		=> (($get_auths[1] || $get_auths[7]) && $go_founder) ? $this->tpl('perso', $row['user_id']) : '',
+			'url_robot'		=> $get_auths[8] ? $this->tpl('robot', $sort) : '',
 		];
+	}
+
+	private function get_auths()
+	{
+		$return = [
+			1 =>	$this->auth->acl_get('a_') ? true : false,
+			2 =>	$this->auth->acl_get('a_user') ? true : false,
+			3 =>	$this->auth->acl_get('m_') ? true : false,
+			4 =>	$this->auth->acl_get('m_ban') ? true : false,
+			5 =>	$this->auth->acl_get('m_shout_delete'),
+			6 =>	$this->auth->acl_get('m_shout_personal'),
+			7 =>	$this->auth->acl_gets(['a_', 'm_shout_personal']) ? true : false,
+			8 =>	$this->auth->acl_gets(['a_', 'm_shout_robot']) ? true : false,
+		];
+
+		return $return;
+	}
+
+	private function get_urls($row)
+	{
+		$return = [
+			1 =>	append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", ['mode' => 'viewprofile', 'u' => $row['user_id']], false),
+			2 =>	append_sid("{$this->adm_path()}index.{$this->php_ext}", ['i' => 'users', 'mode' => 'overview', 'u' => $row['user_id']], true, $this->user->session_id),
+			3 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'notes', 'mode' => 'user_notes', 'u' => $row['user_id']], true, $this->user->session_id),
+			4 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'ban', 'mode' => 'user', 'u' => $row['user_id']], true, $this->user->session_id),
+			5 =>	$this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $row['user_id']]),
+		];
+
+		return $return;
 	}
 
 	public function shout_text_for_display($row, $sort, $acp)

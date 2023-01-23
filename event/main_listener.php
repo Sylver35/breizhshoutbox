@@ -248,7 +248,7 @@ class main_listener implements EventSubscriberInterface
 		]);
 	}
 
-		/**
+	/**
 	 * @param array $event
 	 */
 	public function shout_delete_user($event)
