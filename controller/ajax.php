@@ -75,12 +75,12 @@ class ajax
 				$data = $this->functions_ajax->online();
 			break;
 
-			case 'question':
-				$data = $this->functions_ajax->question();
-			break;
-
 			case 'auth':
 				$data = $this->functions_ajax->auth($val['other'], $this->value('name', ''));
+			break;
+
+			case 'question':
+				$data = $this->actions->question();
 			break;
 
 			case 'rules':
