@@ -9,6 +9,7 @@ services:
         class: sylver35\breizhshoutbox\controller\main
         arguments:
             - '@sylver35.breizhshoutbox.shoutbox'
+            - '@sylver35.breizhshoutbox.work'
             - '@sylver35.breizhshoutbox.javascript'
             - '@config'
             - '@controller.helper'
@@ -151,6 +152,7 @@ services:
             - '@dispatcher'
             - '%core.root_path%'
             - '%core.php_ext%'
+            - '%sylver35.breizhshoutbox.tables.shoutbox_rules%'
 
     sylver35.breizhshoutbox.functions_admin:
         class: sylver35\breizhshoutbox\core\functions_admin

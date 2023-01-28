@@ -10,6 +10,7 @@
 namespace sylver35\breizhshoutbox\controller;
 
 use sylver35\breizhshoutbox\core\shoutbox;
+use sylver35\breizhshoutbox\core\work;
 use sylver35\breizhshoutbox\core\javascript;
 use phpbb\config\config;
 use phpbb\controller\helper;
@@ -25,6 +26,9 @@ class main
 {
 	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
+
+	/* @var \sylver35\breizhshoutbox\core\work */
+	protected $work;
 
 	/* @var \sylver35\breizhshoutbox\core\javascript */
 	protected $javascript;
@@ -65,9 +69,10 @@ class main
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, javascript $javascript, config $config, helper $helper, db $db, template $template, auth $auth, user $user, language $language, request $request, pagination $pagination, $root_path, $php_ext)
+	public function __construct(shoutbox $shoutbox, work $work, javascript $javascript, config $config, helper $helper, db $db, template $template, auth $auth, user $user, language $language, request $request, pagination $pagination, $root_path, $php_ext)
 	{
 		$this->shoutbox = $shoutbox;
+		$this->work = $work;
 		$this->javascript = $javascript;
 		$this->config = $config;
 		$this->helper = $helper;

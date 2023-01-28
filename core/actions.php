@@ -77,7 +77,7 @@ class actions
 		$iso = $this->work->check_shout_rules($sort);
 		if ($iso !== '')
 		{
-			$rules = $this->shoutbox->get_shout_rules();
+			$rules = $this->work->get_shout_rules();
 			$text = $rules[$iso];
 			if ($text['rules_text' . $sort])
 			{

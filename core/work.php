@@ -61,9 +61,15 @@ class work
 	protected $ext_path;
 
 	/**
+	 * The database tables
+	 *
+	 * @var string */
+	protected $shoutbox_rules_table;
+
+	/**
 	 * Constructor
 	 */
-	public function __construct(config $config, db $db, auth $auth, user $user, language $language, cache $cache, manager $ext_manager, Container $phpbb_container, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext)
+	public function __construct(config $config, db $db, auth $auth, user $user, language $language, cache $cache, manager $ext_manager, Container $phpbb_container, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext, $shoutbox_rules_table)
 	{
 		$this->config = $config;
 		$this->db = $db;
@@ -77,6 +83,7 @@ class work
 		$this->root_path = $root_path;
 		$this->root_path_web = generate_board_url() . '/';
 		$this->php_ext = $php_ext;
+		$this->shoutbox_rules_table = $shoutbox_rules_table;
 		$this->ext_path = $this->ext_manager->get_extension_path('sylver35/breizhshoutbox', true);
 	}
 
