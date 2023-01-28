@@ -9,6 +9,7 @@ services:
         class: sylver35\breizhshoutbox\controller\main
         arguments:
             - '@sylver35.breizhshoutbox.shoutbox'
+            - '@sylver35.breizhshoutbox.javascript'
             - '@config'
             - '@controller.helper'
             - '@dbal.conn'
@@ -24,7 +25,7 @@ services:
     sylver35.breizhshoutbox.admin.controller:
         class: sylver35\breizhshoutbox\controller\admin_controller
         arguments:
-            - '@sylver35.breizhshoutbox.shoutbox'
+            - '@sylver35.breizhshoutbox.work'
             - '@sylver35.breizhshoutbox.functions_admin'
             - '@config'
             - '@controller.helper'
@@ -57,6 +58,8 @@ services:
     sylver35.breizhshoutbox.shoutbox:
         class: sylver35\breizhshoutbox\core\shoutbox
         arguments:
+            - '@sylver35.breizhshoutbox.work'
+            - '@sylver35.breizhshoutbox.javascript'
             - '@cache.driver'
             - '@config'
             - '@controller.helper'
@@ -78,10 +81,28 @@ services:
             - '%sylver35.breizhshoutbox.tables.shoutbox_priv%'
             - '%sylver35.breizhshoutbox.tables.shoutbox_rules%'
 
+    sylver35.breizhshoutbox.javascript:
+        class: sylver35\breizhshoutbox\core\javascript
+        arguments:
+            - '@sylver35.breizhshoutbox.work'
+            - '@config'
+            - '@controller.helper'
+            - '@path_helper'
+            - '@dbal.conn'
+            - '@request'
+            - '@template'
+            - '@auth'
+            - '@user'
+            - '@language'
+            - '@ext.manager'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+
     sylver35.breizhshoutbox.functions_ajax:
         class: sylver35\breizhshoutbox\core\functions_ajax
         arguments:
             - '@sylver35.breizhshoutbox.shoutbox'
+            - '@sylver35.breizhshoutbox.work'
             - '@request'
             - '@config'
             - '@dbal.conn'
@@ -97,6 +118,7 @@ services:
         class: sylver35\breizhshoutbox\core\smilies
         arguments:
             - '@sylver35.breizhshoutbox.shoutbox'
+            - '@sylver35.breizhshoutbox.work'
             - '@config'
             - '@dbal.conn'
             - '@dispatcher'
@@ -106,6 +128,7 @@ services:
         class: sylver35\breizhshoutbox\core\actions
         arguments:
             - '@sylver35.breizhshoutbox.shoutbox'
+            - '@sylver35.breizhshoutbox.work'
             - '@config'
             - '@dbal.conn'
             - '@auth'
@@ -114,10 +137,26 @@ services:
             - '@dispatcher'
             - '%core.root_path%'
 
+    sylver35.breizhshoutbox.work:
+        class: sylver35\breizhshoutbox\core\work
+        arguments:
+            - '@config'
+            - '@dbal.conn'
+            - '@auth'
+            - '@user'
+            - '@language'
+            - '@cache.driver'
+            - '@ext.manager'
+            - '@service_container'
+            - '@dispatcher'
+            - '%core.root_path%'
+            - '%core.php_ext%'
+
     sylver35.breizhshoutbox.functions_admin:
         class: sylver35\breizhshoutbox\core\functions_admin
         arguments:
             - '@sylver35.breizhshoutbox.shoutbox'
+            - '@sylver35.breizhshoutbox.work'
             - '@cache.driver'
             - '@config'
             - '@dbal.conn'

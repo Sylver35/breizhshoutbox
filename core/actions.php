@@ -10,6 +10,7 @@
 namespace sylver35\breizhshoutbox\core;
 
 use sylver35\breizhshoutbox\core\shoutbox;
+use sylver35\breizhshoutbox\core\work;
 use phpbb\config\config;
 use phpbb\db\driver\driver_interface as db;
 use phpbb\auth\auth;
@@ -21,6 +22,9 @@ class actions
 {
 	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
+
+	/* @var \sylver35\breizhshoutbox\core\work */
+	protected $work;
 
 	/** @var \phpbb\config\config */
 	protected $config;
@@ -49,9 +53,10 @@ class actions
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path)
+	public function __construct(shoutbox $shoutbox, work $work, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path)
 	{
 		$this->shoutbox = $shoutbox;
+		$this->work = $work;
 		$this->config = $config;
 		$this->db = $db;
 		$this->auth = $auth;
@@ -178,7 +183,7 @@ class actions
 		$sql = 'SELECT user_id, user_type
 			FROM ' . USERS_TABLE . '
 				WHERE user_id = ' . $id;
-		$result = $this->shoutbox->shout_sql_query($sql, true, 1);
+		$result = $this->work->shout_sql_query($sql, true, 1);
 		$row = $this->db->sql_fetchrow($result);
 		$this->db->sql_freeresult($result);
 		if (!$row || $row['user_type'] == USER_IGNORE)
@@ -219,7 +224,7 @@ class actions
 				],
 				'WHERE'		=> 'u.user_id = ' . $val['other'],
 			]);
-			$result = $this->shoutbox->shout_sql_query($sql, true, 1);
+			$result = $this->work->shout_sql_query($sql, true, 1);
 			$row = $this->db->sql_fetchrow($result);
 			$this->db->sql_freeresult($result);
 			if (!$row)
@@ -230,7 +235,7 @@ class actions
 			{
 				return [
 					'type'		=> 2,
-					'username'	=> $this->shoutbox->shout_url(get_username_string('no_profile', $row['user_id'], $row['username'], $row['user_colour'])),
+					'username'	=> $this->work->shout_url(get_username_string('no_profile', $row['user_id'], $row['username'], $row['user_colour'])),
 					'message'	=> $this->language->lang('SHOUT_USER_NONE'),
 				];
 			}
@@ -336,7 +341,7 @@ class actions
 			$sql = 'DELETE FROM ' . $val['table'] . '
 				WHERE shout_user_id = ' . $val['other'] . '
 					AND shout_inp <> 0';
-			$this->shoutbox->shout_sql_query($sql);
+			$this->work->shout_sql_query($sql);
 			$deleted = $this->db->sql_affectedrows();
 			if (!$deleted)
 			{
@@ -373,7 +378,7 @@ class actions
 			$sql = 'DELETE FROM ' . $val['table'] . '
 				WHERE shout_inp = ' . $val['other'] . '
 					AND shout_user_id <> ' . $val['other'];
-			$this->shoutbox->shout_sql_query($sql);
+			$this->work->shout_sql_query($sql);
 			$deleted = $this->db->sql_affectedrows();
 			if (!$deleted)
 			{
@@ -403,7 +408,7 @@ class actions
 				WHERE shout_user_id = ' . $val['other'] . '
 					OR shout_robot_user = ' . $val['other'] . '
 					OR shout_inp = ' . $val['other'];
-			$this->shoutbox->shout_sql_query($sql);
+			$this->work->shout_sql_query($sql);
 			$deleted = $this->db->sql_affectedrows();
 			if ($deleted)
 			{
@@ -448,7 +453,7 @@ class actions
 		$sql = 'SELECT shout_user_id
 			FROM ' . $val['table'] . "
 				WHERE shout_id = $post";
-		$result = $this->shoutbox->shout_sql_query($sql, true, 1);
+		$result = $this->work->shout_sql_query($sql, true, 1);
 		$on_id = $this->db->sql_fetchfield('shout_user_id');
 		$this->db->sql_freeresult($result);
 
@@ -525,7 +530,7 @@ class actions
 
 			$sql = 'DELETE FROM ' . $val['table'] . '
 				WHERE ' . $this->db->sql_in_set('shout_info', $sort_on, false, true);
-			$this->shoutbox->shout_sql_query($sql);
+			$this->work->shout_sql_query($sql);
 			$deleted = $this->db->sql_affectedrows();
 
 			$this->config->increment('shout_del_purge' . $val['priv'], $deleted, true);

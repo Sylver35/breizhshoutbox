@@ -10,6 +10,7 @@
 namespace sylver35\breizhshoutbox\core;
 
 use sylver35\breizhshoutbox\core\shoutbox;
+use sylver35\breizhshoutbox\core\work;
 use phpbb\json_response;
 use phpbb\exception\http_exception;
 use phpbb\cache\driver\driver_interface as cache;
@@ -26,6 +27,9 @@ class functions_admin
 {
 	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
+
+	/* @var \sylver35\breizhshoutbox\core\work */
+	protected $work;
 
 	/** @var \phpbb\cache\driver\driver_interface */
 	protected $cache;
@@ -80,9 +84,10 @@ class functions_admin
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, cache $cache, config $config, db $db, request $request, template $template, user $user, language $language, log $log, manager $ext_manager, $root_path, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
+	public function __construct(shoutbox $shoutbox, work $work, cache $cache, config $config, db $db, request $request, template $template, user $user, language $language, log $log, manager $ext_manager, $root_path, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
 	{
 		$this->shoutbox = $shoutbox;
+		$this->work = $work;
 		$this->cache = $cache;
 		$this->config = $config;
 		$this->db = $db;
@@ -154,7 +159,7 @@ class functions_admin
 	public function build_adm_sound_select($sort)
 	{
 		$actual = $this->config['shout_sound_' . $sort];
-		$soundlist = $this->shoutbox->filelist_all($this->ext_path, 'sounds/', 'mp3');
+		$soundlist = $this->work->filelist_all($this->ext_path, 'sounds/', 'mp3');
 		if (sizeof($soundlist))
 		{
 			$select = (!$actual) ? ' selected="selected"' : '';
@@ -201,7 +206,7 @@ class functions_admin
 	public function build_select_img($rootdir, $path, $config, $panel = false, $type = '')
 	{
 		$select = '';
-		$imglist = $this->shoutbox->filelist_all($rootdir, $path, $type, true);
+		$imglist = $this->work->filelist_all($rootdir, $path, $type, true);
 		foreach ($imglist as $key => $image)
 		{
 			foreach ($image as $img)
@@ -221,7 +226,7 @@ class functions_admin
 	{
 		$select = (!$this->config[$config]) ? ' selected="selected"' : '';
 		$select = '<option title="" value=""' . $select . '>' . $this->language->lang('SHOUT_DIV_NONE') . "</option>\n";
-		$imglist = $this->shoutbox->filelist_all($rootdir, $path, '', true);
+		$imglist = $this->work->filelist_all($rootdir, $path, '', true);
 		foreach ($imglist as $key => $image)
 		{
 			foreach ($image as $img)
@@ -342,7 +347,7 @@ class functions_admin
 			]);
 		}
 
-		if ($this->shoutbox->breizhcharts_exist())
+		if ($this->work->breizhcharts_exist())
 		{
 			$exclude = explode(',', $this->config['shout_exclude_forums']);
 			$topic = (!in_array($this->config['breizhcharts_song_forum'], $exclude) && $this->config['breizhcharts_announce_enable']) ? true : false;
@@ -357,7 +362,7 @@ class functions_admin
 			]);
 		}
 
-		if ($this->shoutbox->breizhyoutube_exist())
+		if ($this->work->breizhyoutube_exist())
 		{
 			$this->template->assign_vars([
 				'SHOUT_ENABLE_YOUTUBE'	=> true,
@@ -366,7 +371,7 @@ class functions_admin
 			]);
 		}
 
-		if ($this->shoutbox->relaxarcade_exist())
+		if ($this->work->relaxarcade_exist())
 		{
 			$this->template->assign_vars([
 				'SHOUT_ENABLE_ROBOT_RA'	=> true,
@@ -489,7 +494,7 @@ class functions_admin
 		{
 			$this->template->assign_block_vars('messages', [
 				'TIME'				=> $this->user->format_date($row['shout_time']),
-				'POSTER'			=> $this->shoutbox->construct_action_shout($row['shout_user_id'], $this->shoutbox->get_shout_name($row['shout_user_id'], $row['username'], $row['shout_text2']), $row['user_colour'], true),
+				'POSTER'			=> $this->work->construct_action_shout($row['shout_user_id'], $this->shoutbox->get_shout_name($row['shout_user_id'], $row['username'], $row['shout_text2']), $row['user_colour'], true),
 				'ID'				=> $row['shout_id'],
 				'MESSAGE'			=> $this->shoutbox->shout_text_for_display($row, 3, true),
 				'ROW_NUMBER'		=> $i + ($start + 1),
@@ -527,7 +532,7 @@ class functions_admin
 			$row['username'] = ($row['user_id'] == ANONYMOUS) ? $this->language->lang('GUEST') : $row['username'];
 			$this->template->assign_block_vars('logs', [
 				'TIME'				=> $this->user->format_date($row['log_time']),
-				'REPORTEE'			=> $this->shoutbox->construct_action_shout($row['user_id'], $row['username'], $row['user_colour'], true),
+				'REPORTEE'			=> $this->work->construct_action_shout($row['user_id'], $row['username'], $row['user_colour'], true),
 				'OPERATION'			=> $this->language->lang($row['log_operation']),
 				'ID'				=> $row['log_id'],
 				'IP'				=> $row['log_ip'],
@@ -575,7 +580,7 @@ class functions_admin
 			// Reload the shoutbox for all
 			$this->shoutbox->update_shout_messages($table);
 
-			$message = $this->shoutbox->plural('LOG_SELECT', $deleted, '_SHOUTBOX' . $private);
+			$message = $this->work->plural('LOG_SELECT', $deleted, '_SHOUTBOX' . $private);
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), [$deleted]);
 			$this->config->increment('shout_del_acp' . $priv, $deleted, true);
 			trigger_error($this->language->lang($message, $deleted) . adm_back_link($u_action));
@@ -607,7 +612,7 @@ class functions_admin
 			$this->db->sql_query('DELETE FROM ' . LOG_TABLE . $where_sql);
 			$deleted = $this->db->sql_affectedrows();
 
-			$message = $this->shoutbox->plural('LOG_LOG', $deleted, '_SHOUTBOX' . $private);
+			$message = $this->work->plural('LOG_LOG', $deleted, '_SHOUTBOX' . $private);
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), [$deleted]);
 			trigger_error($this->language->lang($message, $deleted) . adm_back_link($u_action));
 		}

@@ -40,6 +40,8 @@ class main_module
 		$admin_controller = $phpbb_container->get('sylver35.breizhshoutbox.admin.controller');
 		/** @type \sylver35\breizhshoutbox\core\shoutbox $shoutbox */
 		$shoutbox = $phpbb_container->get('sylver35.breizhshoutbox.shoutbox');
+		/** @type \sylver35\breizhshoutbox\core\work $work */
+		$work = $phpbb_container->get('sylver35.breizhshoutbox.work');
 		// Make the $u_action url available in the admin controller
 		$admin_controller->set_page_url($this->u_action);
 
@@ -47,7 +49,7 @@ class main_module
 		$this->page_title = 'ACP_SHOUT_' . strtoupper($mode) . '_T';
 		$active = 'S_' . strtoupper($mode);
 		$img_src = $phpbb_root_path . 'ext/sylver35/breizhshoutbox/images/';
-		$meta = $shoutbox->get_version();
+		$meta = $work->get_version();
 
 		switch ($mode)
 		{

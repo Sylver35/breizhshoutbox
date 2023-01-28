@@ -8,7 +8,8 @@
 */
 
 namespace sylver35\breizhshoutbox\controller;
-use sylver35\breizhshoutbox\core\shoutbox;
+
+use sylver35\breizhshoutbox\core\work;
 use sylver35\breizhshoutbox\core\functions_admin;
 use phpbb\config\config;
 use phpbb\controller\helper;
@@ -23,8 +24,8 @@ use phpbb\log\log;
 
 class admin_controller
 {
-	/* @var \sylver35\breizhshoutbox\core\shoutbox */
-	protected $shoutbox;
+	/* @var \sylver35\breizhshoutbox\core\work */
+	protected $work;
 
 	/* @var \sylver35\breizhshoutbox\core\functions_admin */
 	protected $functions_admin;
@@ -80,9 +81,9 @@ class admin_controller
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, functions_admin $functions_admin, config $config, helper $helper, manager $ext_manager, db $db, pagination $pagination, request $request, template $template, user $user, language $language, log $log, $root_path, $php_ext, $shoutbox_rules_table)
+	public function __construct(work $work, functions_admin $functions_admin, config $config, helper $helper, manager $ext_manager, db $db, pagination $pagination, request $request, template $template, user $user, language $language, log $log, $root_path, $php_ext, $shoutbox_rules_table)
 	{
-		$this->shoutbox = $shoutbox;
+		$this->work = $work;
 		$this->functions_admin = $functions_admin;
 		$this->config = $config;
 		$this->helper = $helper;
@@ -162,7 +163,7 @@ class admin_controller
 				'SHOUT_BBCODE'				=> (string) $this->config['shout_bbcode'],
 				'SHOUT_BBCODE_USER'			=> (string) $this->config['shout_bbcode_user'],
 				'DATEFORMAT_VALUE'			=> (string) $this->config['shout_dateformat'],
-				'SHOUT_DATEFORMAT'			=> $this->shoutbox->build_dateformat_option((string) $this->config['shout_dateformat'], true),
+				'SHOUT_DATEFORMAT'			=> $this->work->build_dateformat_option((string) $this->config['shout_dateformat'], true),
 				'SHOUT_SEE_BUTTONS'			=> $this->functions_admin->construct_radio('shout_see_buttons', 1),
 				'SHOUT_SEE_BUTTONS_LEFT'	=> $this->functions_admin->construct_radio('shout_see_buttons_left', 1),
 				'SHOUT_SEE_BUTTON_IP'		=> $this->functions_admin->construct_radio('shout_see_button_ip', 1),
@@ -179,11 +180,11 @@ class admin_controller
 				'SHOUT_NR_ACP'				=> (int) $this->config['shout_nr_acp'],
 				'SHOUT_MAX_POST_CHARS'		=> (int) $this->config['shout_max_post_chars'],
 				'SHOUT_INDEX_ON'			=> $this->functions_admin->construct_radio('shout_index', 2),
-				'POS_SHOUT_INDEX'			=> $this->shoutbox->build_select_position($this->config['shout_position_index'], true),
+				'POS_SHOUT_INDEX'			=> $this->work->build_select_position($this->config['shout_position_index'], true),
 				'SHOUT_FORUM_ON'			=> $this->functions_admin->construct_radio('shout_forum', 2),
-				'POS_SHOUT_FORUM'			=> $this->shoutbox->build_select_position($this->config['shout_position_forum'], false),
+				'POS_SHOUT_FORUM'			=> $this->work->build_select_position($this->config['shout_position_forum'], false),
 				'SHOUT_TOPIC_ON'			=> $this->functions_admin->construct_radio('shout_topic', 2),
-				'POS_SHOUT_TOPIC'			=> $this->shoutbox->build_select_position($this->config['shout_position_topic'], false),
+				'POS_SHOUT_TOPIC'			=> $this->work->build_select_position($this->config['shout_position_topic'], false),
 				'NEW_SOUND'					=> $this->functions_admin->build_adm_sound_select('new'),
 				'ERROR_SOUND'				=> $this->functions_admin->build_adm_sound_select('error'),
 				'DEL_SOUND'					=> $this->functions_admin->build_adm_sound_select('del'),

@@ -8,7 +8,9 @@
 */
 
 namespace sylver35\breizhshoutbox\controller;
+
 use sylver35\breizhshoutbox\core\shoutbox;
+use sylver35\breizhshoutbox\core\javascript;
 use phpbb\config\config;
 use phpbb\controller\helper;
 use phpbb\db\driver\driver_interface as db;
@@ -23,6 +25,9 @@ class main
 {
 	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
+
+	/* @var \sylver35\breizhshoutbox\core\javascript */
+	protected $javascript;
 
 	/** @var \phpbb\config\config */
 	protected $config;
@@ -60,9 +65,10 @@ class main
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, config $config, helper $helper, db $db, template $template, auth $auth, user $user, language $language, request $request, pagination $pagination, $root_path, $php_ext)
+	public function __construct(shoutbox $shoutbox, javascript $javascript, config $config, helper $helper, db $db, template $template, auth $auth, user $user, language $language, request $request, pagination $pagination, $root_path, $php_ext)
 	{
 		$this->shoutbox = $shoutbox;
+		$this->javascript = $javascript;
 		$this->config = $config;
 		$this->helper = $helper;
 		$this->db = $db;
@@ -153,7 +159,7 @@ class main
 		$id = $this->request->variable('id', $this->user->data['user_id']);
 		if ($this->auth->acl_get('u_shout_post'))
 		{
-			$this->shoutbox->active_config_shoutbox($id);
+			$this->javascript->active_config_shoutbox($id);
 			return $this->helper->render('shout_config.html', $this->language->lang('SHOUT_PANEL_USER'));
 		}
 		else

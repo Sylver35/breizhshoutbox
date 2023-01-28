@@ -10,6 +10,7 @@
 namespace sylver35\breizhshoutbox\core;
 
 use sylver35\breizhshoutbox\core\shoutbox;
+use sylver35\breizhshoutbox\core\work;
 use phpbb\config\config;
 use phpbb\db\driver\driver_interface as db;
 use phpbb\event\dispatcher_interface as phpbb_dispatcher;
@@ -18,6 +19,9 @@ class smilies
 {
 	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
+
+	/* @var \sylver35\breizhshoutbox\core\work */
+	protected $work;
 
 	/** @var \phpbb\config\config */
 	protected $config;
@@ -37,9 +41,10 @@ class smilies
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, config $config, db $db, phpbb_dispatcher $phpbb_dispatcher, $root_path)
+	public function __construct(shoutbox $shoutbox, work $work, config $config, db $db, phpbb_dispatcher $phpbb_dispatcher, $root_path)
 	{
 		$this->shoutbox = $shoutbox;
+		$this->work = $work;
 		$this->config = $config;
 		$this->db = $db;
 		$this->phpbb_dispatcher = $phpbb_dispatcher;
@@ -54,7 +59,7 @@ class smilies
 		$sql = 'SELECT COUNT(smiley_id) as total
 			FROM ' . SMILIES_TABLE . '
 				WHERE display_on_shout = 0';
-		$result = $this->shoutbox->shout_sql_query($sql);
+		$result = $this->work->shout_sql_query($sql);
 		$row_nb = (int) $this->db->sql_fetchfield('total');
 		$this->db->sql_freeresult($result);
 
@@ -138,7 +143,7 @@ class smilies
 			'GROUP_BY'	=> 'smiley_url',
 			'ORDER_BY'	=> 'min_smiley_order ASC',
 		]);
-		$result = $this->shoutbox->shout_sql_query($sql);
+		$result = $this->work->shout_sql_query($sql);
 		if (!$result)
 		{
 			return;

@@ -10,6 +10,7 @@
 namespace sylver35\breizhshoutbox\core;
 
 use sylver35\breizhshoutbox\core\shoutbox;
+use sylver35\breizhshoutbox\core\work;
 use phpbb\request\request;
 use phpbb\config\config;
 use phpbb\db\driver\driver_interface as db;
@@ -22,6 +23,9 @@ class functions_ajax
 {
 	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
+
+	/* @var \sylver35\breizhshoutbox\core\work */
+	protected $work;
 
 	/** @var \phpbb\request\request */
 	protected $request;
@@ -63,9 +67,10 @@ class functions_ajax
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, request $request, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path, $shoutbox_table, $shoutbox_priv_table)
+	public function __construct(shoutbox $shoutbox, work $work, request $request, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path, $shoutbox_table, $shoutbox_priv_table)
 	{
 		$this->shoutbox = $shoutbox;
+		$this->work = $work;
 		$this->request = $request;
 		$this->config = $config;
 		$this->db = $db;
@@ -259,7 +264,7 @@ class functions_ajax
 		{
 			// Remove the bbcodes
 			case 1:
-				$this->shoutbox->shout_sql_query('UPDATE ' . USERS_TABLE . " SET shout_bbcode = '' WHERE user_id = $on_user");
+				$this->work->shout_sql_query('UPDATE ' . USERS_TABLE . " SET shout_bbcode = '' WHERE user_id = $on_user");
 				$message = $this->language->lang('SHOUT_BBCODE_SUP');
 				$text = $this->language->lang('SHOUT_EXEMPLE');
 			break;
@@ -273,7 +278,7 @@ class functions_ajax
 				$options = 0;
 				$uid = $bitfield = '';
 				// Change it in the db
-				$this->shoutbox->shout_sql_query('UPDATE ' . USERS_TABLE . " SET shout_bbcode = '" . $this->db->sql_escape($ok_bbcode) . "' WHERE user_id = $on_user");
+				$this->work->shout_sql_query('UPDATE ' . USERS_TABLE . " SET shout_bbcode = '" . $this->db->sql_escape($ok_bbcode) . "' WHERE user_id = $on_user");
 				$text = $open . $this->language->lang('SHOUT_EXEMPLE') . $close;
 				generate_text_for_storage($text, $uid, $bitfield, $options, true, false, true);
 				$text = generate_text_for_display($text, $uid, $bitfield, $options);
@@ -322,7 +327,7 @@ class functions_ajax
 		$sql = 'SELECT user_id, user_type, username, user_colour, shout_bbcode
 			FROM ' . USERS_TABLE . '
 				WHERE user_id = ' . $id;
-		$result = $this->shoutbox->shout_sql_query($sql, true, 1);
+		$result = $this->work->shout_sql_query($sql, true, 1);
 		$row = $this->db->sql_fetchrow($result);
 		if ($row['shout_bbcode'])
 		{
@@ -337,7 +342,7 @@ class functions_ajax
 
 		return [
 			'id'		=> $id,
-			'name'		=> $this->shoutbox->shout_url(get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'])),
+			'name'		=> $this->work->shout_url(get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'])),
 			'before'	=> $on_bbcode[0],
 			'after'		=> $on_bbcode[1],
 			'message'	=> $message,
@@ -374,7 +379,7 @@ class functions_ajax
 		$sql = 'UPDATE ' . $val['table'] . '
 			SET ' . $this->db->sql_build_array('UPDATE', $sql_ary) . '
 				WHERE shout_id = ' . $shout_id;
-		$this->shoutbox->shout_sql_query($sql);
+		$this->work->shout_sql_query($sql);
 
 		// For reload the message to everybody
 		$this->shoutbox->update_shout_messages($val['table']);
@@ -436,7 +441,7 @@ class functions_ajax
 		];
 
 		$sql = 'INSERT INTO ' . $val['table'] . ' ' . $this->db->sql_build_array('INSERT', $sql_ary);
-		$this->shoutbox->shout_sql_query($sql);
+		$this->work->shout_sql_query($sql);
 		$this->config->increment('shout_nr' . $val['priv'], 1, true);
 		$this->shoutbox->delete_shout_posts($val);
 
@@ -466,7 +471,7 @@ class functions_ajax
 		$perm = $this->shoutbox->extract_permissions($val['auth']);
 		$dateformat = $this->shoutbox->extract_dateformat($val['is_user']);
 		$sql_where = $this->shoutbox->shout_sql_where($val['is_user'], $val['userid'], $on_bot);
-		$is_mobile = $this->shoutbox->shout_is_mobile();
+		$is_mobile = $this->work->shout_is_mobile();
 
 		$sql = $this->db->sql_build_query('SELECT', [
 			'SELECT'	=> 's.*, u.user_id, u.username, u.user_colour, u.user_avatar, u.user_avatar_type, u.user_avatar_width, u.user_avatar_height, u.user_type, v.user_id as v_user_id, v.username as v_username, v.user_colour as v_user_colour, v.user_avatar as v_user_avatar, v.user_avatar_type as v_user_avatar_type, v.user_avatar_width as v_user_avatar_width, v.user_avatar_height as v_user_avatar_height, v.user_type as v_user_type',
@@ -484,7 +489,7 @@ class functions_ajax
 			'WHERE'		=> $sql_where,
 			'ORDER_BY'	=> 's.shout_id DESC',
 		]);
-		$result = $this->shoutbox->shout_sql_query($sql, true, (int) $this->config['shout_num' . $val['sort_on']], $start);
+		$result = $this->work->shout_sql_query($sql, true, (int) $this->config['shout_num' . $val['sort_on']], $start);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
 			// Get additional data
@@ -494,7 +499,7 @@ class functions_ajax
 			$data['messages'][$data['total']] = [
 				'shoutId'		=> $row['shout_id'],
 				'shoutTime'		=> $this->user->format_date($row['shout_time'], $dateformat),
-				'username'		=> $this->shoutbox->construct_action_shout($row['user_id'], $row['username'], $row['user_colour']),
+				'username'		=> $this->work->construct_action_shout($row['user_id'], $row['username'], $row['user_colour']),
 				'avatar'		=> $this->shoutbox->get_shout_avatar($row, $val['sort'], $is_mobile),
 				'shoutText'		=> $this->shoutbox->shout_text_for_display($row, $val['sort'], false),
 				'isUser'		=> $row['is_user'],
@@ -540,7 +545,7 @@ class functions_ajax
 		$sql = 'SELECT COUNT(s.shout_id) as nr
 			FROM ' . $table . ' s
 				WHERE ' . $sql_where;
-		$result = $this->shoutbox->shout_sql_query($sql);
+		$result = $this->work->shout_sql_query($sql);
 		$nb = (int) $this->db->sql_fetchfield('nr');
 		$this->db->sql_freeresult($result);
 
@@ -557,7 +562,7 @@ class functions_ajax
 			FROM ' . $table . ' s
 				WHERE ' . $sql_where . '
 				ORDER BY s.shout_id DESC';
-		$result = $this->shoutbox->shout_sql_query($sql, true, 1);
+		$result = $this->work->shout_sql_query($sql, true, 1);
 		// check just with the last 4 numbers
 		$last_time = (string) substr($this->db->sql_fetchfield('shout_time'), 6, 4);
 		$this->db->sql_freeresult($result);
