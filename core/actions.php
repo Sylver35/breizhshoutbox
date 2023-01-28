@@ -99,7 +99,7 @@ class actions
 		$options = 0;
 		$uid = $bitfield = '';
 		generate_text_for_storage($rules, $uid, $bitfield, $options, true, false, true);
-		$rules = $this->shoutbox->shout_url(generate_text_for_display($rules, $uid, $bitfield, $options));
+		$rules = $this->work->shout_url(generate_text_for_display($rules, $uid, $bitfield, $options));
 
 		return [
 			'content'	=> $rules,

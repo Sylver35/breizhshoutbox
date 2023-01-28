@@ -958,7 +958,7 @@ class shoutbox
 			$slash = implode(', ', $slash);
 			return [
 				'sort'		=> 2,
-				'message'	=> $this->plural('SHOUT_BBCODE_ERROR_SLASH', $s, '', $slash),
+				'message'	=> $this->work->plural('SHOUT_BBCODE_ERROR_SLASH', $s, '', $slash),
 			];
 		}
 		// Check the correct imbrication of bbcodes
