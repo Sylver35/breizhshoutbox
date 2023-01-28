@@ -163,7 +163,7 @@ class admin_controller
 				'SHOUT_BBCODE'				=> (string) $this->config['shout_bbcode'],
 				'SHOUT_BBCODE_USER'			=> (string) $this->config['shout_bbcode_user'],
 				'DATEFORMAT_VALUE'			=> (string) $this->config['shout_dateformat'],
-				'SHOUT_DATEFORMAT'			=> $this->work->build_dateformat_option((string) $this->config['shout_dateformat'], true),
+				'SHOUT_DATEFORMAT'			=> $this->work->build_dateformat_option((string) $this->config['shout_dateformat']),
 				'SHOUT_SEE_BUTTONS'			=> $this->functions_admin->construct_radio('shout_see_buttons', 1),
 				'SHOUT_SEE_BUTTONS_LEFT'	=> $this->functions_admin->construct_radio('shout_see_buttons_left', 1),
 				'SHOUT_SEE_BUTTON_IP'		=> $this->functions_admin->construct_radio('shout_see_button_ip', 1),

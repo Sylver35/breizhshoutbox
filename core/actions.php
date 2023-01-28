@@ -74,7 +74,7 @@ class actions
 	 */
 	public function rules($sort)
 	{
-		$iso = $this->shoutbox->check_shout_rules($sort);
+		$iso = $this->work->check_shout_rules($sort);
 		if ($iso !== '')
 		{
 			$rules = $this->shoutbox->get_shout_rules();

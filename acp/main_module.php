@@ -38,8 +38,6 @@ class main_module
 		$template = $phpbb_container->get('template');
 		/** @type \sylver35\breizhshoutbox\controller\admin_controller $admin_controller */
 		$admin_controller = $phpbb_container->get('sylver35.breizhshoutbox.admin.controller');
-		/** @type \sylver35\breizhshoutbox\core\shoutbox $shoutbox */
-		$shoutbox = $phpbb_container->get('sylver35.breizhshoutbox.shoutbox');
 		/** @type \sylver35\breizhshoutbox\core\work $work */
 		$work = $phpbb_container->get('sylver35.breizhshoutbox.work');
 		// Make the $u_action url available in the admin controller

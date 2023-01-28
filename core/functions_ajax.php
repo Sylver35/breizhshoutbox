@@ -141,7 +141,7 @@ class functions_ajax
 		// Permissions and security verifications
 		if (!$this->auth->acl_get('u_shout' . $val['perm']))
 		{
-			$this->shoutbox->shout_error('NO_VIEW' . $val['privat'] . '_PERM');
+			$this->work->shout_error('NO_VIEW' . $val['privat'] . '_PERM');
 			return;
 		}
 
@@ -211,7 +211,7 @@ class functions_ajax
 					$on_user = str_replace($avatar, '', $on_user);
 					$users .= ($u > 0) ? ', ' : '';
 					$users .= ($avatar) ? $avatar : '';
-					$users .= $this->shoutbox->construct_action_shout($id, $this->shoutbox->find_string($on_user, '">', '</a>'), $this->shoutbox->find_string($on_user, 'color: #', ';"'));
+					$users .= $this->work->construct_action_shout($id, $this->shoutbox->find_string($on_user, '">', '</a>'), $this->shoutbox->find_string($on_user, 'color: #', ';"'));
 					$u++;
 				}
 			}
@@ -221,7 +221,7 @@ class functions_ajax
 			$data['list'] .= ($r > 0) ? $robots : $this->language->lang('NO_ONLINE_BOTS');
 		}
 
-		return $this->shoutbox->shout_url($data);
+		return $this->work->shout_url($data);
 	}
 
 	public function auth($user_id, $username)

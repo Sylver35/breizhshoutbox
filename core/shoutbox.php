@@ -471,51 +471,6 @@ class shoutbox
 	}
 
 	/**
-	 * Get the rules from the cache
-	 */
-	public function get_shout_rules()
-	{
-		if (($rules = $this->cache->get('_shout_rules')) === false)
-		{
-			$sql_ary = [
-				'SELECT'	=> 'l.lang_iso, r.*',
-				'FROM'		=> [LANG_TABLE => 'l'],
-				'LEFT_JOIN'	=> [
-					[
-						'FROM'	=> [$this->shoutbox_rules_table => 'r'],
-						'ON'	=> 'r.rules_lang = l.lang_iso',
-					],
-				],
-			];
-			$result = $this->work->shout_sql_query($this->db->sql_build_query('SELECT', $sql_ary));
-			if (!$result)
-			{
-				return;
-			}
-			while ($row = $this->db->sql_fetchrow($result))
-			{
-				$rules[$row['lang_iso']] = [
-					'rules_id'				=> $row['id'],
-					'rules_text'			=> $row['rules_text'],
-					'rules_uid'				=> $row['rules_uid'],
-					'rules_bitfield'		=> $row['rules_bitfield'],
-					'rules_flags'			=> $row['rules_flags'],
-					'rules_text_priv'		=> $row['rules_text_priv'],
-					'rules_uid_priv'		=> $row['rules_uid_priv'],
-					'rules_bitfield_priv'	=> $row['rules_bitfield_priv'],
-					'rules_flags_priv'		=> $row['rules_flags_priv'],
-				];
-			}
-			$this->db->sql_freeresult($result);
-
-			// cache for 7 days
-			$this->cache->put('_shout_rules', $rules, 604800);
-		}
-
-		return $rules;
-	}
-
-	/**
 	 * Extract information from a string
 	 *
 	 * @param $string	string where search in
@@ -1012,7 +967,7 @@ class shoutbox
 			$sort = implode(', ', $sort);
 			return [
 				'sort'		=> 2,
-				'message'	=> $this->plural('SHOUT_BBCODE_ERROR_IMB', $n, '', $sort),
+				'message'	=> $this->work->plural('SHOUT_BBCODE_ERROR_IMB', $n, '', $sort),
 			];
 		}
 

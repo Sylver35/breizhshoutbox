@@ -123,7 +123,7 @@ class main
 				'S_IN_SHOUT_POP'	=> true,
 				'S_IN_PRIV'			=> false,
 				'S_IN_SHOUT_TEMP'	=> true,
-				'ABBC3_EXTENSION'	=> ($this->shoutbox->abbc3_exist()) ? true : false,
+				'ABBC3_EXTENSION'	=> ($this->work->abbc3_exist()) ? true : false,
 			]);
 			return $this->helper->render('shout_popup.html', $this->language->lang('SHOUTBOX_POPUP'));
 		}
@@ -204,7 +204,7 @@ class main
 		$start = $this->pagination->validate_start($start, (int) $this->config['smilies_per_page'], $count);
 		$this->pagination->generate_template_pagination($url, 'pagination', 'start', $count, (int) $this->config['smilies_per_page'], $start);
 
-		$data = $this->shoutbox->get_version();
+		$data = $this->work->get_version();
 		$this->template->assign_vars([
 			'S_IN_SHOUT_ACP'	=> true,
 			'SHOUTBOX_VERSION'	=> $this->language->lang('SHOUTBOX_VERSION_ACP_COPY', $data['homepage'], $data['version']),
