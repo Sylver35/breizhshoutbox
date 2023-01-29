@@ -73,9 +73,15 @@ class robot
 		if ($this->config['shout_enable_robot'] && $this->config['shout_cron_hour'] == date('H'))
 		{
 			// Say hello Mr Robot :-)
-			$this->hello_robot_shout($sleep);
+			if ($this->config['shout_cron_run'] != date('d-m-Y'))
+			{
+				$this->hello_robot_shout($sleep);
+			}
 			// Wish birthdays Mr Robot :-)
-			$this->robot_birthday_shout($sleep);
+			if ($this->config['shout_last_run_birthday'] != date('d-m-Y'))
+			{
+				$this->robot_birthday_shout($sleep);
+			}
 		}
 	}
 
@@ -260,7 +266,7 @@ class robot
 	 */
 	public function robot_birthday_shout($sleep)
 	{
-		if ((!$this->config['shout_birthday'] && !$this->config['shout_birthday_priv']) || $this->config['shout_last_run_birthday'] == date('d-m-Y'))
+		if ((!$this->config['shout_birthday'] && !$this->config['shout_birthday_priv']))
 		{
 			return;
 		}
@@ -342,7 +348,7 @@ class robot
 	 */
 	public function hello_robot_shout($sleep)
 	{
-		if ((!$this->config['shout_hello'] && !$this->config['shout_hello_priv']) || $this->config['shout_cron_run'] == date('d-m-Y'))
+		if ((!$this->config['shout_hello'] && !$this->config['shout_hello_priv']))
 		{
 			return;
 		}

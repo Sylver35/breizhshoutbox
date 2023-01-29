@@ -152,6 +152,7 @@ services:
             - '@language'
             - '@cache.driver'
             - '@ext.manager'
+            - '@controller.helper'
             - '@service_container'
             - '@dispatcher'
             - '%core.root_path%'
