@@ -11,6 +11,7 @@ namespace sylver35\breizhshoutbox\core;
 
 use sylver35\breizhshoutbox\core\shoutbox;
 use sylver35\breizhshoutbox\core\work;
+use sylver35\breizhshoutbox\core\robot;
 use phpbb\request\request;
 use phpbb\config\config;
 use phpbb\db\driver\driver_interface as db;
@@ -26,6 +27,9 @@ class functions_ajax
 
 	/* @var \sylver35\breizhshoutbox\core\work */
 	protected $work;
+
+	/* @var \sylver35\breizhshoutbox\core\robot */
+	protected $robot;
 
 	/** @var \phpbb\request\request */
 	protected $request;
@@ -67,10 +71,11 @@ class functions_ajax
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, work $work, request $request, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path, $shoutbox_table, $shoutbox_priv_table)
+	public function __construct(shoutbox $shoutbox, work $work, robot $robot, request $request, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path, $shoutbox_table, $shoutbox_priv_table)
 	{
 		$this->shoutbox = $shoutbox;
 		$this->work = $work;
+		$this->robot = $robot;
 		$this->request = $request;
 		$this->config = $config;
 		$this->db = $db;
@@ -199,7 +204,7 @@ class functions_ajax
 			$userlist = explode(', ', str_replace($start, '', $list_online));
 			foreach ($userlist as $on_user)
 			{
-				$id = $this->shoutbox->find_string($on_user, '&amp;u=', '" ');
+				$id = $this->work->find_string($on_user, '&amp;u=', '" ');
 				if (!$id)
 				{
 					$robots .= (($r > 0) ? ', ' : '') . $on_user;
@@ -207,11 +212,11 @@ class functions_ajax
 				}
 				else
 				{
-					$avatar = (strpos($on_user, 'class="useravatar"')) ? '<span class="useravatar">' . $this->shoutbox->find_string($on_user, 'class="useravatar">', '</span>') . '</span> ' : '';
+					$avatar = (strpos($on_user, 'class="useravatar"')) ? '<span class="useravatar">' . $this->work->find_string($on_user, 'class="useravatar">', '</span>') . '</span> ' : '';
 					$on_user = str_replace($avatar, '', $on_user);
 					$users .= ($u > 0) ? ', ' : '';
 					$users .= ($avatar) ? $avatar : '';
-					$users .= $this->work->construct_action_shout($id, $this->shoutbox->find_string($on_user, '">', '</a>'), $this->shoutbox->find_string($on_user, 'color: #', ';"'));
+					$users .= $this->work->construct_action_shout($id, $this->work->find_string($on_user, '">', '</a>'), $this->work->find_string($on_user, 'color: #', ';"'));
 					$u++;
 				}
 			}
@@ -455,7 +460,7 @@ class functions_ajax
 
 	public function check($val, $on_bot)
 	{
-		$this->shoutbox->shout_run_robot(true);
+		$this->robot->shout_run_robot(true);
 		$sql_where = $this->shoutbox->shout_sql_where($val['is_user'], $val['userid'], $on_bot);
 
 		return ['t' => $this->get_time($val['table'], $sql_where)];

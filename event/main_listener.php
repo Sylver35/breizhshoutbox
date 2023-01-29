@@ -10,6 +10,7 @@
 namespace sylver35\breizhshoutbox\event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use sylver35\breizhshoutbox\core\shoutbox;
+use sylver35\breizhshoutbox\core\events;
 use phpbb\config\config;
 use phpbb\controller\helper;
 use phpbb\request\request;
@@ -22,6 +23,9 @@ class main_listener implements EventSubscriberInterface
 {
 	/* @var \sylver35\breizhshoutbox\core\shoutbox */
 	protected $shoutbox;
+
+	/* @var \sylver35\breizhshoutbox\core\events */
+	protected $events;
 
 	/** @var \phpbb\config\config */
 	protected $config;
@@ -48,9 +52,10 @@ class main_listener implements EventSubscriberInterface
 	 * Constructor
 	 *
 	 */
-	public function __construct(shoutbox $shoutbox, config $config, helper $helper, request $request, template $template, auth $auth, user $user, language $language)
+	public function __construct(shoutbox $shoutbox, events $events, config $config, helper $helper, request $request, template $template, auth $auth, user $user, language $language)
 	{
 		$this->shoutbox = $shoutbox;
+		$this->events = $events;
 		$this->config = $config;
 		$this->helper = $helper;
 		$this->request = $request;
@@ -91,6 +96,8 @@ class main_listener implements EventSubscriberInterface
 			'arcade.page_arcade_games'					=> 'shout_display',
 			'arcade.page_arcade_list'					=> 'shout_display',
 			'portal.handle'								=> 'shout_display',
+			'quiz.new'									=> 'add_new_quiz',
+			'quiz.win'									=> 'submit_win',
 		];
 	}
 
@@ -133,14 +140,14 @@ class main_listener implements EventSubscriberInterface
 		{
 			if ($this->config['shout_sessions_bots'] || $this->config['shout_sessions_bots_priv'])
 			{
-				$this->shoutbox->post_session_bot($event['session_data']);
+				$this->events->post_session_bot($event['session_data']);
 			}
 		}
 		else if ($this->user->data['is_registered'])
 		{
 			if ($this->config['shout_sessions'] || $this->config['shout_sessions_priv'])
 			{
-				$this->shoutbox->post_session_shout($event['session_data']);
+				$this->events->post_session_shout($event['session_data']);
 			}
 		}
 	}
@@ -164,7 +171,7 @@ class main_listener implements EventSubscriberInterface
 
 		if (!$hide_robot && $this->config['shout_enable_robot'])
 		{
-			$this->shoutbox->advert_post_shoutbox($event, $forum_id);
+			$this->events->advert_post_shoutbox($event, $forum_id);
 		}
 	}
 
@@ -191,7 +198,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		if (!preg_match("#posting|adm#i", $this->user->page['page_name']) && !empty($this->config['shout_bbcode']))
 		{
-			$event->offsetSet('sql_ary', $this->shoutbox->remove_disallowed_bbcodes($event['sql_ary']));
+			$event->offsetSet('sql_ary', $this->events->remove_disallowed_bbcodes($event['sql_ary']));
 		}
 	}
 
@@ -269,7 +276,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		foreach ($event['topic_ids'] as $topic_id)
 		{
-			$this->shoutbox->shout_delete_topic_or_post((int) $topic_id, true);
+			$this->shoutbox->delete_topic_or_post((int) $topic_id, true);
 		}
 	}
 
@@ -280,7 +287,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		foreach ($event['post_ids'] as $post_id)
 		{
-			$this->shoutbox->shout_delete_topic_or_post((int) $post_id, false);
+			$this->shoutbox->delete_topic_or_post((int) $post_id, false);
 		}
 	}
 

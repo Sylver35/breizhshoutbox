@@ -641,4 +641,26 @@ class work
 
 		return $text;
 	}
+
+	/**
+	 * Extract information from a string
+	 *
+	 * @param $string	string where search in
+	 * @param $start	string start of search
+	 * @param $end		string end of search
+	 * Return string or int
+	 */
+	public function find_string($string, $start, $end)
+	{
+		$ini = strpos($string, $start);
+		if ($ini == 0)
+		{
+			return $ini;
+		}
+		$ini += strlen($start);
+		$len = strpos($string, $end, $ini) - $ini;
+		$value = substr($string, $ini, $len);
+
+		return $value;
+	}
 }

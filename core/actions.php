@@ -11,6 +11,7 @@ namespace sylver35\breizhshoutbox\core;
 
 use sylver35\breizhshoutbox\core\shoutbox;
 use sylver35\breizhshoutbox\core\work;
+use sylver35\breizhshoutbox\core\robot;
 use phpbb\config\config;
 use phpbb\db\driver\driver_interface as db;
 use phpbb\auth\auth;
@@ -25,6 +26,9 @@ class actions
 
 	/* @var \sylver35\breizhshoutbox\core\work */
 	protected $work;
+
+	/* @var \sylver35\breizhshoutbox\core\robot */
+	protected $robot;
 
 	/** @var \phpbb\config\config */
 	protected $config;
@@ -53,10 +57,11 @@ class actions
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, work $work, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path)
+	public function __construct(shoutbox $shoutbox, work $work, robot $robot, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path)
 	{
 		$this->shoutbox = $shoutbox;
 		$this->work = $work;
+		$this->robot = $robot;
 		$this->config = $config;
 		$this->db = $db;
 		$this->auth = $auth;
@@ -506,7 +511,7 @@ class actions
 			$this->db->sql_query($sql);
 
 			$this->config->increment('shout_del_purge' . $val['priv'], $deleted, true);
-			$this->shoutbox->post_robot_shout($val['userid'], $this->user->ip, $val['on_priv'], true, false, false, false);
+			$this->robot->post_robot_shout($val['userid'], $this->user->ip, $val['on_priv'], true, false, false, false);
 
 			return [
 				'type'	=> 1,
@@ -534,7 +539,7 @@ class actions
 			$deleted = $this->db->sql_affectedrows();
 
 			$this->config->increment('shout_del_purge' . $val['priv'], $deleted, true);
-			$this->shoutbox->post_robot_shout($val['userid'], $this->user->ip, $val['on_priv'], true, true, false, false);
+			$this->robot->post_robot_shout($val['userid'], $this->user->ip, $val['on_priv'], true, true, false, false);
 
 			return [
 				'type'	=> 1,

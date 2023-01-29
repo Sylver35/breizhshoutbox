@@ -11,6 +11,7 @@ namespace sylver35\breizhshoutbox\core;
 
 use sylver35\breizhshoutbox\core\shoutbox;
 use sylver35\breizhshoutbox\core\work;
+use sylver35\breizhshoutbox\core\robot;
 use phpbb\json_response;
 use phpbb\exception\http_exception;
 use phpbb\cache\driver\driver_interface as cache;
@@ -30,6 +31,9 @@ class functions_admin
 
 	/* @var \sylver35\breizhshoutbox\core\work */
 	protected $work;
+
+	/* @var \sylver35\breizhshoutbox\core\robot */
+	protected $robot;
 
 	/** @var \phpbb\cache\driver\driver_interface */
 	protected $cache;
@@ -84,10 +88,11 @@ class functions_admin
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, work $work, cache $cache, config $config, db $db, request $request, template $template, user $user, language $language, log $log, manager $ext_manager, $root_path, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
+	public function __construct(shoutbox $shoutbox, work $work, robot $robot, cache $cache, config $config, db $db, request $request, template $template, user $user, language $language, log $log, manager $ext_manager, $root_path, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
 	{
 		$this->shoutbox = $shoutbox;
 		$this->work = $work;
+		$this->robot = $robot;
 		$this->cache = $cache;
 		$this->config = $config;
 		$this->db = $db;
@@ -263,7 +268,7 @@ class functions_admin
 
 		$this->config->increment('shout_del_purge' . $val_priv, $deleted, true);
 		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_PURGE_SHOUTBOX' . $val_priv_on, time());
-		$this->shoutbox->post_robot_shout(0, $this->user->ip, $priv, true, false);
+		$this->robot->post_robot_shout(0, $this->user->ip, $priv, true, false);
 	}
 
 	public function purge_shout_admin($sort, $priv)
@@ -311,7 +316,7 @@ class functions_admin
 		{
 			$this->config->increment('shout_del_purge' . $val_priv, $deleted, true);
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, "LOG_PURGE_SHOUTBOX{$val_priv_on}_ROBOT", time(), [$deleted]);
-			$this->shoutbox->post_robot_shout(0, $this->user->ip, $priv, true, true);
+			$this->robot->post_robot_shout(0, $this->user->ip, $priv, true, true);
 		}
 
 		return $deleted;
