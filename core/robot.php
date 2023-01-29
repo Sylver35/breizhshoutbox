@@ -385,6 +385,49 @@ class robot
 		}
 	}
 
+	private function get_info_session($priv, $purge, $robot, $auto, $delete, $deleted)
+	{
+		$info = 0;
+		$message = '-';
+		if ($priv && $purge && !$robot && !$auto && !$delete)
+		{
+			$info = 5;
+		}
+		else if (!$priv && $purge && !$robot && !$auto && !$delete)
+		{
+			$info = 6;
+		}
+		else if (!$priv && $purge && !$robot && $auto && !$delete)
+		{
+			$message = $deleted;
+			$info = 7;
+		}
+		else if ($priv && $purge && !$robot && $auto && !$delete)
+		{
+			$message = $deleted;
+			$info = 8;
+		}
+		else if (!$priv && $purge && !$robot && $auto && $delete)
+		{
+			$message = $deleted;
+			$info = 9;
+		}
+		else if ($priv && $purge && !$robot && $auto && $delete)
+		{
+			$message = $deleted;
+			$info = 10;
+		}
+		else if ($robot && !$auto && !$delete)
+		{
+			$info = 4;
+		}
+		
+		return [
+			'info'		=> $info,
+			'message'	=> $message,
+		];
+	}
+
 	private function delete_double_birthdays($nr, $time, $now)
 	{
 		$birthdays = count($this->extract_birthdays($time, $now));

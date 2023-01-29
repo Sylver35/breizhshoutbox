@@ -180,7 +180,7 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function shout_update_username($event)
 	{
-		$this->shoutbox->shout_update_username($event);
+		$this->events->shout_update_username($event);
 	}
 
 	/**
@@ -188,7 +188,7 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function shout_add_newest_user($event)
 	{
-		$this->shoutbox->shout_add_newest_user($event);
+		$this->events->shout_add_newest_user($event);
 	}
 
 	/**
@@ -247,7 +247,7 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function shout_modify_template_vars($event)
 	{
-		$hide_allowed = $this->shoutbox->modify_template_vars($event);
+		$hide_allowed = $this->events->modify_template_vars($event);
 
 		$event['page_data'] = array_merge($event['page_data'], [
 			'S_SHOUT_HIDE_CHECKED'		=> ($event['post_data']['hide_robot']) ? ' checked="checked"' : '',
@@ -264,7 +264,7 @@ class main_listener implements EventSubscriberInterface
 		{
 			foreach ($event['user_ids'] as $user_id)
 			{
-				$this->shoutbox->delete_user_messages((int) $user_id);
+				$this->events->delete_user_messages((int) $user_id);
 			}
 		}
 	}
@@ -276,7 +276,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		foreach ($event['topic_ids'] as $topic_id)
 		{
-			$this->shoutbox->delete_topic_or_post((int) $topic_id, true);
+			$this->events->delete_topic_or_post((int) $topic_id, true);
 		}
 	}
 
@@ -287,7 +287,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		foreach ($event['post_ids'] as $post_id)
 		{
-			$this->shoutbox->delete_topic_or_post((int) $post_id, false);
+			$this->events->delete_topic_or_post((int) $post_id, false);
 		}
 	}
 
@@ -296,7 +296,7 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function add_song_after($event)
 	{
-		$this->shoutbox->add_song_after($event);
+		$this->events->add_song_after($event);
 	}
 
 	/**
@@ -304,7 +304,7 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function reset_all_notes($event)
 	{
-		$this->shoutbox->reset_all_notes($event);
+		$this->events->reset_all_notes($event);
 	}
 
 	/**
@@ -312,7 +312,7 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function submit_new_video($event)
 	{
-		$this->shoutbox->submit_new_video($event);
+		$this->events->submit_new_video($event);
 	}
 
 	/**
@@ -323,7 +323,7 @@ class main_listener implements EventSubscriberInterface
 		if ($this->config['shout_arcade_new'])
 		{
 			$muser = ($event['muserid'] == 0) ? true : false;
-			$this->shoutbox->submit_arcade_score($event, $muser);
+			$this->events->submit_arcade_score($event, $muser);
 		}
 	}
 
@@ -334,7 +334,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		if ($this->config['shout_arcade_record'])
 		{
-			$this->shoutbox->submit_arcade_record($event);
+			$this->events->submit_arcade_record($event);
 		}
 	}
 
@@ -345,7 +345,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		if ($event['gamescore'] > 0)
 		{
-			$this->shoutbox->submit_arcade_urecord($event);
+			$this->events->submit_arcade_urecord($event);
 		}
 	}
 

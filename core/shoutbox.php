@@ -1251,62 +1251,6 @@ class shoutbox
 		return $this->work->shout_url($row['shout_text']);
 	}
 
-	private function sort_info($data)
-	{
-		$info = 0;
-		switch ($data['mode'])
-		{
-			case 'global':
-				$info = 14;
-			break;
-			case 'annoucement':
-				$info = 15;
-			break;
-			case 'post':
-				$info = ($data['prez_form']) ? 60 : 16;
-			break;
-			case 'edit':
-				$info = 17;
-				if ($data['prez_form'])
-				{
-					$info = ($data['prez_poster']) ? 71 : 70;
-				}
-			break;
-			case 'edit_topic':
-			case 'edit_first_post':
-				$info = 18;
-				if ($data['prez_form'])
-				{
-					$info = ($data['prez_poster']) ? 73 : 72;
-				}
-			break;
-			case 'edit_last_post':
-				$info = 19;
-				if ($data['prez_form'])
-				{
-					$info = ($data['prez_poster']) ? 75 : 74;
-				}
-			break;
-			case 'quote':
-				$info = ($data['prez_form']) ? 80 : 20;
-			break;
-			case 'reply':
-				$info = 21;
-				if ($data['prez_form'])
-				{
-					$info = ($data['prez_poster']) ? 77 : 76;
-				}
-			break;
-		}
-
-		return [
-			'info'			=> $info,
-			'sort_info'		=> ($info < 70) ? 2 : 3,
-			'ok_shout'		=> $this->config['shout_' . $data['sort'] . '_robot'],
-			'ok_shout_priv'	=> $this->config['shout_' . $data['sort'] . '_robot_priv'],
-		];
-	}
-
 	public function get_topic_data($event, $forum_id)
 	{
 		$sort = 'post';

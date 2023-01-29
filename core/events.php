@@ -13,6 +13,9 @@ use sylver35\breizhshoutbox\core\shoutbox;
 use sylver35\breizhshoutbox\core\work;
 use sylver35\breizhshoutbox\core\robot;
 use phpbb\config\config;
+use phpbb\user;
+use phpbb\auth\auth;
+use phpbb\language\language;
 use phpbb\db\driver\driver_interface as db;
 use phpbb\event\dispatcher_interface as phpbb_dispatcher;
 
@@ -30,6 +33,15 @@ class events
 	/** @var \phpbb\config\config */
 	protected $config;
 
+	/** @var \phpbb\user */
+	protected $user;
+
+	/** @var \phpbb\auth\auth */
+	protected $auth;
+
+	/** @var \phpbb\language\language */
+	protected $language;
+
 	/** @var \phpbb\db\driver\driver_interface */
 	protected $db;
 
@@ -46,12 +58,15 @@ class events
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, work $work, robot $robot, config $config, db $db, phpbb_dispatcher $phpbb_dispatcher, $shoutbox_table, $shoutbox_priv_table)
+	public function __construct(shoutbox $shoutbox, work $work, robot $robot, config $config, user $user, auth $auth, language $language, db $db, phpbb_dispatcher $phpbb_dispatcher, $shoutbox_table, $shoutbox_priv_table)
 	{
 		$this->shoutbox = $shoutbox;
 		$this->work = $work;
 		$this->robot = $robot;
 		$this->config = $config;
+		$this->user = $user;
+		$this->auth = $auth;
+		$this->language = $language;
 		$this->db = $db;
 		$this->phpbb_dispatcher = $phpbb_dispatcher;
 		$this->shoutbox_table = $shoutbox_table;
@@ -372,6 +387,62 @@ class events
 		], $this->config['shout_arcade_urecord'], false);
 	}
 
+	private function sort_info($data)
+	{
+		$info = 0;
+		switch ($data['mode'])
+		{
+			case 'global':
+				$info = 14;
+			break;
+			case 'annoucement':
+				$info = 15;
+			break;
+			case 'post':
+				$info = ($data['prez_form']) ? 60 : 16;
+			break;
+			case 'edit':
+				$info = 17;
+				if ($data['prez_form'])
+				{
+					$info = ($data['prez_poster']) ? 71 : 70;
+				}
+			break;
+			case 'edit_topic':
+			case 'edit_first_post':
+				$info = 18;
+				if ($data['prez_form'])
+				{
+					$info = ($data['prez_poster']) ? 73 : 72;
+				}
+			break;
+			case 'edit_last_post':
+				$info = 19;
+				if ($data['prez_form'])
+				{
+					$info = ($data['prez_poster']) ? 75 : 74;
+				}
+			break;
+			case 'quote':
+				$info = ($data['prez_form']) ? 80 : 20;
+			break;
+			case 'reply':
+				$info = 21;
+				if ($data['prez_form'])
+				{
+					$info = ($data['prez_poster']) ? 77 : 76;
+				}
+			break;
+		}
+
+		return [
+			'info'			=> $info,
+			'sort_info'		=> ($info < 70) ? 2 : 3,
+			'ok_shout'		=> $this->config['shout_' . $data['sort'] . '_robot'],
+			'ok_shout_priv'	=> $this->config['shout_' . $data['sort'] . '_robot_priv'],
+		];
+	}
+
 	private function parse_web_adress($adress)
 	{
 		// Parse web adress in subject to prevent bug
@@ -395,49 +466,6 @@ class events
 		$this->db->sql_freeresult($result);
 
 		return $go_post;
-	}
-
-	private function get_info_session($priv, $purge, $robot, $auto, $delete, $deleted)
-	{
-		$info = 0;
-		$message = '-';
-		if ($priv && $purge && !$robot && !$auto && !$delete)
-		{
-			$info = 5;
-		}
-		else if (!$priv && $purge && !$robot && !$auto && !$delete)
-		{
-			$info = 6;
-		}
-		else if (!$priv && $purge && !$robot && $auto && !$delete)
-		{
-			$message = $deleted;
-			$info = 7;
-		}
-		else if ($priv && $purge && !$robot && $auto && !$delete)
-		{
-			$message = $deleted;
-			$info = 8;
-		}
-		else if (!$priv && $purge && !$robot && $auto && $delete)
-		{
-			$message = $deleted;
-			$info = 9;
-		}
-		else if ($priv && $purge && !$robot && $auto && $delete)
-		{
-			$message = $deleted;
-			$info = 10;
-		}
-		else if ($robot && !$auto && !$delete)
-		{
-			$info = 4;
-		}
-		
-		return [
-			'info'		=> $info,
-			'message'	=> $message,
-		];
 	}
 
 	private function delete_all_user_messages($user_id, $table, $sort_of)
