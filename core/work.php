@@ -569,33 +569,36 @@ class work
 
 	private function get_tpl_auth($get_auths, $get_urls, $row, $sort, $go_founder = false)
 	{
+		$return = '';
 		switch ($sort)
 		{
 			case 1:
-				return $get_auths[7] ? $this->tpl('auth', $row['user_id'], $row['username']) : '';
+				$return = $get_auths[7] ? $this->tpl('auth', $row['user_id'], $row['username']) : '';
 			break;
 			case 2:
-				return $get_auths[7] ? $this->tpl('prefs', $get_urls[5]) : '';
+				$return = $get_auths[7] ? $this->tpl('prefs', $get_urls[5]) : '';
 			break;
 			case 3:
-				return $get_auths[2] ? $this->tpl('admin', $get_urls[2]) : '';
+				$return = $get_auths[2] ? $this->tpl('admin', $get_urls[2]) : '';
 			break;
 			case 4:
-				return $get_auths[3] ? $this->tpl('modo', $get_urls[3]) : '';
+				$return = $get_auths[3] ? $this->tpl('modo', $get_urls[3]) : '';
 			break;
 			case 5:
-				return ($get_auths[4] && $go_founder) ? $this->tpl('ban', $get_urls[4]) : '';
+				$return = ($get_auths[4] && $go_founder) ? $this->tpl('ban', $get_urls[4]) : '';
 			break;
 			case 6:
-				return (($get_auths[1] || $get_auths[5]) && $go_founder) ? $this->tpl('remove', $row['user_id']) : '';
+				$return = (($get_auths[1] || $get_auths[5]) && $go_founder) ? $this->tpl('remove', $row['user_id']) : '';
 			break;
 			case 7:
-				return (($get_auths[1] || $get_auths[7]) && $go_founder) ? $this->tpl('perso', $row['user_id']) : '';
+				$return = (($get_auths[1] || $get_auths[7]) && $go_founder) ? $this->tpl('perso', $row['user_id']) : '';
 			break;
 			case 8:
-				return $get_auths[8] ? $this->tpl('robot', $sort) : '';
+				$return = $get_auths[8] ? $this->tpl('robot', $sort) : '';
 			break;
 		}
+
+		return 
 	}
 
 	/*
