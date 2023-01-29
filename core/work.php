@@ -598,7 +598,7 @@ class work
 			break;
 		}
 
-		return 
+		return $return;
 	}
 
 	/*
