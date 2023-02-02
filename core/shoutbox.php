@@ -1106,7 +1106,7 @@ class shoutbox
 	 * Construct url whithout sid
 	 * Because urls must be construct for all and use append_sid() after
 	 */
-	private function url_free_sid($content)
+	public function url_free_sid($content)
 	{
 		if (strpos($content, 'sid=') !== false)
 		{
