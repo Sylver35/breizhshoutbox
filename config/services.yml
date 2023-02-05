@@ -63,6 +63,7 @@ services:
             - '@sylver35.breizhshoutbox.work'
             - '@sylver35.breizhshoutbox.robot'
             - '@sylver35.breizhshoutbox.javascript'
+            - '@sylver35.breizhshoutbox.bbcodes'
             - '@cache.driver'
             - '@config'
             - '@controller.helper'
@@ -107,6 +108,7 @@ services:
             - '@sylver35.breizhshoutbox.shoutbox'
             - '@sylver35.breizhshoutbox.work'
             - '@sylver35.breizhshoutbox.robot'
+            - '@sylver35.breizhshoutbox.bbcodes'
             - '@request'
             - '@config'
             - '@dbal.conn'
@@ -172,6 +174,16 @@ services:
             - '@dispatcher'
             - '%sylver35.breizhshoutbox.tables.shoutbox%'
             - '%sylver35.breizhshoutbox.tables.shoutbox_priv%'
+
+    sylver35.breizhshoutbox.bbcodes:
+        class: sylver35\breizhshoutbox\core\bbcodes
+        arguments:
+            - '@sylver35.breizhshoutbox.work'
+            - '@config'
+            - '@dbal.conn'
+            - '@auth'
+            - '@user'
+            - '@language'
 
     sylver35.breizhshoutbox.events:
         class: sylver35\breizhshoutbox\core\events

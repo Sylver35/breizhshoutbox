@@ -567,40 +567,6 @@ class work
 		];
 	}
 
-	private function get_tpl_auth($get_auths, $get_urls, $row, $sort, $go_founder = false)
-	{
-		$return = '';
-		switch ($sort)
-		{
-			case 1:
-				$return = $get_auths[7] ? $this->tpl('auth', $row['user_id'], $row['username']) : '';
-			break;
-			case 2:
-				$return = $get_auths[7] ? $this->tpl('prefs', $get_urls[5]) : '';
-			break;
-			case 3:
-				$return = $get_auths[2] ? $this->tpl('admin', $get_urls[2]) : '';
-			break;
-			case 4:
-				$return = $get_auths[3] ? $this->tpl('modo', $get_urls[3]) : '';
-			break;
-			case 5:
-				$return = ($get_auths[4] && $go_founder) ? $this->tpl('ban', $get_urls[4]) : '';
-			break;
-			case 6:
-				$return = (($get_auths[1] || $get_auths[5]) && $go_founder) ? $this->tpl('remove', $row['user_id']) : '';
-			break;
-			case 7:
-				$return = (($get_auths[1] || $get_auths[7]) && $go_founder) ? $this->tpl('perso', $row['user_id']) : '';
-			break;
-			case 8:
-				$return = $get_auths[8] ? $this->tpl('robot', $sort) : '';
-			break;
-		}
-
-		return $return;
-	}
-
 	/*
 	 * Forms for robot messages and actions
 	 */
@@ -721,9 +687,43 @@ class work
 		return $value;
 	}
 
+	private function get_tpl_auth($get_auths, $get_urls, $row, $sort, $go_founder = false)
+	{
+		$return = '';
+		switch ($sort)
+		{
+			case 1:
+				$return = $get_auths[7] ? $this->tpl('auth', $row['user_id'], $row['username']) : '';
+			break;
+			case 2:
+				$return = $get_auths[7] ? $this->tpl('prefs', $get_urls[5]) : '';
+			break;
+			case 3:
+				$return = $get_auths[2] ? $this->tpl('admin', $get_urls[2]) : '';
+			break;
+			case 4:
+				$return = $get_auths[3] ? $this->tpl('modo', $get_urls[3]) : '';
+			break;
+			case 5:
+				$return = ($get_auths[4] && $go_founder) ? $this->tpl('ban', $get_urls[4]) : '';
+			break;
+			case 6:
+				$return = (($get_auths[1] || $get_auths[5]) && $go_founder) ? $this->tpl('remove', $row['user_id']) : '';
+			break;
+			case 7:
+				$return = (($get_auths[1] || $get_auths[7]) && $go_founder) ? $this->tpl('perso', $row['user_id']) : '';
+			break;
+			case 8:
+				$return = $get_auths[8] ? $this->tpl('robot', $sort) : '';
+			break;
+		}
+
+		return $return;
+	}
+
 	private function get_auths()
 	{
-		$return = [
+		return [
 			1 =>	$this->auth->acl_get('a_') ? true : false,
 			2 =>	$this->auth->acl_get('a_user') ? true : false,
 			3 =>	$this->auth->acl_get('m_') ? true : false,
@@ -733,20 +733,16 @@ class work
 			7 =>	$this->auth->acl_gets(['a_', 'm_shout_personal']) ? true : false,
 			8 =>	$this->auth->acl_gets(['a_', 'm_shout_robot']) ? true : false,
 		];
-
-		return $return;
 	}
 
 	private function get_urls($row)
 	{
-		$return = [
+		return [
 			1 =>	append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", ['mode' => 'viewprofile', 'u' => $row['user_id']], false),
-			2 =>	append_sid("{$this->root_path_web}/adm/index.{$this->php_ext}", ['i' => 'users', 'mode' => 'overview', 'u' => $row['user_id']], true, $this->user->session_id),
-			3 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'notes', 'mode' => 'user_notes', 'u' => $row['user_id']], true, $this->user->session_id),
-			4 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'ban', 'mode' => 'user', 'u' => $row['user_id']], true, $this->user->session_id),
+			2 =>	append_sid("{$this->root_path_web}adm/index.{$this->php_ext}", ['i' => 'users', 'mode' => 'overview', 'u' => $row['user_id']], true, $this->user->session_id),
+			3 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'notes', 'mode' => 'user_notes', 'u' => $row['user_id']], true),
+			4 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'ban', 'mode' => 'user', 'u' => $row['user_id']], true),
 			5 =>	$this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $row['user_id']]),
 		];
-
-		return $return;
 	}
 }

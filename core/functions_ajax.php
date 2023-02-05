@@ -12,6 +12,7 @@ namespace sylver35\breizhshoutbox\core;
 use sylver35\breizhshoutbox\core\shoutbox;
 use sylver35\breizhshoutbox\core\work;
 use sylver35\breizhshoutbox\core\robot;
+use sylver35\breizhshoutbox\core\bbcodes;
 use phpbb\request\request;
 use phpbb\config\config;
 use phpbb\db\driver\driver_interface as db;
@@ -30,6 +31,9 @@ class functions_ajax
 
 	/* @var \sylver35\breizhshoutbox\core\robot */
 	protected $robot;
+
+	/* @var \sylver35\breizhshoutbox\core\bbcodes */
+	protected $bbcodes;
 
 	/** @var \phpbb\request\request */
 	protected $request;
@@ -71,11 +75,12 @@ class functions_ajax
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, work $work, robot $robot, request $request, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path, $shoutbox_table, $shoutbox_priv_table)
+	public function __construct(shoutbox $shoutbox, work $work, robot $robot, bbcodes $bbcodes, request $request, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path, $shoutbox_table, $shoutbox_priv_table)
 	{
 		$this->shoutbox = $shoutbox;
 		$this->work = $work;
 		$this->robot = $robot;
+		$this->bbcodes = $bbcodes;
 		$this->request = $request;
 		$this->config = $config;
 		$this->db = $db;
@@ -264,7 +269,7 @@ class functions_ajax
 		$on_user = ($val['other'] > 0) ? $val['other'] : $val['userid'];
 
 		// Parse bbcodes
-		$data = $this->shoutbox->parse_shout_bbcodes($open, $close, $on_user);
+		$data = $this->bbcodes->parse_shout_bbcodes($open, $close, $on_user);
 		switch ($data['sort'])
 		{
 			// Remove the bbcodes

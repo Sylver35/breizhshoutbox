@@ -8,6 +8,7 @@
 */
 
 namespace sylver35\breizhshoutbox\event;
+
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use sylver35\breizhshoutbox\core\shoutbox;
 use sylver35\breizhshoutbox\core\events;
@@ -96,8 +97,8 @@ class main_listener implements EventSubscriberInterface
 			'arcade.page_arcade_games'					=> 'shout_display',
 			'arcade.page_arcade_list'					=> 'shout_display',
 			'portal.handle'								=> 'shout_display',
-			'quiz.new'									=> 'add_new_quiz',
-			'quiz.win'									=> 'submit_win',
+			'quiz.add_new'								=> 'add_new_quiz',
+			'quiz.submit_win'							=> 'submit_win',
 		];
 	}
 

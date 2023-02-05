@@ -207,6 +207,10 @@ class robot
 				$url = $this->helper->route('sylver35_breizhcharts_page_music', ['mode' => 'winners']);
 				$message = $this->language->lang('SHOUT_CHARTS_RESET', $this->work->tpl('url', $url, $row['shout_text']), $this->work->tpl('url', $url, $row['shout_text2']));
 			break;
+			case 32:
+			case 33:
+				$message = $this->language->lang('SHOUT_QUIZ_ROBOT' . $info, $this->work->tpl('url', $this->helper->route('sylver35_quiz_index')));
+			break;
 			case 35:
 				$title = (strlen($row['shout_text']) > 45) ? substr($row['shout_text'], 0, 42) . '...' : $row['shout_text'];
 				$cat_url = $this->work->tpl('url', $this->helper->route('sylver35_breizhyoutube_controller', ['mode' => 'cat', 'id' => $row['shout_robot']]), $row['shout_text2']);
