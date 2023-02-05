@@ -36,10 +36,16 @@ class bbcodes
 	/** @var \phpbb\language\language */
 	protected $language;
 
+	/** @var string phpBB root path */
+	protected $root_path;
+
+	/** @var string phpEx */
+	protected $php_ext;
+
 	/**
 	 * Constructor
 	 */
-	public function __construct(work $work, config $config, db $db, auth $auth, user $user, language $language)
+	public function __construct(work $work, config $config, db $db, auth $auth, user $user, language $language, $root_path, $php_ext)
 	{
 		$this->work = $work;
 		$this->config = $config;
@@ -47,6 +53,8 @@ class bbcodes
 		$this->auth = $auth;
 		$this->user = $user;
 		$this->language = $language;
+		$this->root_path = $root_path;
+		$this->php_ext = $php_ext;
 	}
 
 	/*

@@ -184,6 +184,8 @@ services:
             - '@auth'
             - '@user'
             - '@language'
+            - '%core.root_path%'
+            - '%core.php_ext%'
 
     sylver35.breizhshoutbox.events:
         class: sylver35\breizhshoutbox\core\events
