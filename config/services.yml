@@ -155,6 +155,7 @@ services:
             - '@cache.driver'
             - '@ext.manager'
             - '@controller.helper'
+            - '@path_helper'
             - '@service_container'
             - '@dispatcher'
             - '%core.root_path%'

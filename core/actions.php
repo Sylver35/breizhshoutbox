@@ -358,7 +358,7 @@ class actions
 			else
 			{
 				// For reload the message to everybody
-				$this->shoutbox->update_shout_messages($val['table']);
+				$this->shoutbox->update_messages($val['table']);
 				$this->config->increment('shout_del_user' . $val['priv'], $deleted, true);
 				return [
 					'type'		=> 1,
@@ -394,7 +394,7 @@ class actions
 			}
 			else
 			{
-				$this->shoutbox->update_shout_messages($val['table']);
+				$this->shoutbox->update_messages($val['table']);
 				$this->config->increment('shout_del_user' . $val['priv'], $deleted, true);
 				return [
 					'type'		=> 1,
@@ -417,7 +417,7 @@ class actions
 			$deleted = $this->db->sql_affectedrows();
 			if ($deleted)
 			{
-				$this->shoutbox->update_shout_messages($val['table']);
+				$this->shoutbox->update_messages($val['table']);
 				$this->config->increment('shout_del_user' . $val['priv'], $deleted, true);
 				return [
 					'type'		=> 1,
@@ -462,7 +462,7 @@ class actions
 		$on_id = $this->db->sql_fetchfield('shout_user_id');
 		$this->db->sql_freeresult($result);
 
-		$verify = $this->shoutbox->shout_verify_delete($val['userid'], $on_id, $can_delete_all, $can_delete);
+		$verify = $this->shoutbox->verify_delete($val['userid'], $on_id, $can_delete_all, $can_delete);
 
 		if (!$verify['result'])
 		{
@@ -478,7 +478,7 @@ class actions
 				WHERE shout_id = ' . $post;
 			$this->db->sql_query($sql);
 
-			$this->shoutbox->update_shout_messages($val['table']);
+			$this->shoutbox->update_messages($val['table']);
 			$this->config->increment('shout_del_user' . $val['priv'], 1, true);
 			return [
 				'type'	=> 1,

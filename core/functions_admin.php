@@ -583,7 +583,7 @@ class functions_admin
 			$this->db->sql_query('DELETE FROM ' . $table . $where_sql);
 			$deleted = $this->db->sql_affectedrows();
 			// Reload the shoutbox for all
-			$this->shoutbox->update_shout_messages($table);
+			$this->shoutbox->update_messages($table);
 
 			$message = $this->work->plural('LOG_SELECT', $deleted, '_SHOUTBOX' . $private);
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, $message, time(), [$deleted]);

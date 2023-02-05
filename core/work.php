@@ -17,6 +17,7 @@ use phpbb\language\language;
 use phpbb\cache\driver\driver_interface as cache;
 use phpbb\extension\manager;
 use phpbb\controller\helper;
+use phpbb\path_helper;
 use Symfony\Component\DependencyInjection\Container;
 use phpbb\event\dispatcher_interface as phpbb_dispatcher;
 
@@ -46,6 +47,9 @@ class work
 	/* @var \phpbb\controller\helper */
 	protected $helper;
 
+	/* @var \phpbb\path_helper */
+	protected $path_helper;
+
 	/** @var \Symfony\Component\DependencyInjection\Container */
 	protected $phpbb_container;
 
@@ -73,7 +77,7 @@ class work
 	/**
 	 * Constructor
 	 */
-	public function __construct(config $config, db $db, auth $auth, user $user, language $language, cache $cache, manager $ext_manager, helper $helper, Container $phpbb_container, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext, $shoutbox_rules_table)
+	public function __construct(config $config, db $db, auth $auth, user $user, language $language, cache $cache, manager $ext_manager, helper $helper, path_helper $path_helper, Container $phpbb_container, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext, $shoutbox_rules_table)
 	{
 		$this->config = $config;
 		$this->db = $db;
@@ -83,6 +87,7 @@ class work
 		$this->cache = $cache;
 		$this->ext_manager = $ext_manager;
 		$this->helper = $helper;
+		$this->path_helper = $path_helper;
 		$this->phpbb_container = $phpbb_container;
 		$this->phpbb_dispatcher = $phpbb_dispatcher;
 		$this->root_path = $root_path;
@@ -189,6 +194,15 @@ class work
 			'error'		=> true,
 			't'			=> 1,
 		], true);
+	}
+
+	/**
+	 * Get the adm path
+	 * @return string
+	 */
+	public function adm_path()
+	{
+		return $this->root_path_web . $this->path_helper->get_adm_relative_path();
 	}
 
 	public function return_bool($option)
@@ -739,7 +753,7 @@ class work
 	{
 		return [
 			1 =>	append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", ['mode' => 'viewprofile', 'u' => $row['user_id']], false),
-			2 =>	append_sid("{$this->root_path_web}adm/index.{$this->php_ext}", ['i' => 'users', 'mode' => 'overview', 'u' => $row['user_id']], true, $this->user->session_id),
+			2 =>	append_sid("{$this->adm_path()}index.{$this->php_ext}", ['i' => 'users', 'mode' => 'overview', 'u' => $row['user_id']], true, $this->user->session_id),
 			3 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'notes', 'mode' => 'user_notes', 'u' => $row['user_id']], true),
 			4 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'ban', 'mode' => 'user', 'u' => $row['user_id']], true),
 			5 =>	$this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $row['user_id']]),

@@ -150,15 +150,6 @@ class shoutbox
 	}
 
 	/**
-	 * Get the adm path
-	 * @return string
-	 */
-	public function adm_path()
-	{
-		return $this->root_path_web . $this->path_helper->get_adm_relative_path();
-	}
-
-	/**
 	 * Display the shoutbox
 	 */
 	public function shout_display($sort_of)
@@ -204,7 +195,7 @@ class shoutbox
 			}
 		}
 
-		if (!$this->run_shout_display($page, $this->config['shout_position_index'], $this->config['shout_position_forum'], $this->config['shout_position_topic']))
+		if (!$this->run_display($page))
 		{
 			return;
 		}
@@ -227,7 +218,7 @@ class shoutbox
 		]);
 
 		// Active the posting form
-		$this->shout_enable_posting($sort_of, $page, $is_mobile);
+		$this->enable_posting($sort_of, $page, $is_mobile);
 		// Create the script now
 		$this->javascript->javascript_shout($sort_of);
 
@@ -265,6 +256,7 @@ class shoutbox
 			'active'	=> false,
 			'auto'		=> false,
 		];
+
 		if ($this->auth->acl_get('u_shout_lateral') && !$is_mobile)
 		{
 			// Activate it in private shoutbox
@@ -284,27 +276,25 @@ class shoutbox
 		return $panel;
 	}
 
-	private function run_shout_display($page, $index, $forum, $topic)
+	private function run_display($page, $run = true)
 	{
-		$run = true;
-
 		if ($page === 'index')
 		{
-			$run = ($index > 0) ? true : false;
+			$run = ($this->config['shout_position_index'] > 0) ? true : false;
 		}
 		else if ($page === 'viewforum')
 		{
-			$run = ($forum > 0) ? true : false;
+			$run = ($this->config['shout_position_forum'] > 0) ? true : false;
 		}
 		else if ($page === 'viewtopic')
 		{
-			$run = ($topic > 0) ? true : false;
+			$run = ($this->config['shout_position_topic'] > 0) ? true : false;
 		}
 
 		return $run;
 	}
 
-	private function shout_enable_posting($sort_of, $page, $is_mobile)
+	private function enable_posting($sort_of, $page, $is_mobile)
 	{
 		if ($this->auth->acl_gets(['u_shout_post', 'u_shout_bbcode']))
 		{
@@ -458,7 +448,7 @@ class shoutbox
 	 * Change time of the last message to one second +
 	 * to update the shoutbox for all users
 	 */
-	public function update_shout_messages($table)
+	public function update_messages($table)
 	{
 		$sql = 'UPDATE ' . $table . '
 			SET shout_time = shout_time + 1
@@ -964,7 +954,7 @@ class shoutbox
 		}
 	}
 
-	public function shout_verify_delete($userid, $on_id, $can_delete_all, $can_delete)
+	public function verify_delete($userid, $on_id, $can_delete_all, $can_delete)
 	{
 		$result = false;
 		if ($userid == ANONYMOUS)
@@ -999,7 +989,7 @@ class shoutbox
 		];
 	}
 
-	public function shout_check_edit($val, $shout_id)
+	public function check_edit($val, $shout_id)
 	{
 		// If someone can edit all messages, he can edit it's messages :) (if errors in permissions set)
 		if ($this->auth->acl_gets(['m_shout_edit_mod', 'a_shout' . $val['auth']]))
@@ -1029,7 +1019,7 @@ class shoutbox
 		return false;
 	}
 
-	public function shout_verify_flood($on_priv, $userid)
+	public function verify_flood($on_priv, $userid)
 	{
 		// Flood control, not in private
 		if (!$on_priv && !$this->auth->acl_get('u_shout_ignore_flood'))

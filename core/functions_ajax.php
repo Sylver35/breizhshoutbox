@@ -361,7 +361,7 @@ class functions_ajax
 
 	public function edit($val, $shout_id, $message)
 	{
-		if (!$this->shoutbox->shout_check_edit($val, $shout_id))
+		if (!$this->shoutbox->check_edit($val, $shout_id))
 		{
 			return [
 				'type'		=> 1,
@@ -392,7 +392,7 @@ class functions_ajax
 		$this->work->shout_sql_query($sql);
 
 		// For reload the message to everybody
-		$this->shoutbox->update_shout_messages($val['table']);
+		$this->shoutbox->update_messages($val['table']);
 		$message = generate_text_for_display($message, $uid, $bitfield, $options);
 
 		return [
@@ -413,7 +413,7 @@ class functions_ajax
 				'message'	=> $this->language->lang('NO_POST_PERM'),
 			];
 		}
-		else if (!$this->shoutbox->shout_verify_flood($val['on_priv'], $val['userid']))
+		else if (!$this->shoutbox->verify_flood($val['on_priv'], $val['userid']))
 		{
 			return [
 				'type'		=> 2,

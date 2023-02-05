@@ -257,7 +257,7 @@ class events
 		if ($deleted)
 		{
 			$this->config->increment('shout_del_auto', $deleted, true);
-			$this->shoutbox->update_shout_messages($this->shoutbox_table);
+			$this->shoutbox->update_messages($this->shoutbox_table);
 		}
 
 		// Phase 2 delete in private shoutbox table
@@ -266,7 +266,7 @@ class events
 		if ($deleted_priv)
 		{
 			$this->config->increment('shout_del_auto_priv', $deleted_priv, true);
-			$this->shoutbox->update_shout_messages($this->shoutbox_priv_table);
+			$this->shoutbox->update_messages($this->shoutbox_priv_table);
 		}
 	}
 
@@ -479,7 +479,7 @@ class events
 		if ($deleted)
 		{
 			$this->config->increment($sort_of, $deleted, true);
-			$this->shoutbox->update_shout_messages($table);
+			$this->shoutbox->update_messages($table);
 		}
 	}
 }
