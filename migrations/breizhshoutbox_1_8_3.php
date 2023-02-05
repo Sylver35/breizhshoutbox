@@ -11,29 +11,23 @@ namespace sylver35\breizhshoutbox\migrations;
 
 use phpbb\db\migration\migration;
 
-class breizhshoutbox_1_2_0 extends migration
+class breizhshoutbox_1_8_3 extends migration
 {
 	public function effectively_installed()
 	{
-		return (bool) phpbb_version_compare($this->config['shout_version'], '1.2.0', '>=');
+		return (bool) phpbb_version_compare($this->config['shout_version'], '1.8.3', '>=');
 	}
 
 	static public function depends_on()
 	{
-		return ['\sylver35\breizhshoutbox\migrations\breizhshoutbox_1_1_0'];
+		return ['\sylver35\breizhshoutbox\migrations\breizhshoutbox_1_8_2'];
 	}
 
 	public function update_data()
 	{
 		return [
 			// Version of extension
-			['config.update', ['shout_version', '1.2.0']],
-
-			// Config
-			['config.add', ['shout_last_run_birthday', '', true]],
-			['config.add', ['shout_arcade_new', 0]],
-			['config.add', ['shout_arcade_record', 0]],
-			['config.add', ['shout_arcade_urecord', 0]],
+			['config.update', ['shout_version', '1.8.3']],
 		];
 	}
 }
