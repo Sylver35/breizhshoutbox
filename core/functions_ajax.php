@@ -13,6 +13,7 @@ use sylver35\breizhshoutbox\core\shoutbox;
 use sylver35\breizhshoutbox\core\work;
 use sylver35\breizhshoutbox\core\robot;
 use sylver35\breizhshoutbox\core\bbcodes;
+use sylver35\breizhshoutbox\core\avatar;
 use phpbb\request\request;
 use phpbb\config\config;
 use phpbb\db\driver\driver_interface as db;
@@ -34,6 +35,9 @@ class functions_ajax
 
 	/* @var \sylver35\breizhshoutbox\core\bbcodes */
 	protected $bbcodes;
+
+	/* @var \sylver35\breizhshoutbox\core\avatar */
+	protected $avatar;
 
 	/** @var \phpbb\request\request */
 	protected $request;
@@ -75,12 +79,13 @@ class functions_ajax
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, work $work, robot $robot, bbcodes $bbcodes, request $request, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path, $shoutbox_table, $shoutbox_priv_table)
+	public function __construct(shoutbox $shoutbox, work $work, robot $robot, bbcodes $bbcodes, avatar $avatar, request $request, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path, $shoutbox_table, $shoutbox_priv_table)
 	{
 		$this->shoutbox = $shoutbox;
 		$this->work = $work;
 		$this->robot = $robot;
 		$this->bbcodes = $bbcodes;
+		$this->avatar = $avatar;
 		$this->request = $request;
 		$this->config = $config;
 		$this->db = $db;
@@ -510,7 +515,7 @@ class functions_ajax
 				'shoutId'		=> $row['shout_id'],
 				'shoutTime'		=> $this->user->format_date($row['shout_time'], $dateformat),
 				'username'		=> $this->work->construct_action_shout($row['user_id'], $row['username'], $row['user_colour']),
-				'avatar'		=> $this->shoutbox->get_shout_avatar($row, $val['sort'], $is_mobile),
+				'avatar'		=> $this->avatar->get_shout_avatar($row, $val['sort'], $is_mobile),
 				'shoutText'		=> $this->shoutbox->shout_text_for_display($row, $val['sort'], false),
 				'isUser'		=> $row['is_user'],
 				'other'			=> $row['other'],
