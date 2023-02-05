@@ -765,11 +765,6 @@ class shoutbox
 		return $content;
 	}
 
-	private function clean_tpl($tpl)
-	{
-		return str_replace(['\\', '&quot;', '""'], ['', '"', '"'], $this->config[$tpl]);
-	}
-
 	public function action_user($row, $id, $sort)
 	{
 		// Founders protection
