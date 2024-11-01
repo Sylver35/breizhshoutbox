@@ -599,41 +599,6 @@ class work
 		];
 	}
 
-	public function test_action($val)
-	{
-		if (!$val['other'])
-		{
-			return ['type' => 0];
-		}
-		else if ($val['other'] === 1)
-		{
-			// post a robot message
-			if ($this->auth->acl_gets(['a_', 'm_shout_robot']))
-			{
-				$info = 0;
-				$robot = true;
-				$val['other'] = $val['userid'] = 0;
-			}
-			else
-			{
-				// no perm, out...
-				return ['type' => 0];
-			}
-		}
-		else if ($val['other'] > 1)
-		{
-			// post a personal message
-			$data = $this->shoutbox->user_is_foe($val['userid'], $val['other']);
-			if ($data['type'] > 0)
-			{
-				return [
-					'type'		=> $data['type'],
-					'message'	=> $data['message'],
-				];
-			}
-		}
-	}
-
 	/*
 	 * Forms for robot messages and actions
 	 */

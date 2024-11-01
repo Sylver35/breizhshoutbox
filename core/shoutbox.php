@@ -800,7 +800,7 @@ class shoutbox
 			$row['shout_text'] = str_replace('class="postlink', 'onclick="window.open(this.href);return false;" class="postlink', $row['shout_text']);
 		}
 
-		return $row['shout_text'];//$this->work->shout_url()
+		return $row['shout_text'];
 	}
 
 	public function get_topic_data($event, $forum_id)
