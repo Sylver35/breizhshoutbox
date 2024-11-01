@@ -23,22 +23,13 @@
 	{% if SHOUT_POSTING %}
 		{% INCLUDE '@sylver35_breizhshoutbox/shout_colour.html' %}
 		{% INCLUDE '@sylver35_breizhshoutbox/shout_chars.html' %}
-		<ul id="smilies_ul" class="topiclist forums">
-			<li>
-				<div id="onTextSmilies">{{ lang('SMILIES') }}</div>
-				<hr class="dotted" />
-				<img class="img_shout_close" src="{{ SHOUT_EXT_PATH }}images/shout_no.png" alt="{{ lang('SMILIES_CLOSE') }}" title="{{ lang('SMILIES_CLOSE') }}" onclick="shoutbox.openCloseSmilies();return false;" onmouseout="shoutbox.iH('onTextSmilies','{{ lang('SMILIES') }}',false);" onmouseover="shoutbox.iH('onTextSmilies',this.title,false);" />
-			</li>
-			<li>
-				<div id="smilies"></div>
-			</li>
-		</ul>
+		{% INCLUDE '@sylver35_breizhshoutbox/smilies.html' %}
 	{% endif %}
 		<ul id="shout_online" class="topiclist forums">
 			<li>
 				<div id="onTextOnline"></div>
 				<h3 class="h3_online">{{ lang('SHOUT_ONLINE_TITLE') }}</h3>
-				<img class="img_shout_close" src="{{ SHOUT_EXT_PATH }}images/shout_no.png" alt="{{ lang('SHOUT_ONLINE_CLOSE') }}" title="{{ lang('SHOUT_ONLINE_CLOSE') }}" onclick="shoutbox.openCloseOnline();return false;" onmouseout="shoutbox.iH('onTextOnline','',false);" onmouseover="shoutbox.iH('onTextOnline',this.title,false);" />
+				<img class="img_shout_close" src="{{ SHOUT_EXT_PATH }}images/shout_no.png" alt="{{ lang('SHOUT_ONLINE_CLOSE') }}" title="{{ lang('SHOUT_ONLINE_CLOSE') }}" onclick="shoutbox.openCloseOnline();return false;" onmouseout="shoutbox.iH('onTextOnline','',false);" onmouseover="shoutbox.iH('onTextOnline',this.title,false);">
 				<div id="online_shout"></div>
 			</li>
 		</ul>
@@ -49,20 +40,22 @@
 				{% INCLUDE 'posting_buttons.html' %}
 			</ul>
 			{% endif %}
-			<div id="shoutbox"></div>
+			<div id="shoutbox">
+				
+			</div>
 			{{ S_FORM_TOKEN }}
 		</form>
 
 		<div id="shout-fields" class="no_display">
 			<fieldset>
-				<input id="sortShoutNb" type="hidden" value="0" />
-				<input id="openEdit" type="hidden" value="0" />
-				<input id="onSound" type="hidden" value="0" />
-				<input id="onBot" type="hidden" value="1" />
-				<input id="nBQuery" type="hidden" value="0" />
-				<input id="nBTemps" type="hidden" value="0" />
-				<input id="nBErrors" type="hidden" value="0" />
-				<input id="shoutLast" type="hidden" value="0" />
+				<input id="sortShoutNb" type="hidden" value="0">
+				<input id="openEdit" type="hidden" value="0">
+				<input id="onSound" type="hidden" value="0">
+				<input id="onBot" type="hidden" value="1">
+				<input id="nBQuery" type="hidden" value="0">
+				<input id="nBTemps" type="hidden" value="0">
+				<input id="nBErrors" type="hidden" value="0">
+				<input id="shoutLast" type="hidden" value="0">
 			</fieldset>
 		</div>
 		

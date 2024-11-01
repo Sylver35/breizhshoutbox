@@ -26,7 +26,7 @@ function suppText(){
 	<div class="inner">
 	{% for smiley in smileys %}
 		<a class="pointer" onclick="suppText();shoutbox.shoutInsertText('{{ smiley.SMILEY_CODE }}',true);return false;">
-			<img src="{{ smiley.SMILEY_SRC }}" alt="{{ smiley.SMILEY_CODE }}" title="{{ smiley.EMOTION }}" width="{{ smiley.SMILEY_WIDTH }}" height="{{ smiley.SMILEY_HEIGHT }}" />
+			<img src="{{ smiley.SMILEY_SRC }}" alt="{{ smiley.SMILEY_CODE }}" title="{{ smiley.EMOTION }}" width="{{ smiley.SMILEY_WIDTH }}" height="{{ smiley.SMILEY_HEIGHT }}"/>
 		</a>
 	{% endfor %}
 	</div>
@@ -51,7 +51,7 @@ function suppText(){
 	<div class="inner">
 	{% for smiley in smilies %}
 		<a class="pointer" onclick="insert_text('{{ smiley.SMILEY_CODE }}',true,true);return false;">
-			<img src="{{ smiley.SMILEY_SRC }}" alt="{{ smiley.SMILEY_CODE }}" title="{{ smiley.SMILEY_EMOTION }}" width="{{ smiley.SMILEY_WIDTH }}" height="{{ smiley.SMILEY_HEIGHT }}" />
+			<img src="{{ smiley.SMILEY_SRC }}" alt="{{ smiley.SMILEY_CODE }}" title="{{ smiley.SMILEY_EMOTION }}" width="{{ smiley.SMILEY_WIDTH }}" height="{{ smiley.SMILEY_HEIGHT }}"/>
 		</a>
 	{% endfor %}
 	</div>

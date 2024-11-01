@@ -10,10 +10,10 @@
 	<h3><a href="{{ U_VIEWONLINE }}">{{ lang('WHO_IS_ONLINE') }}</a></h3>
 	<p>
 		{% EVENT index_body_block_online_prepend %}
-		{{ TOTAL_USERS_ONLINE }} ({{ lang('ONLINE_EXPLAIN') }})<br />{{ RECORD_USERS }}<br /> 
+		{{ TOTAL_USERS_ONLINE }} ({{ lang('ONLINE_EXPLAIN') }})<br/>{{ RECORD_USERS }}<br/> 
 		{% if U_VIEWONLINE %}
-			<br />{{ LOGGED_IN_USER_LIST }}
-			{% if LEGEND %}<br /><em>{{ lang('LEGEND') }}{{ lang('COLON') }} {{ LEGEND }}</em>{% endif %}
+			<br/>{{ LOGGED_IN_USER_LIST }}
+			{% if LEGEND %}<br/><em>{{ lang('LEGEND') }}{{ lang('COLON') }} {{ LEGEND }}</em>{% endif %}
 		{% endif %}
 		{% EVENT index_body_block_online_append %}
 	</p>

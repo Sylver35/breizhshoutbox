@@ -12,7 +12,7 @@
 	<div class="inner"><span class="corners-top"><span></span></span>
 	{% for smiley in smileys %}
 		<a href="#" onclick="shoutbox.insert_text('{{ smiley.A_SMILEY_CODE }}',true,true);return false;">
-			<img src="{{ smiley.SMILEY_IMG }}" width="{{ smiley.SMILEY_WIDTH }}" height="{{ smiley.SMILEY_HEIGHT }}" alt="{{ smiley.SMILEY_CODE }}" title="{{ smiley.SMILEY_DESC }}" />
+			<img src="{{ smiley.SMILEY_IMG }}" width="{{ smiley.SMILEY_WIDTH }}" height="{{ smiley.SMILEY_HEIGHT }}" alt="{{ smiley.SMILEY_CODE }}" title="{{ smiley.SMILEY_DESC }}"/>
 		</a> 
 	{% endfor %}
 	<span class="corners-bottom"><span></span></span></div>

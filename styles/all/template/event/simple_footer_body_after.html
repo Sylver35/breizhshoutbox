@@ -117,7 +117,7 @@ var configs = {
 	configs.changeDateFormat = function(value){
 		$('#dateformat').css('background', 'white url("'+configs.extensionUrl+'images/ajax_loader.gif") no-repeat 90% 50%');
 		$('#datexemple').html('');
-		$('#datexemple2').html('<img src="'+configs.extensionUrl+'images/ajax_loader_2.gif" alt="" />');
+		$('#datexemple2').html('<img src="'+configs.extensionUrl+'images/ajax_loader_2.gif" alt=""/>');
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',

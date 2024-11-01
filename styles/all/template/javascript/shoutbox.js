@@ -1,14 +1,15 @@
 /**
 * @package		Breizh Shoutbox extension
-* @copyright(c)	2018-2021 Sylver35  https://breizhcode.com
+* @copyright(c)	2018-2024 Sylver35  https://breizhcode.com
 * @license		http://opensource.org/licenses/gpl-license.php GNU Public License
 */
 
 /** global: config */
 /** global: bzhLang */
 /** global: shoutbox */
-var tpl = new Array(),uastring = navigator.userAgent,index,navigateur,version,is_ie = ((uastring.indexOf('msie') != -1) && (uastring.indexOf('opera') == -1)),headersContent = {'Cache-Control': 'private, no-cache, no-store, must-revalidate, proxy-revalidate','Pragma': 'no-cache'},dataRun = 'user='+config.userId+'&sort='+config.sortShoutNb;
-var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_name = 'postform',text_name = 'chat_message',imgChargeOn = '<img src="'+config.extensionUrl+'images/run.gif" alt="" style="margin-right:15px;" />',imgLoadOn = '<img src="'+config.extensionUrl+'images/run2.gif" alt="" style="margin-right:15px;" />',imgTurnOn = '<img src="'+config.extensionUrl+'images/spinner.gif" alt="" style="margin-right:15px;" />',ajaxLoaderOn = '<img src="'+config.extensionUrl+'images/ajax_loader_2.gif" alt="" style="margin-right:15px;" />',imgLoader = '<img src="'+config.extensionUrl+'images/ajax_loader.gif" alt="" style="margin-right:15px;" />';
+var tpl = {'open':'<strong>&#187;</strong><span class="profile-shout">', 'close':'</span></a></span>', 'span':'<span title="">', 'return':'<br/><br/>', 'a':'<a onmouseover="shoutbox.iH(\'onTextUser\',this.title,false);" onmouseout="shoutbox.iH(\'onTextUser\',\'\',false);" class="tooltip pointer"', 'ext':' onclick="window.open(this.href);return false;" href="'};
+var uastring = navigator.userAgent,index,navigateur,version,is_ie = ((uastring.indexOf('msie') != -1) && (uastring.indexOf('opera') == -1)),headersContent = {'Cache-Control': 'max-age=00002, private, no-cache, no-store, must-revalidate, proxy-revalidate','Pragma': 'no-cache'},dataRun = 'user='+config.userId+'&sort='+config.sortShoutNb,onCountCats = 0,onIdCats = 0,onSmilSort = 0;
+var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_name = 'postform',text_name = 'chat_message',imgChargeOn = '<img src="'+config.extensionUrl+'images/run.gif" alt="" style="margin-right:15px;"/>',imgLoadOn = '<img src="'+config.extensionUrl+'images/run2.gif" alt="" style="margin-right:15px;"/>',imgTurnOn = '<img src="'+config.extensionUrl+'images/spinner.gif" alt="" style="margin-right:15px;"/>',ajaxLoaderOn = '<img src="'+config.extensionUrl+'images/ajax_loader_2.gif" alt="" style="margin-right:15px;"/>',imgLoader = '<img src="'+config.extensionUrl+'images/ajax_loader.gif" alt="" style="margin-right:15px;"/>';
 
 (function($){  // Avoid conflicts with other libraries
 	'use strict';
@@ -185,9 +186,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 	};
 
 	shoutbox.permutUser = function(sort){
+		$('#chat_message, #span-post').remove();
 		var inputPost = shoutbox.createInput(sort);
-		$('#chat_message').remove();
-		$('#span-post').remove();
 		if(sort){
 			var span = shoutbox.cE('span','span-post',false,'margin-'+config.direction+':6px;max-width:45%;display:inline-block;width:'+config.widthPost+'px;',false,false,false,false,false,false);
 			$(inputPost).insertBefore('#postAction');
@@ -197,8 +197,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		}
 	};
 
-	shoutbox.message = function(msg, red, clearOn, reload){
-		var colorMsg = red ? 'red' : 'green',tempsMsg = red ? 5000 : 3000,align = 'center',msgDisplay = '',span = '<span style="color:black;font-weight:bold;">',endSpan = ' : </span>',bR = '<br />';
+	shoutbox.message = function(msg,red,clearOn,reload){
+		var colorMsg = red ? 'red' : 'green',tempsMsg = red ? 5000 : 3000,align = 'center',msgDisplay = '',span = '<span style="color:black;font-weight:bold;">',endSpan = ' : </span>',bR = '<br/>';
 		if(typeof msg === 'object'){
 			msgDisplay = span+bzhLang['ERROR']+endSpan;
 			msgDisplay += msg['message'] ? msg['message'] : '';
@@ -243,7 +243,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		}else{
 			$('#openEdit').val(0);
 			$('#nBErrors').val(0);
-			shoutbox.setQuery();
+			shoutbox.resetQuery();
 			shoutbox.loadMessages();
 		}
 	};
@@ -287,15 +287,11 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		}
 		if(alt){
 			onElement.alt = alt;
-		}
-		if(name){
-			onElement.name = name;
-		}else if(id){
-			onElement.name = id;
-		}
+		}	
 		if(onClick){
 			onElement.onclick = onClick;
 		}
+		onElement.name = (name) ? name : id;
 		return onElement;
 	};
 
@@ -337,8 +333,13 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		}
 	};
 
-	shoutbox.setQuery = function(){
+	shoutbox.resetQuery = function(){
 		$queryNb = 0;
+		$('#nBQuery').val($queryNb);
+	};
+
+	shoutbox.addQuery = function(){
+		$queryNb++;
 		$('#nBQuery').val($queryNb);
 	};
 
@@ -364,31 +365,27 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 	};
 
 	shoutbox.playSound = function(sort,force){
-		var goSound = false;
+		var play = false;
 		if(force){
-			goSound = true;
+			play = true;
 		}else{
 			if(config.isGuest){
 				if(shoutbox.getCookie('shout-sound') == '1'){
-					goSound = true;
+					play = true;
 				}
 			}else if($('#onSound').val() == 1){
-				goSound = true;
+				play = true;
 			}
 		}
-		if(goSound !== false){
+		if(play !== false){
 			if($('#shoutAudio-'+sort).attr('title') !== 'off'){
-				if($('#shoutAudio-'+sort).prop('paused')){
-					$('#shoutAudio-'+sort).trigger('play');
-				}else{
-					$('#shoutAudio-'+sort).trigger('pause'); 
-				}
+				$('#shoutAudio-'+sort).trigger('play');
 			}
 		}
 	};
 
-	shoutbox.replaceAll = function(str, find, replace){
-		return str.replace(new RegExp(find, 'g'), replace);
+	shoutbox.replaceAll = function(str,find,replace){
+		return str.replace(new RegExp(find, 'g'),replace);
 	};
 
 	shoutbox.infoCookies = function(){
@@ -401,8 +398,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			data: dataRun,
 			cache: false,
 			success: function(result){
-				var timerCookies = setTimeout(shoutbox.closeCookies,20000), data = '', classDiv = config.barHaute ? 'message-text' : 'message-text-bottom';
-				data = '<h3>'+result.title+'</h3>';
+				var timerCookies = setTimeout(shoutbox.closeCookies,20000), classDiv = config.barHaute ? 'message-text' : 'message-text-bottom';
+				var data = '<h3>'+result.title+'</h3>';
 				data += '<div class="shout-bold" style="margin:8px;text-align:left;">'+result.info+' :</div>';
 				data += '<div style="margin:0 0 5px 12px;text-align:left;"><ul>';
 				data += '<li>1. <span class="shout-bold">shout-robot</span> : '+result.robot+'</li>';
@@ -447,9 +444,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 					$('#rules_on').html('');
 				}
 			},
-			error: function(){
-				$('#shout_rules').hide();
-				$('#rules_on').html('');
+			error: function(result,statut,erreur){
+				$('#rules_on').html(result.responseText);
 			}
 		});
 	};
@@ -491,11 +487,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 
 	shoutbox.closePersoBbcode = function(){
 		$('#shout_bbcode').hide();
-		$('#user_inp_bbcode').val('');
-		$('#h3userbbcode').html('');
-		$('#shout_text1').val('');
-		$('#shout_text2').val('');
-		$('#shoutexemple').html('');
+		$('#user_inp_bbcode, #shout_text1, #shout_text2').val('');
+		$('#h3userbbcode, #shoutexemple').html('');
 		$('#button_shout_text').attr('title',bzhLang['PERSO']);
 	};
 
@@ -517,19 +510,18 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 					shoutbox.message(response.message,true,2000,true);
 				}
 			},
-			error: function(){
-				shoutbox.message(bzhLang['SERVER_ERR'],true,1,false);
+			error: function(result,statut,erreur){
+				shoutbox.message(result.responseText,true,1,false);
 			}
 		});
 	};
 
 	shoutbox.purgeShout = function(purgeSort,robot){
 		shoutbox.message(bzhLang['PURGE_PROCESS'],false,1,false);
-		var ajaxUrl = robot ? config.purgeBotUrl : config.purgeUrl;
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: ajaxUrl,
+			url: robot ? config.purgeBotUrl : config.purgeUrl,
 			data: dataRun+'&purge_sort='+purgeSort,
 			cache: false,
 			headers : headersContent,
@@ -537,7 +529,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				if(response.error){
 					shoutbox.message(response,true,5000,true);
 				}else if(response.type === 1){
-					shoutbox.setQuery();
+					shoutbox.resetQuery();
 					shoutbox.playSound(3,false);
 					var message = (response.nr > 1) ? bzhLang['MESSAGES'] : bzhLang['MESSAGE'];
 					shoutbox.message(bzhLang['PURGE_PROCESS']+' - '+bzhLang['ACTION_CITE_ON']+' '+response.nr+' '+message,false,1,false);
@@ -547,8 +539,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 					shoutbox.message(response.message,true,2000,true);
 				}
 			},
-			error: function(){
-				shoutbox.message(bzhLang['SERVER_ERR'],true,1,false);
+			error: function(result,statut,erreur){
+				shoutbox.message(result.responseText,true,1,false);
 			}
 		});
 	};
@@ -586,9 +578,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		shoutbox.iH('shout_url','',false);
 		shoutbox.iH('shout_avatar','',false)
 		shoutbox.sE('user_action',2);
-		$('#user_cite').val('');
-		$('#user_inp').val('');
-		$('#user_inp_sort').val('');
+		$('#user_cite, #user_inp, #user_inp_sort').val('');
 	};
 
 	shoutbox.closeColour = function(){
@@ -615,18 +605,6 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		}
 	};
 
-	shoutbox.onTime = function(){
-		$queryNb++;
-		$('#nBQuery').val($queryNb);
-		var time = $queryNb * (config.requestOn / 1000),hours = Math.floor(time / 3600),minutes = Math.floor((time / 60) - (hours * 60)),seconds = time - (minutes * 60) - (hours * 3600),total;
-		hours = hours ? ((hours < 10) ? '0'+hours+':' : hours+':') : '';
-		minutes = (minutes < 10) ? '0'+minutes : minutes;
-		seconds = (seconds < 10) ? '0'+seconds : seconds;
-		total = hours+minutes+':'+seconds;
-		$('#nBTemps').val(total);
-		$('#tempSpan').html(total);
-	};
-
 	shoutbox.shoutReq = function(value1,value2,value3){
 		if(($('#shout_text1').val() == '') && ($('#shout_text2').val() == '')){
 			value1 = value2 = 1;
@@ -648,8 +626,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				var colorCheck = 'green';
 				switch(response.type){
 					case 1:
-						$('#shout_text1').val('');
-						$('#shout_text2').val('');
+						$('#shout_text1, #shout_text2').val('');
 						$('#shoutexemple').html(response.text);
 					break;
 					case 2:
@@ -670,9 +647,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				}
 				$('#shoutCheckSpan').html(response.message).css('color',colorCheck);
 			},
-			error: function(){
-				$('#shoutcheck').html('');
-				shoutbox.message(bzhLang['SERVER_ERR'],true,1,false);
+			error: function(response,statut,erreur){
+				$('#shoutcheck').html(response.responseText);
 			}
 		});
 	};
@@ -687,14 +663,12 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			cache: false,
 			headers : headersContent,
 			success: function(response){
-				$('#online_shout').html('<div id="online_shout1"></div><hr /><div id="online_shout2"></div>').css('text-align',config.direction);
+				$('#online_shout').html('<div id="online_shout1"></div><hr/><div id="online_shout2"></div>').css('text-align',config.direction);
 				$('#online_shout1').html(response.title);
 				$('#online_shout2').html(response.list);
 			},
-			error: function(){
-				clearTimeout(timerOnline);
-				shoutbox.shoutOnline();
-				timerOnline = setInterval(shoutbox.shoutOnline, 30000);
+			error: function(response,statut,erreur){
+				$('#online_shout').html(response.responseText);
 			}
 		});
 	};
@@ -704,13 +678,11 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			shoutbox.message(bzhLang['SERVER_ERR'],true,1,false);
 			return;
 		}
-		$('#user_shout').show();
-		$('#user_action').show();
+		$('#user_shout, #user_action').show();
 		$('#shout_url').attr('style','').show();
 		shoutbox.sE('msg_user_shout',2);
 		shoutbox.iH('shout_url',imgChargeOn,false);
-		$('#user_cite').val('');
-		$('#user_inp').val('');
+		$('#user_cite, #user_inp').val('');
 		$('#shout_avatar').html('');
 		$.ajax({
 			type: 'POST',
@@ -737,16 +709,15 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 						$('#h3user').html(response.username);
 						$('#shout_url').html(response.message).css('color','red');
 					}else if(response.type === 3){
-						tpl = {'open':'<strong>&#187;</strong><span class="profile-shout">','close':'</span></a></span>','span':'<span title="">','return':'<br /><br />','a':'<a onmouseover="shoutbox.iH(\'onTextUser\',this.title,false);" onmouseout="shoutbox.iH(\'onTextUser\',\'\',false);" class="tooltip pointer"','ext':' onclick="window.open(this.href);return false;" href="'};
 						$('#user_inp').val(response.id);
 						$('#user_inp_sort').val(response.sort);
 						$('#h3user').html(response.username);
 						$('#shout_avatar').html('<span class="avatar-shout">'+response.avatar+'</span>');
-						var content = '<br />';
+						var content = '<br/>';
 						content += (response.foe) ? '<strong>&#187;</strong><span class="profile-shout" style="color:red;">'+bzhLang['USER_IGNORE']+tpl['close']+tpl['return'] : '';
 						content += (!response.foe && response.inp) ? tpl['open']+tpl['a']+response.url_message+tpl['close']+tpl['return'] : '';
 						content += tpl['open']+tpl['a']+tpl['ext']+response.url_profile+tpl['close']+tpl['open']+tpl['a']+response.url_cite_m+tpl['close']+tpl['open']+tpl['a']+response.url_cite+tpl['close'];
-						content += (response.retour) ? tpl['return'] : '';
+						content += (response.return) ? tpl['return'] : '';
 						content += (response.url_admin) ? tpl['open']+tpl['a']+tpl['ext']+response.url_admin+tpl['close'] : '';
 						content += (response.url_modo) ? tpl['open']+tpl['a']+tpl['ext']+response.url_modo+tpl['close'] : '';
 						content += (response.url_ban) ? tpl['open']+tpl['a']+tpl['ext']+response.url_ban+tpl['close'] : '';
@@ -754,7 +725,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 						content += (response.url_perso) ? tpl['return']+tpl['open']+tpl['a']+response.url_perso+tpl['close'] : '';
 						content += (response.url_auth) ? tpl['return']+tpl['open']+tpl['a']+response.url_auth+tpl['close'] : '';
 						content += (response.url_prefs) ? tpl['open']+tpl['a']+response.url_prefs+tpl['close'] : '';
-						content += '<br /><hr class="dotted" /><hr class="dotted" />';
+						content += '<br/><hr class="dotted"><hr class="dotted">';
 						content += (response.inp) ? tpl['open']+tpl['a']+response.url_del_to+tpl['close']+tpl['return'] : '';
 						content += (response.inp) ? tpl['open']+tpl['a']+response.url_del+tpl['close'] : '';
 						content += (response.url_robot) ? tpl['return']+tpl['open']+tpl['a']+response.url_robot+tpl['close'] : '';
@@ -765,9 +736,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 					shoutbox.message(response,true,'',true);
 				}
 			},
-			error: function(){
-				shoutbox.sE('user_action',2);
-				shoutbox.message(bzhLang['SERVER_ERR'],true,1,false);
+			error: function(response,statut,erreur){
+				$('#shout_url').html(response.responseText);
 			}
 		});
 	};
@@ -785,22 +755,25 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				$('#shout_avatar').html($data+'<h3 class="auth">'+response.username+'</h3>');
 				var list = '<ul class="ul-auth">';
 				for(var i = 0; i < response.nb; i++){
-					list += (response.title[i] !== '') ? '<br /><li class="auth-bold">'+response.title[i]+'</li>' : '';
+					list += (response.title[i] !== '') ? '<br/><li class="auth-bold">'+response.title[i]+'</li>' : '';
 					list += '<li class="li-auth">'+response.data[i]+'</li>';
 				}
 				list += '</ul>';
 				$('#shout_url').html(list);
+			},
+			error: function(response,statut,erreur){
+				$('#shout_url').html(response.responseText);
 			}
 		});
 	};
 
 	shoutbox.sendUserAction = function(){
-		if($('#chat_message').val() == '' || $('#chat_message').val() == bzhLang['AUTO']){
+		var textOn = $('#chat_message').val();
+		if(textOn == '' || textOn == bzhLang['AUTO']){
 			alert(bzhLang['MESSAGE_EMPTY']);
 			return;
 		}else{
 			$('#msg_txt').html(bzhLang['SENDING']);
-			var ondata = dataRun+'&other='+$('#user_inp').val()+'&message='+shoutbox.encodeUtf8($('#chat_message').val());
 			shoutbox.permutUser(false);
 			shoutbox.sE('msg_user_shout',2);
 			shoutbox.sE('user_action',2);
@@ -810,7 +783,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				type: 'POST',
 				dataType: 'json',
 				url: config.actPostUrl,
-				data: ondata,
+				data: dataRun+'&other='+$('#user_inp').val()+'&message='+shoutbox.encodeUtf8(textOn),
 				cache: false,
 				headers : headersContent,
 				success: function(response){
@@ -829,7 +802,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 							onCount = 0;
 							shoutbox.playSound(4,false);
 							shoutbox.message(bzhLang['POSTED'],false,800,true);
-							shoutbox.setQuery();
+							shoutbox.resetQuery();
 							shoutbox.closeAction();
 						}else if(response.type == 2){
 							shoutbox.message(response.message,true,3000,true);
@@ -839,8 +812,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 						}
 					}
 				},
-				error: function(){
-					shoutbox.message(bzhLang['SERVER_ERR'],true,1,false);
+				error: function(response,statut,erreur){
+					$('#shout_url').html(response.responseText);
 				}
 			});
 		}
@@ -861,15 +834,14 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 					return;
 				}
 				if(response.type === 1){
-					shoutbox.setQuery();
+					shoutbox.resetQuery();
 					shoutbox.iH('shout_url',response.message,false);
 				}else{
 					shoutbox.sE('formuser',2);
 				}
 			},
-			error: function(){
-				shoutbox.iH('shout_url','',1);
-				shoutbox.message(bzhLang['SERVER_ERR'],true,1,false);
+			error: function(response,statut,erreur){
+				$('#shout_url').html(response.responseText);
 			}
 		});
 	};
@@ -892,9 +864,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				shoutbox.closeAction();
 				shoutbox.message(response.message,false,1,true);
 			},
-			error: function(){
-				shoutbox.closeAction();
-				shoutbox.message(bzhLang['SERVER_ERR'],true,1,false);
+			error: function(response,statut,erreur){
+				$('#shout_url').html(response.responseText);
 			}
 		});
 	};
@@ -917,9 +888,8 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				shoutbox.closeAction();
 				shoutbox.message(response.message,false,1,true);
 			},
-			error: function(){
-				shoutbox.closeAction();
-				shoutbox.message(bzhLang['SERVER_ERR'],true,1,false);
+			error: function(response,statut,erreur){
+				$('#shout_url').html(response.responseText);
 			}
 		});
 	};
@@ -941,14 +911,14 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				if(response.type === 0){
 					shoutbox.message(response.message,true,1,false);
 				}else if(response.type === 1){
-					shoutbox.setQuery();
+					shoutbox.resetQuery();
 					shoutbox.closeAction();
 					$('#user_cite').val(response.id);
 					$('#chat_message').focus();
 				}
 			},
-			error: function(){
-				shoutbox.message(bzhLang['SERVER_ERR'],true,1,false);
+			error: function(response,statut,erreur){
+				$('#shout_url').html(response.responseText);
 			}
 		});
 	};
@@ -1015,21 +985,22 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 					$('#onSound').val(response.type);
 					$('#iconSound').removeClass(response.classOut).addClass(response.classIn).attr('title', response.title);
 				},
-				error: function(){
-					shoutbox.message(bzhLang['SERVER_ERR'],true,1,false);
+				error: function(response,statut,erreur){
+					shoutbox.message(response.responseText);
 				}
 			});
 		}
 	};
 
-	shoutbox.runSmileys = function(smilSort,categorie){
+	shoutbox.runSmileys = function(smilSort,start,categorie){
 		$('#smilies').html('<div style="text-align:center;margin:25px auto;">'+imgLoadOn+bzhLang['LOADING']+'</div>').show();
-		var smilUrlOn = smilSort ? config.smilUrl : config.smilPopUrl;
+		if((onIdCats !== categorie) || (onSmilSort !== smilSort)){onCountCats = 0;onSmilSort = 0;start = 0;}
+		onCountCats = start;
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: smilUrlOn,
-			data: dataRun+'&cat='+categorie,
+			url: smilSort ? config.smilUrl : config.smilPopUrl,
+			data: dataRun+'&start='+onCountCats+'&cat='+categorie,
 			success: function(data){
 				if(data.error){
 					shoutbox.message(data,true,5000,true);
@@ -1038,48 +1009,103 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 					$('#iconSmilies').attr('title', bzhLang['SMILIES']);
 					return;
 				}
-				var listeSmilies = '';
+				onIdCats = categorie;
+				onSmilSort = smilSort;
+				var listeSmilies = '',isCats = typeof data.categories !== 'undefined';
 				if(typeof data.title !== 'undefined' && data.title){
-					listeSmilies += '<h3 style="margin-top:2px;">'+data.title+'</h3>';
+					listeSmilies += '<div id="title-smilies"><span>'+data.title+'</span></div><hr>';
 				}
 				if(typeof data.emptyRow !== 'undefined' && data.emptyRow !== ''){
 					listeSmilies += '<span class="pagin_red">'+data.emptyRow+'</span>';
 				}
+				listeSmilies += '<div id="smilies-row">';
 				for(var i = 0; i < data.total; i++){
 					var smilie = data.smilies[i];
 					listeSmilies += '<a class="pointer" onclick="shoutbox.shoutInsertText(\''+smilie.code+'\',true);return false;" title="'+smilie.emotion+'">';
-					listeSmilies += '<img class="smilies" src="'+data.url+smilie.image+'" alt="'+smilie.code+'" title="'+smilie.emotion+'" width="'+smilie.width+'" height="'+smilie.height+'" /></a> ';
+					listeSmilies += '<img class="smilies" src="'+data.url+smilie.image+'" alt="'+smilie.code+'" title="'+smilie.emotion+'" width="'+smilie.width+'" height="'+smilie.height+'"></a> ';
 				}
-				listeSmilies += '<div class="more-smiley"> ... ';
-				if(data.nb_pop > 0 && smilSort){
-					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.runSmileys(false,-1);" style="margin:5px;" title="'+bzhLang['MORE_SMILIES_ALT']+'"><span title="">'+bzhLang['MORE_SMILIES']+'</span></a> ... ';
-				}else if(!smilSort){
-					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.runSmileys(true,-1);" style="margin:5px;" title="'+bzhLang['LESS_SMILIES_ALT']+'"><span title="">'+bzhLang['LESS_SMILIES']+'</span></a> ... ';
+				listeSmilies += '</div><div id="smilies-pagin-div" class="action-bar bar-top litle-pagin"><div id="smilies-pagin" class="pagination"></div></div>';
+				listeSmilies += '<div id="more-smiley" class="more-smiley"> ... ';
+				if(data.nb_pop > 0 && onSmilSort){
+					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.runSmileys(false,0,-1);" style="margin:5px;" title="'+bzhLang['MORE_SMILIES_ALT']+'"><span title="">'+bzhLang['MORE_SMILIES']+'</span></a> ... ';
+				}else if(!onSmilSort){
+					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.runSmileys(true,0,-1);" style="margin:5px;" title="'+bzhLang['LESS_SMILIES_ALT']+'"><span title="">'+bzhLang['LESS_SMILIES']+'</span></a> ... ';
 				}
 				if(config.creator){
 					listeSmilies += '<a class="pointer tooltip" onclick="shoutbox.shoutPopup(config.creatorUrl,\'550\',\'570\',\'_phpbbsmiliescreate\');shoutbox.suppText();" style="margin: 5px;" title="'+bzhLang['CREATOR']+'"><span title="">'+bzhLang['CREATOR']+'</span></a> ... ';
 				}
-				if(config.category && typeof data.categories !== 'undefined'){
+				if(config.category && isCats){
 					listeSmilies += (data.title_cat !== 'undefined') ? '<h3 style="margin-top:8px;">'+data.title_cat+'</h3>' : '';
 					for(var i = 0; i < data.categories.length; i++){
 						var category = data.categories[i],activeCat = (data.cat == category.cat_id) ? ' pagin_red' : '';
 						listeSmilies += (i !== 0) ? ' - ' : '';
-						listeSmilies += '<a class="pointer tooltip'+activeCat+'" onclick="shoutbox.runSmileys(false,'+category.cat_id+');" style="margin:5px;" title="'+category.cat_name+'"><span title="">'+category.cat_name+'</span></a>('+category.cat_nb+')';
+						listeSmilies += '<a class="pointer tooltip'+activeCat+'" onclick="shoutbox.runSmileys(false,0,'+category.cat_id+');" style="margin:5px;" title="'+category.cat_name+'"><span title="">'+category.cat_name+'</span></a>('+category.cat_nb+')';
 					}
 				}
 				listeSmilies += '</div>';
 				$('#smilies').html(listeSmilies);
+				shoutbox.paginationCats(data.pagination,isCats,onSmilSort);
 			},
-			error: function(){
-				shoutbox.sE('smilies_ul',2);
-				$('#smilies').html('').hide();
-				$('#iconSmilies').attr('title', bzhLang['SMILIES']);
+			error: function(result,statut,erreur){
+				$('#smilies').html(result.responseText);
 			}
 		});
 	};
 
+	shoutbox.changePageCats = function(smilSort,countCats){
+		onCountCats = countCats;
+		shoutbox.runSmileys(smilSort,onCountCats,onIdCats);
+	};
+
+	shoutbox.paginationCats = function(pagination,isCats,smilSort){
+		$('#smilies-pagin').html('');
+		var totalPagesCats = Math.ceil(pagination / config.smiliesPerPage),onPageCats = Math.floor(onCountCats / config.smiliesPerPage) + 1,onPlus = (smilSort === true) ? true : false;
+		if((totalPagesCats > 1) && (pagination > config.smiliesPerPage)){
+			$('#smilies-pagin-div, #smilies-pagin').show();
+			var items = [(onPageCats !== 1) ? shoutbox.cECats('a','previous'+onIdCats,'pointer',bzhLang['PREVIOUS'],bzhLang['PREVIOUS']+' ',function(){shoutbox.changePageCats(onPlus,(onPageCats - 2) * config.smiliesPerPage);},'button') : '',shoutbox.cECats('a','nb-1',(onPageCats === 1) ? 'pagin_red' : 'pointer',bzhLang['PAGE']+'1','1',(onPageCats !== 1) ? function(){shoutbox.changePageCats(onPlus,0);} : false,'button')];
+			var startCnt = Math.min(Math.max(1, onPageCats - 4),totalPagesCats - 5),endCnt = (totalPagesCats > 5) ? Math.max(Math.min(totalPagesCats,onPageCats + 4),6) : totalPagesCats,startFor = (totalPagesCats > 5) ? startCnt + 1 : 2,endFor = (totalPagesCats > 5) ? endCnt - 1 : totalPagesCats;
+			items.push((startCnt > 1 && totalPagesCats > 5) ? ' ... ' : shoutbox.cp());
+			for(var i = startFor; i < endCnt; i++){
+				items.push(shoutbox.cECats('a','nb-'+(i - 1) * config.smiliesPerPage,(i === onPageCats) ? 'pagin_red' : 'pointer',bzhLang['PAGE']+i,i,(i !== onPageCats) ? function(){shoutbox.changePageCats(onPlus,this.id.replace('nb-',''));} : false,'button'));
+				items.push((i < endFor) ? shoutbox.cp() : '');
+			}
+			items.push((totalPagesCats > 5) ? ((endCnt < totalPagesCats) ? ' ... ' : shoutbox.cp()) : '');
+			items.push(shoutbox.cECats('a','nb-fin',(onPageCats === totalPagesCats) ? 'pagin_red' : 'pointer',bzhLang['PAGE']+totalPagesCats,totalPagesCats,(onPageCats !== totalPagesCats) ? function(){shoutbox.changePageCats(onPlus,(totalPagesCats - 1) * config.smiliesPerPage);} : false,'button'),(onPageCats !== totalPagesCats) ? shoutbox.cECats('a','next'+onIdCats,'pointer',bzhLang['NEXT'],' '+bzhLang['NEXT'],function(){shoutbox.changePageCats(onPlus,onPageCats * config.smiliesPerPage);},'button') : shoutbox.cECats('span',false,false,false,false,false));
+			if(isCats){
+				$("#title-smilies").append(' '+bzhLang['SMILIES_PAGE_TITLE'].replace('%1$s',onPageCats).replace('%2$s',endCnt));
+			}
+			$('#smilies-pagin').append(items);
+			$('a[name="button"]').attr('role', 'button');
+		}else{
+			$('#div-pagin, #smileys-pagin').hide();
+		}
+	};
+
+	shoutbox.cECats = function(sort,id,className,title,innerHTML,onClick,name){
+		var onElement = document.createElement(sort);
+		if(id){
+			onElement.id = id;
+		}
+		if(className){
+			onElement.className = className;
+		}
+		if(title || title === ''){
+			onElement.title = title;
+		}
+		if(innerHTML){
+			onElement.innerHTML = innerHTML;
+		}	
+		if(onClick){
+			onElement.onclick = onClick;
+		}
+		if(name){
+			onElement.name = name;
+		}
+		return onElement;
+	};
+
 	shoutbox.changePage = function(thisCount){
-		shoutbox.setQuery();
+		shoutbox.resetQuery();
 		onCount = thisCount;
 		$('#shout_messages').fadeOut(600,'linear').fadeIn(600,'linear');
 		$('#msg_txt').hide();
@@ -1106,7 +1132,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			$('#iconSmilies').attr('title', bzhLang['SMILIES_CLOSE']);
 			$('#smilies_ul').show();
 			shoutbox.suppText();
-			shoutbox.runSmileys(true,-1);
+			shoutbox.runSmileys(true,0,-1);
 		}
 	};
 
@@ -1210,7 +1236,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		$('#spa'+thisId).css('border', '0px none').html(bzhLang['EDIT']+': ');
 		$('#input'+thisId).focus();
 	};
-	
+
 	shoutbox.cancelMessage = function(thisId){
 		$('#openEdit').val(0);
 		$('#post_message').show();
@@ -1232,12 +1258,11 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		shoutbox.sE('form'+thisId,2);
 		shoutbox.iH('text'+thisId,bzhLang['SENDING_EDIT'],1);
 		shoutbox.closeAll();
-		var ondata = dataRun+'&shout_id='+shoutId+'&message='+shoutbox.encodeUtf8($('#input'+thisId).val());
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
 			url: config.editUrl,
-			data: ondata,
+			data: dataRun+'&shout_id='+shoutId+'&message='+shoutbox.encodeUtf8($('#input'+thisId).val()),
 			cache: false,
 			headers : headersContent,
 			success: function(response){
@@ -1252,13 +1277,16 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 					shoutbox.message(response.message,false,800,true);
 				}
 				$('#openEdit').val(0);
-				shoutbox.setQuery();
+				shoutbox.resetQuery();
 				shoutbox.sE('msgbody'+response.shout_id,2);
 				shoutbox.sE('shout'+response.shout_id,2);
 				shoutbox.sE('editButton'+response.shout_id,3);
 				shoutbox.sE('infoButton'+response.shout_id,3);
 				shoutbox.sE('deleteButton'+response.shout_id,3);
 				$('#post_message').show();
+			},
+			error: function(response,statut,erreur){
+				shoutbox.message(response.responseText,true,15000,true);
 			}
 		});
 	};
@@ -1270,11 +1298,11 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		}
 		if(!config.limitPost && config.maxPost > 0){
 			if($('#chat_message').val().length > config.maxPost){
-				shoutbox.message(bzhLang['TOO_BIG']+$('#chat_message').val().length+'<br />'+bzhLang['TOO_BIG2']+config.maxPost,true,5000,true);
+				shoutbox.message(bzhLang['TOO_BIG']+$('#chat_message').val().length+'<br/>'+bzhLang['TOO_BIG2']+config.maxPost,true,5000,true);
 				return;
 			}
 		}
-		var ondata = dataRun+'&message='+shoutbox.encodeUtf8($('#chat_message').val());
+		var $message = shoutbox.encodeUtf8($('#chat_message').val()),ondata = dataRun+'&message='+$message;
 		ondata += ($('#user_cite').val() !== '') ? '&cite='+$('#user_cite').val() : '&cite=0';
 		if(config.isGuest){
 			if($('#shoutname').val() == ''){
@@ -1284,7 +1312,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			}
 			ondata += '&name='+shoutbox.encodeUtf8($('#shoutname').val());
 		}
-		shoutbox.setQuery();
+		shoutbox.resetQuery();
 		shoutbox.closeAll();
 		shoutbox.iH('msg_txt','',false);
 		$('#msg_txt').html(bzhLang['SENDING']);
@@ -1322,48 +1350,62 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				}
 				onCount = 0;
 				$('#chat_message').focus();
+			},
+			error: function(response,statut,erreur){
+				shoutbox.message(response.responseText,true,15000,true);
 			}
 		});
 	};
 
 	shoutbox.setTimezone = function($timeOnMsg){
 		var lastH = new Date($timeOnMsg * 1000),hour = lastH.getUTCHours(),minutes = lastH.getMinutes(),set12H = '';
-		var operator = config.userTimezone.substring(0,1),zoneH = Number(config.userTimezone.substring(1,3)),zoneMin = Number(config.userTimezone.substring(4,6));
-		var onHour = (operator == '+') ? hour + zoneH : hour - zoneH;
+		var operator = config.userTimezone.substring(0,1),zoneH = Number(config.userTimezone.substring(1,3)),zoneMin = Number(config.userTimezone.substring(4,6)),onHour = (operator == '+') ? hour + zoneH : hour - zoneH,multiple;
 		minutes = minutes + zoneMin;
 		if(minutes > 59){
-			minutes = minutes - 60;
-			onHour = onHour + 1;
+			multiple = Math.floor(minutes / 60);
+			minutes = minutes - (multiple * 60);
+			onHour = onHour + multiple;
 		}
 		if(config.dateFormat.indexOf('a') != -1){
 			set12H = (onHour > 11) ? ' pm' : ' am';
 			onHour = (onHour > 12) ? onHour - 12 : onHour;
-		}else{
-			onHour = (onHour < 10) ? '0'+onHour : onHour;
 		}
+		onHour = (onHour < 10) ? '0'+onHour : onHour;
 		minutes = (minutes < 10) ? '0'+minutes : minutes;
-		
+
 		return onHour+':'+minutes+set12H;
 	};
 
 	shoutbox.refreshTime = function(){
-		var isTime = Math.floor(new Date().getTime() / 1000),returnRefresh;
+		var isTime = Math.floor(new Date().getTime() / 1000),virgule = (config.dateFormat.indexOf(',') != -1) ? ', ' : ' ';
 		$("#shout_messages span[name='time-shout']").each(function(){
 			var $timeOnMsg = $(this).attr('time');
 			if($timeOnMsg > (isTime - 23700)){
 				var onMinute = Math.floor((isTime - $timeOnMsg) / 60);
 				if(onMinute < 1){
-					returnRefresh = bzhLang['DATETIME_0'];
+					$(this).html(bzhLang['DATETIME_0']);
 				}else if(onMinute == 1){
-					returnRefresh = bzhLang['DATETIME_1'].replace('%d',onMinute);
+					$(this).html(bzhLang['DATETIME_1'].replace('%d',onMinute));
 				}else if(onMinute > 1 && onMinute < 60){
-					returnRefresh = bzhLang['DATETIME_2'].replace('%d',onMinute);
+					$(this).html(bzhLang['DATETIME_2'].replace('%d',onMinute));
 				}else if(onMinute >= 60){
-					returnRefresh = bzhLang['DATETIME_3']+((config.dateFormat.indexOf(',') != -1) ? ', ' : ' ')+shoutbox.setTimezone($timeOnMsg);
+					$(this).html(bzhLang['DATETIME_3']+virgule+shoutbox.setTimezone($timeOnMsg)).attr('name', 'no-time-out');
 				}
-				$(this).html(returnRefresh);
 			}
 		});
+	};
+
+	shoutbox.onTime = function(){
+		shoutbox.addQuery();
+		var time = $queryNb * (config.requestOn / 1000),hours = Math.floor(time / 3600),minutes = Math.floor((time / 60) - (hours * 60)),seconds = time - (minutes * 60) - (hours * 3600);
+		hours = hours ? ((hours < 10) ? '0'+hours : hours)+':' : '';
+		minutes = ((minutes < 10) ? '0'+minutes : minutes)+':';
+		seconds = (seconds < 10) ? '0'+seconds : seconds;
+		$('#nBTemps').val(hours+minutes+seconds);
+		$('#tempSpan').html(hours+minutes+seconds);
+		if(config.refresh && $("#shout_messages span[name='time-shout']").length){
+			shoutbox.refreshTime();
+		}
 	};
 
 	shoutbox.checkMessage = function(){
@@ -1385,14 +1427,11 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				return;
 			}
 		}
-		if(config.refresh){
-			shoutbox.refreshTime();
-		}
-		var $onShoutLast = $('#shoutLast').val(),random = '?t='+Math.floor(Math.random() * 1000000);
+		var $onShoutLast = $('#shoutLast').val();
 		$.ajax({
 			type: 'POST',
 			dataType: 'json',
-			url: config.checkUrl+random,
+			url: config.checkUrl+'?r='+Math.floor(Math.random() * 1000000),
 			data: dataRun+'&on_bot='+$('#onBot').val(),
 			cache: false,
 			headers : headersContent,
@@ -1417,6 +1456,12 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			error: function(result,statut,erreur){
 				// Just add nb errors and continue with silence
 				shoutbox.setError($('#nBErrors').val());
+				// But, if error persist, persit...
+				if($('#nBErrors').val() > 15){
+					$('#shout_messages').html(result.responseText);
+					clearInterval(timerIn);
+					return;
+				}
 			}
 		});
 	};
@@ -1424,16 +1469,17 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 	shoutbox.loadPagination = function(total){
 		var totalPages = Math.ceil(total / config.perPage),onPage = Math.floor(onCount / config.perPage) + 1;
 		if((totalPages > 1) && (total > config.perPage)){
-			var items = [(onPage !== 1) ? shoutbox.cE('span',false,'pointer',false,bzhLang['PREVIOUS'],false,bzhLang['PREVIOUS']+' ',false,false,function(){shoutbox.changePage((onPage - 2) * config.perPage);}) : '',shoutbox.cE('span',false,(onPage === 1) ? 'pagin_red' : 'pointer',false,bzhLang['PAGE']+'1',false,'1',false,false,(onPage !== 1) ? function(){shoutbox.changePage(0);} : false)];
+			var items = [(onPage !== 1) ? shoutbox.cE('a',false,'pointer',false,bzhLang['PREVIOUS'],false,bzhLang['PREVIOUS']+' ',false,'button',function(){shoutbox.changePage((onPage - 2) * config.perPage);}) : '',shoutbox.cE('a','nb-1',(onPage === 1) ? 'pagin_red' : 'pointer',false,bzhLang['PAGE']+'1',false,'1',false,'button',(onPage !== 1) ? function(){shoutbox.changePage(0);} : false)];
 			var startCnt = Math.min(Math.max(1, onPage - 4),totalPages - 5),endCnt = (totalPages > 5) ? Math.max(Math.min(totalPages,onPage + 4),6) : totalPages,startFor = (totalPages > 5) ? startCnt + 1 : 2,endFor = (totalPages > 5) ? endCnt - 1 : totalPages;
 			items.push((startCnt > 1 && totalPages > 5) ? ' ... ' : shoutbox.cp());
 			for(var i = startFor; i < endCnt; i++){
-				items.push(shoutbox.cE('span','nb-'+(i - 1) * config.perPage,(i === onPage) ? 'pagin_red' : 'pointer',false,bzhLang['PAGE']+i,false,i,false,false,(i !== onPage) ? function(){shoutbox.changePage(this.id.replace('nb-',''));} : false));
+				items.push(shoutbox.cE('a','nb-'+(i - 1) * config.perPage,(i === onPage) ? 'pagin_red' : 'pointer',false,bzhLang['PAGE']+i,false,i,false,'button',(i !== onPage) ? function(){shoutbox.changePage(this.id.replace('nb-',''));} : false));
 				items.push((i < endFor) ? shoutbox.cp() : '');
 			}
 			items.push((totalPages > 5) ? ((endCnt < totalPages) ? ' ... ' : shoutbox.cp()) : '');
-			items.push(shoutbox.cE('span',false,(onPage === totalPages) ? 'pagin_red' : 'pointer',false,bzhLang['PAGE']+totalPages,false,totalPages,false,false,(onPage !== totalPages) ? function(){shoutbox.changePage((totalPages - 1) * config.perPage);} : false),(onPage !== totalPages) ? shoutbox.cE('span',false,'pointer',false,bzhLang['NEXT'],false,' '+bzhLang['NEXT'],false,false,function(){shoutbox.changePage(onPage * config.perPage);}) : shoutbox.cE('span',false,false,false,false,false,false,false,false,false));
+			items.push(shoutbox.cE('a',false,(onPage === totalPages) ? 'pagin_red' : 'pointer',false,bzhLang['PAGE']+totalPages,false,totalPages,false,'button',(onPage !== totalPages) ? function(){shoutbox.changePage((totalPages - 1) * config.perPage);} : false),(onPage !== totalPages) ? shoutbox.cE('a',false,'pointer',false,bzhLang['NEXT'],false,' '+bzhLang['NEXT'],false,'button',function(){shoutbox.changePage(onPage * config.perPage);}) : shoutbox.cE('span',false,false,false,false,false,false,false,false,false));
 			$('#shout-pagin').html('').append(items);
+			$('a[name="button"]').attr('role', 'button');
 		}
 	};
 
@@ -1477,26 +1523,26 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				}
 
 				var nowTime = Math.floor(new Date().getTime() / 1000),rowMessages = [],row = 1,okDelete = okEdit = okInfo = false;
-				// Loop for messages from top to bottom or bottom to top
+				// Loop for messages from top to bottom or bottom to top (normal or reverse now)
 				var listMessages = (config.toBottom) ? datas.messages : datas.messages.reverse();
 
 				// Loop for messages
 				for(var i = 0; i < datas.total; i++){
-					var post = listMessages[i],okDelete = post.deletemsg,okEdit = post.edit,okInfo = post.showIp,okCite = (post.other && config.postOk && config.isUser && config.buttonCite) ? true : false,listButtons = [];
+					var message = listMessages[i],okDelete = message.deletemsg,okEdit = message.edit,okInfo = message.showIp,okCite = (message.other && config.postOk && config.isUser && config.buttonCite) ? true : false,listButtons = [];
 					var li = shoutbox.cE('li','lishout'+i,'row row'+row+' bg'+row,false,false,false,false,false,false,false),dl = shoutbox.cE('dl','dlshout'+i,false,false,false,false,false,false,false,false),dd = shoutbox.cE('dd','msgbody'+i,'msgbody'+config.direction,false,false,false,false,false,false,false);
-					var spanNow = (post.timeMsg > (nowTime - 3700)) ? '<span name="time-shout" time="'+post.timeMsg+'">'+post.shoutTime+'</span>' : '<span name="no-time-shout">'+post.shoutTime+'</span>',onAvatar = (post.avatar && post.avatar.length > 1) ? bzhLang['SEP']+'<span class="avatar-shout">'+post.avatar+'</span>' : '';
-					dd.appendChild(shoutbox.cE('span','shout'+i,'msg_shout',false,false,false,post.shoutText,false,false,false));
+					var spanNow = (message.timeMsg > (nowTime - 3700)) ? '<span name="time-shout" time="'+message.timeMsg+'">'+message.shoutTime+'</span>' : '<span name="no-time-shout">'+message.shoutTime+'</span>',onAvatar = (message.avatar && message.avatar.length > 1) ? bzhLang['SEP']+'<span class="avatar-shout">'+message.avatar+'</span>' : '';
+					dd.appendChild(shoutbox.cE('span','shout'+i,'msg_shout',false,false,false,message.shoutText,false,false,false));
 					row = (row === 1) ? 2 : 1;
 					if(okDelete){
-						listButtons.push(shoutbox.cE('input','deleteButton'+i,'button_shout_del button_shout_l',false,bzhLang['DEL'],'button',false,false,'deleteButton'+post.shoutId,function(){if(confirm(bzhLang['DEL_SHOUT']+' message '+this.name.replace('deleteButton',''))){shoutbox.deleteMessage(this.name.replace('deleteButton',''));}}));
+						listButtons.push(shoutbox.cE('input','deleteButton'+i,'button_shout_del button_shout_l',false,bzhLang['DEL'],'button',false,false,'deleteButton'+message.shoutId,function(){if(confirm(bzhLang['DEL_SHOUT']+' message '+this.name.replace('deleteButton',''))){shoutbox.deleteMessage(this.name.replace('deleteButton',''));}}));
 					}else if(config.buttonsLeft){
 						listButtons.push(shoutbox.cE('input','deleteButton'+i,'button_shout_del_no button_shout_l',false,bzhLang['NO_DEL'],'button',false,false,false,function(){alert(bzhLang['NO_DEL'])}));
 					}
 					if(okEdit){
-						var editButton = shoutbox.cE('input','editButton'+i,'button_shout_edit button_shout_l',false,bzhLang['EDIT'],'button',false,false,'editButton'+post.shoutId,function(){shoutbox.openEdit(this.i)}),editForm = shoutbox.cE('form','form'+i,false,'display:none;',false,false,false,false,false,false),editMsg = shoutbox.cE('span','text'+i,'span-text-edit',false,false,false,false,false,false,false),inputEdit = shoutbox.cE('input','input'+i,'input-text-edit',false,false,false,false,false,false,false),spa = shoutbox.cE('span','spa'+i,false,false,false,false,false,false,false,false),buttonEdit = shoutbox.cE('input','submitEdit'+i,'button btnmain','',bzhLang['EDIT'],'button',false,false,'submitEdit'+post.shoutId,function(){shoutbox.editMessage(this.id.replace('submitEdit',''),this.name.replace('submitEdit',''))}),buttonCancel = shoutbox.cE('input','cancel'+i,'button btnmain',false,bzhLang['CANCEL'],'button',false,false,false,function(){shoutbox.cancelMessage(this.id.replace('cancel',''))});
+						var editButton = shoutbox.cE('input','editButton'+i,'button_shout_edit button_shout_l',false,bzhLang['EDIT'],'button',false,false,'editButton'+message.shoutId,function(){shoutbox.openEdit(this.i)}),editForm = shoutbox.cE('form','form'+i,false,'display:none;',false,false,false,false,false,false),editMsg = shoutbox.cE('span','text'+i,'span-text-edit',false,false,false,false,false,false,false),inputEdit = shoutbox.cE('input','input'+i,'input-text-edit',false,false,false,false,false,false,false),spa = shoutbox.cE('span','spa'+i,false,false,false,false,false,false,false,false),buttonEdit = shoutbox.cE('input','submitEdit'+i,'button btnmain','',bzhLang['EDIT'],'button',false,false,'submitEdit'+message.shoutId,function(){shoutbox.editMessage(this.id.replace('submitEdit',''),this.name.replace('submitEdit',''))}),buttonCancel = shoutbox.cE('input','cancel'+i,'button btnmain',false,bzhLang['CANCEL'],'button',false,false,false,function(){shoutbox.cancelMessage(this.id.replace('cancel',''))});
 						editForm.spellcheck = true;
 						editForm.onsubmit = function(){return false};
-						inputEdit.value = shoutbox.htmlDecode(post.msgPlain);
+						inputEdit.value = shoutbox.htmlDecode(message.msgPlain);
 						inputEdit.onkeypress = function(event){if(event.keyCode === 13){$('#submitEdit'+this.i).click(); event.returnValue = false; this.returnValue = false; return false;}}
 						buttonEdit.value = bzhLang['EDIT_MSG'];
 						buttonCancel.value = bzhLang['CANCEL'];
@@ -1508,12 +1554,12 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 						listButtons.push(shoutbox.cE('input','editButton'+i,'button_shout_edit_no button_shout_l',false,bzhLang['NO_EDIT'],'button',false,false,false,function(){alert(bzhLang['NO_EDIT'])}));
 					}
 					if(okInfo && config.buttonIp){
-						listButtons.push(shoutbox.cE('input','infoButton'+i,'button_shout_ip button_shout_l',false,bzhLang['IP'],'button',false,false,'infoButton'+post.shoutIp,function(){alert(bzhLang['POST_IP']+'  '+this.name.replace('infoButton',''))}));
+						listButtons.push(shoutbox.cE('input','infoButton'+i,'button_shout_ip button_shout_l',false,bzhLang['IP'],'button',false,false,'infoButton'+message.shoutIp,function(){alert(bzhLang['POST_IP']+'  '+this.name.replace('infoButton',''))}));
 					}
 					if(okCite){
-						listButtons.push(shoutbox.cE('input','citeButton-'+post.name,'button_shout_cite button_shout_l',false,bzhLang['ACTION_CITE_M'],'button',false,false,post.colour ? post.colour : '',function(){shoutbox.citeMultiMsg(this.id.replace('citeButton-',''),this.name,false)}));
+						listButtons.push(shoutbox.cE('input','citeButton-'+message.name,'button_shout_cite button_shout_l',false,bzhLang['ACTION_CITE_M'],'button',false,false,message.colour ? message.colour : '',function(){shoutbox.citeMultiMsg(this.id.replace('citeButton-',''),this.name,false)}));
 					}
-					var dt = (!okInfo && !okEdit && !okDelete && !okCite && !config.buttonsLeft) ? shoutbox.cE('dt',false,false,'padding:0;display:inline;float:'+config.direction,false,false,false,false,false,false) : shoutbox.cE('dt','dtshout'+i,'button_background'+(config.endClassBg ? config.buttonBg : '')+' dtshout'+config.direction,false,false,false,false,false,false),user = shoutbox.cE('dd','ddshout'+i,false,'width:auto',false,false,spanNow+onAvatar+bzhLang['SEP']+post.username+':',false,false,false);
+					var dt = (!okInfo && !okEdit && !okDelete && !okCite && !config.buttonsLeft) ? shoutbox.cE('dt',false,false,'padding:0;display:inline;float:'+config.direction,false,false,false,false,false,false) : shoutbox.cE('dt','dtshout'+i,'button_background'+(config.endClassBg ? config.buttonBg : '')+' dtshout'+config.direction,false,false,false,false,false,false),user = shoutbox.cE('dd','ddshout'+i,false,'width:auto',false,false,spanNow+onAvatar+bzhLang['SEP']+message.username+':',false,false,false);
 					shoutbox.appendChildren(dt,listButtons);
 					shoutbox.appendChildren(dl,[dt,user,dd]);
 					li.appendChild(dl);
@@ -1533,8 +1579,13 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 					shoutbox.loadPagination(datas.number);
 				}
 			},
-			error: function(){
+			error: function(datas,status,error){
 				clearInterval(timerIn);
+				shoutbox.setError($('#nBErrors').val());
+				if($('#nBErrors').val() > 15){
+					$('#shout_messages').html(datas.responseText);
+					return;
+				}
 				shoutbox.loadMessages();
 				return;
 			}
@@ -1644,7 +1695,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			postingItems.push(shoutbox.cE('input','button_shout_text','button_shout_text button_shout','',bzhLang['PERSO'],'button',false,false,false,function(){if($('#shout_bbcode').is(':visible')){shoutbox.closePersoBbcode();}else{shoutbox.changePerso(config.userId);}}));
 		}
 		if(!config.isGuest){
-			postingItems.push(shoutbox.cE('input',false,'button_shout_config button_shout','',bzhLang['CONFIG_OPEN'],'button',false,false,false,function(){shoutbox.shoutPopup(config.configUrl,'850','500','_popup')}));
+			postingItems.push(shoutbox.cE('input',false,'button_shout_config button_shout','',bzhLang['CONFIG_OPEN'],'button',false,false,false,function(){shoutbox.shoutPopup(config.configUrl,'980','500','_popup')}));
 		}
 		if(config.rulesOk){
 			var rulesTitle = bzhLang['RULES'+(config.isPriv ? '_PRIV' : '')];
@@ -1723,7 +1774,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				dataChars += '</div><div class="row-chars">';
 				cols = 0;
 			}
-			dataChars += '<span class="cell-chars" ><a name="char" title="'+chars[i][2]+'">'+chars[i][0]+'</a></span>';
+			dataChars += '<span class="cell-chars" ><a id="char-'+i+'" name="char" title="'+chars[i][2]+'">'+chars[i][0]+'</a></span>';
 			cols++;
 		}
 		dataChars += '</div></div>';

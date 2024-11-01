@@ -12,7 +12,7 @@
 	position: relative;
 }
 #shout_messages > li.row1, #shout_messages > li.row2 {
-	display: inline-block;
+	display: flow;
 	list-style-type: none;
 	height: auto;
 	min-height: 22px;
@@ -46,7 +46,7 @@ span.avatar-shout > img.popup-avatar {
 	padding: 2px;
 	text-align: left;
 	margin-right: 0px;
-	display: block;
+	display: flow;
 }
 #shout_messages > li > dl > dt.dtshoutright {
 	width: auto;
@@ -55,7 +55,7 @@ span.avatar-shout > img.popup-avatar {
 	padding: 3px;
 	text-align: right;
 	margin-left: 0px;
-	display: block;
+	display: flow;
 }
 #shout_messages > li > dl > dd {
 	width: auto;
@@ -98,14 +98,14 @@ span.avatar-shout > img.popup-avatar {
 	white-space: nowrap;
 }
 #onText, #onTextUser, #onText2, #onTextSmilies, #onTextOnline {
-	display: inline-block;
+	display: flow;
 	float: right;
 	margin-right: 8px;
 	font-size: 1.1em;
 }
 #h3_action_title, #h3_text_title {
 	margin: 0 0 4px 0;
-	display: inline-block;
+	display: flow;
 	float: left;
 	border-bottom: none;
 }
@@ -113,6 +113,9 @@ span.avatar-shout > img.popup-avatar {
 	font-size: 1.1em;
 	padding-left: 1.8em;
 	display: inline-block;
+}
+#title-smilies > span {
+	font-weight: bold;
 }
 #shout {
 	width: 100%;
@@ -239,13 +242,13 @@ div.message-text-bottom {
 	border-top: 1px solid darkgray;
 }
 li.header dl.row-item dt.shout-left-dt {
-	display: inline-block;
+	display: flow;
 	float: left;
 	text-align: left;
 	padding: 0 0 0 2px;
 }
 li.header dl.row-item dd.shout-left-dd {
-	display: inline-block;
+	display: flow;
 	float: right;
 	padding: 0 2px 0 0;
 }
@@ -270,6 +273,11 @@ span.pagin_red, a.pagin_red {
 	font-size: 1.1em;
 	cursor: help;
 	font-weight: bold;
+}
+span.cat-title {
+	color: red;
+	font-size: 1.3em;
+	padding: 0 6px 0 6px;
 }
 .temp_span_right {
 	float: right;
@@ -480,17 +488,31 @@ div.shout_bloc_simple {
 	padding-top: 10px;
 	display: block;
 }
+#custom_date {
+	width: 5%;
+}
 ul.topiclist dl.shout_dl_bloc {
 	padding: 12px 0 0 5px;
 }
 ul.topiclist dl.shout_dl_bloc dt {
 	width: 50%;
+	margin-right: -10px;
 }
 ul.topiclist dl.shout_dl_bloc dd {
-	width: 25%;
+	width: 23%;
 	float: right;
-	display: inline-block;
+	display: flow;
 	border-left: none;
+	margin-left: 5px;
+}
+ul.topiclist dl.shout_dl_bloc dd.second {
+	width: 27%;
+}
+ul.topiclist dl.shout_dl_bloc dt.large {
+	margin-right: 5px;
+}
+ul.topiclist dl.shout_dl_bloc dd.large {
+	width: 45%;
 }
 ul.topiclist dd.ddconfig_shout {
 	border-left: none;
@@ -911,10 +933,12 @@ div.row-chars {
 }
 span.cell-chars {
 	display: table-cell;
+	font-size: 1.2em;
 	text-align: center;
 	cursor: pointer;
 	width: 22px;
 	height: 22px;
+	padding: 0;
 }
 span.cell-chars a {
 	font-weight: normal;
@@ -930,8 +954,6 @@ span.cell-colors {
 div.row-separate {
 	height: 1px;
 	background: white;
-	padding: 0;
-	margin: 0;
 }
 span.cell-separate {
 	display: table-cell;
