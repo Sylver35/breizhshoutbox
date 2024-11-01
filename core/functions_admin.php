@@ -1,9 +1,9 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -441,30 +441,6 @@ class functions_admin
 		$this->cache->destroy('_shout_rules');
 	}
 
-	public function get_shout_smilies()
-	{
-		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
-			'FROM'		=> [SMILIES_TABLE => ''],
-			'WHERE'		=> 'display_on_shout = 1',
-			'GROUP_BY'	=> 'smiley_url',
-			'ORDER_BY'	=> 'min_smiley_order ASC',
-		]);
-		$result = $this->db->sql_query($sql);
-		while ($row = $this->db->sql_fetchrow($result))
-		{
-			$this->template->assign_block_vars('smilies', [
-				'SRC'		=> $this->root_path . $this->config['smilies_path'] . '/' . $row['smiley_url'],
-				'ID'		=> $row['smiley_id'],
-				'CODE'		=> addslashes($row['code']),
-				'EMOTION'	=> $row['emotion'],
-				'WIDTH'		=> $row['smiley_width'],
-				'HEIGHT'	=> $row['smiley_height'],
-			]);
-		}
-		$this->db->sql_freeresult($result);
-	}
-
 	public function get_messages($start, $shout_number, $sort)
 	{
 		$i = 0;
@@ -641,6 +617,30 @@ class functions_admin
 			$deleted = $this->purge_shout_admin($action, $sort);
 			trigger_error($this->language->lang("LOG_PURGE_SHOUTBOX{$private}_ROBOT", $deleted) . adm_back_link($u_action));
 		}
+	}
+
+	public function get_shout_smilies()
+	{
+		$sql = $this->db->sql_build_query('SELECT', [
+			'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
+			'FROM'		=> [SMILIES_TABLE => ''],
+			'WHERE'		=> 'display_on_shout = 1',
+			'GROUP_BY'	=> 'smiley_url',
+			'ORDER_BY'	=> 'min_smiley_order ASC',
+		]);
+		$result = $this->db->sql_query($sql);
+		while ($row = $this->db->sql_fetchrow($result))
+		{
+			$this->template->assign_block_vars('smilies', [
+				'SRC'		=> $this->root_path . $this->config['smilies_path'] . '/' . $row['smiley_url'],
+				'ID'		=> $row['smiley_id'],
+				'CODE'		=> addslashes($row['code']),
+				'EMOTION'	=> $row['emotion'],
+				'WIDTH'		=> $row['smiley_width'],
+				'HEIGHT'	=> $row['smiley_height'],
+			]);
+		}
+		$this->db->sql_freeresult($result);
 	}
 
 	public function list_smilies($sort)

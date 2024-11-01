@@ -1,9 +1,9 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 

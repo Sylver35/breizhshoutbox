@@ -1,8 +1,8 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -143,8 +143,7 @@ class main
 	{
 		if ($this->auth->acl_get('u_shout_lateral'))
 		{
-			$display = $this->shoutbox->shout_panel();
-			if ($display)
+			if ($this->shoutbox->shout_panel())
 			{
 				$this->shoutbox->shout_display(1);
 				return $this->helper->render('shout_popup.html', $this->language->lang('SHOUT_LATERAL'));

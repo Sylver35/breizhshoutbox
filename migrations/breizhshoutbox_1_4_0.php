@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * @package Breizh Shoutbox Extension
+ * @package phpBB Extension - Breizh Shoutbox
  * @copyright (c) 2018-2019 Sylver35  https://breizhcode.com
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
  *

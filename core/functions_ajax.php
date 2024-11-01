@@ -1,9 +1,9 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -193,17 +193,16 @@ class functions_ajax
 	 */
 	public function online()
 	{
-		$online = obtain_users_online();
-		$online_strings = obtain_users_online_string($online);
-		$list_online = $online_strings['online_userlist'];
+		$online = obtain_users_online_string(obtain_users_online());
+		$list_online = $online['online_userlist'];
 		$start = $this->language->lang('REGISTERED_USERS') . ' ';
 
 		$data = [
-			'title'	=> $online_strings['l_online_users'] . '<br/>(' . $this->language->lang('VIEW_ONLINE_TIMES', (int) $this->config['load_online_time']) . ')',
+			'title'	=> $online['l_online_users'] . '<br/>(' . $this->language->lang('VIEW_ONLINE_TIMES', (int) $this->config['load_online_time']) . ')',
 			'list'	=> '',
 		];
 
-		if ($list_online === $start . $this->language->lang('NO_ONLINE_USERS'))
+		if ($list_online === ($start . $this->language->lang('NO_ONLINE_USERS')))
 		{
 			$data['list'] = $list_online;
 		}
@@ -212,27 +211,27 @@ class functions_ajax
 			$r = $u = 0;
 			$robots = $users = '';
 			$userlist = explode(', ', str_replace($start, '', $list_online));
-			foreach ($userlist as $on_user)
+			foreach ($userlist as $this_user)
 			{
-				$id = $this->work->find_string($on_user, '&amp;u=', '" ');
+				$id = $this->work->find_string($this_user, '&amp;u=', '" ');
 				if (!$id)
 				{
-					$robots .= (($r > 0) ? ', ' : '') . $on_user;
+					$robots .= (($r > 0) ? ', ' : '') . $this_user;
 					$r++;
 				}
 				else
 				{
-					$avatar = (strpos($on_user, 'class="useravatar"')) ? '<span class="useravatar">' . $this->work->find_string($on_user, 'class="useravatar">', '</span>') . '</span> ' : '';
-					$on_user = str_replace($avatar, '', $on_user);
+					$avatar = (strpos($this_user, 'class="useravatar"')) ? '<span class="useravatar">' . $this->work->find_string($this_user, 'class="useravatar">', '</span>') . '</span> ' : '';
+					$this_user = str_replace($avatar, '', $this_user);
 					$users .= ($u > 0) ? ', ' : '';
-					$users .= ($avatar) ? $avatar : '';
-					$users .= $this->work->construct_action_shout($id, $this->work->find_string($on_user, '">', '</a>'), $this->work->find_string($on_user, 'color: #', ';"'));
+					$users .= ($avatar !== '') ? $avatar : '';
+					$users .= $this->work->construct_action_shout($id, $this->work->find_string($this_user, 'username-coloured">', '</a>'), $this->work->find_string($this_user, 'color: #', ';"'));
 					$u++;
 				}
 			}
-			$data['list'] .= $u . ' ' . $start;
+			$data['list'] .= $u . ' ' . (($u === 1) ? str_replace($this->language->lang('REGISTERED_USERS'), $this->language->lang('REGISTERED_USER'), $start) : $start);
 			$data['list'] .= ($u > 0) ? $users : $this->language->lang('NO_ONLINE_USERS');
-			$data['list'] .= '<hr/>' . $r . ' ' . $this->language->lang('G_BOTS') . ' : ';
+			$data['list'] .= '<hr/>' . $r . ' ' . $this->language->lang('G_BOT' . (($r > 1) ? 'S' : '')) . ' : ';
 			$data['list'] .= ($r > 0) ? $robots : $this->language->lang('NO_ONLINE_BOTS');
 		}
 
@@ -270,98 +269,12 @@ class functions_ajax
 
 	public function user_bbcode($val, $open, $close)
 	{
-		$text = $message = '';
-		$on_user = ($val['other'] > 0) ? $val['other'] : $val['userid'];
-
-		// Parse bbcodes
-		$data = $this->bbcodes->parse_shout_bbcodes($open, $close, $on_user);
-		switch ($data['sort'])
-		{
-			// Remove the bbcodes
-			case 1:
-				$this->work->shout_sql_query('UPDATE ' . USERS_TABLE . " SET shout_bbcode = '' WHERE user_id = $on_user");
-				$message = $this->language->lang('SHOUT_BBCODE_SUP');
-				$text = $this->language->lang('SHOUT_EXEMPLE');
-			break;
-			// Retun error message
-			case 2:
-				$message = $data['message'];
-			break;
-			// Good ! Update the bbcodes
-			case 3:
-				$ok_bbcode = (string) ($open . '||' . $close);
-				$options = 0;
-				$uid = $bitfield = '';
-				// Change it in the db
-				$this->work->shout_sql_query('UPDATE ' . USERS_TABLE . " SET shout_bbcode = '" . $this->db->sql_escape($ok_bbcode) . "' WHERE user_id = $on_user");
-				$text = $open . $this->language->lang('SHOUT_EXEMPLE') . $close;
-				generate_text_for_storage($text, $uid, $bitfield, $options, true, false, true);
-				$text = generate_text_for_display($text, $uid, $bitfield, $options);
-				$message = $this->language->lang('SHOUT_BBCODE_SUCCESS');
-			break;
-			// Return no change message
-			case 4:
-				$options = 0;
-				$uid = $bitfield = '';
-				if ($open != '1')
-				{
-					$text = $open . $this->language->lang('SHOUT_EXEMPLE') . $close;
-					generate_text_for_storage($text, $uid, $bitfield, $options, true, false, true);
-					$text = generate_text_for_display($text, $uid, $bitfield, $options);
-				}
-				else
-				{
-					$text = $this->language->lang('SHOUT_EXEMPLE');
-				}
-				$message = $data['message'];
-			break;
-			// Return error no permission
-			case 5:
-				$message = $data['message'];
-			break;
-		}
-
-		return [
-			'type'		=> $data['sort'],
-			'before'	=> $open,
-			'after'		=> $close,
-			'on_user'	=> $on_user,
-			'text'		=> $text,
-			'message'	=> $message,
-		];
+		return $this->bbcodes->user_bbcode($val, $open, $close);
 	}
 
 	public function charge_bbcode($id)
 	{
-		$on_bbcode = [
-			0	=> '',
-			1	=> '',
-		];
-		$message = $this->language->lang('SHOUT_EXEMPLE');
-
-		$sql = 'SELECT user_id, user_type, username, user_colour, shout_bbcode
-			FROM ' . USERS_TABLE . '
-				WHERE user_id = ' . $id;
-		$result = $this->work->shout_sql_query($sql, true, 1);
-		$row = $this->db->sql_fetchrow($result);
-		if ($row['shout_bbcode'])
-		{
-			$options = 0;
-			$uid = $bitfield = '';
-			$on_bbcode = explode('||', $row['shout_bbcode']);
-			$message = $on_bbcode[0] . $message . $on_bbcode[1];
-			generate_text_for_storage($message, $uid, $bitfield, $options, true, false, true);
-			$message = generate_text_for_display($message, $uid, $bitfield, $options);
-		}
-		$this->db->sql_freeresult($result);
-
-		return [
-			'id'		=> $id,
-			'name'		=> $this->work->shout_url(get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'])),
-			'before'	=> $on_bbcode[0],
-			'after'		=> $on_bbcode[1],
-			'message'	=> $message,
-		];
+		return $this->bbcodes->charge_bbcode($id);
 	}
 
 	public function edit($val, $shout_id, $message)

@@ -4,8 +4,8 @@
 * Breizh Shoutbox Extension [English]
 *
 * @package language
-* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -48,13 +48,13 @@ $lang = array_merge($lang, array(
 	'ACP_SHOUT_CONFIGS_T_EXPLAIN'	=> 'On this page, you can adjust all the different settings of the shoutbox.',
 	'ACP_SHOUT_RULES'				=> 'Usage Rules',
 	'ACP_SHOUT_RULES_T'				=> 'Panel Rules for using the shoutbox',
-	'ACP_SHOUT_RULES_T_EXPLAIN'		=> 'This page allows you to define rules for using the shoutbox.<br />You can put rules in different languages enabled in this forum.<br />This space allows you to create/edit rules. You can design them in the first frame and then export them as desired to the desired areas.',
+	'ACP_SHOUT_RULES_T_EXPLAIN'		=> 'This page allows you to define rules for using the shoutbox.<br/>You can put rules in different languages enabled in this forum.<br/>This space allows you to create/edit rules. You can design them in the first frame and then export them as desired to the desired areas.',
 // Category for main shoutbox
 	'ACP_SHOUT_PRINCIPAL_CAT'		=> 'Main Shoutbox',
 	'ACP_SHOUT_OVERVIEW'			=> 'Messages and Statistics',
 	'ACP_SHOUT_OVERVIEW_T'			=> 'Messages and Statistics Breizh Shoutbox',
 	'ACP_SHOUT_OVERVIEW_T_EXPLAIN'	=> 'On this page, you can see the statistics of the main shoutbox.
-										<br />You can also delete messages or completely purge the shoutbox.',
+										<br/>You can also delete messages or completely purge the shoutbox.',
 	'ACP_SHOUT_CONFIG_GEN'			=> 'Settings Main shoutbox',
 	'ACP_SHOUT_CONFIG_GEN_T'		=> 'Settings of shoutbox main forum',
 	'ACP_SHOUT_CONFIG_GEN_T_EXPLAIN'=> 'On this page, you can set all settings of the Main shoutbox to your forum.',
@@ -63,26 +63,26 @@ $lang = array_merge($lang, array(
 	'ACP_SHOUT_PRIVATE'				=> 'Messages and Statistics',
 	'ACP_SHOUT_PRIVATE_T'			=> 'Panel Messages and statistics shoutbox private',
 	'ACP_SHOUT_PRIVATE_T_EXPLAIN'	=> 'On this page you can see the statistics of the private shoutbox.
-										<br />You can also delete messages or completely purge the shoutbox.',
+										<br/>You can also delete messages or completely purge the shoutbox.',
 	'ACP_SHOUT_CONFIG_PRIV'			=> 'Settings Private Shoutbox',
 	'ACP_SHOUT_CONFIG_PRIV_T'		=> 'Panel of Private Shoutbox',
 	'ACP_SHOUT_CONFIG_PRIV_T_EXPLAIN'=> 'On this page, you can set all the parameters of the Private shoutbox to your forum.
-										<br />To set the permission to use this shoutbox private appointments in the permissions tab “Breizh Shoutbox”: “Can access the private shoutbox”',
+										<br/>To set the permission to use this shoutbox private appointments in the permissions tab “Breizh Shoutbox”: “Can access the private shoutbox”',
 // Category for popup shoutbox
 	'ACP_SHOUT_POPUP_CAT'			=> 'Shoutbox in popup',
 	'ACP_SHOUT_POPUP'				=> 'Settings popup',
 	'ACP_SHOUT_POPUP_T'				=> 'Panel of the popup Breizh Shoutbox',
-	'ACP_SHOUT_POPUP_T_EXPLAIN'		=> 'On this page, you can set all the parameters of the shoutbox in popup.<br />These settings also apply in the retractable lateral panel shoutbox.',
+	'ACP_SHOUT_POPUP_T_EXPLAIN'		=> 'On this page, you can set all the parameters of the shoutbox in popup.<br/>These settings also apply in the retractable lateral panel shoutbox.',
 // Category for retractable lateral panel
 	'ACP_SHOUT_PANEL'				=> 'Settings lateral panel',
 	'ACP_SHOUT_PANEL_T'				=> 'Settings of the retractable lateral panel',
-	'ACP_SHOUT_PANEL_T_EXPLAIN'		=> 'On this page, you can set all parameters of the retractable lateral panel.<br />Note that this panel contains the shoutbox in popup.',
+	'ACP_SHOUT_PANEL_T_EXPLAIN'		=> 'On this page, you can set all parameters of the retractable lateral panel.<br/>Note that this panel contains the shoutbox in popup.',
 // Category for smilies
 	'ACP_SHOUT_SMILIES_CAT'			=> 'Smilies',
 	'ACP_SHOUT_SMILIES'				=> 'Smilies settings',
 	'ACP_SHOUT_SMILIES_T'			=> 'Panel of Smilies settings for the shoutbox',
-	'ACP_SHOUT_SMILIES_T_EXPLAIN'	=> 'On this page, you can configure the smilies to be displayed in the shoutbox.<br />
-										Smilies are displayed all present in the database, indifferently from those displayed on the page of posting messages.<br />
+	'ACP_SHOUT_SMILIES_T_EXPLAIN'	=> 'On this page, you can configure the smilies to be displayed in the shoutbox.<br/>
+										Smilies are displayed all present in the database, indifferently from those displayed on the page of posting messages.<br/>
 										To specify which smilies should appear or not, just click directly on the smiley images.',
 	'ACP_SHOUT_SMILIES_POP'			=> 'Popup Smilies',
 	'ACP_SHOUT_SMILIES_POP_T_EXPLAIN'=> 'Popup Smileys',
@@ -91,7 +91,7 @@ $lang = array_merge($lang, array(
 	'ACP_SHOUT_ROBOT'				=> 'Robot configuration',
 	'ACP_SHOUT_ROBOT_T'				=> 'Configuration of the robot Breizh Shoutbox',
 	'ACP_SHOUT_ROBOT_T_EXPLAIN'		=> 'On this page, you can adjust all the different points of the configuration of the robot shoutbox.
-										<br />Some parameters are either the main shoutbox, or for the private shoutbox.',
+										<br/>Some parameters are either the main shoutbox, or for the private shoutbox.',
 // Language for Logs
 	'LOG_SHOUT_CONFIGS'				=> '<strong>Update the general configuration of Breizh Shoutbox.</strong>',
 	'LOG_SHOUT_CONFIG_GEN'			=> '<strong>Updated settings of main Shoutbox.</strong>',
@@ -159,8 +159,8 @@ $lang = array_merge($lang, array(
 	'SHOUT_RULES_OPEN'				=> 'Rules always open',
 	'SHOUT_RULES_OPEN_EXPLAIN'		=> 'Always lets show rules for everyone',
 	'SHOUT_RULES_ON'				=> 'Rules in language “%s” “%s”',
-	'SHOUT_RULES_ON_EXPLAIN'		=> 'Please enter the rules in the language “%s” “%s” for main shoutbox.<br />Bbcodes, Links and smilies are on.',
-	'SHOUT_RULES_ON_PRIV_EXPLAIN'	=> 'Please enter the rules in the language “%s” “%s” for private shoutbox.<br />Bbcodes, Links and smilies are on.',
+	'SHOUT_RULES_ON_EXPLAIN'		=> 'Please enter the rules in the language “%s” “%s” for main shoutbox.<br/>Bbcodes, Links and smilies are on.',
+	'SHOUT_RULES_ON_PRIV_EXPLAIN'	=> 'Please enter the rules in the language “%s” “%s” for private shoutbox.<br/>Bbcodes, Links and smilies are on.',
 	'SHOUT_RULES_VIEW'				=> 'Visualizing Rules main shoutbox:',
 	'SHOUT_RULES_VIEW_PRIV'			=> 'Visualizing Rules private shoutbox:',
 	'SMILIES_EMOTION'				=> 'Emotion smiley',
@@ -176,9 +176,9 @@ $lang = array_merge($lang, array(
 	'SHOUT_AVATAR_HEIGHT'			=> 'Dimension avatars',
 	'SHOUT_AVATAR_HEIGHT_EXPLAIN'	=> 'Enter here the height avatars in pixels, width is calculated automatically.',
 	'SHOUT_AVATAR_IMG'				=> 'Avatar image default',
-	'SHOUT_AVATAR_IMG_EXPLAIN'		=> 'Specify here the image chosen for the avatar by default for users who do not choose.<br />This image should be in the folder “ext/sylver35/breizhshoutbox/images/”',
+	'SHOUT_AVATAR_IMG_EXPLAIN'		=> 'Specify here the image chosen for the avatar by default for users who do not choose.<br/>This image should be in the folder “ext/sylver35/breizhshoutbox/images/”',
 	'SHOUT_AVATAR_IMG_BOT'			=> 'Avatar image of the robot',
-	'SHOUT_AVATAR_IMG_BOT_EXPLAIN'	=> 'Specify here the image chosen for the avatar of the robot.<br />This image should be in the folder “ext/sylver35/breizhshoutbox/images/”',
+	'SHOUT_AVATAR_IMG_BOT_EXPLAIN'	=> 'Specify here the image chosen for the avatar of the robot.<br/>This image should be in the folder “ext/sylver35/breizhshoutbox/images/”',
 	'SHOUT_AVATAR_ROBOT'			=> 'Robot Avatar',
 	'SHOUT_AVATAR_ROBOT_EXPLAIN'	=> 'Enable/Disable robot avatar <em>If avatars are enabled</em>.',
 	'SHOUT_AVATAR_USER'				=> 'User’s avatars',
@@ -189,12 +189,12 @@ $lang = array_merge($lang, array(
 	'SHOUT_BACKGROUND_COLOR'		=> 'Background image of the shoutbox',
 	'SHOUT_BACKGROUND_COLOR_EXPLAIN'=> 'Select the background image of the shoutbox',
 	'SHOUT_BBCODE'					=> 'Prohibition bbcodes',
-	'SHOUT_BBCODE_EXPLAIN'			=> 'Enter here the list of bbcodes that you do not want in the shoutbox.<br />Some bbcodes can cause bugs, your experience will allow you to list them here.<br />You must enter them without brackets, separated by a comma and a space.<br />Ex:&nbsp;&nbsp;<em>list, code, quote</em>',
-	'SHOUT_BBCODE_USER_EXPLAIN'		=> 'Enter the list of bbcode that you do not want in the format of messages users.<br />The list of prohibited bbcodes above is already considered, this list is a complement. The videos are already prohibited.<br />You must enter them without brackets, separated by a comma and a space.<br />Eg:&nbsp;&nbsp;<em>list, code, quote</em>',
+	'SHOUT_BBCODE_EXPLAIN'			=> 'Enter here the list of bbcodes that you do not want in the shoutbox.<br/>Some bbcodes can cause bugs, your experience will allow you to list them here.<br/>You must enter them without brackets, separated by a comma and a space.<br/>Ex:&nbsp;&nbsp;<em>list, code, quote</em>',
+	'SHOUT_BBCODE_USER_EXPLAIN'		=> 'Enter the list of bbcode that you do not want in the format of messages users.<br/>The list of prohibited bbcodes above is already considered, this list is a complement. The videos are already prohibited.<br/>You must enter them without brackets, separated by a comma and a space.<br/>Eg:&nbsp;&nbsp;<em>list, code, quote</em>',
 	'SHOUT_BBCODE_SIZE'				=> 'Font size',
-	'SHOUT_BBCODE_SIZE_EXPLAIN'		=> 'Enter here the maximum font size allowed for the bbcode size= in the formatting user’s messages.<br />The number 100 corresponds to the overall size of the police, 150 corresponds to one and half times that size.',
+	'SHOUT_BBCODE_SIZE_EXPLAIN'		=> 'Enter here the maximum font size allowed for the bbcode size= in the formatting user’s messages.<br/>The number 100 corresponds to the overall size of the police, 150 corresponds to one and half times that size.',
 	'SHOUT_BIRTHDAY_EXCLUDE'		=> 'Exclude groups',
-	'SHOUT_BIRTHDAY_EXCLUDE_EXPLAIN'=> 'You can select one or more groups will be excluded from birthdays to wish.<br />Banned members are automatically excluded.<br /><br />Use ctrl+click to select more than one group.',
+	'SHOUT_BIRTHDAY_EXCLUDE_EXPLAIN'=> 'You can select one or more groups will be excluded from birthdays to wish.<br/>Banned members are automatically excluded.<br/><br/>Use ctrl+click to select more than one group.',
 	'SHOUT_BUTTON_BACKGROUND'		=> 'Background image under the buttons',
 	'SHOUT_BUTTON_BACKGROUND_EXPLAIN'=> 'Choose whether to display the background image under the left buttons',
 
@@ -220,7 +220,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_DEFIL_TOP'					=> 'Last message on top',
 	'SHOUT_DEFIL_BOTTOM'				=> 'Last message at the bottom',
 	'SHOUT_DEFIL'						=> 'Scroll direction of messages',
-	'SHOUT_DEFIL_EXPLAIN'				=> 'You can choose in which direction the messages scroll in the shoutbox.<br />- Be the last message at the top and then scroll down<br />- Be the last message at the bottom and scroll up.<br />Note that the focus will always be on the most recent message.',
+	'SHOUT_DEFIL_EXPLAIN'				=> 'You can choose in which direction the messages scroll in the shoutbox.<br/>- Be the last message at the top and then scroll down<br/>- Be the last message at the bottom and scroll up.<br/>Note that the focus will always be on the most recent message.',
 	'SHOUT_DEFIL_MEMBERS'				=> 'Members can individually choose a different setting.',
 	'SHOUT_DEL_MAIN'					=> 'Deleted messages',
 	'SHOUT_DEL_ACP'						=> 'Number of deleted messages in the acp:',
@@ -251,13 +251,13 @@ $lang = array_merge($lang, array(
 	'SHOUT_NR_ACP'						=> 'Number of messages in acp',
 	'SHOUT_NR_ACP_EXPLAIN'				=> 'Choose the number of messages per page in the acp, tab overview.',
 	'SHOUT_MAX_POST_CHARS'				=> 'Maximum number of characters',
-	'SHOUT_MAX_POST_CHARS_EXPLAIN'		=> 'Choose the maximum number of characters it is possible to post in a message.<br />Note that there is a permission to bypass this limit',
+	'SHOUT_MAX_POST_CHARS_EXPLAIN'		=> 'Choose the maximum number of characters it is possible to post in a message.<br/>Note that there is a permission to bypass this limit',
 	'SHOUT_NUM'							=> 'Number of messages per page',
 
 	'SHOUT_HEIGHT'						=> 'Height of the div messages',
 	'SHOUT_HEIGHT_EXPLAIN'				=> 'Determine here the height of the message div in the shoutbox.',
 	'SHOUT_DIV_IMG'						=> 'Background image of the messages div',
-	'SHOUT_DIV_IMG_EXPLAIN'				=> 'You can add a background image in the messages div (having some level of transparency).<br />Image to put in “styles/all/theme/images/background/”<br />Possibility of having a different image (with an identical name) for each style added.<br />Also set the image position.',
+	'SHOUT_DIV_IMG_EXPLAIN'				=> 'You can add a background image in the messages div (having some level of transparency).<br/>Image to put in “styles/all/theme/images/background/”<br/>Possibility of having a different image (with an identical name) for each style added.<br/>Also set the image position.',
 	'SHOUT_DIV_HORIZONTAL'				=> 'horizontal position',
 	'SHOUT_DIV_VERTICAL'				=> 'vertical position',
 	'SHOUT_DIV_NONE'					=> 'any image',
@@ -284,15 +284,15 @@ $lang = array_merge($lang, array(
 	'SHOUT_SEE_BUTTON_IP_EXPLAIN'		=> 'Determine if you want to display the ips buttons, it cancels the permissions that allow it.',
 	'SHOUT_SEE_CITE'					=> 'Display of quote icons',
 	'SHOUT_SEE_CITE_EXPLAIN'			=> 'Determine if you want to display the quote icons to the left of the messages',
-	'SHOUT_PANEL_PERMISSIONS'			=> 'To see this panel, must have permissions: “<em>A user can view the shoutbox in a lateral panel</em>” and “<em>A user can use the shoutbox in popup</em>” to yes.<br />Not enabled for mobile phones.',
+	'SHOUT_PANEL_PERMISSIONS'			=> 'To see this panel, must have permissions: “<em>A user can view the shoutbox in a lateral panel</em>” and “<em>A user can use the shoutbox in popup</em>” to yes.<br/>Not enabled for mobile phones.',
 	'SHOUT_PANEL_KILL'					=> 'pages excluded',
-	'SHOUT_PANEL_KILL_EXPLAIN'			=> 'You can select or exclude pages displaying the retractable lateral panel.<br />Enter the name of the php page with the settings and the path if different from root.<br />One page per line. Ex: <em>ucp.php?mode=register&nbsp;&nbsp;gallery/index.php</em><br />Pages automatically excluded: errors, informations, redirections and connexion.',
+	'SHOUT_PANEL_KILL_EXPLAIN'			=> 'You can select or exclude pages displaying the retractable lateral panel.<br/>Enter the name of the php page with the settings and the path if different from root.<br/>One page per line. Ex: <em>ucp.php?mode=register&nbsp;&nbsp;gallery/index.php</em><br/>Pages automatically excluded: errors, informations, redirections and connexion.',
 	'SHOUT_PANEL_IMG'					=> 'Opening Image',
-	'SHOUT_PANEL_IMG_EXPLAIN'			=> 'Choose the opening image for the retractable lateral panel.<br />Images of directory root/images/shoutbox/panel/',
+	'SHOUT_PANEL_IMG_EXPLAIN'			=> 'Choose the opening image for the retractable lateral panel.<br/>Images of directory root/images/shoutbox/panel/',
 	'SHOUT_PANEL_EXIT_IMG'				=> 'Closing Image',
-	'SHOUT_PANEL_EXIT_IMG_EXPLAIN'		=> 'Choose the closing image for the retractable lateral panel.<br />Images of directory root/images/shoutbox/panel/',
+	'SHOUT_PANEL_EXIT_IMG_EXPLAIN'		=> 'Choose the closing image for the retractable lateral panel.<br/>Images of directory root/images/shoutbox/panel/',
 	'SHOUT_PANEL_WIDTH'					=> 'Lateral panel width',
-	'SHOUT_PANEL_WIDTH_EXPLAIN'			=> 'Specify the width of the retractable lateral panel.<br />Note that it must contain in the shoutbox in popup.',
+	'SHOUT_PANEL_WIDTH_EXPLAIN'			=> 'Specify the width of the retractable lateral panel.<br/>Note that it must contain in the shoutbox in popup.',
 	'SHOUT_PANEL_HEIGHT'				=> 'Lateral panel height',
 	'SHOUT_PANEL_HEIGHT_EXPLAIN'		=> 'Specify the height of the retractable lateral panel.',
 	'SHOUT_POP_HEIGHT'					=> 'Height of the popup',
@@ -307,7 +307,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_POSITION_END'				=> 'At the bottom of page',
 	'SHOUT_POSITION_NONE'				=> 'Do not display',
 
-	'SHOUTBOX_VERSION_ACP_COPY'			=> '<a href="%1$s" onclick="window.open(this.href);return false;">Breizh Shoutbox v%2$s</a> © 2018-2021 - Breizhcode - The Breizh Touch', // Don't translate this please ^-^
+	'SHOUTBOX_VERSION_ACP_COPY'			=> '<a href="%1$s" onclick="window.open(this.href);return false;">Breizh Shoutbox v%2$s</a> © 2018-2024 - Breizhcode - The Breizh Touch', // Don't translate this please ^-^
 	'SHOUT_TOUCH_COPY'					=> '<span style="font-size: 11px">Breizh Shoutbox © 2010, 2012 <a href="http://breizh-portal.com/index.html">The Breizh touch</a></span>',
 	'SHOUT_VERSION_UP_TO_DATE'			=> 'Your installation is up to date, no update is available for your version of Breizh Shoutbox: v%s. You do not need to update your installation.',
 	'SHOUT_NO_VERSION'					=> '<span style="color: red">Failed to obtain latest version information...</span>',
@@ -341,14 +341,14 @@ $lang = array_merge($lang, array(
 	'SHOUT_PANEL_ALL'					=> 'Retractable lateral panel anywhere',
 	'SHOUT_PANEL_ALL_EXPLAIN'			=> 'Activate the retractable lateral panel over the pages that already has the shoutbox.',
 	'SHOUT_PANEL_AUTO'					=> 'Automatic loading',
-	'SHOUT_PANEL_AUTO_EXPLAIN'			=> 'Enabling this setting automatically loads the shoutbox into the panel when the page loads. The queries are then made and if the sound is activated, new messages received are notified.<br />However, by disabling this setting, the shoutbox is charged when the panel is opened and the number of requests from the shoutbox decreases very widely.',
+	'SHOUT_PANEL_AUTO_EXPLAIN'			=> 'Enabling this setting automatically loads the shoutbox into the panel when the page loads. The queries are then made and if the sound is activated, new messages received are notified.<br/>However, by disabling this setting, the shoutbox is charged when the panel is opened and the number of requests from the shoutbox decreases very widely.',
 	'SHOUT_PANEL_FLOAT'					=> 'Panel position',
 	'SHOUT_PANEL_FLOAT_EXPLAIN'			=> 'Choose which side of the screen the panel should be displayed on',
 	'SHOUT_PANEL_FLOAT_RIGHT'			=> 'to the right',
 	'SHOUT_PANEL_FLOAT_LEFT'			=> 'to the left',
 	'SHOUT_PANEL_CHOICE'				=> 'Choose if you want to display the retractable lateral panel',
 	'SHOUT_TEMP'						=> 'Refresh time',
-	'SHOUT_TEMP_TITLE'					=> 'setting the time of updating for shoutbox depending on the status connected/not connected.<br />Too short, there are risks that the server can not respond within the allotted time, too long, you lose responsiveness.<br />change the value until a satisfactory performance according to your server.',
+	'SHOUT_TEMP_TITLE'					=> 'setting the time of updating for shoutbox depending on the status connected/not connected.<br/>Too short, there are risks that the server can not respond within the allotted time, too long, you lose responsiveness.<br/>change the value until a satisfactory performance according to your server.',
 	'SHOUT_TEMP_USERS'					=> 'Refresh time for members',
 	'SHOUT_TEMP_USERS_EXPLAIN'			=> 'Choose here the time to refresh the shoutbox for members online.',
 	'SHOUT_TEMP_ANONYMOUS'				=> 'Refresh time for guests',
@@ -358,7 +358,7 @@ $lang = array_merge($lang, array(
 
 // Robot
 	'SHOUT_ROBOT_ACTIVATE'				=> 'Enable Robot',
-	'SHOUT_ROBOT_ACTIVATE_EXPLAIN'		=> 'Make no completely disables all Robot functions in the shoutbox.<br /><em>Does not disable the enter information in the private shoutbox.</em>',
+	'SHOUT_ROBOT_ACTIVATE_EXPLAIN'		=> 'Make no completely disables all Robot functions in the shoutbox.<br/><em>Does not disable the enter information in the private shoutbox.</em>',
 	'SHOUT_NAME_ROBOT'					=> 'Name of Robot',
 	'SHOUT_NAME_ROBOT_EXPLAIN'			=> 'Enter the name you want to assign to the robot',
 	'SHOUT_ROBOT_BIRTHDAY'				=> 'Robot’s birthdays',
@@ -366,9 +366,9 @@ $lang = array_merge($lang, array(
 	'SHOUT_ROBOT_BIRTHDAY_PRIV'			=> 'Robot’s birthdays private shoutbox',
 	'SHOUT_ROBOT_BIRTHDAY_PRIV_EXPLAIN'	=> 'Enable/disable Notifications of birthdays in private shoutbox.',
 	'SHOUT_ROBOT_CHOICE'				=> 'Parameters of the purge Robot in front',
-	'SHOUT_ROBOT_CHOICE_EXPLAIN'		=> 'Choose here all infos Robot you want to serve on the front.<br />Vou can add as many options as desired.<br />Note that infos for purge and load shedding will always be erased.',
+	'SHOUT_ROBOT_CHOICE_EXPLAIN'		=> 'Choose here all infos Robot you want to serve on the front.<br/>Vou can add as many options as desired.<br/>Note that infos for purge and load shedding will always be erased.',
 	'SHOUT_ROBOT_CHOICE_PRIV'			=> 'Parameters of the purge Robot in front private shoutbox',
-	'SHOUT_ROBOT_CHOICE_PRIV_EXPLAIN'	=> 'Choose here all infos Robot you want to serve on the front.<br />You can add as many options as desired in the private shoutbox.<br />You can add as many choices as desired.<br />Note that infos for purge and load shedding will always be erased.',
+	'SHOUT_ROBOT_CHOICE_PRIV_EXPLAIN'	=> 'Choose here all infos Robot you want to serve on the front.<br/>You can add as many options as desired in the private shoutbox.<br/>You can add as many choices as desired.<br/>Note that infos for purge and load shedding will always be erased.',
 	'SHOUT_ROBOT_COLOR'					=> 'Color of the Robot',
 	'SHOUT_ROBOT_COLOR_INFO'			=> 'Color of the messages/infos:',
 	'SHOUT_ROBOT_CRON_H'				=> 'Schedule informations date and anniversaries',
@@ -380,7 +380,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_ROBOT_EDIT_PRIV'				=> 'Editing Posts n private shoutbox',
 	'SHOUT_ROBOT_EDIT_PRIV_EXPLAIN'		=> 'Enable editing info messages in the private shoutbox.',
 	'SHOUT_ROBOT_EXCLU'					=> 'Excluded forums',
-	'SHOUT_ROBOT_EXCLU_EXPLAIN'			=> 'Select the forums to which you do not want to publicize the release of new posts.<br />=> Note that the displays of information depends on the Rights of views Forums.',
+	'SHOUT_ROBOT_EXCLU_EXPLAIN'			=> 'Select the forums to which you do not want to publicize the release of new posts.<br/>=> Note that the displays of information depends on the Rights of views Forums.',
 	'SHOUT_ROBOT_HELLO'					=> 'Robot’s date of day',
 	'SHOUT_ROBOT_HELLO_EXPLAIN'			=> 'Enable/disable notification of the current date.',
 	'SHOUT_ROBOT_HELLO_PRIV'			=> 'Robot’s date of day private shoutbox',
@@ -442,20 +442,20 @@ $lang = array_merge($lang, array(
 	'SHOUT_SOUND_ON'				=> 'Activate the sounds',
 	'SHOUT_SOUND_ON_EXPLAIN'		=> 'Enable/disable all sounds in the shoutbox.',
 	
-	'SHOUT_PANEL_PERMISSIONS'		=> 'To see this panel, must have permissions: “<em>A user can view the shoutbox in a lateral panel</em>” and “<em>A user can use the shoutbox in popup</em>” to yes.<br />Not enabled for mobile phones.',
+	'SHOUT_PANEL_PERMISSIONS'		=> 'To see this panel, must have permissions: “<em>A user can view the shoutbox in a lateral panel</em>” and “<em>A user can use the shoutbox in popup</em>” to yes.<br/>Not enabled for mobile phones.',
 	'SHOUT_PANEL_KILL'				=> 'pages excluded',
-	'SHOUT_PANEL_KILL_EXPLAIN'		=> 'You can select or exclude pages displaying the retractable lateral panel.<br />Enter the name of the php page with the settings and the path if different from root.<br />One page per line. Ex: <em>ucp.php?mode=register&nbsp;&nbsp;gallery/index.php</em><br />Pages automatically excluded: errors, informations, redirections and connexion.',
+	'SHOUT_PANEL_KILL_EXPLAIN'		=> 'You can select or exclude pages displaying the retractable lateral panel.<br/>Enter the name of the php page with the settings and the path if different from root.<br/>One page per line. Ex: <em>ucp.php?mode=register&nbsp;&nbsp;gallery/index.php</em><br/>Pages automatically excluded: errors, informations, redirections and connexion.',
 	'SHOUT_PANEL_IMG'				=> 'Opening Image',
-	'SHOUT_PANEL_IMG_EXPLAIN'		=> 'Choose the opening image for the retractable lateral panel.<br />Images of directory root/images/shoutbox/panel/',
+	'SHOUT_PANEL_IMG_EXPLAIN'		=> 'Choose the opening image for the retractable lateral panel.<br/>Images of directory root/images/shoutbox/panel/',
 	'SHOUT_PANEL_EXIT_IMG'			=> 'Closing Image',
-	'SHOUT_PANEL_EXIT_IMG_EXPLAIN'	=> 'Choose the closing image for the retractable lateral panel.<br />Images of directory root/images/shoutbox/panel/',
+	'SHOUT_PANEL_EXIT_IMG_EXPLAIN'	=> 'Choose the closing image for the retractable lateral panel.<br/>Images of directory root/images/shoutbox/panel/',
 	'SHOUT_PANEL_WIDTH'				=> 'Lateral panel width',
-	'SHOUT_PANEL_WIDTH_EXPLAIN'		=> 'Specify the width of the retractable lateral panel.<br />Note that it must contain in the shoutbox in popup.',
+	'SHOUT_PANEL_WIDTH_EXPLAIN'		=> 'Specify the width of the retractable lateral panel.<br/>Note that it must contain in the shoutbox in popup.',
 	'SHOUT_PANEL_HEIGHT'			=> 'Lateral panel height',
 	'SHOUT_PANEL_HEIGHT_EXPLAIN'	=> 'Specify the height of the retractable lateral panel.',
 	
 	'SHOUT_INACTIV_A'				=> 'Inactivity time of guests',
 	'SHOUT_INACTIV_A_EXPLAIN'		=> 'Here you determine the time of inactivity of the guests, after this period, the shoutbox will automatically standby and so will not do more requests.',
 	'SHOUT_INACTIV_B'				=> 'Inactivity time of registered users',
-	'SHOUT_INACTIV_B_EXPLAIN'		=> 'Here you determine the time of inactivity of the registered users, after this period, the shoutbox will automatically standby and so will not do more requests.<br />Note that there is a permission to skip this.',
+	'SHOUT_INACTIV_B_EXPLAIN'		=> 'Here you determine the time of inactivity of the registered users, after this period, the shoutbox will automatically standby and so will not do more requests.<br/>Note that there is a permission to skip this.',
 ));

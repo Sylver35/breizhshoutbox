@@ -1,9 +1,9 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -198,29 +198,20 @@ class robot
 				$message = $this->language->lang('SHOUT_UPDATE_USERNAME', $this->work->construct_action_shout($row['v_user_id'], $row['shout_text'], $row['v_user_colour'], $acp), $this->work->construct_action_shout($row['v_user_id'], $row['shout_text2'], $row['v_user_colour'], $acp));
 			break;
 			case 30:
-				list($title, $artist) = explode('||', $row['shout_text']);
-				$url = $this->helper->route('sylver35_breizhcharts_page_music', ['mode' => 'list_newest']);
-				$message = $this->language->lang('SHOUT_CHARTS_NEW', $this->work->construct_action_shout($row['v_user_id'], $row['v_username'], $row['v_user_colour'], $acp), $this->work->tpl('url', $url, $this->language->lang('SHOUT_FROM_OF', $title, $artist)));
-				$message .= ($row['shout_text2']) ? ' ⇒ ' . $this->work->tpl('url', $row['shout_text2'], $this->language->lang('SHOUT_CHARTS_SUBJECT')) : '';
-			break;
 			case 31:
-				$url = $this->helper->route('sylver35_breizhcharts_page_music', ['mode' => 'winners']);
-				$message = $this->language->lang('SHOUT_CHARTS_RESET', $this->work->tpl('url', $url, $row['shout_text']), $this->work->tpl('url', $url, $row['shout_text2']));
+				$message = $this->info_breizhcharts($info, $row, $acp);
 			break;
 			case 32:
 			case 33:
 				$message = $this->language->lang('SHOUT_QUIZ_ROBOT' . $info, $this->work->tpl('url', $this->helper->route('sylver35_quiz_index')));
 			break;
 			case 35:
-				$title = (strlen($row['shout_text']) > 45) ? substr($row['shout_text'], 0, 42) . '...' : $row['shout_text'];
-				$cat_url = $this->work->tpl('url', $this->helper->route('sylver35_breizhyoutube_controller', ['mode' => 'cat', 'id' => $row['shout_robot']]), $row['shout_text2']);
-				$message = $this->language->lang('SHOUT_NEW_VIDEO', $this->work->tpl('url', $this->helper->route('sylver35_breizhyoutube_controller', ['mode' => 'view', 'id' => $row['shout_info_nb']]), $title, $row['shout_text']), $cat_url);
+				$message = $this->info_breizhyoutube($row);
 			break;
 			case 36:
 			case 37:
 			case 38:
-				$message = $this->language->lang("SHOUT_NEW_SCORE_{$info}", $row['shout_robot'], $this->work->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_games', ['gid' => $row['shout_info_nb']]), $row['shout_text']));
-				$message .= ($row['shout_robot_user'] && $row['shout_text2']) ? $this->language->lang('SHOUT_IN', $this->work->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_list', ['cid' => $row['shout_robot_user']]), $row['shout_text2'])) : '';
+				$message = $this->info_relax($info, $row);
 			break;
 			case 65:
 			case 66:
@@ -247,21 +238,70 @@ class robot
 		return $message;
 	}
 
-	public function insert_message_robot($sql_data, $insert, $insert_priv)
+	private function info_relax($info, $row)
 	{
-		if ($this->config['shout_enable_robot'])
+		$message = $row['shout_text'];
+		if ($this->work->relaxarcade_exist())
 		{
-			if ($insert)
-			{
-				$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
-				$this->config->increment('shout_nr', 1, true);
-			}
+			$message = $this->language->lang("SHOUT_NEW_SCORE_{$info}", $row['shout_robot'], $this->work->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_games', ['gid' => $row['shout_info_nb']]), $row['shout_text']));
+			$message .= ($row['shout_robot_user'] && $row['shout_text2']) ? $this->language->lang('SHOUT_IN', $this->work->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_list', ['cid' => $row['shout_robot_user']]), $row['shout_text2'])) : '';
+		}
 
-			if ($insert_priv)
+		return $message;
+	}
+
+	private function info_breizhcharts($info, $row, $acp)
+	{
+		$message = $row['shout_text'];
+		if ($this->work->breizhcharts_exist())
+		{
+			if ($info == 30)
 			{
-				$this->db->sql_query('INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
-				$this->config->increment('shout_nr_priv', 1, true);
+				list($title, $artist) = explode('||', $message);
+				$url = $this->helper->route('sylver35_breizhcharts_page_music', ['mode' => 'list_newest']);
+				$message = $this->language->lang('SHOUT_CHARTS_NEW', $this->work->construct_action_shout($row['v_user_id'], $row['v_username'], $row['v_user_colour'], $acp), $this->work->tpl('url', $url, $this->language->lang('SHOUT_FROM_OF', $title, $artist)));
+				$message .= ($row['shout_text2']) ? ' ⇒ ' . $this->work->tpl('url', $row['shout_text2'], $this->language->lang('SHOUT_CHARTS_SUBJECT')) : '';
 			}
+			else
+			{
+				$url = $this->helper->route('sylver35_breizhcharts_page_music', ['mode' => 'winners']);
+				$message = $this->language->lang('SHOUT_CHARTS_RESET', $this->work->tpl('url', $url, $row['shout_text']), $this->work->tpl('url', $url, $row['shout_text2']));
+			}
+		}
+
+		return $message;
+	}
+
+	private function info_breizhyoutube($row)
+	{
+		$message = $row['shout_text'];
+		if ($this->work->breizhyoutube_exist())
+		{
+			$title = (strlen($row['shout_text']) > 45) ? substr($row['shout_text'], 0, 42) . '...' : $row['shout_text'];
+			$cat_url = $this->work->tpl('url', $this->helper->route('sylver35_breizhyoutube_controller', ['mode' => 'cat', 'id' => $row['shout_robot']]), $row['shout_text2']);
+			$message = $this->language->lang('SHOUT_NEW_VIDEO', $this->work->tpl('url', $this->helper->route('sylver35_breizhyoutube_controller', ['mode' => 'view', 'id' => $row['shout_info_nb']]), $title, $row['shout_text']), $cat_url);
+		}
+
+		return $message;
+	}
+
+	public function insert_message_robot($sql_data, $insert, $insert_priv, $verify = false)
+	{
+		if ($insert)
+		{
+			$this->db->sql_query('INSERT INTO ' . $this->shoutbox_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
+			$this->config->increment('shout_nr', 1, true);
+		}
+
+		if ($insert_priv)
+		{
+			$this->db->sql_query('INSERT INTO ' . $this->shoutbox_priv_table . ' ' . $this->db->sql_build_array('INSERT', $sql_data));
+			$this->config->increment('shout_nr_priv', 1, true);
+		}
+
+		if ($verify !== false)
+		{
+			//$this->delete_multi_sessions($sql_data['shout_time'], $sql_data['shout_robot_user'], $insert_priv);
 		}
 	}
 
@@ -540,6 +580,48 @@ class robot
 				$this->db->sql_query('DELETE FROM ' . $this->shoutbox_priv_table . ' WHERE shout_id = ' . $row['shout_id']);
 			}
 			$this->db->sql_freeresult($result);
+		}
+	}
+
+	public function delete_multi_sessions($time, $id, $insert_priv)
+	{
+		$sql = 'SELECT COUNT(shout_id) as nr
+			FROM ' . $this->shoutbox_table . "
+				WHERE shout_time = '" . $time . "' AND shout_robot_user = $id AND shout_info = 1";
+		$result = $this->db->sql_query($sql);
+		$nb = (int) $this->db->sql_fetchfield('nr');
+		$this->db->sql_freeresult($result);
+
+		if ($nb > 1)
+		{
+			$sql = $this->db->sql_build_query('SELECT', [
+				'SELECT'	=> 'shout_id',
+				'FROM'		=> [$this->shoutbox_table => ''],
+				'WHERE'		=> "shout_time = '" . $time . "' AND shout_robot_user = $id AND shout_info = 1",
+			]);
+			$result = $this->db->sql_query_limit($sql, $nb - 1);
+			while ($row = $this->db->sql_fetchrow($result))
+			{
+				$this->db->sql_query('DELETE FROM ' . $this->shoutbox_priv_table . ' WHERE shout_id = ' . $row['shout_id']);
+			}
+			$this->db->sql_freeresult($result);
+			$this->config->set('shout_del_auto', $nb - 1, true);
+
+			if ($insert_priv)
+			{
+				$sql = $this->db->sql_build_query('SELECT', [
+					'SELECT'	=> 'shout_id',
+					'FROM'		=> [$this->shoutbox_priv_table => ''],
+					'WHERE'		=> "shout_time = '" . $time . "' AND shout_robot_user = $id AND shout_info = 1",
+				]);
+				$result = $this->db->sql_query_limit($sql, $nb - 1);
+				while ($row = $this->db->sql_fetchrow($result))
+				{
+					$this->db->sql_query('DELETE FROM ' . $this->shoutbox_priv_table . ' WHERE shout_id = ' . $row['shout_id']);
+				}
+				$this->db->sql_freeresult($result);
+				$this->config->set('shout_del_auto_priv', $nb - 1, true);
+			}
 		}
 	}
 }

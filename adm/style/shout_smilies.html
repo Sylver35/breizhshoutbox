@@ -1,3 +1,15 @@
+<form id="configs" method="post" action="{{ U_ACTION }}">								
+	<fieldset>
+		<dl>
+			<dt><label for="shout_smilies_per_page">{{ lang('SMILIES_PER_PAGE') }}:</label><br/>{{ lang('SMILIES_PER_PAGE_EXPLAIN') }}</dt>
+			<dd><input class="text small" type="text" id="shout_smilies_per_page" name="shout_smilies_per_page" value="{{ SHOUT_SMILIES_PER_PAGE }}" maxlength="2" size="3"> {{ lang('SMILIES_BOX') }}</dd>
+		</dl>
+		<p class="submit-buttons">
+			{{ S_FORM_TOKEN }}
+			<input class="button1" type="submit" id="submit" name="update" value="{{ lang('SUBMIT') }}">
+		</p>
+	</fieldset>
+</form>
 <form id="shout_smilies" method="post" action="{{ U_ACTION }}">
 	<fieldset>
 		<legend>{{ lang('SMILIES_OVERVIEW') }}</legend>

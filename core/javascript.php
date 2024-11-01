@@ -1,9 +1,9 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -135,7 +135,7 @@ class javascript
 
 			redirect($this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $user_id]));
 		}
-		else if ($this->request->is_set_post('retour'))
+		else if ($this->request->is_set_post('return'))
 		{
 			$user_shout = [
 				'user'			=> 2,
@@ -307,7 +307,7 @@ class javascript
 		]);
 	}
 
-	private function create_user_preferences($data)
+	private function create_user_settings($data)
 	{
 		if ($data['is_user'])
 		{
@@ -363,11 +363,12 @@ class javascript
 	private function get_settings($data)
 	{
 		$i = $j = $k = 0;
-		$data = $this->create_user_preferences($data);
-		$list_auth = $this->settings_auth_to_javascript($data);
+		$data = $this->create_user_settings($data);
+		$list_auth = $this->auth_to_javascript($data);
 		$list_string = $this->settings_to_javascript($data);
 		$list_lang = $this->lang_to_javascript($data);
 
+		// Construct the javascript now
 		$settings_auth = "var config = {\n		";
 		foreach ($list_auth as $key => $value)
 		{
@@ -413,7 +414,7 @@ class javascript
 		];
 	}
 
-	private function settings_auth_to_javascript($data)
+	private function auth_to_javascript($data)
 	{
 		// Display the rules if wanted
 		$rules = $rules_open = false;
@@ -463,6 +464,7 @@ class javascript
 			'privOk'			=> $this->work->return_bool($this->auth->acl_get('u_shout_priv') && $data['is_user']),
 			'creator'			=> $this->work->return_bool($data['creator']),
 			'category'			=> $this->work->return_bool($data['category']),
+			'smiliesPerPage'	=> $this->config['shout_smilies_per_page'],
 		];
 
 		return $settings_auth;
@@ -565,6 +567,15 @@ class javascript
 		for ($i = 0, $nb = sizeof($lang_array); $i < $nb; $i++)
 		{
 			$lang_shout[strtr($lang_array[$i], ['SHOUT_' => ''])] = $this->language->lang($lang_array[$i]);
+		}
+
+		if ($data['category'])
+		{
+			$lang_shout = array_merge($lang_shout, [
+				'CATEGORY'				=> $this->language->lang('SC_CATEGORY'),
+				'SMILIES_PAGE'			=> $this->language->lang('SC_SMILIES_PAGE'),
+				'SMILIES_PAGE_TITLE'	=> $this->language->lang('SC_SMILIES_PAGE_TITLE'),
+			]);
 		}
 
 		if ($data['creator'])

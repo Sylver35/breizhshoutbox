@@ -4,8 +4,8 @@
 * Breizh Shoutbox Extension [French]
 *
 * @package language
-* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License 
 *
 */
 
@@ -101,7 +101,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_POST_IP'			=> 'IP de l’utilisateur :',
 	'SHOUTBOX'				=> '<a href="%1$s">%2$s</a>', // Don't traduct this
 	'SHOUTBOX_VER'			=> 'Breizh Shoutbox v%s', // Don't traduct this
-	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2021', // Don't traduct this
+	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2024', // Don't traduct this
 	'SHOUT_TOUCH'			=> 'The Breizh Touch', // Don't traduct this
 	'SHOUTBOX_POPUP'		=> 'Popup Breizh Shoutbox',
 	'SHOUT_POP'				=> 'Ouvrir la shoutbox dans une popup',
@@ -226,7 +226,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_BBCODE_ERROR_IMB'	=> '❗ Erreur, le bbcode de fermeture “%2$s” est mal imbriqué',
 	'SHOUT_BBCODE_ERROR_IMBS'	=> '❗ Erreur, les %1$s bbcodes de fermeture “%2$s” sont mal imbriqués',
 	'SHOUT_DIV_BBCODE_CLOSE'	=> '🔒 Refermer le panneau de mise en forme des messages',
-	'SHOUT_DIV_BBCODE_EXPLAIN'	=> 'Vous pouvez personnaliser la mise en forme de vos messages dans la shoutbox.<br />Entrez des bbcodes simples, les ouvertures dans la première zone, les fermetures dans la seconde.<br />❗ Attention : respectez bien l’imbrication des bbcodes et n’oubliez pas de bien tous les fermer.<br />Exemple : <em>[b][i] et [/i][/b]</em>',
+	'SHOUT_DIV_BBCODE_EXPLAIN'	=> 'Vous pouvez personnaliser la mise en forme de vos messages dans la shoutbox.<br/>Entrez des bbcodes simples, les ouvertures dans la première zone, les fermetures dans la seconde.<br/>❗ Attention : respectez bien l’imbrication des bbcodes et n’oubliez pas de bien tous les fermer.<br/>Exemple : <em>[b][i] et [/i][/b]</em>',
 
 // User actions panel
 	'SHOUT_ACTION_TITLE'			=> '🎯 Actions pour l’utilisateur',
@@ -275,6 +275,8 @@ $lang = array_merge($lang, array(
 	'SHOUT_ONLINE'					=> 'Ouvrir le panneau des membres connectés',
 	'SHOUT_ONLINE_CLOSE'			=> '🔒 Refermer le panneau des membres connectés',
 	'NO_ONLINE_BOTS'				=> 'Aucun robot connecté',
+	'REGISTERED_USER'				=> 'Membre :',
+	'G_BOT'							=> 'Robot',
 
 // Post infos Robot
 	'SHOUT_ROBOT_ON'				=> 'Désactiver les infos Robot',

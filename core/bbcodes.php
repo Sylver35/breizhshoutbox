@@ -1,9 +1,9 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -75,6 +75,102 @@ class bbcodes
 		}
 
 		return $message;
+	}
+
+	public function user_bbcode($val, $open, $close)
+	{
+		$text = $message = '';
+		$on_user = ($val['other'] > 0) ? $val['other'] : $val['userid'];
+
+		// Parse bbcodes
+		$data = $this->parse_shout_bbcodes($open, $close, $on_user);
+		switch ($data['sort'])
+		{
+			// Remove the bbcodes
+			case 1:
+				$this->work->shout_sql_query('UPDATE ' . USERS_TABLE . " SET shout_bbcode = '' WHERE user_id = $on_user");
+				$message = $this->language->lang('SHOUT_BBCODE_SUP');
+				$text = $this->language->lang('SHOUT_EXEMPLE');
+			break;
+			// Retun error message
+			case 2:
+				$message = $data['message'];
+			break;
+			// Good ! Update the bbcodes
+			case 3:
+				$ok_bbcode = (string) ($open . '||' . $close);
+				$options = 0;
+				$uid = $bitfield = '';
+				// Change it in the db
+				$this->work->shout_sql_query('UPDATE ' . USERS_TABLE . " SET shout_bbcode = '" . $this->db->sql_escape($ok_bbcode) . "' WHERE user_id = $on_user");
+				$text = $open . $this->language->lang('SHOUT_EXEMPLE') . $close;
+				generate_text_for_storage($text, $uid, $bitfield, $options, true, false, true);
+				$text = generate_text_for_display($text, $uid, $bitfield, $options);
+				$message = $this->language->lang('SHOUT_BBCODE_SUCCESS');
+			break;
+			// Return no change message
+			case 4:
+				$options = 0;
+				$uid = $bitfield = '';
+				if ($open != '1')
+				{
+					$text = $open . $this->language->lang('SHOUT_EXEMPLE') . $close;
+					generate_text_for_storage($text, $uid, $bitfield, $options, true, false, true);
+					$text = generate_text_for_display($text, $uid, $bitfield, $options);
+				}
+				else
+				{
+					$text = $this->language->lang('SHOUT_EXEMPLE');
+				}
+				$message = $data['message'];
+			break;
+			// Return error no permission
+			case 5:
+				$message = $data['message'];
+			break;
+		}
+
+		return [
+			'type'		=> $data['sort'],
+			'before'	=> $open,
+			'after'		=> $close,
+			'on_user'	=> $on_user,
+			'text'		=> $text,
+			'message'	=> $message,
+		];
+	}
+
+	public function charge_bbcode($id)
+	{
+		$on_bbcode = [
+			0	=> '',
+			1	=> '',
+		];
+		$message = $this->language->lang('SHOUT_EXEMPLE');
+
+		$sql = 'SELECT user_id, user_type, username, user_colour, shout_bbcode
+			FROM ' . USERS_TABLE . '
+				WHERE user_id = ' . $id;
+		$result = $this->work->shout_sql_query($sql, true, 1);
+		$row = $this->db->sql_fetchrow($result);
+		if ($row['shout_bbcode'])
+		{
+			$options = 0;
+			$uid = $bitfield = '';
+			$on_bbcode = explode('||', $row['shout_bbcode']);
+			$message = $on_bbcode[0] . $message . $on_bbcode[1];
+			generate_text_for_storage($message, $uid, $bitfield, $options, true, false, true);
+			$message = generate_text_for_display($message, $uid, $bitfield, $options);
+		}
+		$this->db->sql_freeresult($result);
+
+		return [
+			'id'		=> $id,
+			'name'		=> $this->work->shout_url(get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'])),
+			'before'	=> $on_bbcode[0],
+			'after'		=> $on_bbcode[1],
+			'message'	=> $message,
+		];
 	}
 
 	/*

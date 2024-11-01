@@ -1,9 +1,9 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -135,7 +135,7 @@ class work
 	}
 
 	/**
-	 * execute sql query or return error
+	 * execute sql query or return error in the shoutbox
 	 * @param string $sql
 	 * @param bool $limit
 	 * @param int $nb
@@ -519,6 +519,24 @@ class work
 		return $rules;
 	}
 
+	public function get_session_shout($table, $sessions, $user_id)
+	{
+		if (!$this->config[$sessions])
+		{
+			return false;
+		}
+
+		$interval = (int) $this->config['shout_sessions_time'] * 60;
+		$sql = 'SELECT shout_time
+			FROM ' . $table . '
+				WHERE shout_robot = 1 AND shout_robot_user = ' . $user_id . ' AND shout_time BETWEEN ' . (time() - $interval) . ' AND ' . time();
+		$result = $this->db->sql_query($sql);
+		$go_post = $this->db->sql_fetchfield('shout_time') ? false : true;
+		$this->db->sql_freeresult($result);
+
+		return $go_post;
+	}
+
 	/*
 	 * Replace relatives urls with complete urls
 	 */
@@ -542,7 +560,7 @@ class work
 		}
 		else if ($id == ANONYMOUS || !$this->user->data['is_registered'] || $this->user->data['is_bot'])
 		{
-			$username_full = get_username_string('no_profile', $id, $username, (($id == ANONYMOUS) ? '6666FF' : $colour));
+			$username_full = get_username_string('no_profile', $id, $username, $colour);
 		}
 		else if ($id === $this->user->data['user_id'] || $acp)
 		{
@@ -563,7 +581,7 @@ class work
 		return $this->shout_url($username_full);
 	}
 
-	public function create_action_user($row, $sort, $go_founder)
+	public function create_action_user($row, $go_founder)
 	{
 		$get_auths = $this->get_auths();
 		$get_urls = $this->get_urls($row);
@@ -579,6 +597,41 @@ class work
 			'url_perso'		=> $this->get_tpl_auth($get_auths, $get_urls, $row, 7, $go_founder),
 			'url_robot'		=> $this->get_tpl_auth($get_auths, $get_urls, $row, 8),
 		];
+	}
+
+	public function test_action($val)
+	{
+		if (!$val['other'])
+		{
+			return ['type' => 0];
+		}
+		else if ($val['other'] === 1)
+		{
+			// post a robot message
+			if ($this->auth->acl_gets(['a_', 'm_shout_robot']))
+			{
+				$info = 0;
+				$robot = true;
+				$val['other'] = $val['userid'] = 0;
+			}
+			else
+			{
+				// no perm, out...
+				return ['type' => 0];
+			}
+		}
+		else if ($val['other'] > 1)
+		{
+			// post a personal message
+			$data = $this->shoutbox->user_is_foe($val['userid'], $val['other']);
+			if ($data['type'] > 0)
+			{
+				return [
+					'type'		=> $data['type'],
+					'message'	=> $data['message'],
+				];
+			}
+		}
 	}
 
 	/*
@@ -650,7 +703,6 @@ class work
 		}
 
 		return sprintf($this->config['shout_tpl_' . $sort], $data1, $data2, $data3, $data4);
-		//return sprintf($this->clean_tpl('shout_tpl_' . $sort), $data1, $data2, $data3, $data4);
 	}
 
 	/*
@@ -703,36 +755,36 @@ class work
 
 	private function get_tpl_auth($get_auths, $get_urls, $row, $sort, $go_founder = false)
 	{
-		$return = '';
+		$data = '';
 		switch ($sort)
 		{
 			case 1:
-				$return = $get_auths[7] ? $this->tpl('auth', $row['user_id'], $row['username']) : '';
+				$data = $get_auths[7] ? $this->tpl('auth', $row['user_id'], $row['username']) : '';
 			break;
 			case 2:
-				$return = $get_auths[7] ? $this->tpl('prefs', $get_urls[5]) : '';
+				$data = $get_auths[7] ? $this->tpl('prefs', $get_urls[5]) : '';
 			break;
 			case 3:
-				$return = $get_auths[2] ? $this->tpl('admin', $get_urls[2]) : '';
+				$data = $get_auths[2] ? $this->tpl('admin', $get_urls[2]) : '';
 			break;
 			case 4:
-				$return = $get_auths[3] ? $this->tpl('modo', $get_urls[3]) : '';
+				$data = $get_auths[3] ? $this->tpl('modo', $get_urls[3]) : '';
 			break;
 			case 5:
-				$return = ($get_auths[4] && $go_founder) ? $this->tpl('ban', $get_urls[4]) : '';
+				$data = ($get_auths[4] && $go_founder) ? $this->tpl('ban', $get_urls[4]) : '';
 			break;
 			case 6:
-				$return = (($get_auths[1] || $get_auths[5]) && $go_founder) ? $this->tpl('remove', $row['user_id']) : '';
+				$data = (($get_auths[1] || $get_auths[5]) && $go_founder) ? $this->tpl('remove', $row['user_id']) : '';
 			break;
 			case 7:
-				$return = (($get_auths[1] || $get_auths[7]) && $go_founder) ? $this->tpl('perso', $row['user_id']) : '';
+				$data = (($get_auths[1] || $get_auths[7]) && $go_founder) ? $this->tpl('perso', $row['user_id']) : '';
 			break;
 			case 8:
-				$return = $get_auths[8] ? $this->tpl('robot', $sort) : '';
+				$data = $get_auths[8] ? $this->tpl('robot', $sort) : '';
 			break;
 		}
 
-		return $return;
+		return $data;
 	}
 
 	private function get_auths()

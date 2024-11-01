@@ -1,9 +1,9 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -191,7 +191,6 @@ class admin_controller
 				'ADD_SOUND'					=> $this->functions_admin->build_adm_sound_select('add'),
 				'EDIT_SOUND'				=> $this->functions_admin->build_adm_sound_select('edit'),
 				'SHOUT_SOUNDS_PATH'			=> $this->ext_path . 'sounds/',
-				'SHOUT_IMG_PATH'			=> $this->ext_path . 'images/',
 				'U_DATE_FORMAT'				=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'date_format']),
 			]);
 		}
@@ -702,16 +701,36 @@ class admin_controller
 
 	public function acp_shoutbox_smilies()
 	{
-		// List of smilies
-		$this->functions_admin->list_smilies(1);
-		// List of smilies popup
-		$this->functions_admin->list_smilies(0);
+		$mode = $this->request->variable('mode', '');
+		$form_key = 'sylver35/breizhshoutbox';
+		add_form_key($form_key);
+		if ($this->request->is_set_post('update'))
+		{
+			if (!check_form_key($form_key))
+			{
+				trigger_error($this->language->lang('FORM_INVALID') . adm_back_link($this->u_action), E_USER_WARNING);
+			}
+
+			$this->functions_admin->update_config([
+				'shout_smilies_per_page'	=> $this->request->variable('shout_smilies_per_page', 12),
+			]);
+
+			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode));
+			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
+		}
+		else
+		{
+			// List of smilies
+			$this->functions_admin->list_smilies(1);
+			// List of smilies popup
+			$this->functions_admin->list_smilies(0);
+		}
 
 		$this->template->assign_vars([
-			'SHOUT_USER_ID'			=> $this->user->data['user_id'],
-			'SMILIES_URL'			=> $this->root_path . $this->config['smilies_path'] . '/',
-			'U_DISPLAY_AJAX'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'display_smilies']),
-			'SHOUT_IMG_PATH'		=> $this->ext_path . 'images/',
+			'SHOUT_SMILIES_PER_PAGE'	=> $this->config['shout_smilies_per_page'],
+			'SHOUT_USER_ID'				=> $this->user->data['user_id'],
+			'SMILIES_URL'				=> $this->root_path . $this->config['smilies_path'] . '/',
+			'U_DISPLAY_AJAX'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'display_smilies']),
 		]);
 	}
 
@@ -805,6 +824,25 @@ class admin_controller
 				'SERVER_HOUR'				=> $this->language->lang('SHOUT_SERVER_HOUR', date('H'), date('i')),
 			]);
 		}
+	}
+
+	public function get_data($mode)
+	{
+		$meta = $this->work->get_version();
+		$img_src = $this->ext_path . 'images/';
+		$this->template->assign_vars(array(
+			'TITLE_EXPLAIN'		=> $this->language->lang('ACP_SHOUT_' . strtoupper($mode) . '_T_EXPLAIN'),
+			'SHOUTBOX_VERSION'	=> $this->language->lang('SHOUTBOX_VERSION_ACP_COPY', $meta['homepage'], $meta['version']),
+			'SHOUT_VERSION'		=> $meta['version'],
+			'SHOUT_IMG_PATH'	=> $img_src,
+			'IMAGE_TITLE'		=> $img_src . strtolower($mode) . '.webp',
+			'IMAGE_SUBMIT'		=> $img_src . 'submit.webp',
+			'IMAGE_MESSAGES'	=> $img_src . 'messages.webp',
+			'IMAGE_SETTINGS'	=> $img_src . 'reglages.webp',
+			'IMAGE_PURGE'		=> $img_src . 'burn.webp',
+			'IMAGE_STATS'		=> $img_src . 'numbers.webp',
+			'IMAGE_ALERT'		=> $img_src . 'alert.webp',
+		));
 	}
 
 	/**

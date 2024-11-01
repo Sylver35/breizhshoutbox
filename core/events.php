@@ -1,9 +1,9 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -78,34 +78,31 @@ class events
 	 */
 	public function post_session_shout($event)
 	{
-		if ($event['session_viewonline'])
-		{
-			$go_post = $this->get_session_shout($this->shoutbox_table, 'shout_sessions', (int) $event['session_user_id']);
-			$go_post_priv = $this->get_session_shout($this->shoutbox_priv_table, 'shout_sessions_priv', (int) $event['session_user_id']);
+		$go_post = $this->work->get_session_shout($this->shoutbox_table, 'shout_sessions', (int) $event['session_user_id']);
+		$go_post_priv = $this->work->get_session_shout($this->shoutbox_priv_table, 'shout_sessions_priv', (int) $event['session_user_id']);
 
-			$this->robot->insert_message_robot([
-				'shout_time'				=> time(),
-				'shout_user_id'				=> 0,
-				'shout_ip'					=> (string) $this->user->ip,
-				'shout_text'				=> 'view',
-				'shout_bbcode_uid'			=> '',
-				'shout_bbcode_bitfield'		=> '',
-				'shout_bbcode_flags'		=> 0,
-				'shout_robot'				=> 1,
-				'shout_robot_user'			=> (int) $event['session_user_id'],
-				'shout_forum'				=> 0,
-				'shout_info'				=> 1,
-			], $go_post, $go_post_priv);
-		}
+		$this->robot->insert_message_robot([
+			'shout_time'				=> time(),
+			'shout_user_id'				=> 0,
+			'shout_ip'					=> (string) $this->user->ip,
+			'shout_text'				=> 'view',
+			'shout_bbcode_uid'			=> '',
+			'shout_bbcode_bitfield'		=> '',
+			'shout_bbcode_flags'		=> 0,
+			'shout_robot'				=> 1,
+			'shout_robot_user'			=> (int) $event['session_user_id'],
+			'shout_forum'				=> 0,
+			'shout_info'				=> 1,
+		], $go_post, $go_post_priv, true);
 	}
-	
+
 	/*
 	 * Display infos Robot for bots connections
 	 */
 	public function post_session_bot($event)
 	{
-		$go_post = $this->get_session_shout($this->shoutbox_table, 'shout_sessions_bots', (int) $event['session_user_id']);
-		$go_post_priv = $this->get_session_shout($this->shoutbox_priv_table, 'shout_sessions_bots_priv', (int) $event['session_user_id']);
+		$go_post = $this->work->get_session_shout($this->shoutbox_table, 'shout_sessions_bots', (int) $event['session_user_id']);
+		$go_post_priv = $this->work->get_session_shout($this->shoutbox_priv_table, 'shout_sessions_bots_priv', (int) $event['session_user_id']);
 
 		$this->robot->insert_message_robot([
 			'shout_time'				=> time(),
@@ -134,7 +131,7 @@ class events
 			'shout_user_id'				=> 0,
 			'shout_ip'					=> (string) $this->user->ip,
 			'shout_text'				=> (string) $this->parse_web_adress($event['subject']),
-			'shout_text2'				=> (string) $this->shoutbox->url_free_sid($event['url']),
+			'shout_text2'				=> (string) $this->shoutbox->clean_url($event['url']),
 			'shout_bbcode_uid'			=> '',
 			'shout_bbcode_bitfield'		=> '',
 			'shout_bbcode_flags'		=> 0,
@@ -198,8 +195,7 @@ class events
 	{
 		if ($this->config['shout_bbcode'] !== '')
 		{
-			$disallowed_bbcodes = explode(', ', $this->config['shout_bbcode']);
-			$sql_ary['WHERE'] .= ' AND ' . $this->db->sql_in_set('b.bbcode_tag', $disallowed_bbcodes, true);
+			$sql_ary['WHERE'] .= ' AND ' . $this->db->sql_in_set('b.bbcode_tag', explode(', ', $this->config['shout_bbcode']), true);
 		}
 
 		return $sql_ary;
@@ -448,33 +444,14 @@ class events
 		// Parse web adress in subject to prevent bug
 		return str_replace(['http://www.', 'http://', 'https://www.', 'https://', 'www.', 'Re: ', "'"], ['', '', '', '', '', '', $this->language->lang('SHOUT_PROTECT')], $adress);
 	}
-	
-	private function get_session_shout($table, $sessions, $user_id)
-	{
-		if (!$this->config[$sessions])
-		{
-			return false;
-		}
-
-		$interval = (int) $this->config['shout_sessions_time'] * 60;
-		$sql = 'SELECT shout_time
-			FROM ' . $table . '
-				WHERE shout_robot = 1 AND shout_robot_user = ' . $user_id . ' AND shout_time BETWEEN ' . (time() - $interval) . ' AND ' . time();
-		$result = $this->db->sql_query($sql);
-		$is_posted = $this->db->sql_fetchfield('shout_time');
-		$go_post = $is_posted ? false : true;
-		$this->db->sql_freeresult($result);
-
-		return $go_post;
-	}
 
 	private function delete_all_user_messages($user_id, $table, $sort_of)
 	{
 		$this->db->sql_query('DELETE FROM ' . $table . " WHERE shout_user_id = $user_id");
 		$deleted = $this->db->sql_affectedrows();
-		$this->db->sql_query('DELETE FROM ' . $table . " WHERE shout_robot_user = $user_id");
-		$deleted += $this->db->sql_affectedrows();
 		$this->db->sql_query('DELETE FROM ' . $table . " WHERE shout_inp = $user_id");
+		$deleted += $this->db->sql_affectedrows();
+		$this->db->sql_query('DELETE FROM ' . $table . " WHERE shout_robot_user = $user_id");
 		$deleted += $this->db->sql_affectedrows();
 		if ($deleted)
 		{

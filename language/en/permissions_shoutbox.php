@@ -5,8 +5,8 @@
 *
 * @package language
 * @version $Id: permissions_shoutbox.php 100
-* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 

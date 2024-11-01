@@ -1,9 +1,9 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -14,7 +14,6 @@ use sylver35\breizhshoutbox\core\work;
 use sylver35\breizhshoutbox\core\robot;
 use sylver35\breizhshoutbox\core\javascript;
 use sylver35\breizhshoutbox\core\bbcodes;
-use sylver35\breizhshoutbox\core\avatar;
 use phpbb\cache\driver\driver_interface as cache;
 use phpbb\config\config;
 use phpbb\controller\helper;
@@ -44,9 +43,6 @@ class shoutbox
 
 	/* @var \sylver35\breizhshoutbox\core\bbcodes */
 	protected $bbcodes;
-
-	/* @var \sylver35\breizhshoutbox\core\avatar */
-	protected $avatar;
 
 	/** @var \phpbb\cache\driver\driver_interface */
 	protected $cache;
@@ -122,13 +118,12 @@ class shoutbox
 	/**
 	 * Constructor
 	 */
-	public function __construct(work $work, robot $robot, javascript $javascript, bbcodes $bbcodes, avatar $avatar, cache $cache, config $config, helper $helper, path_helper $path_helper, db $db, pagination $pagination, request $request, template $template, auth $auth, user $user, language $language, log $log, Container $phpbb_container, manager $ext_manager, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
+	public function __construct(work $work, robot $robot, javascript $javascript, bbcodes $bbcodes, cache $cache, config $config, helper $helper, path_helper $path_helper, db $db, pagination $pagination, request $request, template $template, auth $auth, user $user, language $language, log $log, Container $phpbb_container, manager $ext_manager, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table, $shoutbox_rules_table)
 	{
 		$this->work = $work;
 		$this->robot = $robot;
 		$this->javascript = $javascript;
 		$this->bbcodes = $bbcodes;
-		$this->avatar = $avatar;
 		$this->cache = $cache;
 		$this->config = $config;
 		$this->helper = $helper;
@@ -678,7 +673,7 @@ class shoutbox
 		// Personalize message if needed
 		$message = ($personalize) ? $this->bbcodes->personalize_message($message) : $message;
 
-		return $this->url_free_sid($message);
+		return $this->clean_url($message);
 	}
 
 	private function verify_message_length($message)
@@ -739,62 +734,34 @@ class shoutbox
 		return $data;
 	}
 
-	/* 
-	 * Construct url whithout sid
-	 * Because urls must be construct for all and use append_sid() after
+	/**
+	 * Clean URL whithout sid
+	 *
+	 * @param string $url
+	 *
+	 * @return string
 	 */
-	public function url_free_sid($content)
+	public function clean_url($url)
 	{
-		if (strpos($content, 'sid=') !== false)
+		$url = trim($url);
+
+		// Escape ampersand
+		$url = htmlspecialchars($url, ENT_COMPAT, 'UTF-8', false);
+
+		// Remove app.php/ from URL
+		if ((int) $this->config['enable_mod_rewrite'] === 1)
 		{
-			$rep = explode('sid=', $content);
-			// the sid number is on second part and 32 long
-			if (strlen($rep[1]) > 32)
-			{
-				$sid_32 = substr($rep[1], 0, 32);
-				$content = str_replace([$sid_32, '&amp;sid=', '&sid=', '?sid=', '-sid='], '', $content);
-			}
-			else
-			{
-				$content = $rep[0];
-			}
-			// Prevent somes bugs here
-			$content = str_replace(['?&amp;', '?&', '&&amp;', '&amp&amp;', '&amp;&amp;'], ['?', '?', '&amp;', '&amp;', '&amp;'], $content);
+			$url = preg_replace('#app\.' . $this->php_ext . '/(.+)$#', '\1', $url);
 		}
 
-		return $content;
-	}
+		// Remove SID from URL
+		$url = preg_replace('#(?:&amp;)?sid=\w{0,128}#', '', $url);
+		$url = str_replace('?&amp;', '?', $url);
 
-	public function action_user($row, $id, $sort)
-	{
-		// Founders protection
-		$go_founder = ($row['user_type'] != USER_FOUNDER || $this->user->data['user_type'] == USER_FOUNDER) ? true : false;
-		$action = $this->work->create_action_user($row, $sort, $go_founder);
+		// Remove index.php without parameters
+		$url = preg_replace('#index\.' . $this->php_ext . '$#', '', $url);
 
-		return [
-			'type'			=> 3,
-			'id'			=> (int) $row['user_id'],
-			'sort'			=> $sort,
-			'foe'			=> ($row['foe']) ? true : false,
-			'inp'			=> ($this->auth->acl_gets(['u_shout_post_inp', 'a_', 'm_'])) ? true : false,
-			'retour'		=> ($this->auth->acl_get('a_user') || $this->auth->acl_get('m_') || ($this->auth->acl_get('m_ban') && $go_founder)) ? true : false,
-			'username'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'], '', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", 'mode=viewprofile')),
-			'avatar'		=> $this->avatar->shout_user_avatar($row, 60, true),
-			'url_message'	=> $this->work->tpl('personal'),
-			'url_del_to'	=> $this->work->tpl('delreqto', $id),
-			'url_del'		=> $this->work->tpl('delreq', $id),
-			'url_cite'		=> $this->work->tpl('citemsg'),
-			'url_cite_m'	=> $this->work->tpl('citemulti', $row['username'], $row['user_colour']),
-			'url_profile'	=> $action['url_profile'],
-			'url_auth'		=> $action['url_auth'],
-			'url_prefs'		=> $action['url_prefs'],
-			'url_admin'		=> $action['url_admin'],
-			'url_modo'		=> $action['url_modo'],
-			'url_ban'		=> $action['url_ban'],
-			'url_remove'	=> $action['url_remove'],
-			'url_perso'		=> $action['url_perso'],
-			'url_robot'		=> $action['url_robot'],
-		];
+		return $url;
 	}
 
 	public function shout_text_for_display($row, $sort, $acp)
@@ -833,7 +800,7 @@ class shoutbox
 			$row['shout_text'] = str_replace('class="postlink', 'onclick="window.open(this.href);return false;" class="postlink', $row['shout_text']);
 		}
 
-		return $this->work->shout_url($row['shout_text']);
+		return $row['shout_text'];//$this->work->shout_url()
 	}
 
 	public function get_topic_data($event, $forum_id)

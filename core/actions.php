@@ -1,9 +1,9 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -12,6 +12,7 @@ namespace sylver35\breizhshoutbox\core;
 use sylver35\breizhshoutbox\core\shoutbox;
 use sylver35\breizhshoutbox\core\work;
 use sylver35\breizhshoutbox\core\robot;
+use sylver35\breizhshoutbox\core\avatar;
 use phpbb\config\config;
 use phpbb\db\driver\driver_interface as db;
 use phpbb\auth\auth;
@@ -29,6 +30,9 @@ class actions
 
 	/* @var \sylver35\breizhshoutbox\core\robot */
 	protected $robot;
+
+	/* @var \sylver35\breizhshoutbox\core\avatar */
+	protected $avatar;
 
 	/** @var \phpbb\config\config */
 	protected $config;
@@ -51,17 +55,21 @@ class actions
 	/** @var string phpBB root path */
 	protected $root_path;
 
+	/** @var string phpEx */
+	protected $php_ext;
+
 	/** @var string root path web */
 	protected $root_path_web;
 
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, work $work, robot $robot, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path)
+	public function __construct(shoutbox $shoutbox, work $work, robot $robot, avatar $avatar, config $config, db $db, auth $auth, user $user, language $language, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext)
 	{
 		$this->shoutbox = $shoutbox;
 		$this->work = $work;
 		$this->robot = $robot;
+		$this->avatar = $avatar;
 		$this->config = $config;
 		$this->db = $db;
 		$this->auth = $auth;
@@ -69,6 +77,7 @@ class actions
 		$this->language = $language;
 		$this->phpbb_dispatcher = $phpbb_dispatcher;
 		$this->root_path = $root_path;
+		$this->php_ext = $php_ext;
 		$this->root_path_web = generate_board_url() . '/';
 	}
 
@@ -246,9 +255,41 @@ class actions
 			}
 			else
 			{
-				return $this->shoutbox->action_user($row, $val['userid'], $val['sort']);
+				return $this->send_action_user($row, $val['userid'], $val['sort']);
 			}
 		}
+	}
+
+	public function send_action_user($row, $id, $sort)
+	{
+		// Founders protection
+		$founder = ($row['user_type'] != USER_FOUNDER || $this->user->data['user_type'] == USER_FOUNDER) ? true : false;
+		$action = $this->work->create_action_user($row, $founder);
+
+		return [
+			'type'			=> 3,
+			'id'			=> (int) $row['user_id'],
+			'sort'			=> $sort,
+			'foe'			=> ($row['foe']) ? true : false,
+			'inp'			=> ($this->auth->acl_gets(['u_shout_post_inp', 'a_', 'm_'])) ? true : false,
+			'return'		=> ($this->auth->acl_get('a_user') || $this->auth->acl_get('m_') || ($this->auth->acl_get('m_ban') && $founder)) ? true : false,
+			'username'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'], '', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", 'mode=viewprofile')),
+			'avatar'		=> $this->avatar->shout_user_avatar($row, 60, true),
+			'url_message'	=> $this->work->tpl('personal'),
+			'url_del_to'	=> $this->work->tpl('delreqto', $id),
+			'url_del'		=> $this->work->tpl('delreq', $id),
+			'url_cite'		=> $this->work->tpl('citemsg'),
+			'url_cite_m'	=> $this->work->tpl('citemulti', $row['username'], $row['user_colour']),
+			'url_profile'	=> $action['url_profile'],
+			'url_auth'		=> $action['url_auth'],
+			'url_prefs'		=> $action['url_prefs'],
+			'url_admin'		=> $action['url_admin'],
+			'url_modo'		=> $action['url_modo'],
+			'url_ban'		=> $action['url_ban'],
+			'url_remove'	=> $action['url_remove'],
+			'url_perso'		=> $action['url_perso'],
+			'url_robot'		=> $action['url_robot'],
+		];
 	}
 
 	public function action_post($val, $message)

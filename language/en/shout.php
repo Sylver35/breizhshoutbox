@@ -5,8 +5,8 @@
 *
 * @package language
 * @version $Id: shout.php 100
-* @copyright (c) 2018-2021 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License 
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License 
 *
 */
 
@@ -102,7 +102,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_POST_IP'			=> 'IP of the user:',
 	'SHOUTBOX'				=> '<a href="%1$s">%2$s</a>', // Don't traduct this
 	'SHOUTBOX_VER'			=> 'Breizh Shoutbox v%s', // Don't traduct this
-	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2021', // Don't traduct this
+	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2024', // Don't traduct this
 	'SHOUT_TOUCH'			=> 'The Breizh Touch', // Don't traduct this
 	'SHOUTBOX_POPUP'		=> 'Breizh Shoutbox Popup',
 	'SHOUT_POP'				=> 'Open shoutbox in a popup',
@@ -219,7 +219,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_BBCODE_ERROR_IMB'	=> '❗ Error, the closing bbcode “%2$s” is poorly nested',
 	'SHOUT_BBCODE_ERROR_IMBS'	=> '❗ Error, the %1$s closing bbcodes “%2$s” are poorly nested',
 	'SHOUT_DIV_BBCODE_CLOSE'	=> '🔒 Close the panel formatting messages',
-	'SHOUT_DIV_BBCODE_EXPLAIN'	=> 'You can customize the formatting of your messages in the shoutbox.<br />Enter bbcodes simple, openings in the first zone, closings in the second.<br />❗ Caution: Observe the nesting bbcodes well and remember to close all.<br />Exemple: <em>[b][i] and [/i][/b]</em>',
+	'SHOUT_DIV_BBCODE_EXPLAIN'	=> 'You can customize the formatting of your messages in the shoutbox.<br/>Enter bbcodes simple, openings in the first zone, closings in the second.<br/>❗ Caution: Observe the nesting bbcodes well and remember to close all.<br/>Exemple: <em>[b][i] and [/i][/b]</em>',
 
 	// User actions panel
 	'SHOUT_ACTION_TITLE'			=> '🎯 Actions for the user',

@@ -64,7 +64,6 @@ services:
             - '@sylver35.breizhshoutbox.robot'
             - '@sylver35.breizhshoutbox.javascript'
             - '@sylver35.breizhshoutbox.bbcodes'
-            - '@sylver35.breizhshoutbox.avatar'
             - '@cache.driver'
             - '@config'
             - '@controller.helper'
@@ -138,6 +137,7 @@ services:
             - '@sylver35.breizhshoutbox.shoutbox'
             - '@sylver35.breizhshoutbox.work'
             - '@sylver35.breizhshoutbox.robot'
+            - '@sylver35.breizhshoutbox.avatar'
             - '@config'
             - '@dbal.conn'
             - '@auth'
@@ -145,6 +145,7 @@ services:
             - '@language'
             - '@dispatcher'
             - '%core.root_path%'
+            - '%core.php_ext%'
 
     sylver35.breizhshoutbox.work:
         class: sylver35\breizhshoutbox\core\work

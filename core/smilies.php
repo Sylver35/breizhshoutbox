@@ -1,9 +1,9 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -52,9 +52,9 @@ class smilies
 		$this->root_path_web = generate_board_url() . '/';
 	}
 
-	public function smilies()
+	public function smilies($start)
 	{
-		$smilies = $this->extact_list_smilies(1);
+		$smilies = $this->extact_list_smilies(1, $start);
 
 		$sql = 'SELECT COUNT(smiley_id) as total
 			FROM ' . SMILIES_TABLE . '
@@ -64,10 +64,11 @@ class smilies
 		$this->db->sql_freeresult($result);
 
 		$content = [
-			'smilies'	=> $smilies['list'],
-			'total'		=> $smilies['nb'],
-			'nb_pop'	=> $row_nb,
-			'url'		=> $this->root_path_web . $this->config['smilies_path'] . '/',
+			'smilies'		=> $smilies['list'],
+			'total'			=> $smilies['nb'],
+			'nb_pop'		=> $row_nb,
+			'pagination'	=> $smilies['pagin'],
+			'url'			=> $this->root_path_web . $this->config['smilies_path'] . '/',
 		];
 
 		/**
@@ -83,16 +84,18 @@ class smilies
 		return $content;
 	}
 
-	public function smilies_popup($cat)
+	public function smilies_popup($cat, $start)
 	{
-		$smilies = $this->extact_list_smilies(0);
+		$smilies = $this->extact_list_smilies(0, $start);
+		$cat = (int) $cat;
 
 		$content = [
-			'smilies'	=> $smilies['list'],
-			'total'		=> $smilies['nb'],
-			'nb_pop'	=> 0,
-			'url'		=> $this->root_path_web . $this->config['smilies_path'] . '/',
-			'on_cat'	=> $cat,
+			'smilies'		=> $smilies['list'],
+			'total'			=> $smilies['nb'],
+			'nb_pop'		=> 0,
+			'pagination'	=> $smilies['pagin'],
+			'url'			=> $this->root_path_web . $this->config['smilies_path'] . '/',
+			'on_cat'		=> $cat,
 		];
 
 		/**
@@ -103,13 +106,13 @@ class smilies
 		 * @var	int		cat				The id of smilies category if needed
 		 * @since 1.7.0
 		 */
-		$vars = ['content', 'cat'];
+		$vars = ['content', 'cat', 'start'];
 		extract($this->phpbb_dispatcher->trigger_event('breizhshoutbox.smilies_popup', compact($vars)));
 
 		return $content;
 	}
 
-	public function display_smilies($smiley, $display)
+	public function run_smilies($smiley, $display)
 	{
 		$var_set = ($display === 1) ? 0 : 1;
 		$data = [
@@ -122,17 +125,17 @@ class smilies
 		$smilies_pop = $this->extact_list_smilies(0);
 
 		$data = array_merge($data, [
-			'smilies'		=> $smilies['list'],
-			'smiliesPop'	=> $smilies_pop['list'],
 			'total'			=> $smilies['nb'],
 			'totalPop'		=> $smilies_pop['nb'],
+			'smilies'		=> $smilies['list'],
+			'smiliesPop'	=> $smilies_pop['list'],
 			'url'			=> $this->root_path_web . $this->config['smilies_path'] . '/',
 		]);
 
 		return $data;
 	}
 
-	private function extact_list_smilies($sort)
+	private function extact_list_smilies($sort, $start = -1)
 	{
 		$i = 0;
 		$smilies = [];
@@ -143,7 +146,7 @@ class smilies
 			'GROUP_BY'	=> 'smiley_url',
 			'ORDER_BY'	=> 'min_smiley_order ASC',
 		]);
-		$result = $this->work->shout_sql_query($sql);
+		$result = ($start !== -1) ? $this->work->shout_sql_query($sql, true, (int) $this->config['shout_smilies_per_page'], $start) : $this->work->shout_sql_query($sql);
 		if (!$result)
 		{
 			return;
@@ -163,9 +166,17 @@ class smilies
 		}
 		$this->db->sql_freeresult($result);
 
+		$sql = 'SELECT COUNT(smiley_id) as total
+			FROM ' . SMILIES_TABLE . '
+				WHERE display_on_shout = ' . $sort;
+		$result = $this->work->shout_sql_query($sql);
+		$pagin = (int) $this->db->sql_fetchfield('total');
+		$this->db->sql_freeresult($result);
+
 		return [
 			'list'	=> $smilies,
 			'nb'	=> $i,
+			'pagin'	=> $pagin,
 		];
 	}
 }

@@ -1,10 +1,10 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
+* @package phpBB Extension - Breizh Shoutbox
 * 
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -38,16 +38,12 @@ class main_module
 		$template = $phpbb_container->get('template');
 		/** @type \sylver35\breizhshoutbox\controller\admin_controller $admin_controller */
 		$admin_controller = $phpbb_container->get('sylver35.breizhshoutbox.admin.controller');
-		/** @type \sylver35\breizhshoutbox\core\work $work */
-		$work = $phpbb_container->get('sylver35.breizhshoutbox.work');
 		// Make the $u_action url available in the admin controller
 		$admin_controller->set_page_url($this->u_action);
 
 		$this->tpl_name = 'breizhshoutbox_body';
 		$this->page_title = 'ACP_SHOUT_' . strtoupper($mode) . '_T';
-		$active = 'S_' . strtoupper($mode);
-		$img_src = $phpbb_root_path . 'ext/sylver35/breizhshoutbox/images/';
-		$meta = $work->get_version();
+		$admin_controller->get_data($mode);
 
 		switch ($mode)
 		{
@@ -96,20 +92,10 @@ class main_module
 		}
 
 		$template->assign_vars(array(
-			'U_ACTION'			=> $this->u_action,
-			'TITLE'				=> $language->lang($this->page_title),
-			'TITLE_EXPLAIN'		=> $language->lang('ACP_SHOUT_' . strtoupper($mode) . '_T_EXPLAIN'),
-			'SHOUTBOX_VERSION'	=> $language->lang('SHOUTBOX_VERSION_ACP_COPY', $meta['homepage'], $meta['version']),
-			'SHOUT_VERSION'		=> $meta['version'],
-			'IMAGE_TITLE'		=> $img_src . strtolower($mode) . '.webp',
-			'IMAGE_SUBMIT'		=> $img_src . 'submit.webp',
-			'IMAGE_MESSAGES'	=> $img_src . 'messages.webp',
-			'IMAGE_SETTINGS'	=> $img_src . 'reglages.webp',
-			'IMAGE_PURGE'		=> $img_src . 'burn.webp',
-			'IMAGE_STATS'		=> $img_src . 'numbers.webp',
-			'IMAGE_ALERT'		=> $img_src . 'alert.webp',
-			'S_IN_SHOUTBOX'		=> true,
-			$active				=> true,
+			'U_ACTION'				=> $this->u_action,
+			'TITLE'					=> $language->lang($this->page_title),
+			'S_IN_SHOUTBOX'			=> true,
+			'S_' . strtoupper($mode)=> true,
 		));
 	}
 }

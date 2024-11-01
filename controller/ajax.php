@@ -1,9 +1,9 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
-* @license http://opensource.org/licenses/gpl-license.php GNU Public License
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
 
@@ -52,15 +52,15 @@ class ajax
 		switch ($mode)
 		{
 			case 'smilies':
-				$data = $this->smilies->smilies();
+				$data = $this->smilies->smilies($this->value('start', 0));
 			break;
 
 			case 'smilies_popup':
-				$data = $this->smilies->smilies_popup($this->value('cat', -1));
+				$data = $this->smilies->smilies_popup($this->value('cat', -1), $this->value('start', 0));
 			break;
 
 			case 'display_smilies':
-				$data = $this->smilies->display_smilies($this->value('smiley', 0), $this->value('display', 3));
+				$data = $this->smilies->run_smilies($this->value('smiley', 0), $this->value('display', 3));
 			break;
 
 			case 'user_bbcode':

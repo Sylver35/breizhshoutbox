@@ -1,8 +1,8 @@
 <?php
 /**
 *
-* @package Breizh Shoutbox Extension
-* @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
+* @package phpBB Extension - Breizh Shoutbox
+* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -137,18 +137,21 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function charge_post_session_shout($event)
 	{
-		if ($this->user->data['is_bot'])
+		if ($event['session_data']['session_viewonline'] && $this->config['shout_enable_robot'])
 		{
-			if ($this->config['shout_sessions_bots'] || $this->config['shout_sessions_bots_priv'])
+			if ($this->user->data['is_registered'])
 			{
-				$this->events->post_session_bot($event['session_data']);
+				if ($this->config['shout_sessions'] || $this->config['shout_sessions_priv'])
+				{
+					$this->events->post_session_shout($event['session_data']);
+				}
 			}
-		}
-		else if ($this->user->data['is_registered'])
-		{
-			if ($this->config['shout_sessions'] || $this->config['shout_sessions_priv'])
+			else if ($this->user->data['is_bot'])
 			{
-				$this->events->post_session_shout($event['session_data']);
+				if ($this->config['shout_sessions_bots'] || $this->config['shout_sessions_bots_priv'])
+				{
+					$this->events->post_session_bot($event['session_data']);
+				}
 			}
 		}
 	}
@@ -181,7 +184,10 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function shout_update_username($event)
 	{
-		$this->events->shout_update_username($event);
+		if ($this->config['shout_enable_robot'])
+		{
+			$this->events->shout_update_username($event);
+		}
 	}
 
 	/**
@@ -189,7 +195,10 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function shout_add_newest_user($event)
 	{
-		$this->events->shout_add_newest_user($event);
+		if ($this->config['shout_enable_robot'])
+		{
+			$this->events->shout_add_newest_user($event);
+		}
 	}
 
 	/**
@@ -297,7 +306,10 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function add_song_after($event)
 	{
-		$this->events->add_song_after($event);
+		if ($this->config['shout_enable_robot'])
+		{
+			$this->events->add_song_after($event);
+		}
 	}
 
 	/**
@@ -305,7 +317,10 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function reset_all_notes($event)
 	{
-		$this->events->reset_all_notes($event);
+		if ($this->config['shout_enable_robot'])
+		{
+			$this->events->reset_all_notes($event);
+		}
 	}
 
 	/**
@@ -313,7 +328,10 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function submit_new_video($event)
 	{
-		$this->events->submit_new_video($event);
+		if ($this->config['shout_enable_robot'])
+		{
+			$this->events->submit_new_video($event);
+		}
 	}
 
 	/**
@@ -321,7 +339,7 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function submit_new_score($event)
 	{
-		if ($this->config['shout_arcade_new'])
+		if ($this->config['shout_enable_robot'] && $this->config['shout_arcade_new'])
 		{
 			$muser = ($event['muserid'] == 0) ? true : false;
 			$this->events->submit_arcade_score($event, $muser);
@@ -333,7 +351,7 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function submit_new_record($event)
 	{
-		if ($this->config['shout_arcade_record'])
+		if ($this->config['shout_enable_robot'] && $this->config['shout_arcade_record'])
 		{
 			$this->events->submit_arcade_record($event);
 		}
@@ -344,7 +362,7 @@ class main_listener implements EventSubscriberInterface
 	 */
 	public function submit_new_urecord($event)
 	{
-		if ($event['gamescore'] > 0)
+		if ($this->config['shout_enable_robot'] && ($event['gamescore'] > 0))
 		{
 			$this->events->submit_arcade_urecord($event);
 		}
