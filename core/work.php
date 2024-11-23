@@ -174,7 +174,7 @@ class work
 	}
 
 	/**
-	 * Prints a sql error.
+	 * Prints sql error.
 	 * @param string $sql Sql query
 	 * @param int $line Line number
 	 * @param string $file Filename
@@ -373,7 +373,7 @@ class work
 
 	public function build_select_position($value, $index = false)
 	{
-		// No selected_3 because it's the defaut
+		// No selected_3 because it's the defaut value
 		$selected_0 = $selected_1 = $selected_2 = $selected_4 = '';
 		switch ($value)
 		{

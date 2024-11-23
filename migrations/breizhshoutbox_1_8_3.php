@@ -1,8 +1,8 @@
 <?php
 /**
  *
- * @package Breizh Shoutbox Extension
- * @copyright (c) 2019-2023 Sylver35  https://breizhcode.com
+ * @package phpBB Extension - Breizh Shoutbox
+ * @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
  *
  */
@@ -28,6 +28,9 @@ class breizhshoutbox_1_8_3 extends migration
 		return [
 			// Version of extension
 			['config.update', ['shout_version', '1.8.3']],
+
+			// Config add
+			['config.add', ['shout_smilies_per_page', 20]],
 		];
 	}
 }

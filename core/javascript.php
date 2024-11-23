@@ -104,67 +104,12 @@ class javascript
 
 		if ($this->request->is_set_post('submit'))
 		{
-			$user_shout = [
-				'user'			=> $this->request->variable('user_sound', 2),
-				'new'			=> $this->request->variable('shout_sound_new', 'N', true),
-				'new_priv'		=> $this->request->variable('shout_sound_new_priv', 'N', true),
-				'error'			=> $this->request->variable('shout_sound_error', 'N', true),
-				'del'			=> $this->request->variable('shout_sound_del', 'N', true),
-				'add'			=> $this->request->variable('shout_sound_add', 'N', true),
-				'edit'			=> $this->request->variable('shout_sound_edit', 'N', true),
-				'index'			=> $this->request->variable('position_index', 3),
-				'forum'			=> $this->request->variable('position_forum', 3),
-				'topic'			=> $this->request->variable('position_topic', 3),
-			];
-			$user_shoutbox = [
-				'bar'			=> $this->request->variable('shout_bar', 2),
-				'bar_pop'		=> $this->request->variable('shout_bar_pop', 2),
-				'bar_priv'		=> $this->request->variable('shout_bar_priv', 2),
-				'defil'			=> $this->request->variable('shout_defil', 2),
-				'defil_pop'		=> $this->request->variable('shout_defil_pop', 2),
-				'defil_priv'	=> $this->request->variable('shout_defil_priv', 2),
-				'panel'			=> $this->request->variable('shout_panel', 2),
-				'panel_float'	=> $this->request->variable('shout_panel_float', 2),
-				'dateformat'	=> $this->request->variable('dateformat', '', true),
-			];
-
-			$sql = 'UPDATE ' . USERS_TABLE . "
-				SET user_shout = '" . $this->db->sql_escape(json_encode($user_shout)) . "', user_shoutbox = '" . $this->db->sql_escape(json_encode($user_shoutbox)) . "'
-					WHERE user_id = $user_id";
-			$this->db->sql_query($sql);
-
+			$this->config_submit($user_id);
 			redirect($this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $user_id]));
 		}
 		else if ($this->request->is_set_post('return'))
 		{
-			$user_shout = [
-				'user'			=> 2,
-				'new'			=> 'N',
-				'new_priv'		=> 'N',
-				'error'			=> 'N',
-				'del'			=> 'N',
-				'add'			=> 'N',
-				'edit'			=> 'N',
-				'index'			=> 3,
-				'forum'			=> 3,
-				'topic'			=> 3,
-			];
-			$user_shoutbox = [
-				'bar'			=> 2,
-				'bar_pop'		=> 2,
-				'bar_priv'		=> 2,
-				'defil'			=> 2,
-				'defil_pop'		=> 2,
-				'defil_priv'	=> 2,
-				'panel'			=> 2,
-				'panel_float'	=> 2,
-				'dateformat'	=> '',
-			];
-
-			$sql = 'UPDATE ' . USERS_TABLE . "
-				SET user_shout = '" . $this->db->sql_escape(json_encode($user_shout)) . "', user_shoutbox = '" . $this->db->sql_escape(json_encode($user_shoutbox)) . "'
-					WHERE user_id = $user_id";
-			$this->db->sql_query($sql);
+			$this->config_return($user_id);
 
 			redirect($this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $user_id]));
 		}
@@ -172,6 +117,70 @@ class javascript
 		{
 			$this->data_config_shoutbox($user_id);
 		}
+	}
+
+	private function config_submit($user_id)
+	{
+		$user_shout = [
+			'user'			=> $this->request->variable('user_sound', 2),
+			'new'			=> $this->request->variable('shout_sound_new', 'N', true),
+			'new_priv'		=> $this->request->variable('shout_sound_new_priv', 'N', true),
+			'error'			=> $this->request->variable('shout_sound_error', 'N', true),
+			'del'			=> $this->request->variable('shout_sound_del', 'N', true),
+			'add'			=> $this->request->variable('shout_sound_add', 'N', true),
+			'edit'			=> $this->request->variable('shout_sound_edit', 'N', true),
+			'index'			=> $this->request->variable('position_index', 3),
+			'forum'			=> $this->request->variable('position_forum', 3),
+			'topic'			=> $this->request->variable('position_topic', 3),
+		];
+		$user_shoutbox = [
+			'bar'			=> $this->request->variable('shout_bar', 2),
+			'bar_pop'		=> $this->request->variable('shout_bar_pop', 2),
+			'bar_priv'		=> $this->request->variable('shout_bar_priv', 2),
+			'defil'			=> $this->request->variable('shout_defil', 2),
+			'defil_pop'		=> $this->request->variable('shout_defil_pop', 2),
+			'defil_priv'	=> $this->request->variable('shout_defil_priv', 2),
+			'panel'			=> $this->request->variable('shout_panel', 2),
+			'panel_float'	=> $this->request->variable('shout_panel_float', 2),
+			'dateformat'	=> $this->request->variable('dateformat', '', true),
+		];
+
+		$sql = 'UPDATE ' . USERS_TABLE . "
+			SET user_shout = '" . $this->db->sql_escape(json_encode($user_shout)) . "', user_shoutbox = '" . $this->db->sql_escape(json_encode($user_shoutbox)) . "'
+				WHERE user_id = $user_id";
+		$this->db->sql_query($sql);
+	}
+
+	private function config_return($user_id)
+	{
+		$user_shout = [
+			'user'			=> 2,
+			'new'			=> 'N',
+			'new_priv'		=> 'N',
+			'error'			=> 'N',
+			'del'			=> 'N',
+			'add'			=> 'N',
+			'edit'			=> 'N',
+			'index'			=> 3,
+			'forum'			=> 3,
+			'topic'			=> 3,
+		];
+		$user_shoutbox = [
+			'bar'			=> 2,
+			'bar_pop'		=> 2,
+			'bar_priv'		=> 2,
+			'defil'			=> 2,
+			'defil_pop'		=> 2,
+			'defil_priv'	=> 2,
+			'panel'			=> 2,
+			'panel_float'	=> 2,
+			'dateformat'	=> '',
+		];
+
+		$sql = 'UPDATE ' . USERS_TABLE . "
+			SET user_shout = '" . $this->db->sql_escape(json_encode($user_shout)) . "', user_shoutbox = '" . $this->db->sql_escape(json_encode($user_shoutbox)) . "'
+				WHERE user_id = $user_id";
+		$this->db->sql_query($sql);
 	}
 
 	private function data_config_shoutbox($user_id)
