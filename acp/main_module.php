@@ -3,7 +3,7 @@
 *
 * @package phpBB Extension - Breizh Shoutbox
 * 
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -20,6 +20,9 @@ class main_module
 
 	/** @var string */
 	public $page_title;
+
+	/** @var string */
+	public $id;
 
 	/**
 	 * @param int		$id
@@ -48,43 +51,43 @@ class main_module
 		switch ($mode)
 		{
 			case 'configs':
-				$admin_controller->acp_shoutbox_configs();
+				$admin_controller->acp_shoutbox_configs($mode);
 			break;
 
 			case 'rules':
-				$admin_controller->acp_shoutbox_rules();
+				$admin_controller->acp_shoutbox_rules($mode);
 			break;
 
 			case 'overview':
-				$admin_controller->acp_shoutbox_overview();
+				$admin_controller->acp_shoutbox_overview($mode);
 			break;
 
 			case 'config_gen':
-				$admin_controller->acp_shoutbox_config_gen();
+				$admin_controller->acp_shoutbox_config_gen($mode);
 			break;
 
 			case 'private':
-				$admin_controller->acp_shoutbox_private();
+				$admin_controller->acp_shoutbox_private($mode);
 			break;
 
 			case 'config_priv':
-				$admin_controller->acp_shoutbox_config_priv();
+				$admin_controller->acp_shoutbox_config_priv($mode);
 			break;
 
 			case 'popup':
-				$admin_controller->acp_shoutbox_popup();
+				$admin_controller->acp_shoutbox_popup($mode);
 			break;
 
 			case 'panel':
-				$admin_controller->acp_shoutbox_panel();
+				$admin_controller->acp_shoutbox_panel($mode);
 			break;
 
 			case 'smilies':
-				$admin_controller->acp_shoutbox_smilies();
+				$admin_controller->acp_shoutbox_smilies($mode);
 			break;
 
 			case 'robot':
-				$admin_controller->acp_shoutbox_robot();
+				$admin_controller->acp_shoutbox_robot($mode);
 			break;
 
 			default:
