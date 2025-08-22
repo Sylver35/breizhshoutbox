@@ -4,7 +4,7 @@
 * Breizh Shoutbox Extension [French]
 *
 * @package language
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -160,8 +160,8 @@ $lang = array_merge($lang, array(
 	'SHOUT_RULES_OPEN'				=> 'Règles toujours ouvertes',
 	'SHOUT_RULES_OPEN_EXPLAIN'		=> 'Permet de toujours faire afficher les règles pour tous',
 	'SHOUT_RULES_ON'				=> 'Règles en langage “%s” “%s”',
-	'SHOUT_RULES_ON_EXPLAIN'		=> 'Entrez ici les Règles dans la langue “%s” “%s” pour la shoutbox générale.<br/>Les bbcodes, les liens et les smileys sont activés.',
-	'SHOUT_RULES_ON_PRIV_EXPLAIN'	=> 'Entrez ici les Règles dans la langue “%s” “%s” pour la shoutbox privée.<br/>Les bbcodes, les liens et les smileys sont activés.',
+	'SHOUT_RULES_ON_EXPLAIN'		=> 'Entrez ici les Règles pour la shoutbox générale.',
+	'SHOUT_RULES_ON_PRIV_EXPLAIN'	=> 'Entrez ici les Règles pour la shoutbox privée.',
 	'SHOUT_RULES_VIEW'				=> 'Visualisation des Règles shoutbox générale:',
 	'SHOUT_RULES_VIEW_PRIV'			=> 'Visualisation des Règles shoutbox privée:',
 	'SMILIES_BOX'					=> 'Smileys',
@@ -315,7 +315,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_POSITION_END'			=> 'En bas de la page',
 	'SHOUT_POSITION_NONE'			=> 'Ne pas afficher',
 
-	'SHOUTBOX_VERSION_ACP_COPY'		=> '<a href="%1$s" onclick="window.open(this.href);return false;">Breizh Shoutbox v%2$s</a> © 2018-2024 - Breizhcode - The Breizh Touch', // Don't translate this please ^-^
+	'SHOUTBOX_VERSION_ACP_COPY'		=> '<a href="%1$s" onclick="window.open(this.href);return false;">Breizh Shoutbox v%2$s</a> © 2018-2025 - Breizhcode - The Breizh Touch', // Don't translate this please ^-^
 	'SHOUT_PAGES'					=> 'pages',
 	'SHOUT_SECONDES'				=> 'secondes',
 	'SHOUT_APERCU'					=> 'aperçu: ',
@@ -328,8 +328,8 @@ $lang = array_merge($lang, array(
 	'SHOUT_LOG_ENTRIE'				=> 'Type de tentative effectuée',
 	'SHOUT_NO_ADMIN'				=> 'Vous ne disposez pas des droits d’administration et ne pouvez pas accéder à ces ressouces...',
 	'SHOUT_SERVER_HOUR'				=> [
-		1	=> 'L’heure actuelle du serveur est: %d heure %s',
-		2	=> 'L’heure actuelle du serveur est: %d heures %s',
+		1	=> 'L’heure actuelle du serveur est : <b>%d heure %s</b>',
+		2	=> 'L’heure actuelle du serveur est : <b>%d heures %s</b>',
 	],
 	'SHOUT_BAR'						=> 'Position de la barre de post',
 	'SHOUT_BAR_EXPLAIN'				=> 'Choisissez si vous souhaitez afficher la barre de post en haut ou en bas de la shoutbox.',
@@ -443,14 +443,6 @@ $lang = array_merge($lang, array(
 	'SHOUT_ON_PRIV'						=> 'Connexions dans la shout privée',
 	'SHOUT_PURGE_ON'					=> 'Purger les ',
 
-// Installation
+	// Installation
 	'SHOUT_WELCOME'						=> 'Ceci est votre premier message. Bienvenue dans la Breizh Shoutbox… de la part de Sylver35… ',
-
-// Add new date formats
-	'dateformats'	=> array_merge($lang['dateformats'], array(
-		'|d M| H:i'						=> '[Jours relatifs], 13:37 / 01 janv. 13:37',
-		'|M jS| g:i a'					=> '[Jours relatifs], 1:37 pm / janv. 1er 1:37 pm',
-		'H:i'							=> '13:37',
-		'H:i a'							=> '1:37 pm'
-	)),
 ));

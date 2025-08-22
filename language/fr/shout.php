@@ -4,7 +4,7 @@
 * Breizh Shoutbox Extension [French]
 *
 * @package language
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License 
 *
 */
@@ -101,7 +101,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_POST_IP'			=> 'IP de l’utilisateur :',
 	'SHOUTBOX'				=> '<a href="%1$s">%2$s</a>', // Don't traduct this
 	'SHOUTBOX_VER'			=> 'Breizh Shoutbox v%s', // Don't traduct this
-	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2024', // Don't traduct this
+	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2025', // Don't traduct this
 	'SHOUT_TOUCH'			=> 'The Breizh Touch', // Don't traduct this
 	'SHOUTBOX_POPUP'		=> 'Popup Breizh Shoutbox',
 	'SHOUT_POP'				=> 'Ouvrir la shoutbox dans une popup',
@@ -161,6 +161,7 @@ $lang = array_merge($lang, array(
 	'CHOOSE_EDIT_NO'		=> 'Aucun son ne sera diffusé lors des éditions de messages',
 	'SHOUT_FLOAT_RIGHT'		=> 'à droite',
 	'SHOUT_FLOAT_LEFT'		=> 'à gauche',
+	'SHOUT_REDIRECT'		=> 'La configuration à été mise à jour',
 
 // Permissions errors
 	'NO_POST_GUEST'			=> 'Les invités peuvent poster.',
@@ -209,6 +210,8 @@ $lang = array_merge($lang, array(
 	'SHOUT_LATERAL_CLOSE'		=> '🔒 Refermer le panneau latéral',
 	'SHOUT_AFFICHE'				=> 'afficher le mot de passe',
 	'SHOUT_CACHE'				=> 'cacher le mot de passe',
+	'PREVIOUS'					=> 'Précédente',
+	'NEXT'						=> 'Suivante',
 
 // Formatting messages panel
 	'SHOUT_EXEMPLE'				=> 'Voici un exemple de texte mis en forme',
@@ -226,7 +229,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_BBCODE_ERROR_IMB'	=> '❗ Erreur, le bbcode de fermeture “%2$s” est mal imbriqué',
 	'SHOUT_BBCODE_ERROR_IMBS'	=> '❗ Erreur, les %1$s bbcodes de fermeture “%2$s” sont mal imbriqués',
 	'SHOUT_DIV_BBCODE_CLOSE'	=> '🔒 Refermer le panneau de mise en forme des messages',
-	'SHOUT_DIV_BBCODE_EXPLAIN'	=> 'Vous pouvez personnaliser la mise en forme de vos messages dans la shoutbox.<br/>Entrez des bbcodes simples, les ouvertures dans la première zone, les fermetures dans la seconde.<br/>❗ Attention : respectez bien l’imbrication des bbcodes et n’oubliez pas de bien tous les fermer.<br/>Exemple : <em>[b][i] et [/i][/b]</em>',
+	'SHOUT_DIV_BBCODE_EXPLAIN'	=> 'Vous pouvez personnaliser la mise en forme de vos messages dans la shoutbox.<br>Entrez des bbcodes simples, les ouvertures dans la première zone, les fermetures dans la seconde.<br>❗ Attention : respectez bien l’imbrication des bbcodes et n’oubliez pas de bien tous les fermer.<br>Exemple : <em>[b][i] et [/i][/b]</em>',
 
 // User actions panel
 	'SHOUT_ACTION_TITLE'			=> '🎯 Actions pour l’utilisateur',
@@ -254,7 +257,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_ACTION_REMOVE_NO'		=> '✔ Aucun message supprimé',
 	'SHOUT_ACTION_ADMIN'			=> '⚙ Administrer l’utilisateur',
 	'SHOUT_ACTION_PERSO'			=> '🛠 Modifier la mise en forme des messages de l’utilisateur',
-	'SHOUT_USER_POST'				=> '🔑', // Before a personnal message
+	'SHOUT_USER_POST'				=> '<span class="help" title="message personnel">🔑</span>', // Before a personnal message
 	'SHOUT_USER_IGNORE'				=> 'Vous avez défini ce membre en ignoré',
 	'SHOUT_USER_NONE'				=> '⛔ Aucune action possible pour ce membre',
 
@@ -320,6 +323,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_SESSION_ROBOT_BOT'		=> '✔ %1$s %2$s vient de se connecter sur le forum…',
 	'SHOUT_UPDATE_USERNAME'			=> '♻ Modification du nom d’utilisateur de %1$s vers %2$s',
 
+	// Breizh Chart extension
 	'SHOUT_FROM_OF'					=> '%1$s de %2$s',
 	'SHOUT_SUBJECT_OF'				=> ', sujet : %s',
 	'SHOUT_CHARTS_NEW'				=> '🎼 %1$s nouvelle chanson : %2$s',
@@ -339,4 +343,65 @@ $lang = array_merge($lang, array(
 	'SHOUT_NEW_SCORE_36'			=> '🏆 je viens d’établir le tout premier score de %s points à %s',
 	'SHOUT_NEW_SCORE_37'			=> '🏆 je viens d’établir un nouveau record ultime de %s points à %s',
 	'SHOUT_NEW_SCORE_38'			=> '🏆 je viens d’établir un nouveau record de %s points à %s',
+
+	// Add new date formats
+	'dateformats'	=> array_merge($lang['dateformats'], [
+		'|d M| H:i'						=> '[Jours relatifs], 13:37 / 01 janv. 13:37',
+		'|M jS| g:i a'					=> '[Jours relatifs], 1:37 pm / janv. 1er 1:37 pm',
+		'H:i'							=> '13:37',
+		'H:i a'							=> '1:37 pm'
+	]),
+
+	'datetime'			=> [
+		'TODAY'		=> 'Aujourd’hui',
+		'TOMORROW'	=> 'Demain',
+		'YESTERDAY'	=> 'Hier',
+		'AGO'		=> [
+			0		=> 'il y a moins d’une minute',
+			1		=> 'il y a %d minute',
+			2		=> 'il y a %d minutes',
+		],
+
+		'Sunday'	=> 'dimanche',
+		'Monday'	=> 'lundi',
+		'Tuesday'	=> 'mardi',
+		'Wednesday'	=> 'mercredi',
+		'Thursday'	=> 'jeudi',
+		'Friday'	=> 'vendredi',
+		'Saturday'	=> 'samedi',
+
+		'Sun'		=> 'dim.',
+		'Mon'		=> 'lun.',
+		'Tue'		=> 'mar.',
+		'Wed'		=> 'mer.',
+		'Thu'		=> 'jeu.',
+		'Fri'		=> 'ven.',
+		'Sat'		=> 'sam.',
+
+		'January'	=> 'janvier',
+		'February'	=> 'février',
+		'March'		=> 'mars',
+		'April'		=> 'avril',
+		'May'		=> 'mai',
+		'June'		=> 'juin',
+		'July'		=> 'juillet',
+		'August'	=> 'août',
+		'September' => 'septembre',
+		'October'	=> 'octobre',
+		'November'	=> 'novembre',
+		'December'	=> 'décembre',
+
+		'Jan'		=> 'janv.',
+		'Feb'		=> 'févr.',
+		'Mar'		=> 'mars',
+		'Apr'		=> 'avr.',
+		'May_short'	=> 'mai',	// Short representation of "May". May_short used because in English the short and long date are the same for May.
+		'Jun'		=> 'juin',
+		'Jul'		=> 'juil.',
+		'Aug'		=> 'août',
+		'Sep'		=> 'sept.',
+		'Oct'		=> 'oct.',
+		'Nov'		=> 'nov.',
+		'Dec'		=> 'déc.',
+	],
 ));

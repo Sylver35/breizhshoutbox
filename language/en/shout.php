@@ -5,7 +5,7 @@
 *
 * @package language
 * @version $Id: shout.php 100
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License 
 *
 */
@@ -102,7 +102,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_POST_IP'			=> 'IP of the user:',
 	'SHOUTBOX'				=> '<a href="%1$s">%2$s</a>', // Don't traduct this
 	'SHOUTBOX_VER'			=> 'Breizh Shoutbox v%s', // Don't traduct this
-	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2024', // Don't traduct this
+	'SHOUTBOX_VER_ALT'		=> 'Breizh Shoutbox v%s © 2018-2025', // Don't traduct this
 	'SHOUT_TOUCH'			=> 'The Breizh Touch', // Don't traduct this
 	'SHOUTBOX_POPUP'		=> 'Breizh Shoutbox Popup',
 	'SHOUT_POP'				=> 'Open shoutbox in a popup',
@@ -154,8 +154,9 @@ $lang = array_merge($lang, array(
 	'CHOOSE_DELETE_NO'		=> 'No sound will be played when deleting messages',
 	'SHOUT_FLOAT_RIGHT'		=> 'On right',
 	'SHOUT_FLOAT_LEFT'		=> 'On left',
+	'SHOUT_REDIRECT'		=> 'The configuration has been updated',
 
-	// No permission errors
+// Permissions errors
 	'NO_POST_GUEST'			=> 'Guests can post.',
 	'NO_ACTION_PERM'		=> 'You are not allowed to perform this action',
 	'NO_ADMIN_PERM'			=> 'No admin permission found…',
@@ -202,6 +203,8 @@ $lang = array_merge($lang, array(
 	'SHOUT_LATERAL_CLOSE'		=> '🔒 Close the latéral panel',
 	'SHOUT_AFFICHE'				=> 'show password',
 	'SHOUT_CACHE'				=> 'hide password',
+	'PREVIOUS'					=> 'Previous',
+	'NEXT'						=> 'Next',
 
 	// Formatting messages panel
 	'SHOUT_EXEMPLE'				=> 'Here an example of formatted text',
@@ -274,7 +277,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_ROBOT_OFF'			=> 'Show Robot infos',
 	'SHOUT_SELECT_ROBOT'		=> '❌ Disable the publication by the shoutbox’s robot',
 	'SHOUT_ROBOT_START'			=> '🔉 ', // At the beginning of infos robot
-	'SHOUT_ROBOT_DATE'			=> 'l F j, Y', // Form of the info date
+	'SHOUT_ROBOT_DATE'			=> 'l F d, Y',// Form of the info date, to avoid "less than a minute ago" Wednesday, December 25, 2024
 
 // Robot info messages
 	'SHOUT_POST_ROBOT_14'		=> '%1$s %2$s just create a global announcement: %3$s',
@@ -311,6 +314,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_SESSION_ROBOT_BOT'	=> '✔ %1$s %2$s just connect to the forum…',
 	'SHOUT_UPDATE_USERNAME'			=> '♻ Changing the Username from %1$s to %2$s',
 
+	// Breizh Chart extension
 	'SHOUT_FROM_OF'					=> '%1$s of %2$s',
 	'SHOUT_SUBJECT_OF'				=> ', topic : %s',
 	'SHOUT_CHARTS_NEW'				=> '🎼 %1$s new song : %2$s',
@@ -330,4 +334,65 @@ $lang = array_merge($lang, array(
 	'SHOUT_NEW_SCORE_36'			=> '🏆 I just set the first score of %s points to %s',
 	'SHOUT_NEW_SCORE_37'			=> '🏆 I have just set a new ultimate record of %s points to %s',
 	'SHOUT_NEW_SCORE_38'			=> '🏆 I just set a new record of %s points to %s',
+
+	// Add new formats
+	'dateformats'	=> array_merge($lang['dateformats'], [
+		'|d M| H:i'						=> 'Today, 13:37 / 01 janv. 13:37',
+		'|M jS| g:i a'					=> 'Today, 1:37 pm / janv. 1er 1:37 pm',
+		'H:i'							=> '13:37',
+		'H:i a'							=> '1:37 pm'
+	]),
+
+	'datetime'			=> [
+		'TODAY'		=> 'Today',
+		'TOMORROW'	=> 'Tomorrow',
+		'YESTERDAY'	=> 'Yesterday',
+		'AGO'		=> [
+			0		=> 'less than a minute ago',
+			1		=> '%d minute ago',
+			2		=> '%d minutes ago',
+		],
+
+		'Sunday'	=> 'Sunday',
+		'Monday'	=> 'Monday',
+		'Tuesday'	=> 'Tuesday',
+		'Wednesday'	=> 'Wednesday',
+		'Thursday'	=> 'Thursday',
+		'Friday'	=> 'Friday',
+		'Saturday'	=> 'Saturday',
+
+		'Sun'		=> 'Sun',
+		'Mon'		=> 'Mon',
+		'Tue'		=> 'Tue',
+		'Wed'		=> 'Wed',
+		'Thu'		=> 'Thu',
+		'Fri'		=> 'Fri',
+		'Sat'		=> 'Sat',
+
+		'January'	=> 'January',
+		'February'	=> 'February',
+		'March'		=> 'March',
+		'April'		=> 'April',
+		'May'		=> 'May',
+		'June'		=> 'June',
+		'July'		=> 'July',
+		'August'	=> 'August',
+		'September' => 'September',
+		'October'	=> 'October',
+		'November'	=> 'November',
+		'December'	=> 'December',
+
+		'Jan'		=> 'Jan',
+		'Feb'		=> 'Feb',
+		'Mar'		=> 'Mar',
+		'Apr'		=> 'Apr',
+		'May_short'	=> 'May',	// Short representation of "May". May_short used because in English the short and long date are the same for May.
+		'Jun'		=> 'Jun',
+		'Jul'		=> 'Jul',
+		'Aug'		=> 'Aug',
+		'Sep'		=> 'Sep',
+		'Oct'		=> 'Oct',
+		'Nov'		=> 'Nov',
+		'Dec'		=> 'Dec',
+	],
 ));

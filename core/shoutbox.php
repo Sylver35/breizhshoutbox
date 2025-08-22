@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -170,7 +170,7 @@ class shoutbox
 		$in_priv = ($sort_of === 3) ? true : false;
 		$priv = ($in_priv) ? '_priv' : '';
 
-		if (!$this->verify_display_shout($in_priv))
+		if (!$this->verify_display_shout($in_priv) || !$this->run_display($page))
 		{
 			return;
 		}
@@ -195,20 +195,15 @@ class shoutbox
 			}
 		}
 
-		if (!$this->run_display($page))
-		{
-			return;
-		}
-
 		// Active lateral panel or not
 		$panel = $this->get_panel($in_priv, $is_mobile);
 		$this->config['shout_panel_auto'] = $panel['auto'];
 
 		$this->template->assign_vars([
 			'S_DISPLAY_SHOUTBOX'	=> true,
+			'S_IN_PRIV'				=> $in_priv,
 			'IN_SHOUT_POPUP'		=> $sort_of === 1,
 			'PANEL_ALL'				=> $panel['active'],
-			'S_IN_PRIV'				=> $in_priv,
 			'ACTION_USERS_TOP'		=> ($this->auth->acl_gets(['u_shout_post_inp', 'a_', 'm_'])) ? true : false,
 			'SHOUT_INDEX_POS'		=> $this->config['shout_position_index'],
 			'SHOUT_FORUM_POS'		=> $this->config['shout_position_forum'],
@@ -219,7 +214,7 @@ class shoutbox
 
 		// Active the posting form
 		$this->enable_posting($sort_of, $page, $is_mobile);
-		// Create the script now
+		// Get the script now from the cache
 		$this->javascript->javascript_shout($sort_of);
 
 		// Do the shoutbox Prune thang
@@ -298,15 +293,6 @@ class shoutbox
 	{
 		if ($this->auth->acl_gets(['u_shout_post', 'u_shout_bbcode']))
 		{
-			if ($page == 'viewtopic')
-			{
-				$forum_id = $this->request->variable('f', 0);
-				if ($forum_id && $this->auth->acl_get('f_reply', $forum_id))
-				{
-					return;
-				}
-			}
-
 			$this->language->add_lang('posting');
 			$this->template->assign_vars([
 				'SHOUT_POSTING'			=> true,
@@ -321,6 +307,8 @@ class shoutbox
 			// Build custom bbcodes array if needed
 			$mode = 'inline';
 			$this->bbcodes->active_custom_bbcodes($sort_of, $is_mobile);
+			// Add simple mention ext
+			$this->bbcodes->add_mention_ext();
 
 			/**
 			 * You can use this event to add something in the posting form.
@@ -329,7 +317,7 @@ class shoutbox
 			 * @var	array	mode
 			 * @since 1.8.0
 			 */
-			$vars = ['mode', 'sort_of', 'is_mobile'];
+			$vars = ['mode', 'sort_of', 'page', 'is_mobile'];
 			extract($this->phpbb_dispatcher->trigger_event('breizhshoutbox.display_posting', compact($vars)));
 		}
 	}
@@ -450,9 +438,7 @@ class shoutbox
 	 */
 	public function update_messages($table)
 	{
-		$sql = 'UPDATE ' . $table . '
-			SET shout_time = shout_time + 1
-				ORDER BY shout_id DESC';
+		$sql = 'UPDATE ' . $table . ' SET shout_time = shout_time + 1 ORDER BY shout_id DESC';
 		$this->db->sql_query_limit($sql, 1);
 	}
 
@@ -467,7 +453,7 @@ class shoutbox
 			'SHOUT_POPUP_W'			=> $this->config['shout_popup_height'],
 			'U_SHOUT_PRIV_PAGE'		=> $this->auth->acl_get('u_shout_priv') ? $this->helper->route('sylver35_breizhshoutbox_private') : '',
 			'U_SHOUT_POPUP'			=> $this->auth->acl_get('u_shout_popup') ? $this->helper->route('sylver35_breizhshoutbox_popup') : '',
-			'U_SHOUT_CONFIG'		=> $this->auth->acl_get('u_shout_post') ? $this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $this->user->data['user_id']]) : '',
+			'U_SHOUT_CONFIG'		=> $this->auth->acl_get('u_shout_post') ? $this->helper->route('sylver35_breizhshoutbox_configshout') . '?user_id=' . $this->user->data['user_id'] : '',
 			'U_SHOUT_AJAX'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'display_smilies']),
 			'SHOUT_COPYRIGHT'		=> $this->language->lang('SHOUTBOX_VER', $data['version']),
 		]);
@@ -749,14 +735,13 @@ class shoutbox
 		$url = htmlspecialchars($url, ENT_COMPAT, 'UTF-8', false);
 
 		// Remove app.php/ from URL
-		if ((int) $this->config['enable_mod_rewrite'] === 1)
+		if ($this->config['enable_mod_rewrite'])
 		{
 			$url = preg_replace('#app\.' . $this->php_ext . '/(.+)$#', '\1', $url);
 		}
 
 		// Remove SID from URL
-		$url = preg_replace('#(?:&amp;)?sid=\w{0,128}#', '', $url);
-		$url = str_replace('?&amp;', '?', $url);
+		$url = $this->work->remove_sid($url);
 
 		// Remove index.php without parameters
 		$url = preg_replace('#index\.' . $this->php_ext . '$#', '', $url);
@@ -831,6 +816,7 @@ class shoutbox
 				$mode = 'edit_last_post';
 			}
 			$prez_poster = ($prez_form && ((int) $row['topic_poster'] === (int) $this->user->data['user_id'])) ? true : false;
+			$this->db->sql_freeresult($result);
 		}
 		else if ($mode === 'post' && $event['topic_type'] > 1)
 		{
@@ -845,6 +831,28 @@ class shoutbox
 			'mode'			=> $mode,
 			'sort'			=> $sort,
 		];
+	}
+
+	public function qte_attr_display($topic_id)
+	{
+		$attribut = '';
+		if ($this->work->qte_exist())
+		{
+			/** @type \ernadoo\qte\qte $qte */
+			$qte = $this->phpbb_container->get('ernadoo.qte');
+
+			$sql = $this->db->sql_build_query('SELECT', [
+				'SELECT'	=> 'topic_id, topic_attr_id, topic_attr_user, topic_attr_time',
+				'FROM'		=> [TOPICS_TABLE => ''],
+				'WHERE'		=> 'topic_id = ' . (int) $topic_id,
+			]);
+			$result = $this->db->sql_query($sql);
+			$row = $this->db->sql_fetchrow($result);
+			$attribut = $qte->attr_display($row['topic_attr_id'], $row['topic_attr_user'], $row['topic_attr_time']);
+			$this->db->sql_freeresult($result);
+		}
+
+		return ($attribut) ? $attribut . ' ' : '';
 	}
 
 	public function list_auth_options()
@@ -899,25 +907,16 @@ class shoutbox
 		if (!$row || $row['user_type'] == USER_IGNORE)
 		{
 			// user id don't exist or ignore
-			return [
-				'type'		=> 1,
-				'message'	=> '',
-			];
+			return ['type' => 1, 'message' => ''];
 		}
 		else if ($row['foe'])
 		{
 			// if user is foe
-			return [
-				'type'		=> 2,
-				'message'	=> $this->language->lang('SHOUT_USER_IGNORE'),
-			];
+			return ['type' => 2, 'message' => $this->language->lang('SHOUT_USER_IGNORE')];
 		}
 		else
 		{
-			return [
-				'type'		=> 0,
-				'message'	=> '',
-			];
+			return ['type' => 0, 'message'	=> ''];
 		}
 	}
 
@@ -950,10 +949,7 @@ class shoutbox
 			$message = 'NO_DELETE_PERM';
 		}
 
-		return [
-			'result'	=> $result,
-			'message'	=> $message,
-		];
+		return ['result' => $result, 'message' => $message];
 	}
 
 	public function check_edit($val, $shout_id)
@@ -1013,17 +1009,16 @@ class shoutbox
 
 	public function get_shout_name($id, $username, $text)
 	{
-		if (!$id)
+		switch ($id)
 		{
-			$name = $this->config['shout_name_robot'];
-		}
-		else if ($id == ANONYMOUS)
-		{
-			$name = $text;
-		}
-		else
-		{
-			$name = $username;
+			case 0:
+				$name = $this->config['shout_name_robot'];
+			break;
+			case ANONYMOUS:
+				$name = $text;
+			break;
+			default :
+				$name = $username;
 		}
 
 		return $name;
@@ -1031,18 +1026,18 @@ class shoutbox
 
 	public function get_shout_colour($id, $colour)
 	{
-		if (!$id)
+		switch ($id)
 		{
-			return $this->config['shout_color_robot'];
+			case 0:
+				$colour = $this->config['shout_color_robot'];
+			break;
+			case ANONYMOUS:
+				$colour = '6666FF';
+			break;
+			default :
 		}
-		else if ($id == ANONYMOUS)
-		{
-			return '6666FF';
-		}
-		else
-		{
-			return $colour;
-		}
+
+		return $colour;
 	}
 
 	public function get_additional_data($row, $perm, $val)
@@ -1141,9 +1136,25 @@ class shoutbox
 			$sql_where = $this->auth->acl_getf_global('f_read') ? $this->db->sql_in_set('s.shout_forum', array_keys($this->auth->acl_getf('f_read', true)), false, true) . ' OR s.shout_forum = 0' : 's.shout_forum = 0';
 		}
 
-		// Add personal messages if needed
+		// Add personal messages of users
 		$sql_where .= ($is_user) ? " AND (s.shout_inp = 0 OR (s.shout_inp = $userid OR s.shout_user_id = $userid))" : ' AND s.shout_inp = 0';
 
 		return $sql_where;
+	}
+
+	public function list_cache()
+	{
+		if ($this->auth->acl_get('a_shout_manage'))
+		{
+			$files = [$this->root_path . 'cache/' . PHPBB_ENVIRONMENT . '/'];
+			$list = $this->work->get_cache_files();
+
+			foreach ($list as $file)
+			{
+				$files[] = $file;
+			}
+
+			$this->template->assign_var('LIST_CACHE', implode('<br>', $files));
+		}
 	}
 }

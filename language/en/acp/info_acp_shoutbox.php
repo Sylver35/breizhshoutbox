@@ -4,7 +4,7 @@
 * Breizh Shoutbox Extension [English]
 *
 * @package language
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -159,8 +159,8 @@ $lang = array_merge($lang, array(
 	'SHOUT_RULES_OPEN'				=> 'Rules always open',
 	'SHOUT_RULES_OPEN_EXPLAIN'		=> 'Always lets show rules for everyone',
 	'SHOUT_RULES_ON'				=> 'Rules in language “%s” “%s”',
-	'SHOUT_RULES_ON_EXPLAIN'		=> 'Please enter the rules in the language “%s” “%s” for main shoutbox.<br/>Bbcodes, Links and smilies are on.',
-	'SHOUT_RULES_ON_PRIV_EXPLAIN'	=> 'Please enter the rules in the language “%s” “%s” for private shoutbox.<br/>Bbcodes, Links and smilies are on.',
+	'SHOUT_RULES_ON_EXPLAIN'		=> 'Please enter the rules for main shoutbox.',
+	'SHOUT_RULES_ON_PRIV_EXPLAIN'	=> 'Please enter the rules for private shoutbox..',
 	'SHOUT_RULES_VIEW'				=> 'Visualizing Rules main shoutbox:',
 	'SHOUT_RULES_VIEW_PRIV'			=> 'Visualizing Rules private shoutbox:',
 	'SMILIES_EMOTION'				=> 'Emotion smiley',
@@ -307,24 +307,21 @@ $lang = array_merge($lang, array(
 	'SHOUT_POSITION_END'				=> 'At the bottom of page',
 	'SHOUT_POSITION_NONE'				=> 'Do not display',
 
-	'SHOUTBOX_VERSION_ACP_COPY'			=> '<a href="%1$s" onclick="window.open(this.href);return false;">Breizh Shoutbox v%2$s</a> © 2018-2024 - Breizhcode - The Breizh Touch', // Don't translate this please ^-^
-	'SHOUT_TOUCH_COPY'					=> '<span style="font-size: 11px">Breizh Shoutbox © 2010, 2012 <a href="http://breizh-portal.com/index.html">The Breizh touch</a></span>',
-	'SHOUT_VERSION_UP_TO_DATE'			=> 'Your installation is up to date, no update is available for your version of Breizh Shoutbox: v%s. You do not need to update your installation.',
-	'SHOUT_NO_VERSION'					=> '<span style="color: red">Failed to obtain latest version information...</span>',
-
+	'SHOUTBOX_VERSION_ACP_COPY'			=> '<a href="%1$s" onclick="window.open(this.href);return false;">Breizh Shoutbox v%2$s</a> © 2018-2025 - Breizhcode - The Breizh Touch', // Don't translate this please ^-^
 	'SHOUT_PAGES'						=> 'pages',
 	'SHOUT_SECONDES'					=> 'seconds',
 	'SHOUT_APERCU'						=> 'overview: ',
 	'SHOUT_DATE'						=> 'date',
 	'SHOUT_USER'						=> 'user',
+	'SHOUT_USERS_CAN_CHANGE'			=> 'Note that users can enable/disable this setting individually',
 	'SHOUT_HOURS'						=> 'Hours',
 	'SHOUT_PIXELS'						=> 'Pixels',
 	'SHOUT_NEVER'						=> 'Never done',
 	'SHOUT_LOG_ENTRIE'					=> 'Type attempt made',
 	'SHOUT_NO_ADMIN'					=> 'You do not have administrative rights and can not access the resource',
 	'SHOUT_SERVER_HOUR'					=> [
-		1	=> 'The current server hour is: %d hour %s',
-		2	=> 'The current server hour is: %d hours %s',
+		1	=> 'The current server hour is:<b> %d hour %s</b>',
+		2	=> 'The current server hour is:<b> %d hours %s</b>',
 	],
 	'SHOUT_BAR'							=> 'Position of the post box',
 	'SHOUT_BAR_EXPLAIN'					=> 'Choose whether you want the post box at the top or bottom of the shoutbox.',
@@ -424,17 +421,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_PURGE_ON'					=> 'Purge the ',
 	'SHOUT_NO_MOD_ROBOT'				=> 'You do not have at this moment, any mod on your forum that is compatible with the robot Breizh Shoutbox...',
 	'SHOUT_MOD_ROBOT'					=> 'Here you can set options for mods on your forum, compatible with the robot Breizh Shoutbox...',
-
-// Installation
-	'SHOUT_WELCOME'						=> 'This is your first post. Welcome into the Breizh Shoutbox... from Sylver35...',
 	
-	// Add new formats
-	'dateformats'	=> array_merge($lang['dateformats'], array(
-		'|d M| H:i'						=> 'Today, 13:37 / 01 janv. 13:37',
-		'|M jS| g:i a'					=> 'Today, 1:37 pm / janv. 1er 1:37 pm',
-		'H:i'							=> '13:37',
-		'H:i a'							=> '1:37 pm'
-	)),
 	
 	'SHOUT_USERS_CAN_CHANGE'		=> 'Note that users can enable/disable this setting individually',
 	
@@ -458,4 +445,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_INACTIV_A_EXPLAIN'		=> 'Here you determine the time of inactivity of the guests, after this period, the shoutbox will automatically standby and so will not do more requests.',
 	'SHOUT_INACTIV_B'				=> 'Inactivity time of registered users',
 	'SHOUT_INACTIV_B_EXPLAIN'		=> 'Here you determine the time of inactivity of the registered users, after this period, the shoutbox will automatically standby and so will not do more requests.<br/>Note that there is a permission to skip this.',
+
+	// Installation
+	'SHOUT_WELCOME'						=> 'This is your first post. Welcome into the Breizh Shoutbox... from Sylver35...',
 ));

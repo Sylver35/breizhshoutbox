@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -264,7 +264,7 @@ class functions_admin
 		$deleted = (int) $this->db->sql_fetchfield('total');
 		$this->db->sql_freeresult($result);
 
-		$this->db->sql_query('TRUNCATE ' . $table);
+		$this->db->sql_query('TRUNCATE TABLE ' . $table);
 
 		$this->config->increment('shout_del_purge' . $val_priv, $deleted, true);
 		$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_PURGE_SHOUTBOX' . $val_priv_on, time());
@@ -645,7 +645,9 @@ class functions_admin
 
 	public function list_smilies($sort)
 	{
+		$i = 0;
 		$block = ($sort === 1) ? 'smilies' : 'smilies_popup';
+		$list[$block] = [];
 		$sql = $this->db->sql_build_query('SELECT', [
 			'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
 			'FROM'		=> [SMILIES_TABLE => ''],
@@ -656,6 +658,7 @@ class functions_admin
 		$result = $this->db->sql_query($sql);
 		while ($row = $this->db->sql_fetchrow($result))
 		{
+			$list[$block] = [$row['smiley_id'], $row['smiley_url'], $row['code'], $row['emotion'], $row['smiley_width'], $row['smiley_height']];
 			$this->template->assign_block_vars($block, [
 				'SRC'		=> $row['smiley_url'],
 				'ID'		=> $row['smiley_id'],
@@ -664,8 +667,11 @@ class functions_admin
 				'WIDTH'		=> $row['smiley_width'],
 				'HEIGHT'	=> $row['smiley_height'],
 			]);
+			$i++;
 		}
 		$this->db->sql_freeresult($result);
+
+		return $list;
 	}
 
 	public function update_config($data)

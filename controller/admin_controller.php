@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -21,6 +21,7 @@ use phpbb\template\template;
 use phpbb\user;
 use phpbb\language\language;
 use phpbb\log\log;
+use phpbb\event\dispatcher_interface as phpbb_dispatcher;
 
 class admin_controller
 {
@@ -60,6 +61,9 @@ class admin_controller
 	/** @var \phpbb\log\log */
 	protected $log;
 
+	/** @var \phpbb\event\dispatcher_interface */
+	protected $phpbb_dispatcher;
+
 	/** @var string phpBB root path */
 	protected $root_path;
 
@@ -81,7 +85,7 @@ class admin_controller
 	/**
 	 * Constructor
 	 */
-	public function __construct(work $work, functions_admin $functions_admin, config $config, helper $helper, manager $ext_manager, db $db, pagination $pagination, request $request, template $template, user $user, language $language, log $log, $root_path, $php_ext, $shoutbox_rules_table)
+	public function __construct(work $work, functions_admin $functions_admin, config $config, helper $helper, manager $ext_manager, db $db, pagination $pagination, request $request, template $template, user $user, language $language, log $log, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext, $shoutbox_rules_table)
 	{
 		$this->work = $work;
 		$this->functions_admin = $functions_admin;
@@ -95,16 +99,16 @@ class admin_controller
 		$this->user = $user;
 		$this->language = $language;
 		$this->log = $log;
+		$this->phpbb_dispatcher = $phpbb_dispatcher;
 		$this->root_path = $root_path;
 		$this->php_ext = $php_ext;
 		$this->shoutbox_rules_table = $shoutbox_rules_table;
 		$this->ext_path = $this->ext_manager->get_extension_path('sylver35/breizhshoutbox', true);
 	}
 
-	public function acp_shoutbox_configs()
+	public function acp_shoutbox_configs($mode)
 	{
 		$this->language->add_lang('acp/board');
-		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
 		add_form_key($form_key);
 		if ($this->request->is_set_post('update'))
@@ -149,6 +153,7 @@ class admin_controller
 				'shout_position_topic'		=> $this->request->variable('shout_position_topic', 0),
 			]);
 
+			$this->work->destroy_sessions_files();
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode));
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
 		}
@@ -199,9 +204,8 @@ class admin_controller
 		]);
 	}
 
-	public function acp_shoutbox_config_gen()
+	public function acp_shoutbox_config_gen($mode)
 	{
-		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
 		add_form_key($form_key);
 		if ($this->request->is_set_post('update'))
@@ -230,6 +234,7 @@ class admin_controller
 				'shout_defil'				=> $this->request->variable('shout_defil', 1),
 			]);
 
+			$this->work->destroy_sessions_files();
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
 		}
@@ -260,7 +265,7 @@ class admin_controller
 		}
 	}
 
-	public function acp_shoutbox_rules()
+	public function acp_shoutbox_rules($mode)
 	{
 		include($this->root_path . 'includes/functions_posting.' . $this->php_ext);
 		include($this->root_path . 'includes/functions_display.' . $this->php_ext);
@@ -316,8 +321,6 @@ class admin_controller
 					'RULES_LANG'				=> $row['lang_local_name'],
 					'RULES_ISO'					=> $row['lang_iso'],
 					'RULES_ON'					=> $this->language->lang('SHOUT_RULES_ON', $row['lang_iso'], $row['lang_local_name']),
-					'RULES_ON_EXPLAIN'			=> $this->language->lang('SHOUT_RULES_ON_EXPLAIN', $row['lang_iso'], $row['lang_local_name']),
-					'RULES_ON_PRIV_EXPLAIN'		=> $this->language->lang('SHOUT_RULES_ON_PRIV_EXPLAIN', $row['lang_iso'], $row['lang_local_name']),
 					'COPY_TO'					=> $this->language->lang('SHOUT_COPY_RULE', $row['lang_iso'], $this->language->lang('SHOUT_NORMAL')),
 					'COPY_TO_PRIV'				=> $this->language->lang('SHOUT_COPY_RULE', $row['lang_iso'], $this->language->lang('ACP_SHOUT_PRIVATE_CAT')),
 				]);
@@ -328,18 +331,29 @@ class admin_controller
 			$this->functions_admin->get_shout_smilies();
 			display_custom_bbcodes();
 
+			$url_smilies_pop = $this->helper->route('sylver35_breizhshoutbox_smilies_pop', ['start' => 0]);
 			$this->template->assign_vars([
 				'SHOUT_RULES'			=> $this->functions_admin->construct_radio('shout_rules', 2),
 				'SHOUT_RULES_OPEN'		=> $this->functions_admin->construct_radio('shout_rules_open', 1),
 				'SHOUT_RULES_OPEN_PRIV'	=> $this->functions_admin->construct_radio('shout_rules_open_priv', 1),
-				'U_SHOUT_SMILIES'		=> $this->helper->route('sylver35_breizhshoutbox_smilies_pop'),
 				'U_PREVIEW_AJAX'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'preview_rules']),
+				'U_SHOUT_SMILIES'		=> $url_smilies_pop,
 				'SHOUT_USER_ID'			=> $this->user->data['user_id'],
 			]);
+
+			/**
+			 * You can use this event to change url of smilies or $row
+			 *
+			 * @event breizhshoutbox.acp_shoutbox_rules_after
+			 * @var	array	url_smilies_pop
+			 * @since 1.8.4
+			 */
+			$vars = ['url_smilies_pop', 'row', 'mode'];
+			extract($this->phpbb_dispatcher->trigger_event('breizhshoutbox.shoutbox_rules_after', compact($vars)));
 		}
 	}
 
-	public function acp_shoutbox_overview()
+	public function acp_shoutbox_overview($mode)
 	{
 		$id = $this->request->variable('i', '');
 		$action = $this->request->variable('action', '');
@@ -349,7 +363,6 @@ class admin_controller
 		$token = $this->request->variable('form_token', '');
 		$deletemark = $this->request->is_set_post('delmarked') ? true : false;
 		$deletemarklog = $this->request->is_set_post('delmarkedlog') ? true : false;
-		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
 		add_form_key($form_key);
 
@@ -413,18 +426,18 @@ class admin_controller
 		else
 		{
 			$shout_number = (int) $this->config['shout_nr_acp'];
-			$messges = $this->functions_admin->get_messages($start, $shout_number, true);
+			$messages = $this->functions_admin->get_messages($start, $shout_number, true);
 			$li = $this->functions_admin->get_logs(false);
 			$total_del = $this->config['shout_del_acp'] + $this->config['shout_del_auto'] + $this->config['shout_del_purge'] + $this->config['shout_del_user'];
 
 			$this->template->assign_vars([
-				'S_DISPLAY_MESSAGES'		=> ($messges['i'] > 0) ? true : false,
-				'S_DISPLAY_LOGS'			=> ($li > 0) ? true : false,
-				'S_ON_PAGE'					=> ($messges['total_posts'] > $shout_number) ? true : false,
-				'TOTAL_POSTS'				=> $messges['total_posts'],
+				'S_DISPLAY_MESSAGES'		=> $messages['i'] > 0,
+				'S_DISPLAY_LOGS'			=> $li > 0,
+				'S_ON_PAGE'					=> $messages['total_posts'] > $shout_number,
+				'TOTAL_POSTS'				=> $messages['total_posts'],
 				'LAST_SHOUT_RUN'			=> ($this->config['shout_last_run'] == $this->config['shout_time']) ? $this->language->lang('SHOUT_NEVER') : $this->user->format_date($this->config['shout_last_run']),
-				'PAGE_NUMBER' 				=> $this->pagination->validate_start($messges['total_posts'], $shout_number, $start),
-				'TOTAL_MESSAGES'			=> $this->language->lang('NUMBER_MESSAGE', $messges['total_posts']),
+				'PAGE_NUMBER' 				=> $this->pagination->validate_start($messages['total_posts'], $shout_number, $start),
+				'TOTAL_MESSAGES'			=> $this->language->lang('NUMBER_MESSAGE', $messages['total_posts']),
 				'MESSAGES_TOTAL_NR'			=> $this->language->lang('SHOUT_MESSAGES_TOTAL_NR', $this->config['shout_nr'], $this->user->format_date($this->config['shout_time'])),
 				'LOGS_TOTAL_NR'				=> $this->language->lang('NUMBER_LOG_TOTAL', $this->config['shout_nr_log'], $this->user->format_date($this->config['shout_time'])),
 				'MESSAGES_DEL_TOTAL'		=> $this->language->lang('SHOUT_DEL_NR', $total_del) . $this->language->lang('SHOUT_DEL_TOTAL'),
@@ -433,11 +446,11 @@ class admin_controller
 				'MESSAGES_DEL_PURGE'		=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_purge']),
 				'MESSAGES_DEL_USER'			=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_user']),
 			]);
-			$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $messges['total_posts'], $shout_number, $start);
+			$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $messages['total_posts'], $shout_number, $start);
 		}
 	}
 
-	public function acp_shoutbox_private()
+	public function acp_shoutbox_private($mode)
 	{
 		$id = $this->request->variable('i', '');
 		$action = $this->request->variable('action', '');
@@ -447,7 +460,6 @@ class admin_controller
 		$token = $this->request->variable('form_token', '');
 		$deletemark = $this->request->is_set_post('delmarked') ? true : false;
 		$deletemarklog = $this->request->is_set_post('delmarkedlog') ? true : false;
-		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
 		add_form_key($form_key);
 
@@ -508,18 +520,18 @@ class admin_controller
 		else
 		{
 			$shout_number = (int) $this->config['shout_nr_acp'];
-			$messges = $this->functions_admin->get_messages($start, $shout_number, false);
+			$messages = $this->functions_admin->get_messages($start, $shout_number, false);
 			$li = $this->functions_admin->get_logs(true);
 			$total_del = $this->config['shout_del_acp_priv'] + $this->config['shout_del_auto_priv'] + $this->config['shout_del_purge_priv'] + $this->config['shout_del_user_priv'];
 
 			$this->template->assign_vars([
-				'TOTAL_POSTS'				=> $messges['total_posts'],
-				'S_DISPLAY_MESSAGES'		=> ($messges['i'] > 0) ? true : false,
-				'S_DISPLAY_LOGS'			=> ($li > 0) ? true : false,
-				'S_ON_PAGE'					=> ($messges['total_posts'] > $shout_number) ? true : false,
-				'TOTAL_MESSAGES'			=> $this->language->lang('NUMBER_MESSAGE', $messges['total_posts']),
+				'TOTAL_POSTS'				=> $messages['total_posts'],
+				'S_DISPLAY_MESSAGES'		=> $messages['i'] > 0,
+				'S_DISPLAY_LOGS'			=> $li > 0,
+				'S_ON_PAGE'					=> $messages['total_posts'] > $shout_number,
+				'TOTAL_MESSAGES'			=> $this->language->lang('NUMBER_MESSAGE', $messages['total_posts']),
 				'MESSAGES_TOTAL_NR'			=> $this->language->lang('SHOUT_MESSAGES_TOTAL_NR', $this->config['shout_nr_priv'], $this->user->format_date($this->config['shout_time_priv'])),
-				'PAGE_NUMBER'				=> $this->pagination->validate_start($messges['total_posts'], $shout_number, $start),	
+				'PAGE_NUMBER'				=> $this->pagination->validate_start($messages['total_posts'], $shout_number, $start),	
 				'LAST_SHOUT_RUN'			=> ($this->config['shout_last_run_priv'] == $this->config['shout_time_priv']) ? $this->language->lang('SHOUT_NEVER') : $this->user->format_date($this->config['shout_last_run_priv']),
 				'LOGS_TOTAL_NR'				=> $this->language->lang('NUMBER_LOG_TOTAL', $this->config['shout_nr_log_priv'], $this->user->format_date($this->config['shout_time_priv'])),
 				'MESSAGES_DEL_TOTAL'		=> $this->language->lang('SHOUT_DEL_NR', $total_del) . $this->language->lang('SHOUT_DEL_TOTAL'),
@@ -528,13 +540,12 @@ class admin_controller
 				'MESSAGES_DEL_PURGE'		=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_purge_priv']),
 				'MESSAGES_DEL_USER'			=> $this->language->lang('SHOUT_DEL_NR', $this->config['shout_del_user_priv']),
 			]);
-			$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $messges['total_posts'], $shout_number, $start);
+			$this->pagination->generate_template_pagination($this->u_action, 'pagination', 'start', $messages['total_posts'], $shout_number, $start);
 		}
 	}
 
-	public function acp_shoutbox_config_priv()
+	public function acp_shoutbox_config_priv($mode)
 	{
-		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
 		add_form_key($form_key);
 		if ($this->request->is_set_post('update'))
@@ -565,6 +576,7 @@ class admin_controller
 				'shout_sound_new_priv'			=> $this->request->variable('shout_sound_new_priv', ''),
 			]);
 
+			$this->work->destroy_sessions_files();
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
 		}
@@ -597,9 +609,8 @@ class admin_controller
 		}
 	}
 
-	public function acp_shoutbox_popup()
+	public function acp_shoutbox_popup($mode)
 	{
-		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
 		add_form_key($form_key);
 		if ($this->request->is_set_post('update'))
@@ -624,6 +635,7 @@ class admin_controller
 				'shout_defil_pop'				=> $this->request->variable('shout_defil_pop', 1),
 			]);
 
+			$this->work->destroy_sessions_files();
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
 		}
@@ -650,9 +662,8 @@ class admin_controller
 		}
 	}
 
-	public function acp_shoutbox_panel()
+	public function acp_shoutbox_panel($mode)
 	{
-		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
 		add_form_key($form_key);
 		if ($this->request->is_set_post('update'))
@@ -674,6 +685,7 @@ class admin_controller
 				'shout_panel_height'	=> $this->request->variable('shout_panel_height', 510),
 			]);
 
+			$this->work->destroy_sessions_files();
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
 		}
@@ -699,9 +711,8 @@ class admin_controller
 		}
 	}
 
-	public function acp_shoutbox_smilies()
+	public function acp_shoutbox_smilies($mode)
 	{
-		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
 		add_form_key($form_key);
 		if ($this->request->is_set_post('update'))
@@ -721,9 +732,9 @@ class admin_controller
 		else
 		{
 			// List of smilies
-			$this->functions_admin->list_smilies(1);
+			$list_smilies = $this->functions_admin->list_smilies(1);
 			// List of smilies popup
-			$this->functions_admin->list_smilies(0);
+			$list_smilies_popup = $this->functions_admin->list_smilies(0);
 		}
 
 		$this->template->assign_vars([
@@ -731,12 +742,22 @@ class admin_controller
 			'SHOUT_USER_ID'				=> $this->user->data['user_id'],
 			'SMILIES_URL'				=> $this->root_path . $this->config['smilies_path'] . '/',
 			'U_DISPLAY_AJAX'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'display_smilies']),
+			'S_SMILIES_ALLOWED'			=> true,
 		]);
+
+		/**
+		 * You can use this event to change lists smilies
+		 *
+		 * @event breizhshoutbox.shoutbox_smilies_after
+		 * @var	array	shoutbox_smilies
+		 * @since 1.8.4
+		 */
+		$vars = ['mode', 'list_smilies', 'list_smilies_popup'];
+		extract($this->phpbb_dispatcher->trigger_event('breizhshoutbox.shoutbox_smilies_after', compact($vars)));
 	}
 
-	public function acp_shoutbox_robot()
+	public function acp_shoutbox_robot($mode)
 	{
-		$mode = $this->request->variable('mode', '');
 		$form_key = 'sylver35/breizhshoutbox';
 		add_form_key($form_key);
 
@@ -786,6 +807,7 @@ class admin_controller
 				'shout_arcade_urecord'		=> $this->request->variable('shout_arcade_urecord', 0),
 			]);
 
+			$this->work->destroy_sessions_files();
 			$this->log->add('admin', $this->user->data['user_id'], $this->user->ip, 'LOG_SHOUT_' . strtoupper($mode), time());
 			trigger_error($this->language->lang('CONFIG_UPDATED') . adm_back_link($this->u_action));
 		}
@@ -837,7 +859,6 @@ class admin_controller
 			'SHOUT_IMG_PATH'	=> $img_src,
 			'IMAGE_TITLE'		=> $img_src . strtolower($mode) . '.webp',
 			'IMAGE_SUBMIT'		=> $img_src . 'submit.webp',
-			'IMAGE_MESSAGES'	=> $img_src . 'messages.webp',
 			'IMAGE_SETTINGS'	=> $img_src . 'reglages.webp',
 			'IMAGE_PURGE'		=> $img_src . 'burn.webp',
 			'IMAGE_STATS'		=> $img_src . 'numbers.webp',

@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -13,10 +13,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use sylver35\breizhshoutbox\core\shoutbox;
 use sylver35\breizhshoutbox\core\events;
 use phpbb\config\config;
-use phpbb\controller\helper;
 use phpbb\request\request;
-use phpbb\template\template;
-use phpbb\auth\auth;
 use phpbb\user;
 use phpbb\language\language;
 
@@ -31,17 +28,8 @@ class main_listener implements EventSubscriberInterface
 	/** @var \phpbb\config\config */
 	protected $config;
 
-	/* @var \phpbb\controller\helper */
-	protected $helper;
-
 	/** @var \phpbb\request\request */
 	protected $request;
-
-	/** @var \phpbb\template\template */
-	protected $template;
-
-	/** @var \phpbb\auth\auth */
-	protected $auth;
 
 	/** @var \phpbb\user */
 	protected $user;
@@ -53,15 +41,12 @@ class main_listener implements EventSubscriberInterface
 	 * Constructor
 	 *
 	 */
-	public function __construct(shoutbox $shoutbox, events $events, config $config, helper $helper, request $request, template $template, auth $auth, user $user, language $language)
+	public function __construct(shoutbox $shoutbox, events $events, config $config, request $request, user $user, language $language)
 	{
 		$this->shoutbox = $shoutbox;
 		$this->events = $events;
 		$this->config = $config;
-		$this->helper = $helper;
 		$this->request = $request;
-		$this->template = $template;
-		$this->auth = $auth;
 		$this->user = $user;
 		$this->language = $language;
 	}
@@ -71,7 +56,6 @@ class main_listener implements EventSubscriberInterface
 		return [
 			'core.user_setup'							=> 'load_language_on_setup',
 			'core.page_header'							=> 'add_page_header',
-			'core.session_create_after'					=> 'charge_post_session_shout',
 			'core.index_modify_page_title'				=> 'shout_display',
 			'core.viewforum_modify_page_title'			=> 'shout_display',
 			'core.viewtopic_modify_page_title'			=> 'shout_display',
@@ -88,6 +72,11 @@ class main_listener implements EventSubscriberInterface
 			'core.delete_user_after'					=> 'shout_delete_user',
 			'core.delete_topics_after_query'			=> 'shout_delete_topics',
 			'core.delete_posts_after'					=> 'shout_delete_posts',
+			'core.session_create_after'					=> 'charge_post_session_shout',
+			'core.session_kill_after'					=> 'kill_session',
+			'core.acp_board_config_edit_add'			=> 'kill_session_acp',
+			'core.ucp_prefs_personal_update_data'		=> 'kill_session_ucp',
+			'core.text_formatter_s9e_parse_before'		=> 's9e_parse_before',
 			'breizhcharts.add_song_after'				=> 'add_song_after',
 			'breizhcharts.reset_all_notes'				=> 'reset_all_notes',
 			'video.submit_new_video'					=> 'submit_new_video',
@@ -130,6 +119,7 @@ class main_listener implements EventSubscriberInterface
 	public function shout_display()
 	{
 		$this->shoutbox->shout_display(2);
+		$this->shoutbox->list_cache();
 	}
 
 	/**
@@ -154,6 +144,39 @@ class main_listener implements EventSubscriberInterface
 				}
 			}
 		}
+
+		if ($event['session_data']['session_user_id'] != ANONYMOUS && !$this->user->data['is_bot'])
+		{
+			$this->events->old_user_settings($event['session_data']['session_user_id'], $event['session_data']['session_id']);
+		}
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function kill_session($event)
+	{
+		if ($event['user_id'] != ANONYMOUS && !$this->user->data['is_bot'])
+		{
+			$this->events->kill_session_shout($event['user_id'], $event['session_id']);
+		}
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function kill_session_acp($event)
+	{
+		$mode = $event['mode'];
+		if ($event['submit'] && in_array($mode, ['cookie', 'server', 'security', 'load']))
+		{
+			$this->events->destroy_files();
+		}
+	}
+
+	public function kill_session_ucp()
+	{
+		$this->events->kill_session_shout($this->user->data['user_id'], $this->user->data['session_id']);
 	}
 
 	/**
@@ -162,21 +185,21 @@ class main_listener implements EventSubscriberInterface
 	public function shout_advert_post($event)
 	{
 		$hide_robot = (isset($event['data']['hide_robot'])) ? $event['data']['hide_robot'] : false;
-		$forum_id = (int) $event['data']['forum_id'];
+		if ($hide_robot || !$this->config['shout_enable_robot'])
+		{
+			return;
+		}
 
 		if (!empty($this->config['shout_exclude_forums']))
 		{
 			$exclude = explode(',', $this->config['shout_exclude_forums']);
-			if (in_array($forum_id, $exclude))
+			if (in_array((int) $event['data']['forum_id'], $exclude))
 			{
 				return;
 			}
 		}
 
-		if (!$hide_robot && $this->config['shout_enable_robot'])
-		{
-			$this->events->advert_post_shoutbox($event, $forum_id);
-		}
+		$this->events->advert_post_shoutbox($event, (int) $event['data']['forum_id']);
 	}
 
 	/**
@@ -366,6 +389,14 @@ class main_listener implements EventSubscriberInterface
 		{
 			$this->events->submit_arcade_urecord($event);
 		}
+	}
+
+	/**
+	 * @param array $event
+	 */
+	public function s9e_parse_before($event)
+	{
+		$this->events->enable_mention_ext($event);
 	}
 
 	/**

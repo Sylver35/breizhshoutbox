@@ -1,28 +1,28 @@
 sylver35_breizhshoutbox_private:
-    path: /private-shoutbox
+    path: /shoutbox/private
     defaults: { _controller: sylver35.breizhshoutbox.controller:handle_private }
 
 sylver35_breizhshoutbox_popup:
-    path: /popup-shoutbox
+    path: /shoutbox/popup
     defaults: { _controller: sylver35.breizhshoutbox.controller:handle_popup }
 
 sylver35_breizhshoutbox_lateral:
-    path: /lateral-shoutbox
+    path: /shoutbox/lateral
     defaults: { _controller: sylver35.breizhshoutbox.controller:handle_lateral }
 
 sylver35_breizhshoutbox_configshout:
-    path: /config-shoutbox
-    defaults: { _controller: sylver35.breizhshoutbox.controller:handle_config_shout, id: 0 }
-    requirements:
-        id: \d+
+    path: /shoutbox/config
+    defaults: { _controller: sylver35.breizhshoutbox.controller:handle_config_shout }
 
 sylver35_breizhshoutbox_ajax:
     path: /shoutbox/ajax/{mode}
     methods: [GET, POST]
     defaults: { _controller: sylver35.breizhshoutbox.controller.ajax:construct_ajax }
+    requirements:
+        mode: \w+
 
 sylver35_breizhshoutbox_smilies_pop:
-    path: /shoutbox/smilies_pop
-    defaults: { _controller: sylver35.breizhshoutbox.controller:shoutbox_smilies_pop, start: 0 }
+    path: /shoutbox/smilies_pop/{start}
+    defaults: { _controller: sylver35.breizhshoutbox.controller:shoutbox_smilies_pop }
     requirements:
         start: \d+

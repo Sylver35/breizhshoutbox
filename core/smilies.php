@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -140,11 +140,11 @@ class smilies
 		$i = 0;
 		$smilies = [];
 		$sql = $this->db->sql_build_query('SELECT', [
-			'SELECT'	=> 'smiley_url, MIN(smiley_id) AS smiley_id, MIN(code) AS code, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
+			'SELECT'	=> 'smiley_url, smiley_id, code, smiley_order, smiley_width, smiley_height, emotion, display_on_shout',
 			'FROM'		=> [SMILIES_TABLE => ''],
 			'WHERE'		=> 'display_on_shout = ' . $sort,
-			'GROUP_BY'	=> 'smiley_url',
-			'ORDER_BY'	=> 'min_smiley_order ASC',
+			'GROUP_BY'	=> 'smiley_url, smiley_id, code, smiley_order, smiley_width, smiley_height, emotion, display_on_shout',
+			'ORDER_BY'	=> 'smiley_order ASC',
 		]);
 		$result = ($start !== -1) ? $this->work->shout_sql_query($sql, true, (int) $this->config['shout_smilies_per_page'], $start) : $this->work->shout_sql_query($sql);
 		if (!$result)

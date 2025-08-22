@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -150,7 +150,7 @@ class robot
 	 */
 	public function display_infos_robot($row, $info, $acp)
 	{
-		$message = '';
+		$message = $cite = '';
 		$start = $this->language->lang('SHOUT_ROBOT_START');
 
 		switch ($info)
@@ -215,8 +215,9 @@ class robot
 			break;
 			case 65:
 			case 66:
+				$cite = ($info == 65) ? 'SHOUT_USER_POST' : 'SHOUT_ACTION_CITE_ON';
 				$data = generate_text_for_display($row['shout_text'], $row['shout_bbcode_uid'], $row['shout_bbcode_bitfield'], $row['shout_bbcode_flags']);
-				$message = $this->work->tpl('cite', $this->language->lang(($info === 65) ? 'SHOUT_USER_POST' : 'SHOUT_ACTION_CITE_ON'), $this->work->construct_action_shout($row['v_user_id'], $row['v_username'], $row['v_user_colour'], $acp), $data);
+				$message = $this->work->tpl('cite', $this->language->lang($cite), $this->work->construct_action_shout($row['v_user_id'], $row['v_username'], $row['v_user_colour'], $acp), $data);
 			break;
 			case 60:
 			case 70:
@@ -243,7 +244,7 @@ class robot
 		$message = $row['shout_text'];
 		if ($this->work->relaxarcade_exist())
 		{
-			$message = $this->language->lang("SHOUT_NEW_SCORE_{$info}", $row['shout_robot'], $this->work->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_games', ['gid' => $row['shout_info_nb']]), $row['shout_text']));
+			$message = $this->language->lang('SHOUT_NEW_SCORE_' . $info, $row['shout_robot'], $this->work->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_games', ['gid' => $row['shout_info_nb']]), $row['shout_text']));
 			$message .= ($row['shout_robot_user'] && $row['shout_text2']) ? $this->language->lang('SHOUT_IN', $this->work->tpl('url', $this->helper->route('teamrelax_relaxarcade_page_list', ['cid' => $row['shout_robot_user']]), $row['shout_text2'])) : '';
 		}
 
@@ -252,20 +253,20 @@ class robot
 
 	private function info_breizhcharts($info, $row, $acp)
 	{
-		$message = $row['shout_text'];
 		if ($this->work->breizhcharts_exist())
 		{
 			if ($info == 30)
 			{
-				list($title, $artist) = explode('||', $message);
-				$url = $this->helper->route('sylver35_breizhcharts_page_music', ['mode' => 'list_newest']);
-				$message = $this->language->lang('SHOUT_CHARTS_NEW', $this->work->construct_action_shout($row['v_user_id'], $row['v_username'], $row['v_user_colour'], $acp), $this->work->tpl('url', $url, $this->language->lang('SHOUT_FROM_OF', $title, $artist)));
+				list($title, $artist) = explode('||', $row['shout_text']);
+				$url = $row['shout_info_nb'] ? $this->helper->route('sylver35_breizhcharts_video', ['id' => $row['shout_info_nb'], 'song_name' => $this->protect_title($title)]) . '#nav' : $this->helper->route('sylver35_breizhcharts_page_music', ['mode' => 'list_newest', 'cat' => 0]);
+				$message = $this->language->lang('SHOUT_CHARTS_NEW', $this->work->construct_action_shout($row['v_user_id'], $row['v_username'], $row['v_user_colour'], $acp), $this->work->tpl('url', $url, $this->language->lang('SHOUT_FROM_OF', $this->protect_title($title), $this->protect_title($artist))));
 				$message .= ($row['shout_text2']) ? ' ⇒ ' . $this->work->tpl('url', $row['shout_text2'], $this->language->lang('SHOUT_CHARTS_SUBJECT')) : '';
 			}
 			else
 			{
-				$url = $this->helper->route('sylver35_breizhcharts_page_music', ['mode' => 'winners']);
-				$message = $this->language->lang('SHOUT_CHARTS_RESET', $this->work->tpl('url', $url, $row['shout_text']), $this->work->tpl('url', $url, $row['shout_text2']));
+				list($artist, $last_nb) = explode('||', $row['shout_text2']);
+				$url = $this->helper->route('sylver35_breizhcharts_video', ['id' => $row['shout_info_nb'], 'song_name' => $row['shout_text']]) . '#nav';
+				$message = $this->language->lang('SHOUT_CHARTS_RESET', $this->work->tpl('url', $url, $row['shout_text']), $this->work->tpl('url', $this->helper->route('sylver35_breizhcharts_result') . '?result_id=' . $last_nb, $artist));
 			}
 		}
 
@@ -283,6 +284,11 @@ class robot
 		}
 
 		return $message;
+	}
+
+	private function protect_title($title)
+	{
+		return str_replace([' ', '&nbsp;', '?', "'", '|', '/', '\\'], ['_', '_', '', '’', '', '', ''], $title);
 	}
 
 	public function insert_message_robot($sql_data, $insert, $insert_priv, $verify = false)

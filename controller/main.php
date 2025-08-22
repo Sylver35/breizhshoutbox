@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
 *
 */
@@ -151,19 +151,18 @@ class main
 		}
 		else
 		{
-			$this->template->assign_vars([
-				'KILL_LATERAL'	=> true,
-			]);
+			$this->template->assign_var('KILL_LATERAL', true);
 			return false;
 		}
 	}
 
 	public function handle_config_shout()
 	{
-		$id = $this->request->variable('id', $this->user->data['user_id']);
+		$user_id = $this->request->variable('user_id' , 0);
+
 		if ($this->auth->acl_get('u_shout_post'))
 		{
-			$this->javascript->active_config_shoutbox($id);
+			$this->javascript->active_config_shoutbox($user_id);
 			return $this->helper->render('shout_config.html', $this->language->lang('SHOUT_PANEL_USER'));
 		}
 		else
@@ -173,11 +172,8 @@ class main
 		}
 	}
 
-	public function shoutbox_smilies_pop()
+	public function shoutbox_smilies_pop($start)
 	{
-		$start = $this->request->variable('start', 0);
-		$url = $this->helper->route('sylver35_breizhshoutbox_smilies_pop');
-
 		$sql = 'SELECT COUNT(DISTINCT smiley_url) AS smilies_count
 			FROM ' . SMILIES_TABLE . '
 				WHERE display_on_shout = 0';
@@ -206,7 +202,7 @@ class main
 		$this->db->sql_freeresult($result);
 
 		$start = $this->pagination->validate_start($start, (int) $this->config['smilies_per_page'], $count);
-		$this->pagination->generate_template_pagination($url, 'pagination', 'start', $count, (int) $this->config['smilies_per_page'], $start);
+		$this->pagination->generate_template_pagination($this->helper->route('sylver35_breizhshoutbox_smilies_pop', ['start' => $start]), 'pagination', 'start', $count, (int) $this->config['smilies_per_page'], $start);
 
 		$data = $this->work->get_version();
 		$this->template->assign_vars([

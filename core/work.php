@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -72,12 +72,13 @@ class work
 	 * The database tables
 	 *
 	 * @var string */
+	protected $shoutbox_errors_table;
 	protected $shoutbox_rules_table;
 
 	/**
 	 * Constructor
 	 */
-	public function __construct(config $config, db $db, auth $auth, user $user, language $language, cache $cache, manager $ext_manager, helper $helper, path_helper $path_helper, Container $phpbb_container, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext, $shoutbox_rules_table)
+	public function __construct(config $config, db $db, auth $auth, user $user, language $language, cache $cache, manager $ext_manager, helper $helper, path_helper $path_helper, Container $phpbb_container, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext, $shoutbox_errors_table, $shoutbox_rules_table)
 	{
 		$this->config = $config;
 		$this->db = $db;
@@ -93,45 +94,9 @@ class work
 		$this->root_path = $root_path;
 		$this->root_path_web = generate_board_url() . '/';
 		$this->php_ext = $php_ext;
+		$this->shoutbox_errors_table = $shoutbox_errors_table;
 		$this->shoutbox_rules_table = $shoutbox_rules_table;
 		$this->ext_path = $this->ext_manager->get_extension_path('sylver35/breizhshoutbox', true);
-	}
-
-	/**
-	 * Return error.
-	 * @param string $message Error
-	 * @return void
-	 */
-	public function shout_error($message, $on1 = false, $on2 = false, $on3 = false)
-	{
-		if ($this->language->is_set($message))
-		{
-			$message = $this->language->lang($message);
-		}
-		else
-		{
-			if ($on1 && !$on2 && !$on3)
-			{
-				$message = $this->language->lang($message, $on1);
-			}
-			else if ($on1 && $on2 && !$on3)
-			{
-				$message = $this->language->lang($message, $on1, $on2);
-			}
-			else if ($on1 && $on2 && $on3)
-			{
-				$message = $this->language->lang($message, $on1, $on2, $on3);
-			}
-			$message = str_replace(' />', '/>', $message);
-			$message = preg_replace("#<b>(.*?)<br/>#i", '', $message);
-		}
-
-		$response = new \phpbb\json_response;
-		$response->send([
-			'type'		=> 10,
-			'error'		=> true,
-			'message'	=> $message,
-		], true);
 	}
 
 	/**
@@ -174,30 +139,116 @@ class work
 	}
 
 	/**
-	 * Prints sql error.
+	 * Print sql error
 	 * @param string $sql Sql query
 	 * @param int $line Line number
 	 * @param string $file Filename
-	 * @return void
+	 * @return @Json respons
 	 */
 	private function shout_sql_error($sql, $line, $file)
 	{
-		$err = str_replace(' />', '/>', $this->db->sql_error());
-		$err = preg_replace("#<b>(.*?)<br/>#i", '', $err);
-		$response = new \phpbb\json_response;
+		$id = 1;
+		$err = $this->db->sql_error();
+		$error = str_replace(' />', '>', $err['message']);
+		$error = preg_replace("#<b>(.*?)<br>#i", '', $error);
+		$message = '#' . $err['code'] . ' : ' . $error;
+		// Store error in the db if wanted
+		if ($this->config['shout_store_errors'])
+		{
+			$id = $this->store_error('_sql', $message, $line, $file);
+		}
 
+		$response = new \phpbb\json_response;
 		$response->send([
-			'message'	=> $err['message'],
+			'message'	=> $message,
 			'line'		=> $line,
 			'file'		=> $file,
 			'content'	=> $sql,
+			'stored'	=> $id,
 			'error'		=> true,
 			't'			=> 1,
 		], true);
 	}
 
 	/**
-	 * Get the adm path
+	 * Return error.
+	 * @param string $message Error
+	 * @param string $on1 Error
+	 * @param string $on2 Error
+	 * @param string $on3 Error
+	 * @return @Json respons
+	 */
+	public function shout_error($message, $on1 = false, $on2 = false, $on3 = false)
+	{
+		$id = 0;
+		if ($this->language->is_set($message))
+		{
+			$message = $this->language->lang($message);
+		}
+		else
+		{
+			if ($on1 && !$on2 && !$on3)
+			{
+				$message = $this->language->lang($message, $on1);
+			}
+			else if ($on1 && $on2 && !$on3)
+			{
+				$message = $this->language->lang($message, $on1, $on2);
+			}
+			else if ($on1 && $on2 && $on3)
+			{
+				$message = $this->language->lang($message, $on1, $on2, $on3);
+			}
+		}
+
+		// Store error in the db if wanted
+		if ($this->config['shout_store_errors'])
+		{
+			$id = $this->store_error('_php', $message);
+		}
+		$message = str_replace(' />', '>', $message);
+		$message = preg_replace("#<b>(.*?)<br>#i", '', $message);
+
+		$response = new \phpbb\json_response;
+		$response->send([
+			'type'		=> 10,
+			'error'		=> true,
+			'stored'	=> $id,
+			'message'	=> $message,
+		], true);
+	}
+
+	/**
+	 * Store error in db
+	 * @param string $mode type of error
+	 * @param string $message error message
+	 * @param string $sql Error
+	 * @param int $line line of error
+	 * @param string $file of error
+	 * @return bool
+	 */
+	private function store_error($mode, $message, $line = 0, $file = '')
+	{
+		$sql_ary = [
+			'error_type'	=> (string) $mode,
+			'error_time'	=> time(),
+			'error_lang'	=> (string) $this->user->lang_name,
+			'error_user'	=> (int) $this->user->data['user_id'],
+			'error_ip'		=> (string) $this->user->ip,
+			'error_sql'		=> (string) 'error',
+			'error_line'	=> (int) $line,
+			'error_file'	=> (string) $file,
+			'error_message'	=> (string) $message,
+		];
+
+		$this->db->sql_query('INSERT INTO ' . $this->shoutbox_errors_table . ' ' . $this->db->sql_build_array('INSERT', $sql_ary));
+		$id = $this->db->sql_last_inserted_id();
+
+		return $id;
+	}
+
+	/**
+	 * Get the absolute adm path
 	 * @return string
 	 */
 	public function adm_path()
@@ -205,6 +256,24 @@ class work
 		return $this->root_path_web . $this->path_helper->get_adm_relative_path();
 	}
 
+	/**
+	 * Remove sid from url
+	 * @param string $url
+	 * @return string
+	 */
+	public function remove_sid($url)
+	{
+		$url = preg_replace('#(?:&amp;)?sid=\w{0,128}#', '', $url);
+		$url = str_replace('?&amp;', '?', $url);
+	
+		return $url;
+	}
+
+	/**
+	 * Return param bool for javascript options
+	 * @param bool $option
+	 * @return string
+	 */
 	public function return_bool($option)
 	{
 		return ($option) ? 'true' : 'false';
@@ -216,11 +285,7 @@ class work
 	 */
 	public function abbc3_exist()
 	{
-		if ($this->phpbb_container->has('vse.abbc3.bbcodes_config'))
-		{
-			return true;
-		}
-		return false;
+		return $this->phpbb_container->has('vse.abbc3.bbcodes_config');
 	}
 
 	/**
@@ -229,9 +294,10 @@ class work
 	 */
 	public function smiliecreator_exist()
 	{
-		if ($this->phpbb_container->has('sylver35.smilecreator.listener'))
+		// Verify auth since 1.6.0
+		if ($this->auth->acl_get('u_creator_use'))
 		{
-			return true;
+			return $this->phpbb_container->has('sylver35.smilecreator.listener');
 		}
 		return false;
 	}
@@ -242,11 +308,7 @@ class work
 	 */
 	public function smiliescategory_exist()
 	{
-		if ($this->phpbb_container->has('sylver35.smiliescat.listener'))
-		{
-			return true;
-		}
-		return false;
+		return $this->phpbb_container->has('sylver35.smiliescat.listener');
 	}
 
 	/**
@@ -255,11 +317,25 @@ class work
 	 */
 	public function breizhcharts_exist()
 	{
-		if ($this->phpbb_container->has('sylver35.breizhcharts.main.listener'))
-		{
-			return true;
-		}
-		return false;
+		return $this->phpbb_container->has('sylver35.breizhcharts.main.listener');
+	}
+
+	/**
+	 * test if the extension qte is running
+	 * @return bool
+	 */
+	public function qte_exist()
+	{
+		return $this->phpbb_container->has('ernadoo.qte.main_listener');
+	}
+
+	/**
+	 * test if the extension mention is running
+	 * @return bool
+	 */
+	public function mention_exist()
+	{
+		return $this->phpbb_container->has('paul999.mention.controller');
 	}
 
 	/**
@@ -268,11 +344,7 @@ class work
 	 */
 	public function breizhyoutube_exist()
 	{
-		if ($this->phpbb_container->has('sylver35.breizhyoutube.listener'))
-		{
-			return true;
-		}
-		return false;
+		return $this->phpbb_container->has('sylver35.breizhyoutube.listener');
 	}
 
 	/**
@@ -281,13 +353,14 @@ class work
 	 */
 	public function relaxarcade_exist()
 	{
-		if ($this->phpbb_container->has('teamrelax.relaxarcade.listener.main'))
-		{
-			return true;
-		}
-		return false;
+		return $this->phpbb_container->has('teamrelax.relaxarcade.listener.main');
 	}
 
+	/**
+	 * Get version of extension from cache
+	 * @paran bool $version just the version or array
+	 * @return string|array
+	 */
 	public function get_version($version = false)
 	{
 		if (($data = $this->cache->get('_shout_version')) === false)
@@ -452,18 +525,18 @@ class work
 		if ($this->config['shout_rules'])
 		{
 			$iso = $this->user->lang_name;
-			if ($this->config->offsetExists("shout_rules{$sort}_{$iso}"))
+			if ($this->config->offsetExists('shout_rules' . $sort . '_' . $iso))
 			{
-				if ($this->config["shout_rules{$sort}_{$iso}"])
+				if ($this->config['shout_rules' . $sort . '_' . $iso])
 				{
 					return $iso;
 				}
 			}
 			else
 			{
-				if ($this->config->offsetExists("shout_rules{$sort}_en"))
+				if ($this->config->offsetExists('shout_rules' . $sort . '_en'))
 				{
-					if ($this->config["shout_rules{$sort}_en"])
+					if ($this->config['shout_rules' . $sort . '_en'])
 					{
 						return 'en';
 					}
@@ -773,7 +846,110 @@ class work
 			2 =>	append_sid("{$this->adm_path()}index.{$this->php_ext}", ['i' => 'users', 'mode' => 'overview', 'u' => $row['user_id']], true, $this->user->session_id),
 			3 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'notes', 'mode' => 'user_notes', 'u' => $row['user_id']], true),
 			4 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'ban', 'mode' => 'user', 'u' => $row['user_id']], true),
-			5 =>	$this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $row['user_id']]),
+			5 =>	$this->helper->route('sylver35_breizhshoutbox_configshout') . '?user_id=' . $row['user_id'],
 		];
+	}
+
+	/*
+	 * Destroy all settings files in cache for all users
+	 */
+	public function destroy_sessions_files()
+	{
+		$rootdir = $this->root_path . 'cache/' . PHPBB_ENVIRONMENT . '/';
+		$list_files = $this->get_cache_files();
+
+		foreach ($list_files as $file)
+		{
+			@unlink($rootdir . $file);
+		}
+	}
+
+	/*
+	 * Destroy actual settings file in cache for a user
+	 */
+	public function update_session_file($user_id, $other = 0, $session_id = '')
+	{
+		$rootdir = $this->root_path . 'cache/' . PHPBB_ENVIRONMENT . '/';
+
+		if ($other)
+		{
+			$sql = 'SELECT session_id, session_user_id
+				FROM ' . SESSIONS_TABLE . '
+					WHERE session_user_id = ' . (int) $user_id;
+			$result = $this->db->sql_query($sql);
+			$session_id = (string) $this->db->sql_fetchfield('session_id');
+			$this->db->sql_freeresult($result);
+		}
+		else if ($session_id)
+		{
+			$session_id = $session_id;
+		}
+		else
+		{
+			$session_id = $this->user->data['session_id'];
+		}
+
+		$file_php = $rootdir . 'data_shout_config_' . $user_id . '_' . $session_id . '.' . $this->php_ext;
+		if (file_exists($file_php))
+		{
+			@unlink($file_php);
+		}
+		if (file_exists($file_php . '.lock'))
+		{
+			@unlink($file_php . '.lock');
+		}
+	}
+
+	/*
+	 * Destroy all old settings files in cache for a user
+	 */
+	public function destroy_old_user_settings($user_id, $session_id)
+	{
+		$files = $this->get_cache_files();
+		$rootdir = $this->root_path . 'cache/' . PHPBB_ENVIRONMENT . '/';
+
+		foreach ($files as $file)
+		{
+			// Don't destroy actual session file
+			if (str_starts_with($file, 'data_shout_config_' . $user_id . '_' . $session_id))
+			{
+				continue;
+			}
+			else if (str_starts_with($file, 'data_shout_config_' . $user_id))
+			{
+				@unlink($rootdir . $file);
+			}
+		}
+	}
+
+	/*
+	 * Get all data_shout_config files from cache
+	 */
+	public function get_cache_files()
+	{
+		$rootdir = $this->root_path . 'cache/';
+		$dir = PHPBB_ENVIRONMENT . '/';
+		$type = 'php|lock';
+		$matches = [];
+
+		if (!$dh = @opendir($rootdir . $dir))
+		{
+			return $matches;
+		}
+
+		while (($fname = readdir($dh)) !== false)
+		{
+			if (is_file("$rootdir$dir$fname"))
+			{
+				// Only the data_shout_config files
+				if (preg_match('#\.' . $type . '$#i', $fname) && str_starts_with($fname, 'data_shout_config_'))
+				{
+					$matches[] = $fname;
+				}
+			}
+		}
+		closedir($dh);
+
+		return $matches;
 	}
 }

@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -17,6 +17,7 @@ use phpbb\user;
 use phpbb\auth\auth;
 use phpbb\language\language;
 use phpbb\db\driver\driver_interface as db;
+use phpbb\cache\driver\driver_interface as cache;
 use phpbb\event\dispatcher_interface as phpbb_dispatcher;
 
 class events
@@ -45,8 +46,17 @@ class events
 	/** @var \phpbb\db\driver\driver_interface */
 	protected $db;
 
+	/** @var \phpbb\cache\driver\driver_interface */
+	protected $cache;
+
 	/** @var \phpbb\event\dispatcher_interface */
 	protected $phpbb_dispatcher;
+
+	/** @var string phpBB root path */
+	protected $root_path;
+
+	/** @var string phpEx */
+	protected $php_ext;
 
 	/**
 	 * The database tables
@@ -58,7 +68,7 @@ class events
 	/**
 	 * Constructor
 	 */
-	public function __construct(shoutbox $shoutbox, work $work, robot $robot, config $config, user $user, auth $auth, language $language, db $db, phpbb_dispatcher $phpbb_dispatcher, $shoutbox_table, $shoutbox_priv_table)
+	public function __construct(shoutbox $shoutbox, work $work, robot $robot, config $config, user $user, auth $auth, language $language, db $db, cache $cache, phpbb_dispatcher $phpbb_dispatcher, $root_path, $php_ext, $shoutbox_table, $shoutbox_priv_table)
 	{
 		$this->shoutbox = $shoutbox;
 		$this->work = $work;
@@ -68,18 +78,50 @@ class events
 		$this->auth = $auth;
 		$this->language = $language;
 		$this->db = $db;
+		$this->cache = $cache;
 		$this->phpbb_dispatcher = $phpbb_dispatcher;
+		$this->root_path = $root_path;
+		$this->php_ext = $php_ext;
 		$this->shoutbox_table = $shoutbox_table;
 		$this->shoutbox_priv_table = $shoutbox_priv_table;
 	}
 
 	/*
+	 * Destroy settings file in cache for a user
+	 */
+	public function kill_session_shout($user_id, $session_id)
+	{
+		if ((int) $user_id === ANONYMOUS || $this->user->data['is_bot'])
+		{
+			return;
+		}
+
+		$this->work->update_session_file($user_id, 0, $session_id);
+	}
+
+	/*
+	 * Destroy all old settings files in cache for a user
+	 */
+	public function old_user_settings($user_id, $session_id)
+	{
+		$this->work->destroy_old_user_settings($user_id, $session_id);
+	}
+
+	/*
+	 * Destroy all settings files in cache for all users
+	 */
+	public function destroy_files()
+	{
+		$this->work->destroy_sessions_files();
+	}
+
+	/*
 	 * Display infos Robot for users connections
 	 */
-	public function post_session_shout($event)
+	public function post_session_shout($data)
 	{
-		$go_post = $this->work->get_session_shout($this->shoutbox_table, 'shout_sessions', (int) $event['session_user_id']);
-		$go_post_priv = $this->work->get_session_shout($this->shoutbox_priv_table, 'shout_sessions_priv', (int) $event['session_user_id']);
+		$go_post = $this->work->get_session_shout($this->shoutbox_table, 'shout_sessions', (int) $data['session_user_id']);
+		$go_post_priv = $this->work->get_session_shout($this->shoutbox_priv_table, 'shout_sessions_priv', (int) $data['session_user_id']);
 
 		$this->robot->insert_message_robot([
 			'shout_time'				=> time(),
@@ -90,7 +132,7 @@ class events
 			'shout_bbcode_bitfield'		=> '',
 			'shout_bbcode_flags'		=> 0,
 			'shout_robot'				=> 1,
-			'shout_robot_user'			=> (int) $event['session_user_id'],
+			'shout_robot_user'			=> (int) $data['session_user_id'],
 			'shout_forum'				=> 0,
 			'shout_info'				=> 1,
 		], $go_post, $go_post_priv, true);
@@ -99,10 +141,10 @@ class events
 	/*
 	 * Display infos Robot for bots connections
 	 */
-	public function post_session_bot($event)
+	public function post_session_bot($data)
 	{
-		$go_post = $this->work->get_session_shout($this->shoutbox_table, 'shout_sessions_bots', (int) $event['session_user_id']);
-		$go_post_priv = $this->work->get_session_shout($this->shoutbox_priv_table, 'shout_sessions_bots_priv', (int) $event['session_user_id']);
+		$go_post = $this->work->get_session_shout($this->shoutbox_table, 'shout_sessions_bots', (int) $data['session_user_id']);
+		$go_post_priv = $this->work->get_session_shout($this->shoutbox_priv_table, 'shout_sessions_bots_priv', (int) $data['session_user_id']);
 
 		$this->robot->insert_message_robot([
 			'shout_time'				=> time(),
@@ -113,7 +155,7 @@ class events
 			'shout_bbcode_bitfield'		=> '',
 			'shout_bbcode_flags'		=> 0,
 			'shout_robot'				=> 1,
-			'shout_robot_user'			=> (int) $event['session_user_id'],
+			'shout_robot_user'			=> (int) $data['session_user_id'],
 			'shout_forum'				=> 0,
 			'shout_info'				=> 2,
 		], $go_post, $go_post_priv);
@@ -125,12 +167,13 @@ class events
 	public function advert_post_shoutbox($event, $forum_id)
 	{
 		$info = $this->sort_info($this->shoutbox->get_topic_data($event, $forum_id));
+		$attribut = $this->shoutbox->qte_attr_display($event['data']['topic_id']);
 
 		$this->robot->insert_message_robot([
 			'shout_time'				=> (string) time(),
 			'shout_user_id'				=> 0,
 			'shout_ip'					=> (string) $this->user->ip,
-			'shout_text'				=> (string) $this->parse_web_adress($event['subject']),
+			'shout_text'				=> (string) $attribut . $this->parse_web_adress($event['subject']),
 			'shout_text2'				=> (string) $this->shoutbox->clean_url($event['url']),
 			'shout_bbcode_uid'			=> '',
 			'shout_bbcode_bitfield'		=> '',
@@ -193,7 +236,7 @@ class events
 
 	public function remove_disallowed_bbcodes($sql_ary)
 	{
-		if ($this->config['shout_bbcode'] !== '')
+		if ($this->config['shout_bbcode'])
 		{
 			$sql_ary['WHERE'] .= ' AND ' . $this->db->sql_in_set('b.bbcode_tag', explode(', ', $this->config['shout_bbcode']), true);
 		}
@@ -249,8 +292,7 @@ class events
 		$sort_id = ($sort) ? "'%&amp;t=$id%'" : "'%&amp;p=$id%'";
 		// Phase 1 delete in shoutbox table
 		$this->db->sql_query('DELETE FROM ' . $this->shoutbox_table . ' WHERE shout_forum <> 0 AND shout_text2 LIKE ' . $sort_id);
-		$deleted = $this->db->sql_affectedrows();
-		if ($deleted)
+		if ($deleted = $this->db->sql_affectedrows())
 		{
 			$this->config->increment('shout_del_auto', $deleted, true);
 			$this->shoutbox->update_messages($this->shoutbox_table);
@@ -258,8 +300,7 @@ class events
 
 		// Phase 2 delete in private shoutbox table
 		$this->db->sql_query('DELETE FROM ' . $this->shoutbox_priv_table . ' WHERE shout_forum <> 0 AND shout_text2 LIKE ' . $sort_id);
-		$deleted_priv = $this->db->sql_affectedrows();
-		if ($deleted_priv)
+		if ($deleted_priv = $this->db->sql_affectedrows())
 		{
 			$this->config->increment('shout_del_auto_priv', $deleted_priv, true);
 			$this->shoutbox->update_messages($this->shoutbox_priv_table);
@@ -272,7 +313,7 @@ class events
 			'shout_time'				=> time(),
 			'shout_user_id'				=> 0,
 			'shout_ip'					=> (string) $this->user->ip,
-			'shout_text'				=> (string) $event['data']['song_name'] . '||' . $event['data']['artist'],
+			'shout_text'				=> (string) $event['data_video']['song_name'] . '||' . $event['data_video']['artist'],
 			'shout_text2'				=> (string) $event['url'],
 			'shout_bbcode_uid'			=> '',
 			'shout_bbcode_bitfield'		=> '',
@@ -280,6 +321,7 @@ class events
 			'shout_robot'				=> 1,
 			'shout_robot_user'			=> (int) $this->user->data['user_id'],
 			'shout_info'				=> 30,
+			'shout_info_nb'				=> (int) $event['id'],
 		], $this->config['shout_breizhcharts_new'], false);
 	}
 
@@ -290,7 +332,7 @@ class events
 			'shout_user_id'				=> 0,
 			'shout_ip'					=> '127.0.0.1',
 			'shout_text'				=> (string) $event['winner']['song_name'],
-			'shout_text2'				=> (string) $event['winner']['artist'],
+			'shout_text2'				=> (string) $event['winner']['artist'] . '||' . $event['last_nb'],
 			'shout_bbcode_uid'			=> '',
 			'shout_bbcode_bitfield'		=> '',
 			'shout_bbcode_flags'		=> 0,
@@ -383,6 +425,15 @@ class events
 		], $this->config['shout_arcade_urecord'], false);
 	}
 
+	public function enable_mention_ext($event)
+	{
+		if ($this->work->mention_exist() && $this->auth->acl_get('u_can_mention'))
+		{
+			$event['parser']->enable_bbcode('mention');
+			$event['parser']->enable_bbcode('smention');
+		}
+	}
+
 	private function sort_info($data)
 	{
 		$info = 0;
@@ -447,12 +498,15 @@ class events
 
 	private function delete_all_user_messages($user_id, $table, $sort_of)
 	{
-		$this->db->sql_query('DELETE FROM ' . $table . " WHERE shout_user_id = $user_id");
+		$this->db->sql_query('DELETE FROM ' . $table . ' WHERE shout_user_id = ' . (int) $user_id);
 		$deleted = $this->db->sql_affectedrows();
-		$this->db->sql_query('DELETE FROM ' . $table . " WHERE shout_inp = $user_id");
+
+		$this->db->sql_query('DELETE FROM ' . $table . ' WHERE shout_inp = ' . (int) $user_id);
 		$deleted += $this->db->sql_affectedrows();
-		$this->db->sql_query('DELETE FROM ' . $table . " WHERE shout_robot_user = $user_id");
+
+		$this->db->sql_query('DELETE FROM ' . $table . ' WHERE shout_robot_user = ' . (int) $user_id);
 		$deleted += $this->db->sql_affectedrows();
+
 		if ($deleted)
 		{
 			$this->config->increment($sort_of, $deleted, true);

@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -20,6 +20,7 @@ use phpbb\template\template;
 use phpbb\auth\auth;
 use phpbb\user;
 use phpbb\language\language;
+use phpbb\cache\driver\driver_interface as cache;
 use phpbb\extension\manager;
 
 class javascript
@@ -54,6 +55,9 @@ class javascript
 	/** @var \phpbb\language\language */
 	protected $language;
 
+	/** @var \phpbb\cache\driver\driver_interface */
+	protected $cache;
+
 	/** @var \phpbb\extension\manager */
 	protected $ext_manager;
 
@@ -75,7 +79,7 @@ class javascript
 	/**
 	 * Constructor
 	 */
-	public function __construct(work $work, config $config, helper $helper, path_helper $path_helper, db $db, request $request, template $template, auth $auth, user $user, language $language, manager $ext_manager, $root_path, $php_ext)
+	public function __construct(work $work, config $config, helper $helper, path_helper $path_helper, db $db, request $request, template $template, auth $auth, user $user, language $language, cache $cache, manager $ext_manager, $root_path, $php_ext)
 	{
 		$this->work = $work;
 		$this->config = $config;
@@ -87,6 +91,7 @@ class javascript
 		$this->auth = $auth;
 		$this->user = $user;
 		$this->language = $language;
+		$this->cache = $cache;
 		$this->ext_manager = $ext_manager;
 		$this->root_path = $root_path;
 		$this->php_ext = $php_ext;
@@ -97,29 +102,27 @@ class javascript
 
 	public function active_config_shoutbox($user_id)
 	{
-		if (!$this->user->data['is_registered'] || $this->user->data['is_bot'] || !$this->auth->acl_get('u_shout_post') || ($user_id !== $this->user->data['user_id']) && !$this->auth->acl_gets(['a_', 'm_shout_personal']))
+		if (!$this->user->data['is_registered'] || $this->user->data['is_bot'] || !$this->auth->acl_get('u_shout_post') || ((int) $user_id !== (int) $this->user->data['user_id']) && !$this->auth->acl_gets(['a_shout_manage', 'm_shout_personal']))
 		{
 			throw new http_exception(403, 'NOT_AUTHORISED');
 		}
 
+		$other = ((int) $user_id !== (int) $this->user->data['user_id']) ? true : false;
 		if ($this->request->is_set_post('submit'))
 		{
-			$this->config_submit($user_id);
-			redirect($this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $user_id]));
+			$this->config_submit($user_id, $other);
 		}
 		else if ($this->request->is_set_post('return'))
 		{
-			$this->config_return($user_id);
-
-			redirect($this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $user_id]));
+			$this->config_return($user_id, $other);
 		}
 		else
 		{
-			$this->data_config_shoutbox($user_id);
+			$this->data_config_shoutbox($user_id, $other);
 		}
 	}
 
-	private function config_submit($user_id)
+	private function config_submit($user_id, $other)
 	{
 		$user_shout = [
 			'user'			=> $this->request->variable('user_sound', 2),
@@ -147,11 +150,16 @@ class javascript
 
 		$sql = 'UPDATE ' . USERS_TABLE . "
 			SET user_shout = '" . $this->db->sql_escape(json_encode($user_shout)) . "', user_shoutbox = '" . $this->db->sql_escape(json_encode($user_shoutbox)) . "'
-				WHERE user_id = $user_id";
+				WHERE user_id = " . (int) $user_id;
 		$this->db->sql_query($sql);
+
+		$this->work->update_session_file($user_id, $other);
+		$redirect_url = $this->helper->route('sylver35_breizhshoutbox_configshout') . '?user_id=' . $user_id;
+		meta_refresh(2, $redirect_url);
+		trigger_error($this->language->lang('SHOUT_REDIRECT') . '<br><br>' . $this->language->lang('RETURN_PAGE', '<a href="' . $redirect_url . '">', '</a>'));
 	}
 
-	private function config_return($user_id)
+	private function config_return($user_id, $other)
 	{
 		$user_shout = [
 			'user'			=> 2,
@@ -179,33 +187,36 @@ class javascript
 
 		$sql = 'UPDATE ' . USERS_TABLE . "
 			SET user_shout = '" . $this->db->sql_escape(json_encode($user_shout)) . "', user_shoutbox = '" . $this->db->sql_escape(json_encode($user_shoutbox)) . "'
-				WHERE user_id = $user_id";
+				WHERE user_id = " . (int) $user_id;
 		$this->db->sql_query($sql);
+
+		$this->work->update_session_file($user_id, $other);
+		$redirect_url = $this->helper->route('sylver35_breizhshoutbox_configshout') . '?user_id=' . $user_id;
+		meta_refresh(2, $redirect_url);
+		trigger_error($this->language->lang('SHOUT_REDIRECT') . '<br><br>' . $this->language->lang('RETURN_PAGE', '<a href="' . $redirect_url . '">', '</a>'));
 	}
 
-	private function data_config_shoutbox($user_id)
+	private function data_config_shoutbox($user_id, $other)
 	{
 		$this->language->add_lang('ucp');
 		$username = '';
-		$other = false;
-		if ($user_id === $this->user->data['user_id'])
+
+		if (!$other)
 		{
 			$user_shout = json_decode($this->user->data['user_shout']);
 			$user_shoutbox = json_decode($this->user->data['user_shoutbox']);
 		}
-		else if (($user_id !== $this->user->data['user_id']) && $this->auth->acl_gets(['a_', 'm_shout_personal']))
+		else if ($other && $this->auth->acl_gets(['a_shout_manage', 'm_shout_personal']))
 		{
 			$sql = 'SELECT username, user_shout, user_shoutbox
 				FROM ' . USERS_TABLE . '
-					WHERE user_id = ' . $user_id;
+					WHERE user_id = ' . (int) $user_id;
 			$result = $this->db->sql_query($sql);
 			$row = $this->db->sql_fetchrow($result);
-			$this->db->sql_freeresult($result);
-
-			$other = true;
 			$username = $row['username'];
 			$user_shout = json_decode($row['user_shout']);
 			$user_shoutbox = json_decode($row['user_shoutbox']);
+			$this->db->sql_freeresult($result);
 		}
 		else
 		{
@@ -262,7 +273,7 @@ class javascript
 			'S_DATEFORMAT_OPTIONS'	=> $this->work->build_dateformat_option($user_shoutbox->dateformat),
 			'S_POP'					=> ($other) ? $this->auth->acl_get_list($user_id, 'u_shout_popup') : $this->auth->acl_get('u_shout_popup'),
 			'S_PRIVATE'				=> ($other) ? $this->auth->acl_get_list($user_id, 'u_shout_priv') : $this->auth->acl_get('u_shout_priv'),
-			'U_SHOUT_ACTION'		=> $this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $user_id]),
+			'U_SHOUT_ACTION'		=> $this->helper->route('sylver35_breizhshoutbox_configshout') . '?user_id=' . $user_id,
 			'U_DATE_URL' 			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'date_format']),
 			'SHOUTBOX_VERSION'		=> $this->language->lang('SHOUTBOX_VERSION_ACP_COPY', $version['homepage'], $version['version']),
 			'SHOUT_EXT_PATH'		=> $this->ext_path_web,
@@ -270,6 +281,21 @@ class javascript
 	}
 
 	public function javascript_shout($sort_of)
+	{
+		$data = $this->initialize_data($sort_of);
+
+		// Construct the user's $settings from cache
+		$settings = $this->get_settings_from_cache($data);
+
+		$this->template->assign_vars([
+			'ON_SHOUT_DISPLAY'			=> true,
+			'LIST_SETTINGS_AUTH'		=> $settings[$sort_of]['settings_auth'],
+			'LIST_SETTINGS_STRING'		=> $settings[$sort_of]['settings_string'],
+			'LIST_SETTINGS_LANG'		=> $settings[$sort_of]['settings_lang'],
+		]);
+	}
+
+	private function initialize_data($sort_of)
 	{
 		$version = $this->work->get_version();
 		$data = [
@@ -283,6 +309,7 @@ class javascript
 			'is_mobile'	=> $this->work->shout_is_mobile(),
 			'user_id'	=> (int) $this->user->data['user_id'],
 			'is_user'	=> (bool) $this->user->data['is_registered'] && !$this->user->data['is_bot'],
+			'is_bot'	=> (bool) $this->user->data['is_bot'],
 			'version'	=> (string) $version['version'],
 			'homepage'	=> (string) $version['homepage'],
 		];
@@ -291,8 +318,8 @@ class javascript
 		{
 			// Popup shoutbox
 			case 1:
-				$data['sort_p'] = '_pop';
 				$data['popup'] = true;
+				$data['sort_p'] = '_pop';
 			break;
 			// Normal shoutbox
 			case 2:
@@ -305,68 +332,63 @@ class javascript
 			break;
 		}
 
-		// Construct the user's $settings
-		$settings = $this->get_settings($data);
-
-		$this->template->assign_vars([
-			'ON_SHOUT_DISPLAY'			=> true,
-			'LIST_SETTINGS_AUTH'		=> $settings['settings_auth'],
-			'LIST_SETTINGS_STRING'		=> $settings['settings_string'],
-			'LIST_SETTINGS_LANG'		=> $settings['settings_lang'],
-		]);
+		return $data;
 	}
 
-	private function create_user_settings($data)
+	public function get_settings_from_cache($data)
 	{
+		$settings = [];
 		if ($data['is_user'])
 		{
-			$user_shout = json_decode($this->user->data['user_shout']);
-			$user_shoutbox = json_decode($this->user->data['user_shoutbox']);
-
-			$data = array_merge($data, [
-				'refresh'					=> $this->config['shout_temp_users'] * 1000,
-				'inactiv'					=> ($this->auth->acl_get('u_shout_inactiv') || $data['private']) ? 0 : $this->config['shout_inactiv_member'],
-				'dateformat'				=> $this->work->set_user_option($user_shoutbox->dateformat, 'shout_dateformat', 5),
-				'shout_bar_option'			=> $this->work->set_user_option($user_shoutbox->bar, 'shout_bar_option', 3),
-				'shout_bar_option_pop'		=> $this->work->set_user_option($user_shoutbox->bar_pop, 'shout_bar_option_pop', 3),
-				'shout_bar_option_priv'		=> $this->work->set_user_option($user_shoutbox->bar_priv, 'shout_bar_option_priv', 3),
-				'shout_defil'				=> $this->work->set_user_option($user_shoutbox->defil, 'shout_defil', 3),
-				'shout_defil_pop'			=> $this->work->set_user_option($user_shoutbox->defil_pop, 'shout_defil_pop', 3),
-				'shout_defil_priv'			=> $this->work->set_user_option($user_shoutbox->defil_priv, 'shout_defil_priv', 3),
-				'active'					=> $this->work->set_user_option($user_shout->user, 'shout_sound_on', 4),
-				'new_priv'					=> $this->work->set_user_option($user_shout->new_priv, 'shout_sound_new_priv', 1),
-				'new'						=> $this->work->set_user_option($user_shout->new, 'shout_sound_new', 1),
-				'error'						=> $this->work->set_user_option($user_shout->error, 'shout_sound_error', 1),
-				'del'						=> $this->work->set_user_option($user_shout->del, 'shout_sound_del', 1),
-				'add'						=> $this->work->set_user_option($user_shout->add, 'shout_sound_add', 1),
-				'edit'						=> $this->work->set_user_option($user_shout->edit, 'shout_sound_edit', 1),
-			]);
+			$file = '_shout_config_' . $this->user->data['user_id'] . '_' . $this->user->data['session_id'];
+		}
+		else if ($data['is_bot'])
+		{
+			$file = '_shout_config_robots_' . $this->user->data['user_lang'];
 		}
 		else
 		{
-			$data = array_merge($data, [
-				'refresh'					=> ($this->user->data['is_bot']) ? 60 * 1000 : $this->config['shout_temp_anonymous'] * 1000,
-				'inactiv'					=> $this->config['shout_inactiv_anony'],
-				'dateformat'				=> $this->config['shout_dateformat'],
-				'shout_bar_option'			=> $this->config['shout_bar_option'],
-				'shout_bar_option_pop'		=> $this->config['shout_bar_option_pop'],
-				'shout_bar_option_priv'		=> $this->config['shout_bar_option_priv'],
-				'shout_defil'				=> $this->config['shout_defil'],
-				'shout_defil_pop'			=> $this->config['shout_defil_pop'],
-				'shout_defil_priv'			=> $this->config['shout_defil_priv'],
-				'active'					=> ($this->user->data['is_bot']) ? false : $this->config['shout_sound_on'],
-				'new'						=> $this->config['shout_sound_new'],
-				'error'						=> $this->config['shout_sound_error'],
-				'del'						=> $this->config['shout_sound_del'],
-				'add'						=> $this->config['shout_sound_add'],
-				'edit'						=> $this->config['shout_sound_edit'],
-				'new_priv'					=> '',
-			]);
+			$file = '_shout_config_unregistered_' . $this->user->data['user_lang'];
 		}
-		$data['style'] = 'styles/' . (file_exists($this->ext_path . 'styles/' . rawurlencode($this->user->style['style_path']) . '/') ? rawurlencode($this->user->style['style_path']) : 'all') . '/theme/images/background/';
-		$data['inactiv'] = (($data['inactiv'] > 0) && !$data['private']) ? round($data['inactiv'] * 60 / ($data['refresh'] / 1000)) : 0;
 
-		return $data;
+		if (($settings_user = $this->cache->get($file)) === false)
+		{
+			// Settings for popup shoutbox
+			$settings[1] = $this->get_settings($this->initialize_data(1));
+			$settings_user[1] = [
+				'settings_auth'		=> $settings[1]['settings_auth'],
+				'settings_string'	=> $settings[1]['settings_string'],
+				'settings_lang'		=> $settings[1]['settings_lang'],
+			];
+			// Settings for normal shoutbox
+			$settings[2] = $this->get_settings($this->initialize_data(2));
+			$settings_user[2] = [
+				'settings_auth'		=> $settings[2]['settings_auth'],
+				'settings_string'	=> $settings[2]['settings_string'],
+				'settings_lang'		=> $settings[2]['settings_lang'],
+			];
+			// Settings for private shoutbox protected at this time
+			if ($data['is_user'] && $this->auth->acl_get('u_shout_priv'))
+			{
+				$settings[3] = $this->get_settings($this->initialize_data(3));
+				$settings_user[3] = [
+					'settings_auth'		=> $settings[3]['settings_auth'],
+					'settings_string'	=> $settings[3]['settings_string'],
+					'settings_lang'		=> $settings[3]['settings_lang'],
+				];
+			}
+
+			// Destroy old user settings files
+			if ($data['is_user'])
+			{
+				$this->work->destroy_old_user_settings($this->user->data['user_id'], $this->user->data['session_id']);
+			}
+
+			// cache for 1 day
+			$this->cache->put($file, $settings_user, 86400);
+		}
+
+		return $settings_user;
 	}
 
 	private function get_settings($data)
@@ -423,6 +445,61 @@ class javascript
 		];
 	}
 
+	private function create_user_settings($data)
+	{
+		if ($data['is_user'])
+		{
+			$user_shout = json_decode($this->user->data['user_shout']);
+			$user_shoutbox = json_decode($this->user->data['user_shoutbox']);
+
+			$data = array_merge($data, [
+				'refresh'					=> $this->config['shout_temp_users'] * 1000,
+				'inactiv'					=> ($this->auth->acl_get('u_shout_inactiv') || $data['private']) ? 0 : $this->config['shout_inactiv_member'],
+				'dateformat'				=> $this->work->set_user_option($user_shoutbox->dateformat, 'shout_dateformat', 5),
+				'shout_bar_option'			=> $this->work->set_user_option($user_shoutbox->bar, 'shout_bar_option', 3),
+				'shout_bar_option_pop'		=> $this->work->set_user_option($user_shoutbox->bar_pop, 'shout_bar_option_pop', 3),
+				'shout_bar_option_priv'		=> $this->work->set_user_option($user_shoutbox->bar_priv, 'shout_bar_option_priv', 3),
+				'shout_defil'				=> $this->work->set_user_option($user_shoutbox->defil, 'shout_defil', 3),
+				'shout_defil_pop'			=> $this->work->set_user_option($user_shoutbox->defil_pop, 'shout_defil_pop', 3),
+				'shout_defil_priv'			=> $this->work->set_user_option($user_shoutbox->defil_priv, 'shout_defil_priv', 3),
+				'active'					=> $this->work->set_user_option($user_shout->user, 'shout_sound_on', 4),
+				'new_priv'					=> $this->work->set_user_option($user_shout->new_priv, 'shout_sound_new_priv', 1),
+				'new'						=> $this->work->set_user_option($user_shout->new, 'shout_sound_new', 1),
+				'error'						=> $this->work->set_user_option($user_shout->error, 'shout_sound_error', 1),
+				'del'						=> $this->work->set_user_option($user_shout->del, 'shout_sound_del', 1),
+				'add'						=> $this->work->set_user_option($user_shout->add, 'shout_sound_add', 1),
+				'edit'						=> $this->work->set_user_option($user_shout->edit, 'shout_sound_edit', 1),
+			]);
+		}
+		else
+		{
+			$data = array_merge($data, [
+				'refresh'					=> ($data['is_bot']) ? 60 * 1000 : $this->config['shout_temp_anonymous'] * 1000,
+				'inactiv'					=> $this->config['shout_inactiv_anony'],
+				'dateformat'				=> $this->config['shout_dateformat'],
+				'shout_bar_option'			=> $this->config['shout_bar_option'],
+				'shout_bar_option_pop'		=> $this->config['shout_bar_option_pop'],
+				'shout_bar_option_priv'		=> $this->config['shout_bar_option_priv'],
+				'shout_defil'				=> $this->config['shout_defil'],
+				'shout_defil_pop'			=> $this->config['shout_defil_pop'],
+				'shout_defil_priv'			=> $this->config['shout_defil_priv'],
+				'active'					=> ($data['is_bot']) ? false : $this->config['shout_sound_on'],
+				'new'						=> $this->config['shout_sound_new'],
+				'error'						=> $this->config['shout_sound_error'],
+				'del'						=> $this->config['shout_sound_del'],
+				'add'						=> $this->config['shout_sound_add'],
+				'edit'						=> $this->config['shout_sound_edit'],
+				'new_priv'					=> '',
+			]);
+		}
+
+		$style = file_exists($this->ext_path . 'styles/' . rawurlencode($this->user->style['style_path']) . '/') ? rawurlencode($this->user->style['style_path']) : 'all';
+		$data['style'] = 'styles/' . $style . '/theme/images/background/';
+		$data['inactiv'] = (($data['inactiv'] > 0) && !$data['private']) ? round($data['inactiv'] * 60 / ($data['refresh'] / 1000)) : 0;
+
+		return $data;
+	}
+
 	private function auth_to_javascript($data)
 	{
 		// Display the rules if wanted
@@ -445,7 +522,7 @@ class javascript
 			'maxName'			=> $this->config['max_name_chars'],
 			'isUser'			=> $this->work->return_bool($data['is_user']),
 			'isGuest'			=> $this->work->return_bool($data['user_id'] === ANONYMOUS),
-			'isRobot'			=> $this->work->return_bool($this->user->data['is_bot']),
+			'isRobot'			=> $this->work->return_bool($data['is_bot']),
 			'isPriv'			=> $this->work->return_bool($data['private']),
 			'isPopup'			=> $this->work->return_bool($data['popup']),
 			'rulesOk'			=> $this->work->return_bool($rules),
@@ -454,6 +531,7 @@ class javascript
 			'refresh'			=> $this->work->return_bool(strpos($data['dateformat'], '|') !== false),
 			'seeButtons'		=> $this->work->return_bool($this->config['shout_see_buttons']),
 			'buttonsLeft'		=> $this->work->return_bool($this->config['shout_see_buttons_left']),
+			'storeErrors'		=> $this->work->return_bool($this->config['shout_store_errors']),
 			'barHaute'			=> $this->work->return_bool($data['shout_bar_option' . $data['sort_p']]),
 			'toBottom'			=> $this->work->return_bool($data['shout_defil' . $data['sort_p']]),
 			'buttonIp'			=> $this->work->return_bool($this->config['shout_see_button_ip']),
@@ -482,6 +560,9 @@ class javascript
 	private function settings_to_javascript($data)
 	{
 		$settings_string = [
+			'session'			=> $this->user->data['session_id'],
+			'userLang'			=> $this->user->data['user_lang'],
+			'userName'			=> $this->user->data['username'],
 			'cookieName'		=> $this->config['cookie_name'] . '_',
 			'cookieDomain'		=> '; domain=' . $this->config['cookie_domain'] . ($this->config['cookie_secure'] ? '; secure' : ''),
 			'cookiePath'		=> '; path=' . $this->config['cookie_path'],
@@ -496,7 +577,7 @@ class javascript
 			'addSound'			=> $data['add'],
 			'editSound'			=> $data['edit'],
 			'titleUrl'			=> $data['homepage'],
-			'shoutImg'			=> file_exists($this->ext_path . $data['style'] . $this->config['shout_div_img' . $data['sort_p']]) ? $this->config['shout_div_img' . $data['sort_p']] : '',
+			'shoutImg'			=> ($data['is_mobile']) ? '' : $this->work->shout_url($this->ext_path_web) . $data['style'] . $this->config['shout_div_img' . $data['sort_p']],
 			'shoutImgHori'		=> $this->config['shout_img_horizontal' . $data['sort_p']],
 			'shoutImgVert'		=> $this->config['shout_img_vertical' . $data['sort_p']],
 			'buttonBg'			=> ' button_background_' . $this->config['shout_color_background' . $data['sort_p']],
@@ -506,39 +587,38 @@ class javascript
 			'popupHeight'		=> $this->config['shout_popup_height'],
 			'direction'			=> $this->language->lang('SHOUT_DIRECTION'),
 			'base'				=> generate_board_url(),
-			'shoutImgUrl'		=> $this->ext_path_web . $data['style'],
-			'popupUrl'			=> $this->helper->route('sylver35_breizhshoutbox_popup'),
-			'configUrl'			=> $this->helper->route('sylver35_breizhshoutbox_configshout', ['id' => $data['user_id']]),
-			'checkUrl'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'check']),
-			'viewUrl'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'view']),
-			'postUrl'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'post']),
-			'smilUrl'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'smilies']),
-			'smilPopUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'smilies_popup']),
-			'onlineUrl'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'online']),
-			'soundUrl'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'action_sound']),
-			'rulesUrl'			=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'rules']),
-			'postingUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'posting']),
-			'questionUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'question']),
-			'creatorUrl'		=> ($data['creator']) ? $this->helper->route('sylver35_smilecreator_controller') : '',
+			'popupUrl'			=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_popup')),
+			'configUrl'			=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_configshout')) . '?user_id=' . $data['user_id'],
+			'checkUrl'			=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'check'])),
+			'viewUrl'			=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'view'])),
+			'postUrl'			=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'post'])),
+			'smilUrl'			=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'smilies'])),
+			'smilPopUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'smilies_popup'])),
+			'onlineUrl'			=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'online'])),
+			'soundUrl'			=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'action_sound'])),
+			'rulesUrl'			=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'rules'])),
+			'postingUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'posting'])),
+			'questionUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'question'])),
+			'creatorUrl'		=> ($data['creator']) ? $this->work->remove_sid($this->helper->route('sylver35_smilecreator_controller')) : '',
 		];
 		if ($data['is_user'])
 		{
 			$settings_string = array_merge($settings_string, [
-				'privUrl'		=> $this->helper->route('sylver35_breizhshoutbox_private'),
-				'purgeUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'purge']),
-				'purgeBotUrl'	=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'purge_robot']),
-				'actUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'action_user']),
-				'actPostUrl'	=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'action_post']),
-				'actDelUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'action_del']),
-				'actDelToUrl'	=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'action_del_to']),
-				'actRemoveUrl'	=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'action_remove']),
-				'citeUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'cite']),
-				'ubbcodeUrl'	=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'user_bbcode']),
-				'persoUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'charge_bbcode']),
-				'deleteUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'delete']),
-				'editUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'edit']),
-				'dateUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'date_format']),
-				'authUrl'		=> $this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'auth']),
+				'privUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_private')),
+				'purgeUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'purge'])),
+				'purgeBotUrl'	=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'purge_robot'])),
+				'actUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'action_user'])),
+				'actPostUrl'	=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'action_post'])),
+				'actDelUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'action_del'])),
+				'actDelToUrl'	=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'action_del_to'])),
+				'actRemoveUrl'	=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'action_remove'])),
+				'citeUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'cite'])),
+				'ubbcodeUrl'	=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'user_bbcode'])),
+				'persoUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'charge_bbcode'])),
+				'deleteUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'delete'])),
+				'editUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'edit'])),
+				'dateUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'date_format'])),
+				'authUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'auth'])),
 			]);
 		}
 

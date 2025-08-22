@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -133,14 +133,14 @@ class actions
 		];
 	}
 
-	public function date_format($date)
+	public function bzh_date_format($date)
 	{
 		$date = ($date == 'custom') ? $this->config['shout_dateformat'] : $date;
 
 		return [
-			'format'	=> $date,
-			'date'		=> $this->user->format_date(time() - 60 * 61, $date),
-			'date2'		=> $this->user->format_date(time() - 60 * 60 * 60, $date),
+			'format'	=> (string) $date,
+			'date'		=> (string) $this->user->format_date(time() - 60 * 61, $date),
+			'date2'		=> (string) $this->user->format_date(time() - 60 * 60 * 60, $date),
 		];
 	}
 
@@ -189,6 +189,8 @@ class actions
 				WHERE user_id = " . $this->user->data['user_id'];
 		$this->db->sql_query($sql);
 
+		$this->work->update_session_file($this->user->data['user_id']);
+
 		return $data;
 	}
 
@@ -220,7 +222,7 @@ class actions
 	{
 		if (!$val['is_user'] || !$val['other'] || $val['other'] == ANONYMOUS)
 		{
-			return [
+			$return = [
 				'type'		=> 0,
 				'message'	=> $this->language->lang('NO_ACTION_PERM'),
 			];
@@ -228,26 +230,25 @@ class actions
 		else
 		{
 			$sql = $this->db->sql_build_query('SELECT', [
-				'SELECT'	=> 'z.user_id, z.zebra_id, z.foe, u.user_id, u.user_type, u.username, u.user_colour, u.user_avatar, u.user_avatar_type, u.user_avatar_width, u.user_avatar_height',
+				'SELECT'	=> 'u.user_id, u.user_type, u.username, u.user_colour, u.user_avatar, u.user_avatar_type, u.user_avatar_width, u.user_avatar_height, z.user_id as foe_id, z.zebra_id, z.foe',
 				'FROM'		=> [USERS_TABLE => 'u'],
 				'LEFT_JOIN'	=> [
 					[
 						'FROM'	=> [ZEBRA_TABLE => 'z'],
-						'ON'	=> 'u.user_id = z.zebra_id AND z.user_id = ' . $val['userid'],
+						'ON'	=> 'z.zebra_id = u.user_id AND z.user_id = ' . (int) $val['userid'],
 					],
 				],
-				'WHERE'		=> 'u.user_id = ' . $val['other'],
+				'WHERE'		=> 'u.user_id = ' . (int) $val['other'],
 			]);
-			$result = $this->work->shout_sql_query($sql, true, 1);
+			$result = $this->work->shout_sql_query($sql);
 			$row = $this->db->sql_fetchrow($result);
-			$this->db->sql_freeresult($result);
 			if (!$row)
 			{
-				return ['type' => 1];
+				$return = ['type' => 1];
 			}
 			else if ($row['user_type'] == USER_IGNORE)
 			{
-				return [
+				$return = [
 					'type'		=> 2,
 					'username'	=> $this->work->shout_url(get_username_string('no_profile', $row['user_id'], $row['username'], $row['user_colour'])),
 					'message'	=> $this->language->lang('SHOUT_USER_NONE'),
@@ -255,9 +256,12 @@ class actions
 			}
 			else
 			{
-				return $this->send_action_user($row, $val['userid'], $val['sort']);
+				$return = $this->send_action_user($row, $val['userid'], $val['sort']);
 			}
+			$this->db->sql_freeresult($result);
 		}
+
+		return $return;
 	}
 
 	public function send_action_user($row, $id, $sort)

@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -38,7 +38,7 @@ class ajax
 	 * Function construct_ajax
 	 *
 	 * @param string $mode Mode to switch
-	 * @return void
+	 * @return Json
 	 * @access public
 	 */
 	public function construct_ajax($mode)
@@ -56,7 +56,7 @@ class ajax
 			break;
 
 			case 'smilies_popup':
-				$data = $this->smilies->smilies_popup($this->value('cat', -1), $this->value('start', 0));
+				$data = $this->smilies->smilies_popup($this->value('cat', 0), $this->value('start', 0));
 			break;
 
 			case 'display_smilies':
@@ -92,7 +92,7 @@ class ajax
 			break;
 
 			case 'date_format':
-				$data = $this->actions->date_format($this->value('date', ''));
+				$data = $this->actions->bzh_date_format($this->value('date', ''));
 			break;
 
 			case 'action_sound':

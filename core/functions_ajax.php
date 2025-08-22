@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -198,7 +198,7 @@ class functions_ajax
 		$start = $this->language->lang('REGISTERED_USERS') . ' ';
 
 		$data = [
-			'title'	=> $online['l_online_users'] . '<br/>(' . $this->language->lang('VIEW_ONLINE_TIMES', (int) $this->config['load_online_time']) . ')',
+			'title'	=> $online['l_online_users'] . '<br>(' . $this->language->lang('VIEW_ONLINE_TIMES', (int) $this->config['load_online_time']) . ')',
 			'list'	=> '',
 		];
 
@@ -221,21 +221,33 @@ class functions_ajax
 				}
 				else
 				{
-					$avatar = (strpos($this_user, 'class="useravatar"')) ? '<span class="useravatar">' . $this->work->find_string($this_user, 'class="useravatar">', '</span>') . '</span> ' : '';
-					$this_user = str_replace($avatar, '', $this_user);
 					$users .= ($u > 0) ? ', ' : '';
-					$users .= ($avatar !== '') ? $avatar : '';
-					$users .= $this->work->construct_action_shout($id, $this->work->find_string($this_user, 'username-coloured">', '</a>'), $this->work->find_string($this_user, 'color: #', ';"'));
+					// fix bug with Online users avatar ext
+					$fix = $this->online_avatar($users, $this_user);
+					$this_user = $fix['this_user'];
+					$users .= $fix['avatar'] . $this->work->construct_action_shout($id, $this->work->find_string($this_user, 'username-coloured">', '</a>'), $this->work->find_string($this_user, 'color: #', ';"'));
 					$u++;
 				}
 			}
 			$data['list'] .= $u . ' ' . (($u === 1) ? str_replace($this->language->lang('REGISTERED_USERS'), $this->language->lang('REGISTERED_USER'), $start) : $start);
 			$data['list'] .= ($u > 0) ? $users : $this->language->lang('NO_ONLINE_USERS');
-			$data['list'] .= '<hr/>' . $r . ' ' . $this->language->lang('G_BOT' . (($r > 1) ? 'S' : '')) . ' : ';
+			$data['list'] .= '<hr>' . $r . ' ' . $this->language->lang('G_BOT' . (($r > 1) ? 'S' : '')) . ' : ';
 			$data['list'] .= ($r > 0) ? $robots : $this->language->lang('NO_ONLINE_BOTS');
 		}
 
 		return $this->work->shout_url($data);
+	}
+
+	private function online_avatar($users, $this_user)
+	{
+		$avatar = (strpos($this_user, 'class="useravatar"')) ? '<span class="useravatar">' . $this->work->find_string($this_user, 'class="useravatar">', '</span>') . '</span> ' : '';
+		// Remove avatar now, it will be inserted later
+		if ($avatar !== '')
+		{
+			$this_user = str_replace($avatar, '', $this_user);
+		}
+
+		return ['this_user' => $this_user, 'avatar' => $avatar];
 	}
 
 	public function auth($user_id, $username)
@@ -386,7 +398,7 @@ class functions_ajax
 		$this->robot->shout_run_robot(true);
 		$sql_where = $this->shoutbox->shout_sql_where($val['is_user'], $val['userid'], $on_bot);
 
-		return ['t' => $this->get_time($val['table'], $sql_where)];
+		return ['last' => $this->get_time($val['table'], $sql_where)];
 	}
 
 	public function view($val, $on_bot, $start)
@@ -462,10 +474,8 @@ class functions_ajax
 		{
 			return true;
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 	private function get_pagination($sql_where, $table, $priv)

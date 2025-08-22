@@ -38,6 +38,7 @@ services:
             - '@user'
             - '@language'
             - '@log'
+            - '@dispatcher'
             - '%core.root_path%'
             - '%core.php_ext%'
             - '%sylver35.breizhshoutbox.tables.shoutbox_rules%'
@@ -48,10 +49,7 @@ services:
             - '@sylver35.breizhshoutbox.shoutbox'
             - '@sylver35.breizhshoutbox.events'
             - '@config'
-            - '@controller.helper'
             - '@request'
-            - '@template'
-            - '@auth'
             - '@user'
             - '@language'
         tags:
@@ -98,6 +96,7 @@ services:
             - '@auth'
             - '@user'
             - '@language'
+            - '@cache.driver'
             - '@ext.manager'
             - '%core.root_path%'
             - '%core.php_ext%'
@@ -163,6 +162,7 @@ services:
             - '@dispatcher'
             - '%core.root_path%'
             - '%core.php_ext%'
+            - '%sylver35.breizhshoutbox.tables.shoutbox_errors%'
             - '%sylver35.breizhshoutbox.tables.shoutbox_rules%'
 
     sylver35.breizhshoutbox.robot:
@@ -188,6 +188,9 @@ services:
             - '@auth'
             - '@user'
             - '@language'
+            - '@template'
+            - '@controller.helper'
+            - '@service_container'
             - '%core.root_path%'
             - '%core.php_ext%'
 
@@ -211,7 +214,10 @@ services:
             - '@auth'
             - '@language'
             - '@dbal.conn'
+            - '@cache.driver'
             - '@dispatcher'
+            - '%core.root_path%'
+            - '%core.php_ext%'
             - '%sylver35.breizhshoutbox.tables.shoutbox%'
             - '%sylver35.breizhshoutbox.tables.shoutbox_priv%'
 

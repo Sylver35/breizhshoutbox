@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB Extension - Breizh Shoutbox
-* @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+* @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
 * @license https://opensource.org/licenses/gpl-license.php GNU Public License
 *
 */
@@ -15,6 +15,9 @@ use phpbb\db\driver\driver_interface as db;
 use phpbb\auth\auth;
 use phpbb\user;
 use phpbb\language\language;
+use phpbb\template\template;
+use phpbb\controller\helper;
+use Symfony\Component\DependencyInjection\Container;
 
 class bbcodes
 {
@@ -36,6 +39,15 @@ class bbcodes
 	/** @var \phpbb\language\language */
 	protected $language;
 
+	/** @var \phpbb\template\template */
+	protected $template;
+
+	/* @var \phpbb\controller\helper */
+	protected $helper;
+
+	/** @var \Symfony\Component\DependencyInjection\Container */
+	protected $phpbb_container;
+
 	/** @var string phpBB root path */
 	protected $root_path;
 
@@ -45,7 +57,7 @@ class bbcodes
 	/**
 	 * Constructor
 	 */
-	public function __construct(work $work, config $config, db $db, auth $auth, user $user, language $language, $root_path, $php_ext)
+	public function __construct(work $work, config $config, db $db, auth $auth, user $user, language $language, template $template, helper $helper, Container $phpbb_container, $root_path, $php_ext)
 	{
 		$this->work = $work;
 		$this->config = $config;
@@ -53,6 +65,9 @@ class bbcodes
 		$this->auth = $auth;
 		$this->user = $user;
 		$this->language = $language;
+		$this->template = $template;
+		$this->helper = $helper;
+		$this->phpbb_container = $phpbb_container;
 		$this->root_path = $root_path;
 		$this->php_ext = $php_ext;
 	}
@@ -220,9 +235,7 @@ class bbcodes
 		}
 
 		// If all is ok, return 3
-		return [
-			'sort'	=> 3,
-		];
+		return ['sort' => 3];
 	}
 
 	private function first_parse($open, $close, $array_open, $array_close, $shout_bbcode)
@@ -232,9 +245,7 @@ class bbcodes
 		{
 			if ($shout_bbcode)
 			{
-				return [
-					'sort'		=> 1,
-				];
+				return ['sort' => 1];
 			}
 			else
 			{
@@ -269,9 +280,7 @@ class bbcodes
 			];
 		}
 
-		return [
-			'sort'	=> 3,
-		];
+		return ['sort' => 3];
 	}
 
 	private function second_parse($open, $close, $array_open, $array_close, $shout_bbcode)
@@ -303,9 +312,7 @@ class bbcodes
 			];
 		}
 
-		return [
-			'sort'	=> 1,
-		];
+		return ['sort' => 1];
 	}
 
 	private function verify_imbrication($open, $close, $array_open, $array_close, $shout_bbcode)
@@ -364,9 +371,7 @@ class bbcodes
 			}
 		}
 
-		return [
-			'sort'	=> 1,
-		];
+		return ['sort' => 1];
 	}
 
 	private function get_shout_bbcode($other)
@@ -430,9 +435,7 @@ class bbcodes
 			}
 		}
 
-		return [
-			'sort'	=> 1,
-		];
+		return ['sort' => 1];
 	}
 
 	private function verify_video_bbcode($open)
@@ -454,9 +457,7 @@ class bbcodes
 			}
 		}
 
-		return [
-			'sort'	=> 1,
-		];
+		return ['sort' => 1];
 	}
 
 	public function parse_bbcode_video_message($message)
@@ -518,8 +519,19 @@ class bbcodes
 			$this->work->shout_error('MESSAGE_EMPTY');
 			return;
 		}
-		$message = str_replace(['/]', '&amp;amp;'], [']', '&'], $message);
 
-		return $message;
+		return str_replace(['/]', '&amp;amp;'], [']', '&'], $message);
+	}
+
+	public function add_mention_ext()
+	{
+		if ($this->work->mention_exist() && $this->auth->acl_get('u_can_mention'))
+		{
+			$this->template->assign_vars([
+				'ACTIV_SHOUT_MENTION'	=> true,
+			   'U_AJAX_MENTION_URL'		=> $this->helper->route('paul999_mention_controller'),
+			   'MIN_MENTION_LENGTH'		=> $this->config['simple_mention_minlength'],
+			]);
+		}
 	}
 }
