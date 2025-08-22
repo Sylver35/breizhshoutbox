@@ -1141,20 +1141,4 @@ class shoutbox
 
 		return $sql_where;
 	}
-
-	public function list_cache()
-	{
-		if ($this->auth->acl_get('a_shout_manage'))
-		{
-			$files = [$this->root_path . 'cache/' . PHPBB_ENVIRONMENT . '/'];
-			$list = $this->work->get_cache_files();
-
-			foreach ($list as $file)
-			{
-				$files[] = $file;
-			}
-
-			$this->template->assign_var('LIST_CACHE', implode('<br>', $files));
-		}
-	}
 }

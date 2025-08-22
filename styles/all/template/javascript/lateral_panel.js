@@ -1,6 +1,6 @@
 /**
 * @package Breizh Shoutbox extension
-* @copyright(c) 2018-2024 Sylver35   https://breizhcode.com
+* @copyright(c) 2018-2025 Sylver35   https://breizhcode.com
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 */
 
@@ -19,7 +19,7 @@
 
 	lateral.closeShout = function(){
 		if(!lateral.displayPanel){
-			$('#boxforshout').attr('data', '');
+			$('#boxforshout').attr('data', lateral.replaceUrl);
 		}
 		lateral.changeDisplay('dtbox1',true);
 		lateral.changeDisplay('dtbox2',false);

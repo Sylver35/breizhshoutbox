@@ -1,22 +1,20 @@
 /* Breizh Shoutbox Extension Style
    By Sylver35  https://breizhcode.com
 ----------------------------------------*/
-#all_shout, #chat_message {
-	font-size: 11px;
-}
-#shout_messages {
+
+div.shout_message {
 	display: block;
 	width: 100%;
 	overflow-x: hidden;
 	overflow-y: scroll;
 	position: relative;
 }
-#shout_messages > li.row1, #shout_messages > li.row2 {
+div.shout_message > li.row1, div.shout_message > li.row2 {
 	display: flow;
 	list-style-type: none;
 	height: auto;
 	min-height: 22px;
-	width: 100%;
+	width: 99.7%;
 	float: left;
 	margin: 0;
 	padding: 0;
@@ -26,6 +24,18 @@
 	/* uncomment the line below to abort the lines between messages */
 	/*border: none;*/
 }
+#all_shout {
+	font-size: 0.70rem;
+}
+.message-shout {
+	color:#9a9a9a;
+	border-radius:3px;
+	max-width:41%;
+	font-size: 0.75rem;
+}
+span.mention {
+	font-size: 0.75rem;
+}
 span.avatar-shout > img {
 	vertical-align: middle;
 }
@@ -33,13 +43,14 @@ span.avatar-shout > img.popup-avatar {
 	max-height: 22px;
 	width: auto;
 }
-#shout_messages > li > dl{
+div.shout_message > li > dl.dlshout {
+	display: inline-block;
 	vertical-align: middle;
 	width: 100%;
 	padding: 0;
-	margin: 0;
+	margin: 1px;
 }
-#shout_messages > li > dl > dt.dtshoutleft {
+div.shout_message > li > dl > dt.dtshoutleft {
 	width: auto;
 	float: left;
 	margin-left: 0px;
@@ -48,7 +59,7 @@ span.avatar-shout > img.popup-avatar {
 	margin-right: 0px;
 	display: flow;
 }
-#shout_messages > li > dl > dt.dtshoutright {
+div.shout_message > li > dl > dt.dtshoutright {
 	width: auto;
 	float: right;
 	margin-right: 0px;
@@ -57,36 +68,36 @@ span.avatar-shout > img.popup-avatar {
 	margin-left: 0px;
 	display: flow;
 }
-#shout_messages > li > dl > dd {
+div.shout_message > li > dl > dd.ddshout {
 	width: auto;
-	display: inline;
+	display: inline-block;
 	padding: 3px 0 1px 2px;
 	vertical-align: middle;
 	float: none;
 	margin: 0;
 	border: none;
 }
-#shout_messages > li > dl > dd.msgbodyleft {
+div.shout_message > li > dl > dd.msgbodyleft {
 	text-align: left;
 }
-#shout_messages > li > dl > dd.msgbodyright {
+div.shout_message > li > dl > dd.msgbodyright {
 	text-align: right;
 }
-#shout_messages > li > dl > dd > span.msg_shout {
+div.shout_message > li > dl > dd > span.msg_shout {
 	word-wrap: break-word;
 	display: inline;
 	padding: 0;
 }
-#shout_messages > li > dl > dd > span.msg_shout > div {
+div.shout_message > li > dl > dd > span.msg_shout > div {
 	display: inline;
 }
-#shout_messages > li > dl > dd > span.msg_shout > div.hidebox {
+div.shout_message > li > dl > dd > span.msg_shout > div.hidebox {
 	display: block;
 }
-#shout_messages > li > dl > dd > input{
+div.shout_message > li > dl > dd > input{
 	margin: 3px;
 }
-#shout_messages > li.row strong {
+div.shout_message > li.row strong {
 	font-weight: bold;
 }
 #base_ul {
@@ -137,17 +148,17 @@ span.avatar-shout > img.popup-avatar {
 	margin: 0;
 	padding: 0;
 }
-#lateral_panel {
+div.panel_shout {
 	position: fixed;
 	bottom: 15px;
 	background-color: transparent;
 	z-index: 1000;
 }
-#lateral_panel.panel_left {
+div.panel_left {
 	left: 0px;
 	float: left;
 }
-#lateral_panel.panel_right {
+div.panel_right {
 	right: 0px;
 	float: right;
 }
@@ -178,7 +189,7 @@ span.avatar-shout > img.popup-avatar {
 	color: green;
 	margin: 10px 0 5px;
 }
-input#chat_message, input#shout_user1, input#shout_text1, input#shout_text2 {
+input#message, input#shout_user1, input#shout_text1, input#shout_text2 {
 	background: white none no-repeat 0 0;
 	padding: 2px;
 }
@@ -321,6 +332,9 @@ a.pointer {
 .pointer {
 	cursor: pointer;
 	padding: 1px 2px;
+}
+.help {
+	cursor: help;
 }
 .shout-italic {
 	font-style: italic;
@@ -580,6 +594,7 @@ div.shout-submit {
 #user_shout {
 	float: left;
 	margin-left: 10px;
+	max-width: 98%;
 }
 #color3 > dl > dt, #color3 > dl > dd {
 	display: inline;
@@ -901,7 +916,7 @@ hr.dotted, hr.dashed {
 	border: none;
 }
 hr.dotted {
-	border-bottom: dotted #CCCCCC 1px;
+	border-bottom: dotted #868080 1px;
 }
 hr.dashed {
 	border-bottom: dashed #CCCCCC 1px;

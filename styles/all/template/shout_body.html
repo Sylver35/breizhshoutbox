@@ -14,38 +14,33 @@
 				<div id="rules_on" class="shout_rules"></div>
 			</li>
 		</ul>
-	{% if not S_USER_LOGGED_IN %}
+		{% if not S_USER_LOGGED_IN %}
 		{% INCLUDE '@sylver35_breizhshoutbox/shout_connect.html' %}
-	{% endif %}
-	{% if TEXT_USER_TOP %}
+		{% endif %}
+		{% if TEXT_USER_TOP %}
 		{% INCLUDE '@sylver35_breizhshoutbox/shout_bbcode.html' %}
-	{% endif %}
-	{% if SHOUT_POSTING %}
+		{% endif %}
+		{% if SHOUT_POSTING %}
 		{% INCLUDE '@sylver35_breizhshoutbox/shout_colour.html' %}
 		{% INCLUDE '@sylver35_breizhshoutbox/shout_chars.html' %}
 		{% INCLUDE '@sylver35_breizhshoutbox/smilies.html' %}
-	{% endif %}
-		<ul id="shout_online" class="topiclist forums">
-			<li>
-				<div id="onTextOnline"></div>
-				<h3 class="h3_online">{{ lang('SHOUT_ONLINE_TITLE') }}</h3>
-				<img class="img_shout_close" src="{{ SHOUT_EXT_PATH }}images/shout_no.png" alt="{{ lang('SHOUT_ONLINE_CLOSE') }}" title="{{ lang('SHOUT_ONLINE_CLOSE') }}" onclick="shoutbox.openCloseOnline();return false;" onmouseout="shoutbox.iH('onTextOnline','',false);" onmouseover="shoutbox.iH('onTextOnline',this.title,false);">
-				<div id="online_shout"></div>
-			</li>
-		</ul>
+		{% endif %}
+		{% INCLUDE '@sylver35_breizhshoutbox/shout_online.html' %}
+		{% EVENT shoutbox_chat_form_before %}
 		<form id="chat_form" name="postform">
 			{% INCLUDE '@sylver35_breizhshoutbox/user_action.html' %}
 			{% if SHOUT_POSTING %}
 			<ul id="shoutbox_posting" class="topiclist forums" style="display:none;">
 				{% INCLUDE 'posting_buttons.html' %}
 			</ul>
+			{% if ACTIV_SHOUT_MENTION %}
+			{% INCLUDE '@paul999_mention/mention.html' %}
 			{% endif %}
-			<div id="shoutbox">
-				
-			</div>
+			{% endif %}
+			<div id="shoutbox"></div>
 			{{ S_FORM_TOKEN }}
 		</form>
-
+		{% EVENT shoutbox_chat_form_after %}
 		<div id="shout-fields" class="no_display">
 			<fieldset>
 				<input id="sortShoutNb" type="hidden" value="0">
@@ -58,22 +53,7 @@
 				<input id="shoutLast" type="hidden" value="0">
 			</fieldset>
 		</div>
-		
-		<noscript>
-			<ul class="topiclist forums">
-				<li class="row">
-					<dl class="row-item" style="background-image:url({{ SHOUT_EXT_PATH }}images/alert.webp);background-repeat:no-repeat;">
-						<dt>
-							<div class="list-inner">
-								<a class="forumtitle" title="{{ lang('NO_AJAX_USER') }}" style="color:red;">{{ lang('NO_AJAX_USER') }}</a>
-							</div>
-						</dt>
-						<dd></dd>
-					</dl>
-				</li>
-			</ul>
-		</noscript>
-		
+		{% INCLUDE '@sylver35_breizhshoutbox/noscript.html' %}
 	</div>
 </div>
 <!-- shout_body.html end //-->

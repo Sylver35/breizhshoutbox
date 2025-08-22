@@ -184,8 +184,8 @@
 					<hr/>
 					<div class="shout-submit">
 						<input id="onSound" type="hidden" value="0">
-						<input class="button" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" title="{{ lang('SUBMIT') }}">&nbsp;
-						<input class="button" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" title="{{ lang('RESET') }}">&nbsp;
+						<input class="button" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" title="{{ lang('SUBMIT') }}" onclick="reloadLocation()">&nbsp;
+						<input class="button" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" title="{{ lang('RESET') }}" onclick="reloadLocation()">&nbsp;
 						<input class="button" type="submit" id="return" name="return" value="{{ lang('SHOUT_DEF_VAL') }}" title="{{ lang('SHOUT_DEF_VAL_EXPLAIN') }}">
 					</div>
 					<hr/>
@@ -197,11 +197,15 @@
 
 	</div>
 </div>
-{% if not USERNAME %}
+
 <script>
-	window.onunload = function(){
+	reloadLocation = function(){
+	{% if USERNAME %}
+		return;
+	{% else %}
 		setTimeout(window.opener.location.reload(true), 2000);
+	{% endif %}
 	}
 </script>
-{% endif %}
+
 {% INCLUDE 'simple_footer.html' %}
