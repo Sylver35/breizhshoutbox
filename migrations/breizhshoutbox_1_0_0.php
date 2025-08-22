@@ -2,7 +2,7 @@
 /**
  *
  * @package phpBB Extension - Breizh Shoutbox
- * @copyright (c) 2018-2024 Sylver35  https://breizhcode.com
+ * @copyright (c) 2018-2025 Sylver35  https://breizhcode.com
  * @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
  *
  */
@@ -286,9 +286,7 @@ class breizhshoutbox_1_0_0 extends migration
 			]]],
 
 			// Custon function for first message
-			['custom', [
-				[&$this, 'add_first_messages']
-			]],
+			['custom', [[&$this, 'add_first_messages']]],
 		];
 	}
 

@@ -3,8 +3,8 @@
     "type": "phpbb-extension",
     "description": "Breizh Shoutbox Ajax Chat Extension for phpBB 3.3",
     "homepage": "https://breizhcode.com",
-    "version": "1.8.3",
-    "time": "2024-11-24",
+    "version": "1.8.4",
+    "time": "2024-08-22",
     "keywords": ["phpbb", "extension", "breizh", "shoutbox", "ajax", "chat", "chatbox"],
     "license": "GPL-2.0-only",
     "authors": [{
@@ -16,18 +16,24 @@
     "require": {
         "php": ">=7.2",
         "ext-json": "*",
-        "phpbb/phpbb": ">=3.3.13"
+		"composer/installers": "~2.2.0",
+        "phpbb/phpbb": ">=3.3.10"
+    },
+	 "config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
     },
     "extra": {
         "display-name": "Breizh Shoutbox",
         "soft-require": {
-            "phpbb/phpbb": ">=3.3.13"
+            "phpbb/phpbb": ">=3.3.10"
         },
         "version-check": {
-            "host": "versions.breizhcode.com",
+            "host": "breizhversions.com",
             "directory": "/breizhshoutbox",
-            "filename": "/version_check.json",
-            "ssl": true
+            "filename": "version_check.json",
+            "ssl": false
         }
     }
 }
