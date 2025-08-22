@@ -38,7 +38,7 @@ class ajax
 	 * Function construct_ajax
 	 *
 	 * @param string $mode Mode to switch
-	 * @return Json
+	 * @return string
 	 * @access public
 	 */
 	public function construct_ajax($mode)

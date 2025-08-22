@@ -151,7 +151,9 @@ class main
 		}
 		else
 		{
-			$this->template->assign_var('KILL_LATERAL', true);
+			$this->template->assign_vars([
+				'KILL_LATERAL'	=> true,
+			]);
 			return false;
 		}
 	}
