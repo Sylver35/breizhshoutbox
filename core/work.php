@@ -263,11 +263,8 @@ class work
 	 */
 	public function remove_sid($url)
 	{
+		$url = (string) $url;
 		$url = preg_replace(['#(?:&amp;)?sid=\w{0,128}#', '?&amp;'], ['', '?'], $url);
-		if (!is_string($url))
-		{
-			return $url;
-		}
 
 		if (substr($url, -1) == '&')
 		{
@@ -957,6 +954,7 @@ class work
 			{
 				if ($error = unlink($rootdir . $file))
 				{
+					unset($error);
 					continue;
 				}
 			}
