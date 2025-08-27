@@ -448,8 +448,8 @@ class functions_admin
 		$sql_nr = 'SELECT COUNT(DISTINCT shout_id) as total
 			FROM ' . $table . '
 			WHERE shout_inp = 0
-				OR shout_inp = ' . $this->user->data['user_id'] . '
-				OR shout_user_id = ' . $this->user->data['user_id'];
+				OR shout_inp = ' . (int) $this->user->data['user_id'] . '
+				OR shout_user_id = ' . (int) $this->user->data['user_id'];
 		$result_nr = $this->db->sql_query($sql_nr);
 		$total_posts = (int) $this->db->sql_fetchfield('total');
 		$this->db->sql_freeresult($result_nr);
@@ -646,8 +646,9 @@ class functions_admin
 	public function list_smilies($sort)
 	{
 		$i = 0;
+		$list = [];
 		$block = ($sort === 1) ? 'smilies' : 'smilies_popup';
-		$list[] = [];
+
 		$sql = $this->db->sql_build_query('SELECT', [
 			'SELECT'	=> 'MIN(smiley_id) AS smiley_id, MIN(code) AS code, smiley_url, MIN(smiley_order) AS min_smiley_order, MIN(smiley_width) AS smiley_width, MIN(smiley_height) AS smiley_height, MIN(emotion) AS emotion, MIN(display_on_shout) AS display_on_shout',
 			'FROM'		=> [SMILIES_TABLE => ''],

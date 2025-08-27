@@ -38,12 +38,13 @@ class ajax
 	 * Function construct_ajax
 	 *
 	 * @param string $mode Mode to switch
-	 * @return string
+	 * @return array
 	 * @access public
 	 */
 	public function construct_ajax($mode)
 	{
 		$data = $val = [];
+		// In first initialize the variables if needed
 		if ($this->functions_ajax->exclude($mode))
 		{
 			$val = $this->functions_ajax->shout_initialize($mode, $this->value('sort', 2), $this->value('user', 0), $this->value('other', 0));
@@ -157,8 +158,8 @@ class ajax
 		$json_response->send($data, true);
 	}
 
-	private function value($value, $default)
+	private function value($var, $default)
 	{
-		return $this->functions_ajax->get_var($value, $default);
+		return $this->functions_ajax->get_var($var, $default);
 	}
 }

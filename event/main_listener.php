@@ -119,7 +119,6 @@ class main_listener implements EventSubscriberInterface
 	public function shout_display()
 	{
 		$this->shoutbox->shout_display(2);
-		$this->shoutbox->list_cache();
 	}
 
 	/**

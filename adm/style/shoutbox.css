@@ -94,6 +94,10 @@ div.more-smilies {
 	font-size: 1.00em;
 }
 
+#shout_cron_hour {
+	width: 45px;
+}
+
 .img_select {
 	vertical-align: middle;
 }
@@ -212,4 +216,14 @@ div.buttons-left {
 span.separation:after {
 	content: "- - - - - - - - - - - -";
 	color: #4daa2c;
+}
+
+.deposer {
+	border:1px solid #aaaaff;
+} 
+.zone-drop-active { 
+	border:3px solid #aaffaa; 
+} 
+.zone-drop-survolee {
+	border:3px solid #ffaaaa;
 }

@@ -96,7 +96,8 @@ class events
 			return;
 		}
 
-		$this->work->update_session_file($user_id, 0, $session_id);
+		$errors = $this->work->update_session_file($user_id, 0, $session_id);
+		unset($errors);
 	}
 
 	/*

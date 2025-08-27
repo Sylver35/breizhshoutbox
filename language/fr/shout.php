@@ -19,7 +19,7 @@ if (!defined('IN_PHPBB'))
 
 if (empty($lang) || !is_array($lang))
 {
-	$lang = array();
+	$lang = [];
 }
 
 // DEVELOPERS PLEASE NOTE
@@ -38,7 +38,12 @@ if (empty($lang) || !is_array($lang))
 // ’ « » “ ” …
 //
 
-$lang = array_merge($lang, array(
+$lang = array_merge($lang, [
+	'SHOUT_SORT'			=> [
+		1		=> 'Popup',
+		2		=> 'Normale',
+		3		=> 'Privée',
+	],
 	'SHOUT_SEP'				=> ' ¦ ',
 	'SHOUT_PROTECT'			=> '’', // Don't change this
 	'SHOUT_DIRECTION'		=> 'left', // lang direction left (ltr) or right (rtl)
@@ -60,22 +65,22 @@ $lang = array_merge($lang, array(
 	'JS_ERR'				=> 'Il y a eu une erreur JavaScript. Erreur : ',
 	'LINE'					=> 'Ligne',
 	'FILE'					=> 'Fichier',
-	'FLOOD_ERROR'			=> 'Erreur de flood !',
+	'FLOOD_ERROR'			=> 'Erreur de flood!',
 	'POSTED'				=> 'Message posté…',
 	'SHOUT_NO_CODE'			=> 'Le bbcode suivant : %s n’est pas accepté.',
 	'SHOUT_NO_VIDEO'		=> 'Il n’est pas permis de poster des vidéos dans la shoutbox',
-	'SHOUT_NO_SCRIPT'		=> 'Les scripts ne sont pas tolérés dans cette shoutbox !  Veuillez noter que cette tentative a été enregistrée.',
-	'SHOUT_NO_APPLET'		=> 'Les applets ne sont pas tolérés dans cette shoutbox !  Veuillez noter que cette tentative a été enregistrée.',
-	'SHOUT_NO_ACTIVEX'		=> 'Les objets active x ne sont pas tolérés dans cette shoutbox !  Veuillez noter que cette tentative a été enregistrée.',
-	'SHOUT_NO_OBJECTS'		=> 'Les objets chrome et about ne sont pas tolérés dans cette shoutbox !  Veuillez noter que cette tentative a été enregistrée.',
-	'SHOUT_NO_IFRAME'		=> 'Les iframes ne sont pas tolérés dans cette shoutbox !  Veuillez noter que cette tentative a été enregistrée.',
+	'SHOUT_NO_SCRIPT'		=> 'Les scripts ne sont pas tolérés dans cette shoutbox!  Veuillez noter que cette tentative a été enregistrée.',
+	'SHOUT_NO_APPLET'		=> 'Les applets ne sont pas tolérés dans cette shoutbox!  Veuillez noter que cette tentative a été enregistrée.',
+	'SHOUT_NO_ACTIVEX'		=> 'Les objets active x ne sont pas tolérés dans cette shoutbox!  Veuillez noter que cette tentative a été enregistrée.',
+	'SHOUT_NO_OBJECTS'		=> 'Les objets chrome et about ne sont pas tolérés dans cette shoutbox!  Veuillez noter que cette tentative a été enregistrée.',
+	'SHOUT_NO_IFRAME'		=> 'Les iframes ne sont pas tolérés dans cette shoutbox!  Veuillez noter que cette tentative a été enregistrée.',
 	'SHOUT_DEL'				=> 'Supprimer le message',
 	'DEL_SHOUT'				=> 'Êtes vous sûr de vouloir supprimer ce message ?',
 	'MSG_DEL_DONE'			=> 'Message en cours de suppression…',
 	'NO_SHOUT_ID'			=> 'Pas de numéro id de message.',
 	'SHOUT_PAGE'			=> 'Page N° ',
 	'CODE'					=> 'code',
-	'EDIT'					=> 'Éditer',
+	'EDIT_BUTTON'			=> 'Éditer',
 	'CANCEL'				=> 'Abandonner',
 	'COLORS'				=> 'Couleurs',
 	'SHOUT_IP'				=> 'Voir l’ip du posteur',
@@ -316,7 +321,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_DELETE_AUTO_9'			=> '🗑 %1$s Délestage automatique de %2$s messages de la shoutbox effectué…',
 	'SHOUT_DELETE_AUTO_10'			=> '🗑 %1$s Délestage automatique de %2$s messages de la shoutbox privée effectué…',
 	'SHOUT_BIRTHDAY_ROBOT'			=> '✨ Toute l’équipe de %1$s souhaite un Joyeux anniversaire à %2$s',
-	'SHOUT_BIRTHDAY_ROBOT_FULL'		=> '✨ Toute l’équipe de %1$s souhaite un Joyeux anniversaire à %2$s pour ses %3$s %4$s ans !',
+	'SHOUT_BIRTHDAY_ROBOT_FULL'		=> '✨ Toute l’équipe de %1$s souhaite un Joyeux anniversaire à %2$s pour ses %3$s %4$s ans!',
 	'SHOUT_HELLO_ROBOT'				=> '📆 Bonjour, nous sommes le %1$s %2$s',
 	'SHOUT_NEWEST_ROBOT'			=> '👁‍ Un nouveau membre vient de s’enregistrer : %1$s, toute l’équipe de %2$s lui souhaite la bienvenue…',
 	'SHOUT_SESSION_ROBOT'			=> '✔ Bonjour %s et bienvenue sur le forum…',
@@ -395,7 +400,7 @@ $lang = array_merge($lang, array(
 		'Feb'		=> 'févr.',
 		'Mar'		=> 'mars',
 		'Apr'		=> 'avr.',
-		'May_short'	=> 'mai',	// Short representation of "May". May_short used because in English the short and long date are the same for May.
+		'May_short'	=> 'mai', // Short representation of "May". May_short used because in English the short and long date are the same for May.
 		'Jun'		=> 'juin',
 		'Jul'		=> 'juil.',
 		'Aug'		=> 'août',
@@ -404,4 +409,4 @@ $lang = array_merge($lang, array(
 		'Nov'		=> 'nov.',
 		'Dec'		=> 'déc.',
 	],
-));
+]);

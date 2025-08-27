@@ -83,7 +83,7 @@ class actions
 
 	/**
 	 * Displays the rules with apropriate language
-	 * @param $sort string sort of shoutbox 
+	 * @param $sort string sort of shoutbox
 	 * Return array
 	 */
 	public function rules($sort)
@@ -189,7 +189,8 @@ class actions
 				WHERE user_id = " . $this->user->data['user_id'];
 		$this->db->sql_query($sql);
 
-		$this->work->update_session_file($this->user->data['user_id']);
+		$errors = $this->work->update_session_file($this->user->data['user_id']);
+		unset($errors);
 
 		return $data;
 	}
@@ -227,6 +228,10 @@ class actions
 				'message'	=> $this->language->lang('NO_ACTION_PERM'),
 			];
 		}
+		else if ($val['other'] == $val['userid'])
+		{
+			$return = $this->send_action_user($val, $this->work->self_data_user(), true);
+		}
 		else
 		{
 			$sql = $this->db->sql_build_query('SELECT', [
@@ -256,7 +261,7 @@ class actions
 			}
 			else
 			{
-				$return = $this->send_action_user($row, $val['userid'], $val['sort']);
+				$return = $this->send_action_user($val, $row, false);
 			}
 			$this->db->sql_freeresult($result);
 		}
@@ -264,41 +269,49 @@ class actions
 		return $return;
 	}
 
-	public function send_action_user($row, $id, $sort)
+	public function send_action_user($val, $row, $self)
 	{
 		// Founders protection
-		$founder = ($row['user_type'] != USER_FOUNDER || $this->user->data['user_type'] == USER_FOUNDER) ? true : false;
-		$action = $this->work->create_action_user($row, $founder);
+		$founder = $row['user_type'] == USER_FOUNDER;
+		$action = $this->work->create_action_user($row, $founder, $self);
 
-		return [
+		$data = [
 			'type'			=> 3,
 			'id'			=> (int) $row['user_id'],
-			'sort'			=> $sort,
+			'sort'			=> $val['sort'],
+			'self'			=> $self,
 			'foe'			=> ($row['foe']) ? true : false,
-			'inp'			=> ($this->auth->acl_gets(['u_shout_post_inp', 'a_', 'm_'])) ? true : false,
-			'return'		=> ($this->auth->acl_get('a_user') || $this->auth->acl_get('m_') || ($this->auth->acl_get('m_ban') && $founder)) ? true : false,
+			'inp'			=> $this->auth->acl_gets(['u_shout_post_inp', 'a_', 'm_']) || $self,
+			'return'		=> $this->auth->acl_gets(['a_user', 'm_']),
 			'username'		=> get_username_string('full', $row['user_id'], $row['username'], $row['user_colour'], '', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", 'mode=viewprofile')),
 			'avatar'		=> $this->avatar->shout_user_avatar($row, 60, true),
-			'url_message'	=> $this->work->tpl('personal'),
-			'url_del_to'	=> $this->work->tpl('delreqto', $id),
-			'url_del'		=> $this->work->tpl('delreq', $id),
-			'url_cite'		=> $this->work->tpl('citemsg'),
-			'url_cite_m'	=> $this->work->tpl('citemulti', $row['username'], $row['user_colour']),
-			'url_profile'	=> $action['url_profile'],
+			'url_del_to'	=> $this->work->tpl('delreqto', $val['userid']),
+			'url_del'		=> $this->work->tpl('delreq', $val['userid']),
 			'url_auth'		=> $action['url_auth'],
 			'url_prefs'		=> $action['url_prefs'],
-			'url_admin'		=> $action['url_admin'],
-			'url_modo'		=> $action['url_modo'],
-			'url_ban'		=> $action['url_ban'],
-			'url_remove'	=> $action['url_remove'],
-			'url_perso'		=> $action['url_perso'],
 			'url_robot'		=> $action['url_robot'],
+			'url_perso'		=> $action['url_perso'],
 		];
+		if (!$self)
+		{
+			$data = array_merge($data, [
+				'url_message'	=> $this->work->tpl('personal'),
+				'url_cite'		=> $this->work->tpl('citemsg'),
+				'url_cite_m'	=> $this->work->tpl('citemulti', $row['username'], $row['user_colour']),
+				'url_profile'	=> $action['url_profile'],
+				'url_admin'		=> $action['url_admin'],
+				'url_modo'		=> $action['url_modo'],
+				'url_ban'		=> $action['url_ban'],
+				'url_remove'	=> $action['url_remove'],
+			]);
+		}
+
+		return $data;
 	}
 
 	public function action_post($val, $message)
 	{
-		if ($this->auth->acl_gets(['u_shout_post_inp', 'm_shout_robot', 'a_', 'm_']))
+		if ($this->auth->acl_gets(['a_shout_manage', 'u_shout_post_inp', 'm_shout_robot']))
 		{
 			$info = 65;
 			$robot = false;
@@ -310,7 +323,7 @@ class actions
 			else if ($val['other'] === 1)
 			{
 				// post a robot message
-				if ($this->auth->acl_gets(['a_', 'm_shout_robot']))
+				if ($this->auth->acl_gets(['a_shout_manage', 'm_shout_robot']))
 				{
 					$info = 0;
 					$robot = true;

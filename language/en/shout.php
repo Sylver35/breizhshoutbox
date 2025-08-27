@@ -40,6 +40,11 @@ if (empty($lang) || !is_array($lang))
 //
 
 $lang = array_merge($lang, array(
+	'SHOUT_SORT'			=> [
+		1		=> 'Popup',
+		2		=> 'Normal',
+		3		=> 'Private',
+	],
 	'SHOUT_SEP'				=> ' ¦ ',
 	'SHOUT_PROTECT'			=> '’', // Don't change this
 	'SHOUT_DIRECTION'		=> 'left', // lang direction left or right
@@ -76,7 +81,7 @@ $lang = array_merge($lang, array(
 	'NO_SHOUT_ID'	 		=> 'No message id.',
 	'SHOUT_PAGE'			=> 'Page N° ',
 	'CODE'					=> 'code',
-	'EDIT'					=> 'Edit',
+	'EDIT_BUTTON'			=> 'Edit',
 	'CANCEL'				=> 'discontinue',
 	'COLORS'				=> 'Colors',
 	'SHOUT_IP'				=> 'See ip poster',
@@ -277,7 +282,7 @@ $lang = array_merge($lang, array(
 	'SHOUT_ROBOT_OFF'			=> 'Show Robot infos',
 	'SHOUT_SELECT_ROBOT'		=> '❌ Disable the publication by the shoutbox’s robot',
 	'SHOUT_ROBOT_START'			=> '🔉 ', // At the beginning of infos robot
-	'SHOUT_ROBOT_DATE'			=> 'l F d, Y',// Form of the info date, to avoid "less than a minute ago" Wednesday, December 25, 2024
+	'SHOUT_ROBOT_DATE'			=> 'l F d, Y', // Form of the info date, to avoid "less than a minute ago" Wednesday, December 25, 2024
 
 // Robot info messages
 	'SHOUT_POST_ROBOT_14'		=> '%1$s %2$s just create a global announcement: %3$s',

@@ -107,7 +107,7 @@ class javascript
 			throw new http_exception(403, 'NOT_AUTHORISED');
 		}
 
-		$other = ((int) $user_id !== (int) $this->user->data['user_id']) ? true : false;
+		$other = ((int) $user_id !== (int) $this->user->data['user_id']);
 		if ($this->request->is_set_post('submit'))
 		{
 			$this->config_submit($user_id, $other);
@@ -153,7 +153,8 @@ class javascript
 				WHERE user_id = " . (int) $user_id;
 		$this->db->sql_query($sql);
 
-		$this->work->update_session_file($user_id, $other);
+		$errors = $this->work->update_session_file($user_id, $other);
+		unset($errors);
 		$redirect_url = $this->helper->route('sylver35_breizhshoutbox_configshout') . '?user_id=' . $user_id;
 		meta_refresh(2, $redirect_url);
 		trigger_error($this->language->lang('SHOUT_REDIRECT') . '<br><br>' . $this->language->lang('RETURN_PAGE', '<a href="' . $redirect_url . '">', '</a>'));
@@ -190,7 +191,8 @@ class javascript
 				WHERE user_id = " . (int) $user_id;
 		$this->db->sql_query($sql);
 
-		$this->work->update_session_file($user_id, $other);
+		$erors = $this->work->update_session_file($user_id, $other);
+		unset($errors);
 		$redirect_url = $this->helper->route('sylver35_breizhshoutbox_configshout') . '?user_id=' . $user_id;
 		meta_refresh(2, $redirect_url);
 		trigger_error($this->language->lang('SHOUT_REDIRECT') . '<br><br>' . $this->language->lang('RETURN_PAGE', '<a href="' . $redirect_url . '">', '</a>'));
@@ -199,7 +201,7 @@ class javascript
 	private function data_config_shoutbox($user_id, $other)
 	{
 		$this->language->add_lang('ucp');
-		$username = '';
+		$title_panel = $this->language->lang('SHOUT_PANEL_USER');
 
 		if (!$other)
 		{
@@ -213,7 +215,7 @@ class javascript
 					WHERE user_id = ' . (int) $user_id;
 			$result = $this->db->sql_query($sql);
 			$row = $this->db->sql_fetchrow($result);
-			$username = $row['username'];
+			$title_panel = $this->language->lang('SHOUT_PANEL_TO_USER', $row['username']);
 			$user_shout = json_decode($row['user_shout']);
 			$user_shoutbox = json_decode($row['user_shoutbox']);
 			$this->db->sql_freeresult($result);
@@ -235,8 +237,8 @@ class javascript
 		$this->template->assign_vars([
 			'IN_SHOUT_CONFIG'		=> true,
 			'USER_ID'				=> $this->user->data['user_id'],
-			'USERNAME'				=> $other,
-			'TITLE_PANEL'			=> ($other) ? $this->language->lang('SHOUT_PANEL_TO_USER', $username) : $this->language->lang('SHOUT_PANEL_USER'),
+			'OTHER'					=> $other,
+			'TITLE_PANEL'			=> $title_panel,
 			'SOUND_NEW_DISP'		=> $user_shout->user && $user_shout->new !== '1',
 			'SOUND_NEW_PRIV_DISP'	=> $user_shout->user && $user_shout->new_priv !== '1',
 			'SOUND_DEL_DISP'		=> $user_shout->user && $user_shout->del !== '1',
@@ -280,41 +282,41 @@ class javascript
 		]);
 	}
 
-	public function javascript_shout($sort_of)
+	public function javascript_shout($sort)
 	{
-		$data = $this->initialize_data($sort_of);
-
-		// Construct the user's $settings from cache
-		$settings = $this->get_settings_from_cache($data);
+		// Get the user's $settings from cache
+		$settings = $this->get_settings_from_cache($this->initialize_data($sort));
 
 		$this->template->assign_vars([
 			'ON_SHOUT_DISPLAY'			=> true,
-			'LIST_SETTINGS_AUTH'		=> $settings[$sort_of]['settings_auth'],
-			'LIST_SETTINGS_STRING'		=> $settings[$sort_of]['settings_string'],
-			'LIST_SETTINGS_LANG'		=> $settings[$sort_of]['settings_lang'],
+			'LIST_SETTINGS_AUTH'		=> $settings[$sort]['settings_auth'],
+			'LIST_SETTINGS_STRING'		=> $settings[$sort]['settings_string'],
+			'LIST_SETTINGS_LANG'		=> $settings[$sort]['settings_lang'],
 		]);
 	}
 
-	private function initialize_data($sort_of)
+	private function initialize_data($sort)
 	{
 		$version = $this->work->get_version();
 		$data = [
 			'sort'		=> '',
 			'sort_perm'	=> '_manage',
-			'sort_of'	=> $sort_of,
+			'sort_of'	=> (int) $sort,
 			'private'	=> false,
 			'popup'		=> false,
-			'creator'	=> $this->work->smiliecreator_exist(),
-			'category'	=> $this->work->smiliescategory_exist(),
-			'is_mobile'	=> $this->work->shout_is_mobile(),
 			'user_id'	=> (int) $this->user->data['user_id'],
+			'creator'	=> (bool) $this->work->smiliecreator_exist(),
+			'category'	=> (bool) $this->work->smiliescategory_exist(),
+			'is_mobile'	=> (bool) $this->work->shout_is_mobile(),
 			'is_user'	=> (bool) $this->user->data['is_registered'] && !$this->user->data['is_bot'],
 			'is_bot'	=> (bool) $this->user->data['is_bot'],
+			'guest'		=> (bool) !$this->user->data['is_registered'],
+			'founder'	=> (bool) $this->user->data['user_type'] == USER_FOUNDER,
 			'version'	=> (string) $version['version'],
 			'homepage'	=> (string) $version['homepage'],
 		];
 
-		switch ($sort_of)
+		switch ($sort)
 		{
 			// Popup shoutbox
 			case 1:
@@ -335,20 +337,17 @@ class javascript
 		return $data;
 	}
 
-	public function get_settings_from_cache($data)
+	private function get_settings_from_cache($data)
 	{
 		$settings = [];
 		if ($data['is_user'])
 		{
 			$file = '_shout_config_' . $this->user->data['user_id'] . '_' . $this->user->data['session_id'];
 		}
-		else if ($data['is_bot'])
-		{
-			$file = '_shout_config_robots_' . $this->user->data['user_lang'];
-		}
 		else
 		{
-			$file = '_shout_config_unregistered_' . $this->user->data['user_lang'];
+			$sort_user = ($data['is_bot']) ? 'robots_' : 'anonymous_';
+			$file = '_shout_config_' . $sort_user . $this->user->data['user_lang'];
 		}
 
 		if (($settings_user = $this->cache->get($file)) === false)
@@ -368,7 +367,7 @@ class javascript
 				'settings_lang'		=> $settings[2]['settings_lang'],
 			];
 			// Settings for private shoutbox protected at this time
-			if ($data['is_user'] && $this->auth->acl_get('u_shout_priv'))
+			if ($data['is_user'] && $this->auth->acl_gets(['a_shout_manage', 'a_shout_priv', 'u_shout_priv']))
 			{
 				$settings[3] = $this->get_settings($this->initialize_data(3));
 				$settings_user[3] = [
@@ -384,8 +383,13 @@ class javascript
 				$this->work->destroy_old_user_settings($this->user->data['user_id'], $this->user->data['session_id']);
 			}
 
-			// cache for 1 day
-			$this->cache->put($file, $settings_user, 86400);
+			// cache for config sessions time
+			$time = $this->config['session_length'];
+			if ($this->config['max_autologin_time'])
+			{
+				$time = $this->config['max_autologin_time'] * 86400;
+			}
+			$this->cache->put($file, $settings_user, $time);
 		}
 
 		return $settings_user;
@@ -398,9 +402,10 @@ class javascript
 		$list_auth = $this->auth_to_javascript($data);
 		$list_string = $this->settings_to_javascript($data);
 		$list_lang = $this->lang_to_javascript($data);
+		$name = $this->language->lang(['SHOUT_SORT', $data['sort_of']]);
 
 		// Construct the javascript now
-		$settings_auth = "var config = {\n		";
+		$settings_auth = "// Settings for shoutbox $name\n	var shoutbox = {};\n	var config = {\n		";
 		foreach ($list_auth as $key => $value)
 		{
 			$settings_auth .= $key . ':' . $value . ', ';
@@ -520,37 +525,38 @@ class javascript
 			'maxPost'			=> $this->config['shout_max_post_chars'],
 			'minName'			=> $this->config['min_name_chars'],
 			'maxName'			=> $this->config['max_name_chars'],
-			'isUser'			=> $this->work->return_bool($data['is_user']),
-			'isGuest'			=> $this->work->return_bool($data['user_id'] === ANONYMOUS),
-			'isRobot'			=> $this->work->return_bool($data['is_bot']),
-			'isPriv'			=> $this->work->return_bool($data['private']),
-			'isPopup'			=> $this->work->return_bool($data['popup']),
-			'rulesOk'			=> $this->work->return_bool($rules),
-			'rulesOpen'			=> $this->work->return_bool($rules_open),
-			'isMobile'			=> $this->work->return_bool($data['is_mobile']),
-			'refresh'			=> $this->work->return_bool(strpos($data['dateformat'], '|') !== false),
-			'seeButtons'		=> $this->work->return_bool($this->config['shout_see_buttons']),
-			'buttonsLeft'		=> $this->work->return_bool($this->config['shout_see_buttons_left']),
-			'storeErrors'		=> $this->work->return_bool($this->config['shout_store_errors']),
-			'barHaute'			=> $this->work->return_bool($data['shout_bar_option' . $data['sort_p']]),
-			'toBottom'			=> $this->work->return_bool($data['shout_defil' . $data['sort_p']]),
-			'buttonIp'			=> $this->work->return_bool($this->config['shout_see_button_ip']),
-			'buttonCite'		=> $this->work->return_bool($this->config['shout_see_cite']),
-			'endClassBg'		=> $this->work->return_bool($this->config['shout_button_background' . $data['sort_p']]),
-			'purgeOn'			=> $this->work->return_bool($this->auth->acl_get('a_shout' . $data['sort_perm'])),
-			'onlineOk'			=> $this->work->return_bool($this->auth->acl_gets('u_viewprofile', 'a_user', 'a_useradd', 'a_userdel')),
-			'postOk'			=> $this->work->return_bool($this->auth->acl_get('u_shout_post')),
-			'limitPost'			=> $this->work->return_bool($this->auth->acl_get('u_shout_limit_post')),
-			'smiliesOk'			=> $this->work->return_bool($this->auth->acl_get('u_shout_smilies')),
-			'imageOk'			=> $this->work->return_bool($this->auth->acl_get('u_shout_image')),
-			'colorOk'			=> $this->work->return_bool($this->auth->acl_get('u_shout_color')),
-			'bbcodeOk'			=> $this->work->return_bool($this->auth->acl_get('u_shout_bbcode')),
-			'charsOk'			=> $this->work->return_bool($this->auth->acl_get('u_shout_chars')),
-			'popupOk'			=> $this->work->return_bool($this->auth->acl_get('u_shout_popup')),
-			'formatOk'			=> $this->work->return_bool($this->auth->acl_get('u_shout_bbcode_change') && $data['is_user']),
-			'privOk'			=> $this->work->return_bool($this->auth->acl_get('u_shout_priv') && $data['is_user']),
-			'creator'			=> $this->work->return_bool($data['creator']),
-			'category'			=> $this->work->return_bool($data['category']),
+			'isUser'			=> $this->work->return_js_bool($data['is_user']),
+			'isFounder'			=> $this->work->return_js_bool($data['founder']),
+			'isGuest'			=> $this->work->return_js_bool($data['guest']),
+			'isRobot'			=> $this->work->return_js_bool($data['is_bot']),
+			'isPriv'			=> $this->work->return_js_bool($data['private']),
+			'isPopup'			=> $this->work->return_js_bool($data['popup']),
+			'rulesOk'			=> $this->work->return_js_bool($rules),
+			'rulesOpen'			=> $this->work->return_js_bool($rules_open),
+			'isMobile'			=> $this->work->return_js_bool($data['is_mobile']),
+			'refresh'			=> $this->work->return_js_bool(strpos($data['dateformat'], '|') !== false),
+			'seeButtons'		=> $this->work->return_js_bool((bool) $this->config['shout_see_buttons']),
+			'buttonsLeft'		=> $this->work->return_js_bool($this->config['shout_see_buttons_left']),
+			'storeErrors'		=> $this->work->return_js_bool($this->config['shout_store_errors']),
+			'topBar'			=> $this->work->return_js_bool($data['shout_bar_option' . $data['sort_p']]),
+			'toBottom'			=> $this->work->return_js_bool($data['shout_defil' . $data['sort_p']]),
+			'buttonIp'			=> $this->work->return_js_bool($this->config['shout_see_button_ip']),
+			'buttonCite'		=> $this->work->return_js_bool($this->config['shout_see_cite']),
+			'endClassBg'		=> $this->work->return_js_bool($this->config['shout_button_background' . $data['sort_p']]),
+			'purgeOn'			=> $this->work->return_js_bool($this->auth->acl_get('a_shout' . $data['sort_perm'])),
+			'onlineOk'			=> $this->work->return_js_bool($this->auth->acl_gets('u_viewprofile', 'a_user', 'a_useradd', 'a_userdel')),
+			'postOk'			=> $this->work->return_js_bool($this->auth->acl_get('u_shout_post')),
+			'limitPost'			=> $this->work->return_js_bool($this->auth->acl_get('u_shout_limit_post')),
+			'smiliesOk'			=> $this->work->return_js_bool($this->auth->acl_get('u_shout_smilies')),
+			'imageOk'			=> $this->work->return_js_bool($this->auth->acl_get('u_shout_image')),
+			'colorOk'			=> $this->work->return_js_bool($this->auth->acl_get('u_shout_color')),
+			'bbcodeOk'			=> $this->work->return_js_bool($this->auth->acl_get('u_shout_bbcode')),
+			'charsOk'			=> $this->work->return_js_bool($this->auth->acl_get('u_shout_chars')),
+			'popupOk'			=> $this->work->return_js_bool($this->auth->acl_get('u_shout_popup')),
+			'formatOk'			=> $this->work->return_js_bool($this->auth->acl_get('u_shout_bbcode_change') && $data['is_user']),
+			'privOk'			=> $this->work->return_js_bool($this->auth->acl_get('u_shout_priv') && $data['is_user']),
+			'creator'			=> $this->work->return_js_bool($data['creator']),
+			'category'			=> $this->work->return_js_bool($data['category']),
 			'smiliesPerPage'	=> $this->config['shout_smilies_per_page'],
 		];
 
@@ -559,7 +565,7 @@ class javascript
 
 	private function settings_to_javascript($data)
 	{
-		$settings_string = [
+		$list_string = [
 			'session'			=> $this->user->data['session_id'],
 			'userLang'			=> $this->user->data['user_lang'],
 			'userName'			=> $this->user->data['username'],
@@ -603,7 +609,7 @@ class javascript
 		];
 		if ($data['is_user'])
 		{
-			$settings_string = array_merge($settings_string, [
+			$list_string = array_merge($list_string, [
 				'privUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_private')),
 				'purgeUrl'		=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'purge'])),
 				'purgeBotUrl'	=> $this->work->remove_sid($this->helper->route('sylver35_breizhshoutbox_ajax', ['mode' => 'purge_robot'])),
@@ -622,7 +628,7 @@ class javascript
 			]);
 		}
 
-		return $settings_string;
+		return $list_string;
 	}
 
 	private function lang_to_javascript($data)
@@ -630,7 +636,8 @@ class javascript
 		$this->config['shout_title'] = (!$this->config['shout_title']) ? $this->language->lang('SHOUT_START') : $this->config['shout_title'];
 		$this->config['shout_title_priv'] = (!$this->config['shout_title_priv']) ? $this->language->lang('SHOUTBOX_SECRET') : $this->config['shout_title_priv'];
 
-		$lang_shout = [
+		// Initialise list_lang for all users
+		$list_lang = [
 			'DATETIME_0'	=> $this->language->lang(['datetime', 'AGO', 0]),
 			'DATETIME_1'	=> $this->language->lang(['datetime', 'AGO', 1]),
 			'DATETIME_2'	=> $this->language->lang(['datetime', 'AGO', 2]),
@@ -639,28 +646,28 @@ class javascript
 			'TITLE'			=> $this->config['shout_title' . $data['sort']],
 		];
 
+		// Initialise lang_array for all users
 		$lang_array = ['SHOUT_LOADING', 'SERVER_ERR', 'JS_ERR', 'ERROR', 'LINE', 'FILE', 'POST_DETAILS', 'SHOUT_MESSAGE', 'SHOUT_MESSAGES', 'COMMA_SEPARATOR', 'SHOUT_SEP', 'MSG_DEL_DONE', 'SHOUT_NO_MESSAGE', 'SHOUT_PAGE', 'NO_SHOUT_EDIT', 'CANCEL', 'NEXT', 'PREVIOUS', 'SHOUT_AUTO', 'SHOUT_DIV_BBCODE_CLOSE', 'SHOUT_ACTION_MSG', 'SHOUT_OUT_TIME', 'NO_SHOUT_DEL', 'NO_SHOW_IP_PERM', 'SHOUT_CLICK_SOUND_ON', 'SHOUT_CLICK_SOUND_OFF', 'MESSAGE_EMPTY', 'SHOUT_DIV_CLOSE', 'NO_POST_PERM', 'NO_SHOUT_POP', 'POST_MESSAGE', 'POST_MESSAGE_ALT', 'POSTED', 'SHOUT_POP', 'SHOUT_ONLINE', 'SHOUT_ONLINE_CLOSE', 'SHOUT_COLOR', 'NO_SHOUT_COLOR', 'SHOUT_COLOR_CLOSE', 'SMILIES', 'NO_SMILIES', 'SMILIES_CLOSE', 'SHOUT_CHARS', 'SHOUT_CHARS_CLOSE', 'NO_SHOUT_CHARS', 'SHOUT_RULES', 'SHOUT_RULES_PRIV', 'SHOUT_RULES_CLOSE', 'SHOUT_MORE_SMILIES', 'SHOUT_MORE_SMILIES_ALT', 'SHOUT_LESS_SMILIES', 'SHOUT_LESS_SMILIES_ALT', 'SHOUT_TOO_BIG', 'SHOUT_TOO_BIG2', 'SHOUT_ACTION_CITE_M', 'SHOUT_ACTION_CITE_ON', 'SHOUT_CLOSE', 'SHOUT_BBCODES', 'SHOUT_BBCODES_CLOSE', 'NO_SHOUT_BBCODE', 'SENDING', 'SHOUT_ROBOT_ON', 'SHOUT_ROBOT_OFF', 'SHOUT_COOKIES'];
 
-		if (!$this->user->data['is_registered'])
+		if ($data['guest'])
 		{
 			$lang_array = array_merge($lang_array, ['SHOUT_CLICK_HERE', 'SHOUT_CHOICE_NAME', 'SHOUT_CHOICE_YES', 'SHOUT_AFFICHE', 'SHOUT_CACHE', 'SHOUT_CHOICE_NAME_ERROR']);
-			$lang_shout['USERNAME_EXPLAIN'] = $this->language->lang($this->config['allow_name_chars'] . '_EXPLAIN', $this->language->lang('CHARACTERS', (int) $this->config['min_name_chars']), $this->language->lang('CHARACTERS', (int) $this->config['max_name_chars']));
+			$list_lang['USERNAME_EXPLAIN'] = $this->language->lang($this->config['allow_name_chars'] . '_EXPLAIN', $this->language->lang('CHARACTERS', (int) $this->config['min_name_chars']), $this->language->lang('CHARACTERS', (int) $this->config['max_name_chars']));
 		}
 		else if ($data['is_user'])
 		{
-			$lang_array = array_merge($lang_array, ['SHOUT_PERSO', 'SENDING_EDIT', 'EDIT_DONE', 'SHOUT_DEL', 'DEL_SHOUT', 'SHOUT_IP', 'SHOUT_POST_IP', 'ONLY_ONE_OPEN', 'SHOUT_EDIT', 'SHOUT_PRIV', 'SHOUT_CONFIG_OPEN', 'SHOUT_USER_IGNORE', 'SHOUT_PURGE_ROBOT_ALT', 'SHOUT_PURGE_ROBOT_BOX', 'SHOUT_PURGE_ALT', 'SHOUT_PURGE_BOX', 'PURGE_PROCESS']);
-			$lang_shout['MSG_ROBOT'] = $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->work->construct_action_shout(0));
-			$lang_shout['EDIT_MSG'] = $this->language->lang('EDIT');
+			$lang_array = array_merge($lang_array, ['SHOUT_PERSO', 'SENDING_EDIT', 'EDIT_DONE', 'EDIT_BUTTON', 'SHOUT_DEL', 'DEL_SHOUT', 'SHOUT_IP', 'SHOUT_POST_IP', 'ONLY_ONE_OPEN', 'SHOUT_EDIT', 'SHOUT_PRIV', 'SHOUT_CONFIG_OPEN', 'SHOUT_USER_IGNORE', 'SHOUT_PURGE_ROBOT_ALT', 'SHOUT_PURGE_ROBOT_BOX', 'SHOUT_PURGE_ALT', 'SHOUT_PURGE_BOX', 'PURGE_PROCESS']);
+			$list_lang['MSG_ROBOT'] = $this->language->lang('SHOUT_ACTION_MSG_ROBOT', $this->work->construct_action_shout(0));
 		}
 
 		for ($i = 0, $nb = sizeof($lang_array); $i < $nb; $i++)
 		{
-			$lang_shout[strtr($lang_array[$i], ['SHOUT_' => ''])] = $this->language->lang($lang_array[$i]);
+			$list_lang[strtr($lang_array[$i], ['SHOUT_' => ''])] = $this->language->lang($lang_array[$i]);
 		}
 
 		if ($data['category'])
 		{
-			$lang_shout = array_merge($lang_shout, [
+			$list_lang = array_merge($list_lang, [
 				'CATEGORY'				=> $this->language->lang('SC_CATEGORY'),
 				'SMILIES_PAGE'			=> $this->language->lang('SC_SMILIES_PAGE'),
 				'SMILIES_PAGE_TITLE'	=> $this->language->lang('SC_SMILIES_PAGE_TITLE'),
@@ -670,9 +677,9 @@ class javascript
 		if ($data['creator'])
 		{
 			$this->language->add_lang('smilie_creator', 'sylver35/smilecreator');
-			$lang_shout['CREATOR'] = $this->language->lang('SMILIE_CREATOR');
+			$list_lang['CREATOR'] = $this->language->lang('SMILIE_CREATOR');
 		}
 
-		return $lang_shout;
+		return $list_lang;
 	}
 }

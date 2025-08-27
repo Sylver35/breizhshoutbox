@@ -150,7 +150,7 @@ class robot
 	 */
 	public function display_infos_robot($row, $info, $acp)
 	{
-		$message = $cite = '';
+		$message = $row['shout_text'];
 		$start = $this->language->lang('SHOUT_ROBOT_START');
 
 		switch ($info)
@@ -253,6 +253,7 @@ class robot
 
 	private function info_breizhcharts($info, $row, $acp)
 	{
+		$message = $row['shout_text'];
 		if ($this->work->breizhcharts_exist())
 		{
 			if ($info == 30)

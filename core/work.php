@@ -143,7 +143,7 @@ class work
 	 * @param string $sql Sql query
 	 * @param int $line Line number
 	 * @param string $file Filename
-	 * @return @Json respons
+	 * @return array
 	 */
 	private function shout_sql_error($sql, $line, $file)
 	{
@@ -176,7 +176,7 @@ class work
 	 * @param string $on1 Error
 	 * @param string $on2 Error
 	 * @param string $on3 Error
-	 * @return @Json respons
+	 * @return array
 	 */
 	public function shout_error($message, $on1 = false, $on2 = false, $on3 = false)
 	{
@@ -225,7 +225,7 @@ class work
 	 * @param string $sql Error
 	 * @param int $line line of error
 	 * @param string $file of error
-	 * @return bool
+	 * @return int
 	 */
 	private function store_error($mode, $message, $line = 0, $file = '')
 	{
@@ -242,7 +242,7 @@ class work
 		];
 
 		$this->db->sql_query('INSERT INTO ' . $this->shoutbox_errors_table . ' ' . $this->db->sql_build_array('INSERT', $sql_ary));
-		$id = $this->db->sql_last_inserted_id();
+		$id = (int) $this->db->sql_last_inserted_id();
 
 		return $id;
 	}
@@ -265,22 +265,30 @@ class work
 	{
 		$url = preg_replace('#(?:&amp;)?sid=\w{0,128}#', '', $url);
 		$url = str_replace('?&amp;', '?', $url);
+		if (substr($url, -1) == '&')
+		{
+			$url = substr_replace($url, '', -1);
+		}
+		if (substr($url, -1) == '?')
+		{
+			$url = substr_replace($url, '', -1);
+		}
 	
 		return $url;
 	}
 
 	/**
 	 * Return param bool for javascript options
-	 * @param bool $option
+	 * @param bool|int $option
 	 * @return string
 	 */
-	public function return_bool($option)
+	public function return_js_bool($option)
 	{
 		return ($option) ? 'true' : 'false';
 	}
 
 	/**
-	 * test if the extension abbc3 is running
+	 * Test if the extension abbc3 is running
 	 * @return bool
 	 */
 	public function abbc3_exist()
@@ -289,7 +297,7 @@ class work
 	}
 
 	/**
-	 * test if the extension smiliecreator is running
+	 * Test if the extension smiliecreator is running and auth is ok
 	 * @return bool
 	 */
 	public function smiliecreator_exist()
@@ -303,7 +311,7 @@ class work
 	}
 
 	/**
-	 * test if the extension smiliescat is running
+	 * Test if the extension smiliescat is running
 	 * @return bool
 	 */
 	public function smiliescategory_exist()
@@ -312,7 +320,7 @@ class work
 	}
 
 	/**
-	 * test if the extension breizhcharts is running
+	 * Test if the extension breizhcharts is running
 	 * @return bool
 	 */
 	public function breizhcharts_exist()
@@ -321,7 +329,7 @@ class work
 	}
 
 	/**
-	 * test if the extension qte is running
+	 * Test if the extension qte is running
 	 * @return bool
 	 */
 	public function qte_exist()
@@ -330,7 +338,7 @@ class work
 	}
 
 	/**
-	 * test if the extension mention is running
+	 * Test if the extension mention is running
 	 * @return bool
 	 */
 	public function mention_exist()
@@ -339,7 +347,7 @@ class work
 	}
 
 	/**
-	 * test if the extension breizhyoutube is running
+	 * Test if the extension breizhyoutube is running
 	 * @return bool
 	 */
 	public function breizhyoutube_exist()
@@ -348,7 +356,7 @@ class work
 	}
 
 	/**
-	 * test if the extension relaxarcade is running
+	 * Test if the extension relaxarcade is running
 	 * @return bool
 	 */
 	public function relaxarcade_exist()
@@ -407,7 +415,7 @@ class work
 			include($this->root_path . 'includes/functions_admin.' . $this->php_ext);
 		}
 
-		$type = ($type !== '') ? $type : 'gif|jpg|jpeg|png|webp|jp2|j2k|jpf|jpm|jpg2|j2c|jpc';
+		$type = ($type) ? $type : 'gif|jpg|jpeg|png|webp|jp2|j2k|jpf|jpm|jpg2|j2c|jpc';
 		$list = filelist($rootdir, $dir, $type);
 		natcasesort($list);
 		if ($sort_values)
@@ -618,58 +626,52 @@ class work
 		return str_replace(['./../../../../', './../../../', './../../', './../', './'], $this->root_path_web, $url);
 	}
 
-	/* 
-	 * Construct/change profile url
-	 * to add actions in jQuery
-	 * Only if user have right permissions
-	 * But never in acp
-	 * Return string
+	/*
+	 * protect title value for robot messages
 	 */
-	public function construct_action_shout($id, $username = '', $colour = '', $acp = false)
+	public function shout_protect_title($value1, $value2)
 	{
-		if (!$id)
-		{
-			$username_full = get_username_string('no_profile', $id, $this->config['shout_name_robot'], $this->config['shout_color_robot']);
-		}
-		else if ($id == ANONYMOUS || !$this->user->data['is_registered'] || $this->user->data['is_bot'])
-		{
-			$username_full = get_username_string('no_profile', $id, $username, $colour);
-		}
-		else if ($id === $this->user->data['user_id'] || $acp)
-		{
-			$username_full = get_username_string('full', $id, $username, $colour);
-		}
-		else
-		{
-			if ($this->auth->acl_gets(['u_shout_post_inp', 'a_', 'm_']))
-			{
-				$username_full = $this->tpl('action', $id, $this->language->lang('SHOUT_ACTION_TITLE_TO', $username), get_username_string('no_profile', $id, $username, $colour));
-			}
-			else
-			{
-				$username_full = get_username_string('full', $id, $username, $colour, '', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", "mode=viewprofile"));
-			}
-		}
+		$value = ($value2 !== '') ? $value2 : $value1;
+		$value = str_replace('&amp;', '&', strip_tags($value));
+		$value = preg_replace('/\&#([^>]+)\;/', '', $value);
+		$value = str_replace(['&lt;', '&gt;', '&quot;'], '', $value);
 
-		return $this->shout_url($username_full);
+		return htmlspecialchars($value, ENT_QUOTES);
 	}
 
-	public function create_action_user($row, $go_founder)
+	public function plural($lang, $nr, $second, $content = '')
 	{
-		$get_auths = $this->get_auths();
-		$get_urls = $this->get_urls($row);
+		$text = $lang;
+		$text .= ($nr > 1) ? 'S' : '';
+		$text .= $second;
+		if ($content !== '')
+		{
+			$text = $this->language->lang($text, $nr, $content);
+		}
 
-		return [
-			'url_profile'	=> $this->tpl('profile', $get_urls[1], $row['username']),
-			'url_auth'		=> $this->get_tpl_auth($get_auths, $get_urls, $row, 1),
-			'url_prefs'		=> $this->get_tpl_auth($get_auths, $get_urls, $row, 2),
-			'url_admin'		=> $this->get_tpl_auth($get_auths, $get_urls, $row, 3),
-			'url_modo'		=> $this->get_tpl_auth($get_auths, $get_urls, $row, 4),
-			'url_ban'		=> $this->get_tpl_auth($get_auths, $get_urls, $row, 5, $go_founder),
-			'url_remove'	=> $this->get_tpl_auth($get_auths, $get_urls, $row, 6, $go_founder),
-			'url_perso'		=> $this->get_tpl_auth($get_auths, $get_urls, $row, 7, $go_founder),
-			'url_robot'		=> $this->get_tpl_auth($get_auths, $get_urls, $row, 8),
-		];
+		return $text;
+	}
+
+	/**
+	 * Extract information from a string
+	 *
+	 * @param $string	string where search in
+	 * @param $start	string start of search
+	 * @param $end		string end of search
+	 * Return string or int
+	 */
+	public function find_string($string, $start, $end)
+	{
+		$ini = strpos($string, $start);
+		if ($ini == 0)
+		{
+			return $ini;
+		}
+		$ini += strlen($start);
+		$len = strpos($string, $end, $ini) - $ini;
+		$value = substr($string, $ini, $len);
+
+		return $value;
 	}
 
 	/*
@@ -743,110 +745,130 @@ class work
 		return sprintf($this->config['shout_tpl_' . $sort], $data1, $data2, $data3, $data4);
 	}
 
-	/*
-	 * protect title value for robot messages
+	/* 
+	 * Construct/change profile url
+	 * to add actions in jQuery
+	 * Only if user have right permissions
+	 * But never in acp
+	 * Return string
 	 */
-	public function shout_protect_title($value1, $value2)
+	public function construct_action_shout($id, $username = '', $colour = '', $acp = false)
 	{
-		$value = ($value2 !== '') ? $value2 : $value1;
-		$value = str_replace('&amp;', '&', strip_tags($value));
-		$value = preg_replace('/\&#([^>]+)\;/', '', $value);
-		$value = str_replace(['&lt;', '&gt;', '&quot;'], '', $value);
-
-		return htmlspecialchars($value, ENT_QUOTES);
-	}
-
-	public function plural($lang, $nr, $second, $content = '')
-	{
-		$text = $lang;
-		$text .= ($nr > 1) ? 'S' : '';
-		$text .= $second;
-		if ($content !== '')
+		if (!$id)
 		{
-			$text = $this->language->lang($text, $nr, $content);
+			$username_full = get_username_string('no_profile', $id, $this->config['shout_name_robot'], $this->config['shout_color_robot']);
+		}
+		else if ($id == ANONYMOUS || !$this->user->data['is_registered'] || $this->user->data['is_bot'])
+		{
+			$username_full = get_username_string('no_profile', $id, $username, $colour);
+		}
+		else if ($acp)//$id === $this->user->data['user_id'] || 
+		{
+			$username_full = get_username_string('full', $id, $username, $colour);
+		}
+		else
+		{
+			if ($this->auth->acl_gets(['u_shout_post_inp', 'a_', 'm_']))
+			{
+				$username_full = $this->tpl('action', $id, $this->language->lang('SHOUT_ACTION_TITLE_TO', $username), get_username_string('no_profile', $id, $username, $colour));
+			}
+			else
+			{
+				$username_full = get_username_string('full', $id, $username, $colour, '', append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", "mode=viewprofile"));
+			}
 		}
 
-		return $text;
+		return $this->shout_url($username_full);
 	}
 
-	/**
-	 * Extract information from a string
-	 *
-	 * @param $string	string where search in
-	 * @param $start	string start of search
-	 * @param $end		string end of search
-	 * Return string or int
-	 */
-	public function find_string($string, $start, $end)
+	public function create_action_user($row, $founder, $self)
 	{
-		$ini = strpos($string, $start);
-		if ($ini == 0)
-		{
-			return $ini;
-		}
-		$ini += strlen($start);
-		$len = strpos($string, $end, $ini) - $ini;
-		$value = substr($string, $ini, $len);
+		$auths = $this->get_auths($self);
+		$urls = $this->get_urls($row['user_id']);
 
-		return $value;
+		return [
+			'url_profile'	=> $this->tpl('profile', $urls[1], $row['username']),
+			'url_auth'		=> $this->get_tpl_auth(1, $auths[7], '', $row),
+			'url_admin'		=> $this->get_tpl_auth(3, $auths[2], $urls[2], $row),
+			'url_robot'		=> $this->get_tpl_auth(8, $auths[8], $urls, $row),
+			'url_prefs'		=> $this->get_tpl_auth(2, $auths[7], $urls[5], '', $founder, $self, $auths[9]),
+			'url_modo'		=> $this->get_tpl_auth(4, $auths[3], $urls[3], $row, $founder, $self),
+			'url_ban'		=> $this->get_tpl_auth(5, $auths[4], $urls[4], $row, $founder, $self),
+			'url_remove'	=> $this->get_tpl_auth(6, $auths[1], '', $row, $founder, $self, $auths[5]),
+			'url_perso'		=> $this->get_tpl_auth(7, $auths[7], '', $row, $founder, $self, $auths[9]),
+		];
 	}
 
-	private function get_tpl_auth($get_auths, $get_urls, $row, $sort, $go_founder = false)
+	public function self_data_user()
+	{
+		$data = ['foe' => 0];
+		$list = ['user_id', 'username', 'user_colour', 'user_avatar', 'user_avatar_type', 'user_avatar_width', 'user_avatar_height', 'user_type'];
+
+		for ($i = 0, $nb = sizeof($list); $i < $nb; $i++)
+		{
+			$data[$list[$i]] = $this->user->data[$list[$i]];
+		}
+
+		return $data;
+	}
+
+	private function get_tpl_auth($sort, $auth, $url = '', $row = '', $founder = false, $self = false, $more = false)
 	{
 		$data = '';
 		switch ($sort)
 		{
 			case 1:
-				$data = $get_auths[7] ? $this->tpl('auth', $row['user_id'], $row['username']) : '';
+				$data = $auth ? $this->tpl('auth', $row['user_id'], $row['username']) : '';
 			break;
 			case 2:
-				$data = $get_auths[7] ? $this->tpl('prefs', $get_urls[5]) : '';
+				$data = ($auth && (!$founder || $self) || ($more && $self)) ? $this->tpl('prefs', $url) : '';
 			break;
 			case 3:
-				$data = $get_auths[2] ? $this->tpl('admin', $get_urls[2]) : '';
+				$data = $auth ? $this->tpl('admin', $url) : '';
 			break;
 			case 4:
-				$data = $get_auths[3] ? $this->tpl('modo', $get_urls[3]) : '';
+				$data = ($auth && !$founder) ? $this->tpl('modo', $url) : '';
 			break;
 			case 5:
-				$data = ($get_auths[4] && $go_founder) ? $this->tpl('ban', $get_urls[4]) : '';
+				$data = ($auth && (!$founder && !$self)) ? $this->tpl('ban', $url) : '';
 			break;
 			case 6:
-				$data = (($get_auths[1] || $get_auths[5]) && $go_founder) ? $this->tpl('remove', $row['user_id']) : '';
+				$data = (($auth || $more) && (!$founder || $self)) ? $this->tpl('remove', $row['user_id']) : '';
 			break;
 			case 7:
-				$data = (($get_auths[1] || $get_auths[7]) && $go_founder) ? $this->tpl('perso', $row['user_id']) : '';
+				$data = ($auth || $more) ? $this->tpl('perso', $row['user_id']) : '';
 			break;
 			case 8:
-				$data = $get_auths[8] ? $this->tpl('robot', $sort) : '';
+				$data = $auth ? $this->tpl('robot', $sort) : '';
 			break;
 		}
 
 		return $data;
 	}
 
-	private function get_auths()
+	private function get_auths($self)
 	{
 		return [
-			1 =>	$this->auth->acl_get('a_') ? true : false,
-			2 =>	$this->auth->acl_get('a_user') ? true : false,
-			3 =>	$this->auth->acl_get('m_') ? true : false,
-			4 =>	$this->auth->acl_get('m_ban') ? true : false,
+			1 =>	$this->auth->acl_get('a_shout_manage'),
+			2 =>	$this->auth->acl_get('a_user'),
+			3 =>	$this->auth->acl_gets(['a_shout_manage', 'm_']),
+			4 =>	$this->auth->acl_get('m_ban'),
 			5 =>	$this->auth->acl_get('m_shout_delete'),
 			6 =>	$this->auth->acl_get('m_shout_personal'),
-			7 =>	$this->auth->acl_gets(['a_', 'm_shout_personal']) ? true : false,
-			8 =>	$this->auth->acl_gets(['a_', 'm_shout_robot']) ? true : false,
+			7 =>	$this->auth->acl_gets(['a_shout_manage', 'm_shout_personal']),
+			8 =>	$this->auth->acl_gets(['a_shout_manage', 'm_shout_robot']),
+			9 =>	$this->auth->acl_get('u_shout_bbcode_change') && $self,
 		];
 	}
 
-	private function get_urls($row)
+	private function get_urls($user_id)
 	{
 		return [
-			1 =>	append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", ['mode' => 'viewprofile', 'u' => $row['user_id']], false),
-			2 =>	append_sid("{$this->adm_path()}index.{$this->php_ext}", ['i' => 'users', 'mode' => 'overview', 'u' => $row['user_id']], true, $this->user->session_id),
-			3 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'notes', 'mode' => 'user_notes', 'u' => $row['user_id']], true),
-			4 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'ban', 'mode' => 'user', 'u' => $row['user_id']], true),
-			5 =>	$this->helper->route('sylver35_breizhshoutbox_configshout') . '?user_id=' . $row['user_id'],
+			1 =>	append_sid("{$this->root_path_web}memberlist.{$this->php_ext}", ['mode' => 'viewprofile', 'u' => $user_id], false),
+			2 =>	append_sid("{$this->adm_path()}index.{$this->php_ext}", ['i' => 'users', 'mode' => 'overview', 'u' => $user_id], true, $this->user->session_id),
+			3 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'notes', 'mode' => 'user_notes', 'u' => $user_id], true),
+			4 =>	append_sid("{$this->root_path_web}mcp.{$this->php_ext}", ['i' => 'ban', 'mode' => 'user', 'u' => $user_id], true),
+			5 =>	$this->helper->route('sylver35_breizhshoutbox_configshout') . '?user_id=' . $user_id,
 		];
 	}
 
@@ -860,7 +882,10 @@ class work
 
 		foreach ($list_files as $file)
 		{
-			@unlink($rootdir . $file);
+			if ($error = unlink($rootdir . $file))
+			{
+				continue;
+			}
 		}
 	}
 
@@ -869,8 +894,7 @@ class work
 	 */
 	public function update_session_file($user_id, $other = 0, $session_id = '')
 	{
-		$rootdir = $this->root_path . 'cache/' . PHPBB_ENVIRONMENT . '/';
-
+		$errors = [];
 		if ($other)
 		{
 			$sql = 'SELECT session_id, session_user_id
@@ -889,15 +913,23 @@ class work
 			$session_id = $this->user->data['session_id'];
 		}
 
-		$file_php = $rootdir . 'data_shout_config_' . $user_id . '_' . $session_id . '.' . $this->php_ext;
+		$file_php = $this->root_path . 'cache/' . PHPBB_ENVIRONMENT . '/data_shout_config_' . $user_id . '_' . $session_id . '.' . $this->php_ext;
 		if (file_exists($file_php))
 		{
-			@unlink($file_php);
+			if ($error = unlink($file_php))
+			{
+				$errors[] = $error;
+			}
 		}
 		if (file_exists($file_php . '.lock'))
 		{
-			@unlink($file_php . '.lock');
+			if ($error = unlink($file_php . '.lock'))
+			{
+				$errors[] = $error;
+			}
 		}
+
+		return $errors;
 	}
 
 	/*
@@ -917,7 +949,10 @@ class work
 			}
 			else if (str_starts_with($file, 'data_shout_config_' . $user_id))
 			{
-				@unlink($rootdir . $file);
+				if ($error = unlink($rootdir . $file))
+				{
+					continue;
+				}
 			}
 		}
 	}
@@ -949,6 +984,9 @@ class work
 			}
 		}
 		closedir($dh);
+
+		natcasesort($matches);
+		$matches = array_values($matches);
 
 		return $matches;
 	}

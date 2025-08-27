@@ -188,7 +188,10 @@
 		<fieldset class="quick" style="float: {{ S_CONTENT_FLOW_END }};">
 			{{ S_FORM_TOKEN }}
 			<input class="button2" type="submit" name="delmarkedlog" value="{{ lang('DELETE_MARKED') }}">
-			<p class="small"><a href="#" onclick="marklist('delete_logs','mark',true);return false;">{{ lang('MARK_ALL') }}</a> &bull; <a href="#" onclick="marklist('delete_logs','mark',false);return false;">{{ lang('UNMARK_ALL') }}</a></p>
+			<p class="small">
+				<a href="#" onclick="marklist('delete_logs','mark',true);return false;">{{ lang('MARK_ALL') }}</a> &bull; 
+				<a href="#" onclick="marklist('delete_logs','mark',false);return false;">{{ lang('UNMARK_ALL') }}</a>
+			</p>
 		</fieldset>
 	</form>
 	<br/>

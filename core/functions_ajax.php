@@ -114,6 +114,7 @@ class functions_ajax
 		$val = [
 			'is_user'		=> $this->user->data['is_registered'] && !$this->user->data['is_bot'],
 			'userid'		=> (int) $this->user->data['user_id'],
+			'founder'		=> (bool) $this->user->data['user_type'] == USER_FOUNDER,
 			'id'			=> (int) $id,
 			'other'			=> (int) $other,
 			'sort'			=> (int) $sort,
@@ -166,30 +167,36 @@ class functions_ajax
 		return $val;
 	}
 
-	public function get_var($value, $default)
+	/**
+	 * Get variables from shoutbox and return good format
+	 * @param $var string variable
+	 * @param $default string|int|bool|array sort of variable
+	 * Return string|int|bool|array
+	 */
+	public function get_var($var, $default)
 	{
 		if ($default === '')
 		{
-			return (string) $this->request->variable($value, '', true);
+			return (string) $this->request->variable($var, '', true);
 		}
 		else if (is_bool($default))
 		{
-			return (bool) $this->request->variable($value, $default);
+			return (bool) $this->request->variable($var, $default);
 		}
 		else if (is_array($default))
 		{
-			return $this->request->variable($value, [$default]);
+			return $this->request->variable($var, [$default]);
 		}
 		else
 		{
-			return (int) $this->request->variable($value, $default);
+			return (int) $this->request->variable($var, $default);
 		}
 	}
 
 	/**
 	 * Displays list of users online
 	 * Replace urls for users actions shout
-	 * Return array
+	 * Return array|string
 	 */
 	public function online()
 	{
@@ -225,7 +232,7 @@ class functions_ajax
 					// fix bug with Online users avatar ext
 					$fix = $this->online_avatar($users, $this_user);
 					$this_user = $fix['this_user'];
-					$users .= $fix['avatar'] . $this->work->construct_action_shout($id, $this->work->find_string($this_user, 'username-coloured">', '</a>'), $this->work->find_string($this_user, 'color: #', ';"'));
+					$users .= $fix['avatar'] . $this->work->shout_url($this->work->construct_action_shout($id, $this->work->find_string($this_user, 'username-coloured">', '</a>'), $this->work->find_string($this_user, 'color: #', ';"')));
 					$u++;
 				}
 			}
@@ -235,7 +242,7 @@ class functions_ajax
 			$data['list'] .= ($r > 0) ? $robots : $this->language->lang('NO_ONLINE_BOTS');
 		}
 
-		return $this->work->shout_url($data);
+		return $data;
 	}
 
 	private function online_avatar($users, $this_user)
@@ -262,6 +269,7 @@ class functions_ajax
 
 		for ($i = 0, $nb = sizeof($list); $i < $nb; $i++)
 		{
+			// Extract sort of auth a, m, u
 			$second = substr($list[$i], 0, 1);
 			$active = $this->auth->acl_get_list($user_id, $list[$i]);
 			$class = ($active) ? 'auth_yes' : 'auth_no';

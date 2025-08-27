@@ -11,13 +11,15 @@
 	</fieldset>
 </form>
 <form id="shout_smilies" method="post" action="{{ U_ACTION }}">
+	{% EVENT shout_smilies_before %}
 	<fieldset>
 		<legend>{{ lang('SMILIES_OVERVIEW') }}</legend>
 		<div id="smil">
 		{% for smiley in smilies %}
 			<a onclick="shoutbox.displaySmiley('{{ smiley.ID }}',1);" class="smilies-none">
 				<img src="{{ SMILIES_URL }}{{ smiley.SRC }}" alt="{{ smiley.CODE }}" title="{{ smiley.EMOTION }}" width="{{ smiley.WIDTH }}" height="{{ smiley.HEIGHT }}"/>
-			</a> 
+			</a>
+			&nbsp;
 		{% endfor %}
 		</div>
 	</fieldset>
@@ -28,7 +30,15 @@
 			<a onclick="shoutbox.displaySmiley('{{ smiley_popup.ID }}',0);" class="smilies-none">
 				<img src="{{ SMILIES_URL }}{{ smiley_popup.SRC }}" alt="{{ smiley_popup.CODE }}" title="{{ smiley_popup.EMOTION }}" width="{{ smiley_popup.WIDTH }}" height="{{ smiley_popup.HEIGHT }}"/>
 			</a>
+			&nbsp;
 		{% endfor %}
 		</div>
 	</fieldset>
+	<fieldset>
+		<legend>Liste des smileys non affichés</legend>
+		<div id="undisplayed" class="deposer" style="min-height:80px">
+			
+		</div>
+	</fieldset>
+	{% EVENT shout_smilies_after %}
 </form>

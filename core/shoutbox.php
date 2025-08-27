@@ -152,22 +152,22 @@ class shoutbox
 	/**
 	 * Display the shoutbox
 	 */
-	public function shout_display($sort_of)
+	public function shout_display($sort)
 	{
 		/**
 		 * You can use this event to display the shoutbox
 		 *
 		 * @event breizhshoutbox.shout_display_before
-		 * @var	array	sort_of (1 = popup, 2 = normal, 3 = private)
+		 * @var	int	sort (1 = popup, 2 = normal, 3 = private)
 		 * @since 1.8.1
 		 */
-		$vars = ['sort_of'];
+		$vars = ['sort'];
 		extract($this->phpbb_dispatcher->trigger_event('breizhshoutbox.shout_display_before', compact($vars)));
 
 		$is_user = ($this->user->data['is_registered'] && !$this->user->data['is_bot']) ? true : false;
 		$page = str_replace('.' . $this->php_ext, '', $this->user->page['page_name']);
 		$is_mobile = $this->work->shout_is_mobile();
-		$in_priv = ($sort_of === 3) ? true : false;
+		$in_priv = ($sort === 3);
 		$priv = ($in_priv) ? '_priv' : '';
 
 		if (!$this->verify_display_shout($in_priv) || !$this->run_display($page))
@@ -202,7 +202,7 @@ class shoutbox
 		$this->template->assign_vars([
 			'S_DISPLAY_SHOUTBOX'	=> true,
 			'S_IN_PRIV'				=> $in_priv,
-			'IN_SHOUT_POPUP'		=> $sort_of === 1,
+			'IN_SHOUT_POPUP'		=> $sort === 1,
 			'PANEL_ALL'				=> $panel['active'],
 			'ACTION_USERS_TOP'		=> ($this->auth->acl_gets(['u_shout_post_inp', 'a_', 'm_'])) ? true : false,
 			'SHOUT_INDEX_POS'		=> $this->config['shout_position_index'],
@@ -213,9 +213,9 @@ class shoutbox
 		]);
 
 		// Active the posting form
-		$this->enable_posting($sort_of, $page, $is_mobile);
+		$this->enable_posting($sort, $page, $is_mobile);
 		// Get the script now from the cache
-		$this->javascript->javascript_shout($sort_of);
+		$this->javascript->javascript_shout($sort);
 
 		// Do the shoutbox Prune thang
 		if ($this->config['shout_on_cron' . $priv] && ((int) $this->config['shout_max_posts' . $priv] === 0))
@@ -264,32 +264,33 @@ class shoutbox
 			else
 			{
 				// And verifie in another pages
-				$panel['active'] = ($this->config['shout_panel'] && $this->config['shout_panel_all']) ? true : false;
+				$panel['active'] = ($this->config['shout_panel'] && $this->config['shout_panel_all']);
 			}
 		}
 
 		return $panel;
 	}
 
-	private function run_display($page, $run = true)
+	private function run_display($page)
 	{
-		if ($page === 'index')
+		$run = true;
+		switch ($page)
 		{
-			$run = ($this->config['shout_position_index'] > 0) ? true : false;
-		}
-		else if ($page === 'viewforum')
-		{
-			$run = ($this->config['shout_position_forum'] > 0) ? true : false;
-		}
-		else if ($page === 'viewtopic')
-		{
-			$run = ($this->config['shout_position_topic'] > 0) ? true : false;
+			case 'index':
+				$run = ($this->config['shout_position_index'] > 0);
+			break;
+			case 'viewforum':
+				$run = ($this->config['shout_position_forum'] > 0);
+			break;
+			case 'viewtopic':
+				$run = ($this->config['shout_position_topic'] > 0);
+			break;
 		}
 
 		return $run;
 	}
 
-	private function enable_posting($sort_of, $page, $is_mobile)
+	private function enable_posting($sort, $page, $is_mobile)
 	{
 		if ($this->auth->acl_gets(['u_shout_post', 'u_shout_bbcode']))
 		{
@@ -304,10 +305,10 @@ class shoutbox
 				'TEXT_USER_TOP'			=> $this->auth->acl_get('u_shout_bbcode_change'),
 			]);
 
-			// Build custom bbcodes array if needed
 			$mode = 'inline';
-			$this->bbcodes->active_custom_bbcodes($sort_of, $is_mobile);
-			// Add simple mention ext
+			// Add custom bbcodes if needed
+			$this->bbcodes->active_custom_bbcodes($sort, $is_mobile);
+			// Add simple mention ext if exist
 			$this->bbcodes->add_mention_ext();
 
 			/**
@@ -317,7 +318,7 @@ class shoutbox
 			 * @var	array	mode
 			 * @since 1.8.0
 			 */
-			$vars = ['mode', 'sort_of', 'page', 'is_mobile'];
+			$vars = ['mode', 'sort', 'page', 'is_mobile'];
 			extract($this->phpbb_dispatcher->trigger_event('breizhshoutbox.display_posting', compact($vars)));
 		}
 	}
@@ -526,10 +527,10 @@ class shoutbox
 		else if ($this->user->data['is_registered'])
 		{
 			$set_option = false;
-			$user_shoutbox = json_decode($this->user->data['user_shoutbox']);
-			if ($user_shoutbox->panel != 3)
+			$user_options = json_decode($this->user->data['user_shoutbox']);
+			if ($user_options->panel != 3)
 			{
-				if ($user_shoutbox->panel == 0)
+				if ($user_options->panel == 0)
 				{
 					return false;
 				}
@@ -922,6 +923,7 @@ class shoutbox
 
 	public function verify_delete($userid, $on_id, $can_delete_all, $can_delete)
 	{
+		$message = '';
 		$result = false;
 		if ($userid == ANONYMOUS)
 		{
@@ -941,7 +943,6 @@ class shoutbox
 		}
 		else if (($can_delete && ($userid == $on_id)) || $can_delete_all)
 		{
-			$message = '';
 			$result = true;
 		}
 		else
@@ -964,7 +965,7 @@ class shoutbox
 			// We need to be sure its this users his shout.
 			$sql = 'SELECT shout_user_id
 				FROM ' . $val['table'] . '
-					WHERE shout_id = ' . $shout_id;
+					WHERE shout_id = ' . (int) $shout_id;
 			$result = $this->work->shout_sql_query($sql, true, 1);
 			$on_id = (int) $this->db->sql_fetchfield('shout_user_id');
 			$this->db->sql_freeresult($result);
@@ -1095,12 +1096,12 @@ class shoutbox
 		// Prevents some errors for allocation of permissions
 		// Initialise data
 		$data = [
-			'edit'		=> $this->auth->acl_get('u_shout_edit'),
-			'delete'	=> $this->auth->acl_get('u_shout_delete_s'),
-			'info'		=> $this->auth->acl_get('u_shout_info_s') && $this->config['shout_see_button_ip'],
-			'edit_all'	=> false,
-			'delete_all'=> false,
-			'info_all'	=> false,
+			'edit'			=> $this->auth->acl_get('u_shout_edit'),
+			'delete'		=> $this->auth->acl_get('u_shout_delete_s'),
+			'info'			=> $this->auth->acl_get('u_shout_info_s') && $this->config['shout_see_button_ip'],
+			'edit_all'		=> false,
+			'delete_all'	=> false,
+			'info_all'		=> false,
 		];
 
 		// If someone can edit all messages, he can edit its own messages :)

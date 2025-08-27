@@ -160,7 +160,7 @@ class main
 
 	public function handle_config_shout()
 	{
-		$user_id = $this->request->variable('user_id' , 0);
+		$user_id = $this->request->variable('user_id', 0);
 
 		if ($this->auth->acl_get('u_shout_post'))
 		{
