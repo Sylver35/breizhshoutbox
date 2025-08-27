@@ -263,7 +263,12 @@ class work
 	 */
 	public function remove_sid($url)
 	{
-		$url = (string) preg_replace(['#(?:&amp;)?sid=\w{0,128}#', '?&amp;'], ['', '?'], $url);
+		$url = preg_replace(['#(?:&amp;)?sid=\w{0,128}#', '?&amp;'], ['', '?'], $url);
+		if (!is_string($url))
+		{
+			return $url;
+		}
+
 		if (substr($url, -1) == '&')
 		{
 			$url = substr_replace($url, '', -1);
