@@ -124,10 +124,10 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 		}
 	};
 
-	shoutbox.loadCookies = function(enableSound,isGuest){
-		if(isGuest){
+	shoutbox.loadCookies = function(){
+		if(config.isGuest){
 			if(shoutbox.getCookie('shout-sound') === false){
-				shoutbox.cookieShout('shout-sound',enableSound,60);
+				shoutbox.cookieShout('shout-sound',config.enableSound,60);
 			}else{
 				$('#onSound').val(shoutbox.getCookie('shout-sound'));
 			}
@@ -135,10 +135,12 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				$('#shoutname').val(shoutbox.getCookie('shout-name'));
 			}
 		}
-		if(shoutbox.getCookie('shout-robot') === false){
-			shoutbox.cookieShout('shout-robot','1',60);
-		}else{
-			$('#onBot').val(shoutbox.getCookie('shout-robot'));
+		if(!config.isRobot){
+			if(shoutbox.getCookie('shout-robot') === false){
+				shoutbox.cookieShout('shout-robot','1',60);
+			}else{
+				$('#onBot').val(shoutbox.getCookie('shout-robot'));
+			}
 		}
 	};
 
@@ -395,7 +397,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			data: dataRun,
 			cache: false,
 			success: function(result){
-				var timerCookies = setTimeout(shoutbox.closeCookies,20000), classDiv = config.barHaute ? 'message-text' : 'message-text-bottom';
+				var timerCookies = setTimeout(shoutbox.closeCookies,20000), classDiv = config.topBar ? 'message-text' : 'message-text-bottom';
 				var data = '<h3>'+result.title+'</h3>';
 				data += '<div class="shout-bold" style="margin:8px;text-align:left;">'+result.info+' :</div>';
 				data += '<div style="margin:0 0 5px 12px;text-align:left;"><ul>';
@@ -415,7 +417,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 	shoutbox.closeCookies = function(){
 		clearTimeout(timerCookies);
 		if($('#msg_txt').is(':visible')){
-			var classDiv = config.barHaute ? 'message-text' : 'message-text-bottom';
+			var classDiv = config.topBar ? 'message-text' : 'message-text-bottom';
 			$('#msg_txt').html('').removeClass(classDiv).hide();
 			$('#questionCookies').attr({'onclick':'shoutbox.infoCookies();','title':bzhLang['COOKIES']});
 			$('#i-question').removeClass('fa-question-circle').addClass('fa-question');
@@ -711,20 +713,21 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 						$('#shout_avatar').html('<span class="avatar-shout">'+response.avatar+'</span>');
 						var content = '<br>';
 						content += (response.foe) ? '<strong>&#187;</strong><span class="profile-shout" style="color:red;">'+bzhLang['USER_IGNORE']+tpl['close']+tpl['return'] : '';
-						content += (!response.foe && response.inp) ? tpl['open']+tpl['a']+response.url_message+tpl['close']+tpl['return'] : '';
-						content += tpl['open']+tpl['a']+tpl['ext']+response.url_profile+tpl['close']+tpl['open']+tpl['a']+response.url_cite_m+tpl['close']+tpl['open']+tpl['a']+response.url_cite+tpl['close'];
-						content += (response.return) ? tpl['return'] : '';
+						content += (!response.foe && response.inp && !response.self) ? tpl['open']+tpl['a']+response.url_message+tpl['close']+tpl['return'] : '';
+						content += (response.url_profile && !response.self) ? tpl['open']+tpl['a']+tpl['ext']+response.url_profile+tpl['close']+tpl['open']+tpl['a']+response.url_cite_m+tpl['close']+tpl['open']+tpl['a']+response.url_cite+tpl['close'] : '';
+						content += (response.return && !response.self) ? '<hr class="dotted">' : '';
 						content += (response.url_admin) ? tpl['open']+tpl['a']+tpl['ext']+response.url_admin+tpl['close'] : '';
 						content += (response.url_modo) ? tpl['open']+tpl['a']+tpl['ext']+response.url_modo+tpl['close'] : '';
 						content += (response.url_ban) ? tpl['open']+tpl['a']+tpl['ext']+response.url_ban+tpl['close'] : '';
 						content += (response.url_remove) ? tpl['return']+tpl['open']+tpl['a']+response.url_remove+tpl['close'] : '';
 						content += (response.url_perso) ? tpl['return']+tpl['open']+tpl['a']+response.url_perso+tpl['close'] : '';
+						content += (!response.url_auth && response.url_prefs) ? '<br><br>' : '';
 						content += (response.url_auth) ? tpl['return']+tpl['open']+tpl['a']+response.url_auth+tpl['close'] : '';
 						content += (response.url_prefs) ? tpl['open']+tpl['a']+response.url_prefs+tpl['close'] : '';
-						content += '<br><hr class="dotted"><hr class="dotted">';
+						content += '<br><hr class="dotted">';
 						content += (response.inp) ? tpl['open']+tpl['a']+response.url_del_to+tpl['close']+tpl['return'] : '';
 						content += (response.inp) ? tpl['open']+tpl['a']+response.url_del+tpl['close'] : '';
-						content += (response.url_robot) ? tpl['return']+tpl['open']+tpl['a']+response.url_robot+tpl['close'] : '';
+						content += (response.url_robot) ? '<br><hr class="dotted">'+tpl['open']+tpl['a']+response.url_robot+tpl['close'] : '';
 						$('#shout_url').html(content);
 					}
 				}else{
@@ -1510,6 +1513,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 	}
 	
 	shoutbox.responseMessage = function(datas){
+		/** Display error if needed **/
 		if(datas.error){
 			shoutbox.message(datas,true,'',false);
 			return;
@@ -1558,7 +1562,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 				editForm.onsubmit = function(){return false};
 				inputEdit.value = shoutbox.htmlDecode(message.msgPlain);
 				inputEdit.onkeypress = function(event){if(event.keyCode === 13){$('#submitEdit'+this.i).click(); event.returnValue = false; this.returnValue = false; return false;}}
-				buttonEdit.value = bzhLang['EDIT_MSG'];
+				buttonEdit.value = bzhLang['EDIT_BUTTON'];
 				buttonCancel.value = bzhLang['CANCEL'];
 				inputEdit.i = editButton.i = i;
 				shoutbox.appendChildren(editForm,[spa,inputEdit,buttonEdit,buttonCancel]);
@@ -1577,11 +1581,11 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			shoutbox.appendChildren(dt,listButtons);
 			shoutbox.appendChildren(dl,[dt,user,dd]);
 			li.appendChild(dl);
-			/** Send the message in the row **/
+			/** Put the message into the row **/
 			rowMessages.push(li);
 		}
 
-		/** Send row messages in the shoutbox **/
+		/** Put row messages into the shoutbox **/
 		if(config.toBottom){
 			$('#shout_messages').append(rowMessages).scrollTop(0);
 		}else{
@@ -1593,7 +1597,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 			shoutbox.loadPagination(datas.number);
 		}
 
-		/** Start running checking for new message **/
+		/** And now start running checking for new message **/
 		if($('#nBErrors').val() < 5){
 			timerIn = setInterval(shoutbox.checkMessage, config.requestOn);
 		}else{
@@ -1613,17 +1617,19 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 
 	shoutbox.writeShoutbox = function(){
 		try{
+			/** Load the cookies **/
+			if(!config.isRobot){
+				shoutbox.loadCookies();
+			}
+
 			$('#sortShoutNb').val(config.sortShoutNb);
 			$('#onSound').val(config.enableSound);
 
-			/** Load the cookies **/
-			shoutbox.loadCookies(config.enableSound,config.isGuest);
-
+			/** Create the posting bar **/
 			var postingItems = [],shoutBarCss = (!config.postOk) ? 'text-align:center;padding:3px;' : '',postingCssText = (config.postOk) ? 'display:block;padding:3px 0 3px 1px;width:100%;' : 'float:none;width:100%;',postingStyle = 'height:auto;width:100%;overflow-wrap:break-word;';
-			shoutBarCss += (!config.barHaute) ? 'border-bottom:none;' : '';
+			shoutBarCss += (!config.topBar) ? 'border-bottom:none;' : '';
 			var base = shoutbox.cE('ul','base_ul','topiclist forums',false,false,false,false,false,false,false),postingLi = shoutbox.cE('li','shoutbar','button_background'+config.buttonBg,shoutBarCss,false,false,false,false,false,false),postingDl = shoutbox.cE('dl','shoutdl',false,'width:100%;',false,false,false,false,false,false),postingForm = shoutbox.cE('dt','post_message',false,postingCssText,false,false,false,false,false,false),postingBox = shoutbox.cE('div','postingBox',false,postingStyle,false,false,false,false,false,false);
 
-			/** Create the posting bar **/
 			if(config.postOk){
 				postingItems = shoutbox.postingElements(postingItems);
 			}else{
@@ -1748,7 +1754,7 @@ var timerIn,timerOnline,timerCookies,onCount = 0,$queryNb = 0,first = true,form_
 	shoutbox.adjustDisposition = function(){
 		$('#shout-1').html('<i class="icon fa-commenting fa-fw" aria-hidden="false"></i><a href="'+config.titleUrl+'" onclick="window.open(this.href);return false" title="'+bzhLang['TITLE']+'">'+bzhLang['TITLE']+'</a>').removeClass('shout-left-dt').addClass('shout-'+config.direction+'-dt');
 		$('#shout-2').html(bzhLang['PRINT_VER']+'<i class="icon fa-info fa-fw" aria-hidden="false"></i>').removeClass('shout-left-dd').addClass('shout-'+config.direction+'-dd');
-		if(!config.barHaute){
+		if(!config.topBar){
 			var idList = ['shout_rules','smilies_ul','shout_online','user_action','colour_shoutbox','shout_chars','shoutbox_posting','shout_bbcode','shoutbar'];
 			for(var i = 0; i < idList.length; i++){
 				if($('#'+idList[i]).length){

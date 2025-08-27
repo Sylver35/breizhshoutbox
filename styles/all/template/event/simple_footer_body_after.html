@@ -2,7 +2,8 @@
 {% INCLUDEJS '@sylver35_breizhshoutbox/javascript/shoutbox.js' %}
 <script>
 (function($){  // Avoid conflicts with other libraries
-	'use strict';	
+	'use strict';
+	/** modify css for a nice display in popup and panel **/
 	$('#phpbb').css({'padding':'0'});
 	$('#wrap').css({'margin':'0 auto','padding':'0','border':'none','max-width':'100%'});
 	$('#page-body').css({'margin':'0'});
@@ -10,7 +11,8 @@
 	shoutbox.writeShoutbox();
 })(jQuery);
 </script>
-{% elseif IN_SHOUT_CONFIG %}
+{% endif %}
+{% if IN_SHOUT_CONFIG %}
 <script>
 var configs = {
 	extensionUrl: '{{ SHOUT_EXT_PATH }}',
@@ -129,12 +131,17 @@ var configs = {
 				$('#dateformat').css('background','').val(response.format);
 				$('#datexemple').html(response.date);
 				$('#datexemple2').html(response.date2);
+				configs.playSoundUser('1');
 			}
 		});
 	};
-	configs.updatePos = function(id,text,value){
+	configs.updatePos = function(id,text){
 		$('#'+id).attr('title',text);
+		configs.playSoundUser('1');
 	};
+	configs.reloadLocation = function(){
+		setTimeout(window.opener.location.reload(true), 3000);
+	}
 })(jQuery);
 </script>
 {% endif %}

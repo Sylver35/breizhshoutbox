@@ -8,7 +8,7 @@
 			<li>
 				<form id="config_shout" method="post" action="{{ U_SHOUT_ACTION }}">
 				<div id="div_config_shout" class="div_config_shout">
-					<h3{% if USERNAME %} style="color: red;"{% endif %}><img src="{{ SHOUT_EXT_PATH }}images/reglages.webp" width="35px" alt="{{ lang('SHOUT_PANEL_USER') }}" title="{{ lang('SHOUT_PANEL_USER') }}"/> {{ TITLE_PANEL }}</h3>
+					<h3{% if OTHER %} style="color: red;"{% endif %}><img src="{{ SHOUT_EXT_PATH }}images/reglages.webp" width="35px" alt="{{ lang('SHOUT_PANEL_USER') }}" title="{{ lang('SHOUT_PANEL_USER') }}"/> {{ TITLE_PANEL }}</h3>
 					<div id="info_new" name="info" class="centered {% if SOUND_NEW_DISP %}displayblock{% else %}no_display{% endif %}">
 						<span class="shout_display_green">{{ lang('CHOOSE_NEW_YES') }} {{ lang('SHOUT_PRINCIPAL') }}: </span>&ldquo;<strong><span id="sound_new">{{ USER_SOUND_INFO }}</span></strong>&rdquo;
 					</div>
@@ -95,7 +95,7 @@
 							<dt><label for="dateformat">{{ lang('BOARD_DATE_FORMAT') }}:</label><br/><span>{{ lang('BOARD_DATE_FORMAT_EXPLAIN') }}</span></dt>
 							<dd id="custom_date"></dd>
 							<dd class="second">
-								<select id="dateoptions" name="dateoptions" onchange="configs.changeDateFormat(this.options[this.selectedIndex].value);configs.playSoundUser('1');">{{ S_DATEFORMAT_OPTIONS }}</select>
+								<select id="dateoptions" name="dateoptions" onchange="configs.changeDateFormat(this.options[this.selectedIndex].value);">{{ S_DATEFORMAT_OPTIONS }}</select>
 								<input type="text" name="dateformat" id="dateformat" value="{{ DATE_FORMAT }}" onblur="configs.changeDateFormat(this.value)" onkeyup="configs.changeDateFormat(this.value)" maxlength="30" class="inputbox narrow" style="margin-top:3px;width:auto;">
 								<br/><span id="datexemple">{{ DATE_FORMAT_EX }}</span><br/><span id="datexemple2">{{ DATE_FORMAT_EX2 }}</span>
 							</dd>
@@ -146,7 +146,7 @@
 						<dl class="shout_dl_bloc">
 							<dt class="large"><label for="pos_index">{{ lang('SHOUT_POSITION_INDEX') }}:</label><br/>{{ lang('SHOUT_POSITION_INDEX_EXPLAIN') }}</dt>
 							<dd class="no_border large">
-								<select id="position_index" name="position_index" title="" onchange="configs.updatePos(this.id,this.options[selectedIndex].title,this.options[selectedIndex].value);configs.playSoundUser('1');">
+								<select id="position_index" name="position_index" title="" onchange="configs.updatePos(this.id,this.options[selectedIndex].title);">
 									{{ SELECT_ON_INDEX }}
 								</select>
 							</dd>
@@ -154,7 +154,7 @@
 						<dl class="shout_dl_bloc">
 							<dt class="large"><label for="pos_forum">{{ lang('SHOUT_POSITION_FORUM') }}:</label><br/>{{ lang('SHOUT_POSITION_FORUM_EXPLAIN') }}</dt>
 							<dd class="no_border large">
-								<select id="position_forum" name="position_forum" title="" onchange="configs.updatePos(this.id,this.options[selectedIndex].title,this.options[selectedIndex].value);configs.playSoundUser('1');">
+								<select id="position_forum" name="position_forum" title="" onchange="configs.updatePos(this.id,this.options[selectedIndex].title);">
 									{{ SELECT_ON_FORUM }}
 								</select>
 							</dd>
@@ -162,7 +162,7 @@
 						<dl class="shout_dl_bloc">
 							<dt class="large"><label for="pos_topic">{{ lang('SHOUT_POSITION_TOPIC') }}:</label><br/>{{ lang('SHOUT_POSITION_TOPIC_EXPLAIN') }}</dt>
 							<dd class="no_border large">
-								<select id="position_topic" name="position_topic" title="" onchange="configs.updatePos(this.id,this.options[selectedIndex].title,this.options[selectedIndex].value);configs.playSoundUser('1');">
+								<select id="position_topic" name="position_topic" title="" onchange="configs.updatePos(this.id,this.options[selectedIndex].title);">
 									{{ SELECT_ON_TOPIC }}
 								</select>
 							</dd>
@@ -184,8 +184,8 @@
 					<hr/>
 					<div class="shout-submit">
 						<input id="onSound" type="hidden" value="0">
-						<input class="button" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" title="{{ lang('SUBMIT') }}" onclick="reloadLocation()">&nbsp;
-						<input class="button" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" title="{{ lang('RESET') }}" onclick="reloadLocation()">&nbsp;
+						<input class="button" type="submit" id="submit" name="submit" value="{{ lang('SUBMIT') }}" title="{{ lang('SUBMIT') }}"{% if not OTHER %} onclick="configs.reloadLocation()"{% endif %}>&nbsp;
+						<input class="button" type="reset" id="reset" name="reset" value="{{ lang('RESET') }}" title="{{ lang('RESET') }}"{% if not OTHER %} onclick="configs.reloadLocation()"{% endif %}>&nbsp;
 						<input class="button" type="submit" id="return" name="return" value="{{ lang('SHOUT_DEF_VAL') }}" title="{{ lang('SHOUT_DEF_VAL_EXPLAIN') }}">
 					</div>
 					<hr/>
@@ -197,15 +197,5 @@
 
 	</div>
 </div>
-
-<script>
-	reloadLocation = function(){
-	{% if USERNAME %}
-		return;
-	{% else %}
-		setTimeout(window.opener.location.reload(true), 2000);
-	{% endif %}
-	}
-</script>
 
 {% INCLUDE 'simple_footer.html' %}
