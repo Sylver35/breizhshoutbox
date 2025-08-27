@@ -722,7 +722,7 @@ class shoutbox
 	}
 
 	/**
-	 * Clean URL whithout sid
+	 * Clean URL
 	 *
 	 * @param string $url
 	 *
@@ -742,7 +742,7 @@ class shoutbox
 		}
 
 		// Remove SID from URL
-		$url = $this->work->remove_sid($url);
+		$url = $this->work->remove_sid((string) $url);
 
 		// Remove index.php without parameters
 		$url = preg_replace('#index\.' . $this->php_ext . '$#', '', $url);
