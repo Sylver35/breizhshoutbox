@@ -263,8 +263,7 @@ class work
 	 */
 	public function remove_sid($url)
 	{
-		$url = preg_replace('#(?:&amp;)?sid=\w{0,128}#', '', $url);
-		$url = str_replace('?&amp;', '?', $url);
+		$url = (string) preg_replace(['#(?:&amp;)?sid=\w{0,128}#', '?&amp;'], ['', '?'], $url);
 		if (substr($url, -1) == '&')
 		{
 			$url = substr_replace($url, '', -1);
@@ -762,7 +761,7 @@ class work
 		{
 			$username_full = get_username_string('no_profile', $id, $username, $colour);
 		}
-		else if ($acp)//$id === $this->user->data['user_id'] || 
+		else if ($acp)
 		{
 			$username_full = get_username_string('full', $id, $username, $colour);
 		}
@@ -884,6 +883,7 @@ class work
 		{
 			if ($error = unlink($rootdir . $file))
 			{
+				unset($error);
 				continue;
 			}
 		}
@@ -928,6 +928,7 @@ class work
 				$errors[] = $error;
 			}
 		}
+		unset($error);
 
 		return $errors;
 	}

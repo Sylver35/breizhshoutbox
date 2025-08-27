@@ -191,7 +191,7 @@ class javascript
 				WHERE user_id = " . (int) $user_id;
 		$this->db->sql_query($sql);
 
-		$erors = $this->work->update_session_file($user_id, $other);
+		$errors = $this->work->update_session_file($user_id, $other);
 		unset($errors);
 		$redirect_url = $this->helper->route('sylver35_breizhshoutbox_configshout') . '?user_id=' . $user_id;
 		meta_refresh(2, $redirect_url);
@@ -384,10 +384,10 @@ class javascript
 			}
 
 			// cache for config sessions time
-			$time = $this->config['session_length'];
+			$time = (int) $this->config['session_length'];
 			if ($this->config['max_autologin_time'])
 			{
-				$time = $this->config['max_autologin_time'] * 86400;
+				$time = (int) $this->config['max_autologin_time'] * 86400;
 			}
 			$this->cache->put($file, $settings_user, $time);
 		}
@@ -536,8 +536,8 @@ class javascript
 			'isMobile'			=> $this->work->return_js_bool($data['is_mobile']),
 			'refresh'			=> $this->work->return_js_bool(strpos($data['dateformat'], '|') !== false),
 			'seeButtons'		=> $this->work->return_js_bool((bool) $this->config['shout_see_buttons']),
-			'buttonsLeft'		=> $this->work->return_js_bool($this->config['shout_see_buttons_left']),
-			'storeErrors'		=> $this->work->return_js_bool($this->config['shout_store_errors']),
+			'buttonsLeft'		=> $this->work->return_js_bool((bool) $this->config['shout_see_buttons_left']),
+			'storeErrors'		=> $this->work->return_js_bool((bool) $this->config['shout_store_errors']),
 			'topBar'			=> $this->work->return_js_bool($data['shout_bar_option' . $data['sort_p']]),
 			'toBottom'			=> $this->work->return_js_bool($data['shout_defil' . $data['sort_p']]),
 			'buttonIp'			=> $this->work->return_js_bool($this->config['shout_see_button_ip']),
