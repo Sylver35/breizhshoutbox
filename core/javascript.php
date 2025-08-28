@@ -409,7 +409,7 @@ class javascript
 		foreach ($list_auth as $key => $value)
 		{
 			$settings_auth .= $key . ':' . $value . ', ';
-			if ($i > 18)
+			if ($i > 16)
 			{
 				$settings_auth .= "\n		";
 				$i = 0;
@@ -421,7 +421,7 @@ class javascript
 		foreach ($list_string as $key => $value)
 		{
 			$settings_string .= $key . ":'" . $value . "', ";
-			if ($j > 9)
+			if ($j > 9 || $key == 'base')
 			{
 				$settings_string .= "\n		";
 				$j = 0;
@@ -434,7 +434,7 @@ class javascript
 		foreach ($list_lang as $key => $value)
 		{
 			$settings_lang .= "'" . $key . "':" . json_encode($value) . ', ';
-			if ($k > 7)
+			if ($k > 6)
 			{
 				$settings_lang .= "\n		";
 				$k = 0;
